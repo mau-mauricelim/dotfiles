@@ -21,6 +21,8 @@ jobs:
         with:
           context: .
           tags: zsh-nvim:latest
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
           outputs: type=docker,dest=/tmp/zsh-nvim.tar
       -
         name: Export WSL install script
@@ -30,4 +32,6 @@ jobs:
         uses: actions/upload-artifact@v3
         with:
           name: wsl-image
-          path: /tmp/{zsh-nvim.tar,install.cmd}
+          path: |
+            /tmp/zsh-nvim.tar
+            /tmp/install.cmd
