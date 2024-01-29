@@ -1,0 +1,49 @@
+# History configuration
+export HISTSIZE=10000
+export HISTFILESIZE=10000
+
+# XDG Base directory configuration
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
+export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
+
+# Set PATH so it includes user's private bin if it exists
+for user_bin in $HOME/{.,.local}/bin; do
+    [ -d $user_bin ] && PATH="$user_bin:$PATH"
+done
+
+# Source the shell dotfiles
+for file in $XDG_CONFIG_HOME/{alias,q}/.[!.]*; do
+    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+done
+unset file
+
+# fzf setup
+if [[ -n "${BASH_VERSION:-}" ]]; then
+    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+elif [[ -n "${ZSH_VERSION:-}" ]]; then
+    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
+fi
+# fzf-git.sh
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh
+if command -v rg >/dev/null; then
+    # Setting fd as the default source for fzf
+    # Now fzf (w/o pipe) will use fd instead of find
+    # Follow symbolic links and don't want it to exclude hidden files
+    export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+    # To apply the command to CTRL-T as well
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
+# Functions for fzf
+if command -v fzf >/dev/null; then
+    if command -v fdfind >/dev/null; then
+    ff () {
+        fd --strip-cwd-prefix --hidden --follow --exclude .git \
+            | fzf --prompt 'All> ' \
+                --header 'CTRL-A: All / CTRL-D: Dir / CTRL-F: File' \
+                --bind 'ctrl-a:change-prompt(All> )+reload(fd --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                --bind 'ctrl-d:change-prompt(Dir> )+reload(fd --type d --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                --bind 'ctrl-f:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)'
+    }
+    fi
+fi

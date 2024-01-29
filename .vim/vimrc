@@ -1,0 +1,62 @@
+" Syntax highlighting
+filetype plugin indent on
+syntax on
+" Show existing tab with 4 spaces width
+set tabstop=4
+" When indenting with '>', use 4 spaces width
+set shiftwidth=4
+" On pressing tab, insert 4 spaces
+set expandtab
+" Cursor line
+set cursorline
+" No wrap
+set nowrap
+" Rectangular selections
+set virtualedit=block
+
+" New split defaults to bottom and right
+set splitbelow splitright
+
+" Set absolute line number
+set nu
+" Set relative line number in insert mode
+autocmd InsertEnter * :set rnu
+autocmd InsertLeave * :set nornu
+
+" Wildmenu
+set wildmenu
+set wildmode=longest:full,full
+
+" Persistent undo
+if has('nvim')
+    " Useful with vim-gitgutter
+    set updatetime=100
+else
+    set undodir=$XDG_DATA_HOME/vim/undo
+    set directory=$XDG_DATA_HOME/vim/swap
+    set backupdir=$XDG_DATA_HOME/vim/backup
+    set viminfo+=n$XDG_DATA_HOME/vim/viminfo
+endif
+set undofile
+set undolevels=100000
+set undoreload=100000
+
+" Vim plug
+" Make sure you use single quotes
+call plug#begin()
+Plug 'navarasu/onedark.nvim'
+Plug 'nvim-tree/nvim-web-devicons'
+Plug 'nvim-tree/nvim-tree.lua', { 'on': 'NvimTreeToggle' }
+Plug 'nvim-lualine/lualine.nvim'
+Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
+Plug 'akinsho/toggleterm.nvim', { 'tag': '*' }
+Plug 'airblade/vim-gitgutter'
+Plug 'preservim/nerdcommenter'
+Plug 'junegunn/fzf'
+Plug 'junegunn/fzf.vim'
+Plug 'nvim-lua/plenary.nvim'
+Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
+call plug#end()
+
+" Remaps
+source $HOME/.vim/remap.vim

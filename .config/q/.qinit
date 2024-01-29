@@ -1,0 +1,10 @@
+# Check if WSL
+if grep -qi microsoft /proc/version; then
+    alias q='~/q/w32/./q.exe'
+else
+    if command -v rlwrap >/dev/null; then
+        alias q="rlwrap -r ~/q/l32/q"
+    else
+        alias q="~/q/l32/q"
+    fi
+fi
