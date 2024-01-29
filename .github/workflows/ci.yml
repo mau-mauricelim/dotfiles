@@ -24,9 +24,8 @@ jobs:
           outputs: type=docker,dest=/tmp/zsh-nvim.tar
       -
         name: Upload WSL image
+        run: cp src/install.cmd /tmp
         uses: actions/upload-artifact@v3
         with:
           name: wsl-image
-          path: |
-            /tmp/zsh-nvim.tar
-            src/install.cmd
+          path: /tmp/{zsh-nvim.tar,install.cmd}
