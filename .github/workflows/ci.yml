@@ -23,8 +23,10 @@ jobs:
           tags: zsh-nvim:latest
           outputs: type=docker,dest=/tmp/zsh-nvim.tar
       -
-        name: Upload WSL image
+        name: Export WSL install script
         run: cp src/install.cmd /tmp
+      -
+        name: Upload WSL image
         uses: actions/upload-artifact@v3
         with:
           name: wsl-image
