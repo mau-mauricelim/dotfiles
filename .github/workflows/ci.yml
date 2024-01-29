@@ -13,11 +13,10 @@ jobs:
         name: Set up Docker Buildx
         uses: docker/setup-buildx-action@v3
       -
-        name: Build, push and export
+        name: Build and export
         uses: docker/build-push-action@v5
         with:
           context: .
-          push: true
           tags: zsh-nvim:latest
           outputs: type=docker,dest=/tmp/zsh-nvim.tar
       -
