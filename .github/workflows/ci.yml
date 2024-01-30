@@ -32,7 +32,9 @@ jobs:
           cache-to: type=gha,mode=max
       -
         name: Save docker image to a tar.gz file using gzip
-        run: docker save maumauricelim/zsh-nvim:latest | gzip > /tmp/zsh-nvim.tar.gz
+        run: |
+          echo $(docker image ls)
+          docker save maumauricelim/zsh-nvim:latest | gzip > /tmp/zsh-nvim.tar.gz
       -
         name: Export WSL install script
         run: cp src/install.cmd /tmp
