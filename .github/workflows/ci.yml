@@ -25,6 +25,7 @@ jobs:
         name: Build and push
         uses: docker/build-push-action@v5
         with:
+          context: .
           push: true
           tags: maumauricelim/zsh-nvim:latest
           cache-from: type=gha
@@ -37,7 +38,7 @@ jobs:
         run: cp src/install.cmd /tmp
       -
         name: Upload WSL image
-        uses: actions/upload-artifact@v3
+        uses: actions/upload-artifact@v4
         with:
           name: wsl-image
           path: |
