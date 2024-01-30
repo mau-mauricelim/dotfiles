@@ -22,20 +22,20 @@ jobs:
           username: ${{ secrets.DOCKERHUB_USERNAME }}
           password: ${{ secrets.DOCKERHUB_TOKEN }}
       -
-        name: Build and push
+        name: Build and load
         uses: docker/build-push-action@v5
         with:
           context: .
           load: true
-          push: true
           tags: maumauricelim/zsh-nvim:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       -
+        name: Upload docker image to registry
+        run: docker image push maumauricelim/zsh-nvim:latest
+      -
         name: Save docker image to a tar.gz file using gzip
-        run: |
-          echo $(docker image ls)
-          docker save maumauricelim/zsh-nvim:latest | gzip > /tmp/zsh-nvim.tar.gz
+        run: docker save maumauricelim/zsh-nvim:latest | gzip > /tmp/zsh-nvim.tar.gz
       -
         name: Export WSL install script
         run: cp src/install.cmd /tmp
