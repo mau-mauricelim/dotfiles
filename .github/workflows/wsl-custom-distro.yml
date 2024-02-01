@@ -5,18 +5,15 @@ on:
     branches:
       - "main"
 
+# Variables in the env map cannot be defined in terms of other variables in the map
 env:
-  DOCKERHUB_USERNAME: ${{ secrets.DOCKERHUB_USERNAME }}
+  DOCKERHUB_USERNAME: maumauricelim
   IMAGE_NAME: Ubuntu-custom
-  IMAGE_NAME_TAG: $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
 
 jobs:
   build:
     runs-on: ubuntu-latest
     steps:
-      -
-        name: Test env
-        run: echo $DOCKERHUB_USERNAME $IMAGE_NAME $IMAGE_NAME_TAG
       -
         name: Checkout
         uses: actions/checkout@v4
@@ -35,16 +32,16 @@ jobs:
         with:
           context: .
           load: true
-          tags: $IMAGE_NAME_TAG
+          tags: $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
       -
         name: Upload docker image to registry
-        run: docker image push $IMAGE_NAME_TAG
+        run: docker image push $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
       -
         name: Export docker container to a tar.gz file using gzip
         run: |
-          docker run -dit --hostname $IMAGE_NAME --name $IMAGE_NAME $IMAGE_NAME_TAG
+          docker run -dit --hostname $IMAGE_NAME --name $IMAGE_NAME $DOCKERHUB_USERNAME/$IMAGE_NAME:latest
           docker export $IMAGE_NAME | gzip > /tmp/$IMAGE_NAME.tar.gz
       -
         name: Export WSL install script
