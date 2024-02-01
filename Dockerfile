@@ -32,7 +32,11 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		useradd --uid $USER_UID --gid $USER_GID -m -N -s /bin/zsh $USERNAME && \
 		mkdir -p /etc/sudoers.d && \
 		echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
-		chmod 0440 /etc/sudoers.d/$USERNAME
+		chmod 0440 /etc/sudoers.d/$USERNAME \
+    # Set default user
+    echo -e "[user]\ndefault="$USERNAME >> /etc/wsl.conf && \
+    # Enable Systemd for WSL2 in Windows 11
+    echo -e "[boot]\nsystemd=true" >> /etc/wsl.conf
 
 # Set default user
 USER $USERNAME
