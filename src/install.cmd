@@ -1,5 +1,5 @@
 @echo off
-@SET distro_name=ubuntu-latest
+@SET distro_name=SET_DISTRO_NAME
 @SET dir=%cd%
 @SET CONFIRM=n
 @echo Importing WSL distribution: [%distro_name%]
