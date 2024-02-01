@@ -24,8 +24,10 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		apt-get -qq install -y --no-install-recommends eza && \
 	# Clean up
 	apt-get -qq autoremove -y && \
-	apt-get -qq clean -y && \
-    rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
+        apt-get -qq clean -y && \
+        rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
+    # Allow WSL to generate a conf based on Windows networking information
+    rm /etc/resolv.conf && \
 	# Create user
 	groupadd --gid $USER_GID $USERNAME && \
 		# Set Zsh as the default shell
@@ -90,7 +92,5 @@ RUN mkdir -p $HOME/.local/bin && \
 		ln -s $XDG_CONFIG_HOME/fzf/rfv $HOME/.local/bin && \
 	# bash and zsh key bindings for Git objects, powered by fzf.
 	curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
-    # Allow WSL to generate a conf based on Windows networking information
-    rm /etc/resolv.conf && \
 	# Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
 	echo exit | script -qec zsh /dev/null >/dev/null
