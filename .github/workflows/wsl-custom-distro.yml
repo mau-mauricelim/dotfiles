@@ -8,7 +8,7 @@ on:
 # Variables in the env map cannot be defined in terms of other variables in the map
 env:
   DOCKERHUB_USERNAME: maumauricelim
-  IMAGE_NAME: Ubuntu-custom
+  IMAGE_NAME: ubuntu-custom
 
 jobs:
   build:
