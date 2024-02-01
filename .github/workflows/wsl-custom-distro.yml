@@ -15,6 +15,9 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       -
+        name: Test env
+        run: echo $DOCKERHUB_USERNAME $IMAGE_NAME $IMAGE_NAME_TAG
+      -
         name: Checkout
         uses: actions/checkout@v4
       -
