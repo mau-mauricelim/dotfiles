@@ -12,7 +12,9 @@ setlocal
 SET /P CONFIRM=Do you want to continue? [Y/n]
 IF /I "%CONFIRM%" NEQ "Y" GOTO END
 
-@powershell -Command "wsl --import %distro_name% '%USERPROFILE%\AppData\Local\Packages' .\zsh-nvim.tar.gz"
+@powershell -Command "if((wsl -l -v | Where {$_.Replace(\"`0\",\"\") -match \" %distro_name% \"}).count -gt 0) {wsl --unregister %distro_name%}"
+@powershell -Command "$InstallLocation='%USERPROFILE%\AppData\Local\Packages\WslCustomDistro\%distro_name%'; if(-not(Test-Path -PathType container $InstallLocation)) {$null = new-item $InstallLocation -ItemType Directory}; wsl --import %distro_name% $InstallLocation $(ls .\*.tar.gz)"
+@REM set default?
 
 :END
 endlocal
