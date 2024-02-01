@@ -90,5 +90,7 @@ RUN mkdir -p $HOME/.local/bin && \
 		ln -s $XDG_CONFIG_HOME/fzf/rfv $HOME/.local/bin && \
 	# bash and zsh key bindings for Git objects, powered by fzf.
 	curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
+    # Allow WSL to generate a conf based on Windows networking information
+    rm /etc/resolv.conf && \
 	# Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
 	echo exit | script -qec zsh /dev/null >/dev/null
