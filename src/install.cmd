@@ -11,7 +11,10 @@ setlocal
 :PROMPT
 SET /P CONFIRM=Do you want to continue? [Y/n] 
 IF /I "%CONFIRM%" NEQ "Y" GOTO END
-@powershell -Command "if((wsl -l -v | Where {$_.Replace(\"`0\",\"\") -match \" %distro_name% \"}).count -gt 0) {wsl --unregister %distro_name%}; $InstallLocation='%USERPROFILE%\AppData\Local\Packages\WslCustomDistro\%distro_name%'; if(-not(Test-Path -PathType container $InstallLocation)) {$null = new-item $InstallLocation -ItemType Directory}; wsl --import %distro_name% $InstallLocation $(ls .\*.tar.gz)"
+@SET WslCustomDistro=%USERPROFILE%\AppData\Local\Packages\WslCustomDistro
+@powershell -Command "if((wsl -l -v | Where {$_.Replace(\"`0\",\"\") -match \" %distro_name% \"}).count -gt 0) {wsl --unregister %distro_name%}; $InstallLocation='%WslCustomDistro%\%distro_name%'; if(-not(Test-Path -PathType container $InstallLocation)) {$null = new-item $InstallLocation -ItemType Directory}; echo \"Installing to $InstallLocation\";wsl --import %distro_name% $InstallLocation $(ls .\*.tar.gz)"
+@REM Clean up WslCustomDistro path
+@powershell -Command "gci '%WslCustomDistro%' -directory -recurse | Where { (gci $_.fullName).count -eq 0 } | select -expandproperty FullName | Foreach-Object { Remove-Item $_ }"
 
 @echo(
 @SET CONFIRM=n
