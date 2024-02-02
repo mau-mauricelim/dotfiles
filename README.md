@@ -1,5 +1,23 @@
 # ✨ dotfiles
 
+## 🐱 GitHub Actions
+
+### Automating the workflow of [🐳 Docker](#-docker-integration) + [🐧 WSL](#-wsl-integration)
+
+Workflow [wsl-custom-distro.yml](.github%2Fworkflows%2Fwsl-custom-distro.yml)
+
+1. Builds the docker image from [Dockerfile](Dockerfile) and pushes it to Docker Hub
+2. Runs and export the docker container to a compressed tar.gz archive file
+3. Bundles the WSL install script with the installation archive file into an artifact for download
+
+#### Install custom distribution to use with WSL
+
+1. Select the "Actions" tab at the top
+2. Select the workflow [wsl-custom-distro](https://github.com/mau-mauricelim/dotfiles/actions/workflows/wsl-custom-distro.yml)
+3. Select the latest successful ✅ workflow runs
+4. Under "Artifacts", click on "wsl-custom-distro" to download the artifact
+5. Unzip the directory and run [install.cmd](src%2Finstall.cmd)
+
 ## 🐳 Docker integration
 
 ### [Build an image from a Dockerfile](https://docs.docker.com/engine/reference/commandline/build/)
@@ -58,4 +76,18 @@ wsl --unmount <DiskPath>
 ### [Unregister or uninstall a Linux distribution](https://learn.microsoft.com/en-us/windows/wsl/basic-commands?source=recommendations#unregister-or-uninstall-a-linux-distribution)
 `wsl --unregister <DistroName>`
 
-## 🐱 GitHub Actions
+### [Install a Nerd 🤓 Font](https://learn.microsoft.com/en-us/windows/terminal/tutorials/custom-prompt-setup#install-a-nerd-font)
+Downloads for recommended fonts:
+- [Meslo](https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip)
+- [JetBrains Mono](https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip)
+
+Installation:
+1. Unzip the directory
+2. Select all the fonts
+3. Right-click and "Install all"
+
+Usage:
+1. Open up Settings in Windows Terminal `ctrl+,`
+2. Select the Profile(s) that you want to apply the font
+3. Scroll down to "Additional Settings" and click "Appearance"
+4. Change "Font face" and hit "Save"
