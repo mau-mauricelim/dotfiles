@@ -9,8 +9,6 @@ ARG HOME=/home/$USERNAME
 
 SHELL ["/bin/bash", "-c"]
 
-COPY src/wsl.conf /etc
-
 # Unminimize ubuntu before installing packages
 RUN yes | unminimize >/dev/null 2>&1 && \
 	# Install required packages
@@ -36,7 +34,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
 		chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL
-    sed -i "s/SET_USERNAME/$USERNAME/g" /etc/wsl.conf
+    echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf
 
 # Set default user
 USER $USERNAME
