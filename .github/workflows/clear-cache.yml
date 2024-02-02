@@ -5,11 +5,12 @@ on:
 jobs:
   cleanup:
     runs-on: ubuntu-latest
-    steps:      
-      - name: Cleanup
+    steps:
+      -
+        name: Checkout
+        uses: actions/checkout@v4
+      -
+        name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
           gh cache delete --all
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          REPO: ${{ github.repository }}
