@@ -1,5 +1,13 @@
 # ✨ dotfiles
 
+## Install custom distribution to use with WSL
+
+1. Select the "Actions" tab at the top
+2. Select the workflow [Build WSL distro](https://github.com/mau-mauricelim/dotfiles/actions/workflows/wsl-custom-distro.yml)
+3. Select the latest successful ✅ workflow runs
+4. Under "Artifacts", click on "wsl-custom-distro" to download the artifact
+5. Unzip the directory and run [install.cmd](src%2Finstall.cmd)
+
 ## 🐱 GitHub Actions
 
 ### Automating the workflow of [🐳 Docker](#-docker-integration) + [🐧 WSL](#-wsl-integration)
@@ -9,14 +17,6 @@ Workflow [wsl-custom-distro.yml](.github%2Fworkflows%2Fwsl-custom-distro.yml)
 1. Builds the docker image from [Dockerfile](Dockerfile) and pushes it to Docker Hub
 2. Runs and export the docker container to a compressed tar.gz archive file
 3. Bundles the WSL install script with the installation archive file into an artifact for download
-
-#### Install custom distribution to use with WSL
-
-1. Select the "Actions" tab at the top
-2. Select the workflow [wsl-custom-distro](https://github.com/mau-mauricelim/dotfiles/actions/workflows/wsl-custom-distro.yml)
-3. Select the latest successful ✅ workflow runs
-4. Under "Artifacts", click on "wsl-custom-distro" to download the artifact
-5. Unzip the directory and run [install.cmd](src%2Finstall.cmd)
 
 ## 🐳 Docker integration
 

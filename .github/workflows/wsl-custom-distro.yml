@@ -1,4 +1,4 @@
-name: wsl-custom-distro
+name: Build WSL distro
 
 on:
   push:
