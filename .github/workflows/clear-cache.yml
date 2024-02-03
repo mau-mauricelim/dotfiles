@@ -1,6 +1,10 @@
 name: Clear all cache
+
 on:
   workflow_dispatch:
+
+env:
+  GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
 
 jobs:
   cleanup:
@@ -13,6 +17,4 @@ jobs:
         name: Cleanup
         run: |
           gh extension install actions/gh-actions-cache
-          gh cache delete --all
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+          [ -z "$(gh cache list)" ] || gh cache delete --all
