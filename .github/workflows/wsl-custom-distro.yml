@@ -1,9 +1,7 @@
 name: Build WSL distro
 
 on:
-  push:
-    branches:
-      - "main"
+  workflow_dispatch:
 
 # Variables in the env map cannot be defined in terms of other variables in the map
 env:
