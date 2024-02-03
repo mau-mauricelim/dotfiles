@@ -1,5 +1,4 @@
 FROM ubuntu:22.04
-ENV LANG=C.UTF-8 LC_ALL=C.UTF-8 TERM=xterm-256color
 
 # ARG should be after FROM
 ARG USERNAME=maurice
@@ -11,10 +10,15 @@ SHELL ["/bin/bash", "-c"]
 
 # Unminimize ubuntu before installing packages
 RUN yes | unminimize >/dev/null 2>&1 && \
+    # Python will be reinstalled with PyPy
+    apt-get -qq purge -y $(dpkg -l | grep ^ii | awk '{print $2}' | grep python) && \
+    for file in /usr/bin/python*; do apt-get -qq purge -y $(basename $file); done && \
 	# Install required packages
     apt-get -qq update && \
 	    apt-get -qq install -y --no-install-recommends \
-		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man && \
+		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less locales && \
+    # Set the locale
+    sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
 	# Install eza
 	mkdir -p /etc/apt/keyrings && \
 		curl -s https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
@@ -35,6 +39,8 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL
     echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf
+
+ENV LANG=C.UTF-8 LANGUAGE=C.UTF-8 LC_ALL=C.UTF-8 TERM=xterm-256color
 
 # Set default user
 USER $USERNAME
@@ -62,6 +68,12 @@ RUN mkdir -p $HOME/.local/bin && \
 	curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME && \
 		mv $HOME/nvim-linux64 $HOME/.nvim-linux64 && \
 		ln -s $HOME/.nvim-linux64/bin/nvim $HOME/.local/bin && \
+    # Install PyPy - latest stable release from Tarball
+    mkdir $HOME/.pypy-linux64 && \
+        # URL needs manual update
+        curl -s https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2 \
+            | tar xj -C $HOME/.pypy-linux64 --strip-components 1 && \
+        ln -s $(find $HOME/.pypy-linux64/bin -type l) $HOME/.local/bin && \
 	# Install vim-plug for Vim and Neovim
 	curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
