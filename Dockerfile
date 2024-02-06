@@ -1,4 +1,8 @@
 FROM ubuntu:22.04
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    TERM=xterm-256color
 
 # ARG should be after FROM
 ARG USERNAME=maurice
@@ -40,11 +44,6 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL
     echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf
-
-ENV LANG=C.UTF-8 \
-    LANGUAGE=C.UTF-8 \
-    LC_ALL=C.UTF-8 \
-    TERM=xterm-256color
 
 # Set default user
 USER $USERNAME
