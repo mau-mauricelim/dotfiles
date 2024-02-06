@@ -7,6 +7,14 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 
+# Set system locale
+export LANG=C.UTF-8
+export LANGUAGE=C.UTF-8
+export LC_ALL=C.UTF-8
+
+# Enable 256 colors with xterm
+export TERM=xterm-256color
+
 # Set PATH so it includes user's private bin if it exists
 for user_bin in $HOME/{.,.local}/bin; do
     [ -d $user_bin ] && PATH="$user_bin:$PATH"
