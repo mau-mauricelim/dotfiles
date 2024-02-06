@@ -17,7 +17,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 	# Install required packages
     apt-get -qq update && \
 	    apt-get -qq install -y --no-install-recommends \
-		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less locales && \
+		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less && \
     # Install PyPy to replace Python - latest stable release from Tarball
     mkdir /usr/.pypy-linux64 && \
         # URL needs manual update
