@@ -1,4 +1,8 @@
 FROM ubuntu:22.04
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    TERM=xterm-256color
 
 # ARG should be after FROM
 ARG USERNAME=maurice
@@ -10,15 +14,10 @@ SHELL ["/bin/bash", "-c"]
 
 # Unminimize ubuntu before installing packages
 RUN yes | unminimize >/dev/null 2>&1 && \
-    # Python will be reinstalled with PyPy
-    apt-get -qq purge -y $(dpkg -l | grep ^ii | awk '{print $2}' | grep python) && \
-    for file in /usr/bin/python*; do apt-get -qq purge -y $(basename $file); done && \
 	# Install required packages
     apt-get -qq update && \
 	    apt-get -qq install -y --no-install-recommends \
 		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less locales && \
-    # Set the locale
-    sed -i '/en_US.UTF-8/s/^# //g' /etc/locale.gen && locale-gen && \
 	# Install eza
 	mkdir -p /etc/apt/keyrings && \
 		curl -s https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
@@ -39,8 +38,6 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL
     echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf
-
-ENV LANG=C.UTF-8 LANGUAGE=C.UTF-8 LC_ALL=C.UTF-8 TERM=xterm-256color
 
 # Set default user
 USER $USERNAME
