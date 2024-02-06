@@ -18,6 +18,12 @@ RUN yes | unminimize >/dev/null 2>&1 && \
     apt-get -qq update && \
 	    apt-get -qq install -y --no-install-recommends \
 		    sudo zsh ripgrep fd-find build-essential rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less locales && \
+    # Install PyPy to replace Python - latest stable release from Tarball
+    mkdir /usr/.pypy-linux64 && \
+        # URL needs manual update
+        curl -s https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2 \
+            | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
+        ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
 	# Install eza
 	mkdir -p /etc/apt/keyrings && \
 		curl -s https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
@@ -65,12 +71,6 @@ RUN mkdir -p $HOME/.local/bin && \
 	curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME && \
 		mv $HOME/nvim-linux64 $HOME/.nvim-linux64 && \
 		ln -s $HOME/.nvim-linux64/bin/nvim $HOME/.local/bin && \
-    # Install PyPy - latest stable release from Tarball
-    mkdir $HOME/.pypy-linux64 && \
-        # URL needs manual update
-        curl -s https://downloads.python.org/pypy/pypy3.10-v7.3.15-linux64.tar.bz2 \
-            | tar xj -C $HOME/.pypy-linux64 --strip-components 1 && \
-        ln -s $(find $HOME/.pypy-linux64/bin -type l) $HOME/.local/bin && \
 	# Install vim-plug for Vim and Neovim
 	curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
 		https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
