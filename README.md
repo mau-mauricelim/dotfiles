@@ -76,7 +76,7 @@ wsl --unmount <DiskPath>
 ### [Unregister or uninstall a Linux distribution](https://learn.microsoft.com/en-us/windows/wsl/basic-commands?source=recommendations#unregister-or-uninstall-a-linux-distribution)
 `wsl --unregister <DistroName>`
 
-### [Install a Nerd 🤓 Font](https://learn.microsoft.com/en-us/windows/terminal/tutorials/custom-prompt-setup#install-a-nerd-font)
+### [Install a 🤓 Nerd Font](https://learn.microsoft.com/en-us/windows/terminal/tutorials/custom-prompt-setup#install-a-nerd-font)
 Downloads for recommended fonts:
 - [Meslo](https://github.com/ryanoasis/nerd-fonts/releases/latest/download/Meslo.zip)
 - [JetBrains Mono](https://github.com/ryanoasis/nerd-fonts/releases/latest/download/JetBrainsMono.zip)
