@@ -17,7 +17,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 	# Install required packages
     apt-get -qq update && \
 	    apt-get -qq install -y --no-install-recommends \
-		    sudo zsh ripgrep fd-find tar bzip2 rlwrap bat zoxide curl gpg ca-certificates git vim openssh-client man less && \
+		    sudo zsh ripgrep fd-find tar bzip2 rlwrap bat zoxide curl gpg ca-certificates git vim man less && \
     # Install PyPy to replace Python - latest stable release from Tarball
     mkdir /usr/.pypy-linux64 && \
         # URL needs manual update
@@ -32,7 +32,8 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 		apt-get -qq update && \
 		apt-get -qq install -y --no-install-recommends eza && \
 	# Clean up
-	apt-get -qq autoremove -y && \
+    apt-get -qq remove gpg ca-certificates && \
+	    apt-get -qq autoremove -y && \
         apt-get -qq clean -y && \
         rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
 	# Create user
