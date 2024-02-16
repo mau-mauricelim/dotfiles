@@ -11,6 +11,9 @@ then
 else
     alias ls="ls -F --group-directories-first"
 fi
+
+alias ...="cd ../.."
+alias ....="cd ../../.."
 alias ll="ls -l"
 alias lla="ls -lA"
 alias la="ls -A"
@@ -35,4 +38,3 @@ alias less="less -R --incsearch --use-color"
 cdw () {
     cd "`wslpath "$1"`"
 }
-
