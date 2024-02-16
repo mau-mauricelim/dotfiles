@@ -12,12 +12,8 @@ prompt adam1
 
 setopt histignorealldups sharehistory autocd
 
-# Use emacs keybindings even if our EDITOR is set to vi
-bindkey -e
-
-# Arrow key bindings
-bindkey ";5C" forward-word
-bindkey ";5D" backward-word
+# Global key bindings mainly for consistency with /etc/inputrc
+[ -f $ZDOTDIR/bindkey.zsh ] && source $ZDOTDIR/bindkey.zsh
 
 # Enabling the Zsh Completion System
 [ -f $ZDOTDIR/completion.zsh ] && source $ZDOTDIR/completion.zsh
