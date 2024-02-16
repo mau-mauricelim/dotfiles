@@ -55,5 +55,3 @@ function () {
 		bindkey -M vicmd ${terminfo[$kcap]:-$seq} $widget
 	done
 }
-
-# vim: set ts=4 sw=4:

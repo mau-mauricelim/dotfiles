@@ -12,6 +12,9 @@ prompt adam1
 
 setopt histignorealldups sharehistory autocd
 
+# Characters part of a word. Default is "*?_-.[]~=/&;!#$%^(){}<>"
+WORDCHARS="_-.[]~/;!#%^(){}<>"
+
 # Global key bindings mainly for consistency with /etc/inputrc
 [ -f $ZDOTDIR/bindkey.zsh ] && source $ZDOTDIR/bindkey.zsh
 
