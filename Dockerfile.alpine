@@ -87,4 +87,6 @@ RUN mkdir -p $HOME/.local/bin && \
 	# Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
 	echo exit | script -qec zsh /dev/null >/dev/null && \
     # Clean up
-    sudo apk del util-linux-misc
+    sudo apk del util-linux-misc && \
+    # ISSUE: WSL interoperability with Apline. /etc/profile overwrites the PATH variable in .zshenv
+    sed -i "s/^export PATH/#export PATH/" /etc/profile
