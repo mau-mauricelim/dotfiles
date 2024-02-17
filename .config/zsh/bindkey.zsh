@@ -4,6 +4,11 @@
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
 
+# Kill line: bindkey | grep kill
+# same as bash
+bindkey '^U' backward-kill-line
+bindkey '^U^U' kill-whole-line
+
 # Load widgets that are not loaded by default.
 autoload -U up-line-or-beginning-search
 zle -N up-line-or-beginning-search
