@@ -41,22 +41,17 @@ set undofile
 set undolevels=100000
 set undoreload=100000
 
+" Vimscript function needs to start with a capital letter
+" Function to source file if it exists
+function! SourceIfExists(file)
+    " Prefix arguments with a vimscript function with `a:` to indicate argument scope
+    if filereadable(expand(a:file))
+        exe 'source' a:file
+    endif
+endfunction
+
 " Vim plug
-" Make sure you use single quotes
-call plug#begin()
-Plug 'navarasu/onedark.nvim'
-Plug 'nvim-tree/nvim-web-devicons'
-Plug 'nvim-tree/nvim-tree.lua', { 'on': 'NvimTreeToggle' }
-Plug 'nvim-lualine/lualine.nvim'
-Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
-Plug 'akinsho/toggleterm.nvim', { 'tag': '*' }
-Plug 'airblade/vim-gitgutter'
-Plug 'preservim/nerdcommenter'
-Plug 'junegunn/fzf'
-Plug 'junegunn/fzf.vim'
-Plug 'nvim-lua/plenary.nvim'
-Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
-call plug#end()
+call SourceIfExists("$HOME/.vim/vim-plug.vim")
 
 " Remaps
-source $HOME/.vim/remap.vim
+call SourceIfExists("$HOME/.vim/remap.vim")
