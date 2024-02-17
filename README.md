@@ -3,7 +3,7 @@
 ## Install custom distribution to use with WSL
 
 1. Select the `Actions` tab at the top
-2. Select one of the `Build WSL <Distro>` workflow
+2. Select one of the `Build WSL <Distro> custom` workflow
 3. Select the latest successful ✅ workflow runs
    - If there is none, manually `Run workflow`
 4. Under `Artifacts`, select and download the artifact
@@ -15,7 +15,7 @@
 
 Build WSL custom distribution workflow
 
-1. Builds the docker image from [Dockerfile](Dockerfile) and pushes it to Docker Hub
+1. Builds the docker image from example [Dockerfile](Dockerfile) and pushes it to Docker Hub
 2. Runs and export the docker container to a compressed tar.gz archive file
 3. Bundles the WSL install script with the installation archive file into an artifact for download
 
