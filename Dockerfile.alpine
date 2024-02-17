@@ -22,7 +22,7 @@ RUN apk -q --no-progress --no-cache add sudo zsh coreutils ripgrep fd tar bzip2 
         # util-linux-misc is for script
         python3 eza neovim bash util-linux-misc \
         # Entry in man
-        sudo-doc coreutils-doc ripgrep-doc fd-doc tar-doc bat-doc curl-doc git-doc less-doc && \
+        sudo-doc coreutils-doc ripgrep-doc fd-doc tar-doc bat-doc curl-doc git-doc less-doc neovim-doc && \
     # Create user
 	addgroup --gid $USER_GID $USERNAME && \
 		# Set Zsh as the default shell
