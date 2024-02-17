@@ -31,7 +31,9 @@ RUN apk -q --no-progress --no-cache add sudo zsh coreutils ripgrep fd tar bzip2 
 		echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
 		chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL
-    echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf 
+    echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf && \
+    # ISSUE: WSL interoperability with Apline. /etc/profile overwrites the PATH variable in .zshenv
+    sed -i "s/^export PATH/#export PATH/" /etc/profile
 
 # Set default user
 USER $USERNAME
@@ -87,6 +89,4 @@ RUN mkdir -p $HOME/.local/bin && \
 	# Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
 	echo exit | script -qec zsh /dev/null >/dev/null && \
     # Clean up
-    sudo apk del util-linux-misc && \
-    # ISSUE: WSL interoperability with Apline. /etc/profile overwrites the PATH variable in .zshenv
-    sed -i "s/^export PATH/#export PATH/" /etc/profile
+    sudo apk del util-linux-misc
