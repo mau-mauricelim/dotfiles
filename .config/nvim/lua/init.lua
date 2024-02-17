@@ -25,3 +25,6 @@ require('user/toggleterm')
 
 -- telescope.nvim
 require('user/telescope')
+
+-- noice.nvim
+require('user/noice')
