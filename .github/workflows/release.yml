@@ -6,20 +6,23 @@ on:
       - "*"
 
 jobs:
-  release:
-    strategy:
-      matrix:
-        include:
-          - artifact_name: wsl-alpine-custom
-            asset_name: wsl-alpine-custom
-          - artifact_name: wsl-ubuntu-custom
-            asset_name: wsl-ubuntu-custom
+  download:
     runs-on: ubuntu-latest
     steps:
-      - name: Upload artifacts to release
+      - name: Download all Artifacts
+        uses: actions/download-artifact@v4
+        with:
+          name: | 
+            wsl-alpine-custom
+            wsl-ubuntu-custom
+          github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Upload Artifacts to Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: target/release/${{ matrix.artifact_name }}
-          asset_name: ${{ matrix.asset_name }}
+          file: wsl-*-custom
+          asset_name: wsl-distro-custom
           tag: ${{ github.ref }}
