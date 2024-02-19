@@ -11,7 +11,7 @@ jobs:
   build:
     strategy:
       matrix:
-        IMAGE_NAME: [ ubuntu-latest, alpine-custom ]
+        IMAGE_NAME: [ ubuntu-custom, alpine-custom ]
     runs-on: ubuntu-latest
     steps:
       - name: Checkout
