@@ -1,0 +1,27 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    tags:
+      - "*"
+
+jobs:
+  release:
+    strategy:
+      matrix:
+        include:
+          - artifact_name: wsl-alpine-custom
+            asset_name: wsl-alpine-custom
+          - artifact_name: wsl-ubuntu-custom
+            asset_name: wsl-ubuntu-custom
+  build:
+    name: Upload artifacts to release
+    uses: svenstaro/upload-release-action@v2
+      with:
+        repo_token: ${{ secrets.GITHUB_TOKEN }}
+        file: target/release/${{ matrix.artifact_name }}
+        asset_name: ${{ matrix.asset_name }}
+        tag: ${{ github.ref }}
+        overwrite: true
+        body: "Testing pre-release build"
+        prerelease: true
