@@ -11,8 +11,10 @@ jobs:
   build:
     strategy:
       matrix:
-        IMAGE_NAME: [ ubuntu-custom, alpine-custom ]
+        BASE_IMAGE: [ ubuntu, alpine ]
     runs-on: ubuntu-latest
+    env:
+        IMAGE_NAME: ${{ matrix.BASE_IMAGE }}-custom
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -28,21 +30,22 @@ jobs:
         with:
           context: .
           load: true
-          tags: ${{ env.DOCKERHUB_USERNAME }}/${{ matrix.IMAGE_NAME }}:latest
+          tags: ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           cache-from: type=gha
           cache-to: type=gha,mode=max
+          file: Dockerfile.${{ matrix.BASE_IMAGE }}
       - name: Upload docker image to registry
-        run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ matrix.IMAGE_NAME }}:latest
+        run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
       - name: Export docker container to a tar.gz file using gzip
         run: |
-          docker run -dit --hostname ${{ matrix.IMAGE_NAME }} --name ${{ matrix.IMAGE_NAME }} ${{ env.DOCKERHUB_USERNAME }}/${{ matrix.IMAGE_NAME }}:latest
-          docker export ${{ matrix.IMAGE_NAME }} | gzip > /tmp/${{ matrix.IMAGE_NAME }}.tar.gz
+          docker run -dit --hostname ${{ env.IMAGE_NAME }} --name ${{ env.IMAGE_NAME }} ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
+          docker export ${{ env.IMAGE_NAME }} | gzip > /tmp/${{ env.IMAGE_NAME }}.tar.gz
       - name: Export WSL install script
-        run: sed "s/SET_DISTRO_NAME/${{ matrix.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
+        run: sed "s/SET_DISTRO_NAME/${{ env.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
       - name: Upload WSL image
         uses: actions/upload-artifact@v4
         with:
-          name: wsl-${{ matrix.IMAGE_NAME }}
+          name: wsl-${{ env.IMAGE_NAME }}
           path: |
-            /tmp/${{ matrix.IMAGE_NAME }}.tar.gz
+            /tmp/${{ env.IMAGE_NAME }}.tar.gz
             /tmp/install.cmd
