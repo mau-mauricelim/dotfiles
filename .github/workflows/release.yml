@@ -7,9 +7,9 @@ jobs:
   release:
     runs-on: ubuntu-latest
     steps:
-      - uses: actions/download-artifact@v4
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download all workflow run Artifacts
+        uses: dawidd6/action-download-artifact@v3
         with:
-          name: my-other-artifact
-          github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
-          repository: actions/toolkit
-          run-id: 1234
+          workflow: wsl-distro-custom.yml
