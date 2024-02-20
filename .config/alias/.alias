@@ -2,8 +2,6 @@ if command -v nvim >/dev/null; then
     alias vi="nvim"
 fi
 
-alias cl="clear"
-
 if command -v eza &> /dev/null;
 then
     alias ls="eza -F --group-directories-first"
@@ -11,6 +9,14 @@ then
 else
     alias ls="ls -F --group-directories-first"
 fi
+
+if command -v z &> /dev/null;
+then
+    alias cd="z"
+    alias cdi="zi"
+fi
+
+alias cl="clear"
 
 alias ...="cd ../.."
 alias ....="cd ../../.."
