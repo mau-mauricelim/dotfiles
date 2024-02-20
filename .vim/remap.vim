@@ -25,6 +25,10 @@ nnoremap <Leader>da ggdGi
 " Search and replace the word under the cursor
 nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 
+" Copy File Name/Path to unamed register - p to paste
+nnoremap <Leader>cf <cmd>let @" = expand("%")<CR>
+nnoremap <Leader>cp <cmd>let @" = expand("%:p")<CR>
+
 " NERDCommenter
 " Ctrl+/
 map <C-_> <plug>NERDCommenterToggle

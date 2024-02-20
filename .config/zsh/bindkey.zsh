@@ -9,6 +9,10 @@ bindkey -e
 bindkey '^U' backward-kill-line
 bindkey '^U^U' kill-whole-line
 
+# Arrow key bindings
+bindkey ";5C" forward-word
+bindkey ";5D" backward-word
+
 # Load widgets that are not loaded by default.
 autoload -U up-line-or-beginning-search
 zle -N up-line-or-beginning-search
