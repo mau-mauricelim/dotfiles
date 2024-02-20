@@ -13,7 +13,7 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: wsl-distro-custom.yml
-        run: ls -lR
+      - run: ls -lR
       - name: Upload Artifacts to Release
         uses: svenstaro/upload-release-action@v2
         with:
