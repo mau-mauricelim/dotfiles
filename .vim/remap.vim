@@ -16,12 +16,12 @@ nnoremap <C-d> <C-d>zz
 " Remap C-c to Esc
 inoremap <C-c> <Esc>
 " Visual block mode - suppress the default <C-c>/<C-v> mapping specifically for WSL
-nnoremap <leader>v <C-v>
+nnoremap <Leader>v <C-v>
 
 " Delete to end of line and insert
-nnoremap <leader>dd ^d$a
+nnoremap <Leader>dd ^d$a
 " Delete all lines and insert
-nnoremap <leader>da ggdGi
+nnoremap <Leader>da ggdGi
 " Search and replace the word under the cursor
 nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 
