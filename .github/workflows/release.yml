@@ -1,9 +1,7 @@
 name: Release
 
 on: 
-  push:
-    tags:
-    - '*'
+  workflow_dispatch:
 
 jobs:
   release:
@@ -15,7 +13,11 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: wsl-distro-custom.yml
-      - name: Release
-        uses: ncipollo/release-action@v1
+      - name: Upload Artifacts to Release
+        uses: svenstaro/upload-release-action@v2
         with:
-          artifacts: "wsl-*-custom.zip"
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: ./wsl-*-custom.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true
