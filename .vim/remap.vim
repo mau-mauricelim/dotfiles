@@ -17,6 +17,8 @@ nnoremap <C-d> <C-d>zz
 inoremap <C-c> <Esc>
 " Visual block mode - suppress the default <C-c>/<C-v> mapping specifically for WSL
 nnoremap <Leader>v <C-v>
+" Toggle virtualedit mode between onemore and all
+nnoremap <Leader>ve <cmd>call ToggleVirtualedit()<CR>
 
 " Delete to end of line and insert
 nnoremap <Leader>dd ^d$a
