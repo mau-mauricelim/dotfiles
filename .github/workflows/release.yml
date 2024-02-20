@@ -13,12 +13,14 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           workflow: wsl-distro-custom.yml
+          skip_unpack: true
+          path: target/release
       - run: ls -lR
       - name: Upload Artifacts to Release
         uses: svenstaro/upload-release-action@v2
         with:
           repo_token: ${{ secrets.GITHUB_TOKEN }}
-          file: ./wsl-*-custom.zip
+          file: target/release/wsl-*-custom.zip
           tag: ${{ github.ref }}
           overwrite: true
           file_glob: true
