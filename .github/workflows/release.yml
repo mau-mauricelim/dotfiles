@@ -12,5 +12,5 @@ jobs:
       - name: Download all workflow run Artifacts
         uses: actions/download-artifact@v4
         with:
-          path: my-artifact
-      - run: ls -R my-artifact
+          name: wsl-alpine-custom
+      - run: ls -R wsl-alpine-custom
