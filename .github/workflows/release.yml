@@ -12,4 +12,5 @@ jobs:
       - name: Download all workflow run Artifacts
         uses: actions/download-artifact@v4
         with:
+          name: wsl-alpine-custom
           github-token: ${{ secrets.GH_PAT }} # token with actions:read permissions on target repo
