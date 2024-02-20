@@ -2,8 +2,7 @@ if command -v nvim >/dev/null; then
     alias vi="nvim"
 fi
 
-if command -v eza &> /dev/null;
-then
+if command -v eza &> /dev/null; then
     alias ls="eza -F --group-directories-first"
     alias tree="eza --tree"
 else
