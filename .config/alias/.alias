@@ -10,8 +10,7 @@ else
     alias ls="ls -F --group-directories-first"
 fi
 
-if command -v z &> /dev/null;
-then
+if [ -f /usr/bin/zoxide ]; then
     alias cd="z"
     if command -v fzf >/dev/null; then
         alias cdi="zi"
