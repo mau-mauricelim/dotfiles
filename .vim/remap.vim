@@ -13,6 +13,9 @@ nnoremap <PageDown> <PageDown>zz
 nnoremap <C-u> <C-u>zz
 nnoremap <C-d> <C-d>zz
 
+" Auto pair brackets/quotes when typing - skip over closing character
+inoremap <expr> ( AutoPair("(", ")")
+
 " Remap C-c to Esc
 inoremap <C-c> <Esc>
 " Visual block mode - suppress the default <C-c>/<C-v> mapping specifically for WSL

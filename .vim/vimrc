@@ -13,15 +13,6 @@ set cursorline
 set nowrap
 " Allow the cursor to move just past the end of the line
 set virtualedit=onemore
-function ToggleVirtualedit()
-    if &virtualedit == "onemore"
-        echo "virtualedit=all"
-        set virtualedit=all
-    else
-        echo "virtualedit=onemore"
-        set virtualedit=onemore
-    endif
-endfunction
 
 " New split defaults to bottom and right
 set splitbelow splitright
@@ -50,14 +41,8 @@ set undofile
 set undolevels=100000
 set undoreload=100000
 
-" Vimscript function needs to start with a capital letter
-" Function to source file if it exists
-function! SourceIfExists(file)
-    " Prefix arguments with a vimscript function with `a:` to indicate argument scope
-    if filereadable(expand(a:file))
-        exe 'source' a:file
-    endif
-endfunction
+" Functions
+source $HOME/.vim/function.vim
 
 " Vim plug
 call SourceIfExists("$HOME/.vim/vim-plug.vim")
