@@ -47,12 +47,14 @@ fi
 if command -v fzf >/dev/null; then
     if command -v fd >/dev/null; then
     ff () {
-        fd --strip-cwd-prefix --hidden --follow --exclude .git \
+        # Output to commandline instead of stdout
+        # print -z -- $(commands | fzf)
+        print -z -- $(fd --strip-cwd-prefix --hidden --follow --exclude .git \
             | fzf --prompt 'All> ' \
                 --header 'CTRL-A: All / CTRL-D: Dir / CTRL-F: File' \
                 --bind 'ctrl-a:change-prompt(All> )+reload(fd --strip-cwd-prefix --hidden --follow --exclude .git)' \
                 --bind 'ctrl-d:change-prompt(Dir> )+reload(fd --type d --strip-cwd-prefix --hidden --follow --exclude .git)' \
-                --bind 'ctrl-f:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)'
+                --bind 'ctrl-f:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)')
     }
     fi
 fi
