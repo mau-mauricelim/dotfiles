@@ -42,5 +42,5 @@ fi
 
 # zoxide
 if command -v zoxide >/dev/null; then
-    eval "$(zoxide init posix --hook prompt)"
+    eval "$(zoxide init --cmd cd bash)"
 fi

@@ -9,13 +9,6 @@ else
     alias ls="ls -F --group-directories-first"
 fi
 
-#if command -v zoxide >/dev/null; then
-#    alias cd="z"
-#    if command -v fzf >/dev/null; then
-#        alias cdi="zi"
-#    fi
-#fi
-
 alias cl="clear"
 
 alias ...="cd ../.."

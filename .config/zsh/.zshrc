@@ -22,7 +22,7 @@ WORDCHARS="_-.[]~/;!#%^(){}<>"
 [ -f $ZDOTDIR/completion.zsh ] && source $ZDOTDIR/completion.zsh
 # zoxide - for completions to work, the command must be added after compinit is called
 if command -v zoxide >/dev/null; then
-    eval "$(zoxide init posix --hook prompt)"
+    eval "$(zoxide init --cmd cd zsh)"
 fi
 
 # Zsh Theme - Powerlevel10k
