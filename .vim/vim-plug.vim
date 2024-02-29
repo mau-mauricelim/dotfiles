@@ -16,4 +16,5 @@ call plug#begin()
     Plug 'folke/noice.nvim'
     Plug 'MunifTanjim/nui.nvim'
     Plug 'rcarriga/nvim-notify'
+    Plug 'echasnovski/mini.nvim'
 call plug#end()
