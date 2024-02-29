@@ -17,9 +17,3 @@ function ToggleVirtualedit()
         set virtualedit=onemore
     endif
 endfunction
-
-" Auto pair brackets/quotes when typing - skip over closing character
-function AutoPair(open, close)
-    " e.g. inoremap <expr> ( strpart(getline('.'), col('.')-1, 1) == ")" ? "(" : "()\<Left>"
-    return strpart(getline('.'), col('.')-1, 1) == a:close ? a:open : a:open . a:close . "\<Left>"
-endfunction

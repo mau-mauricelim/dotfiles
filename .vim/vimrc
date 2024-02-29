@@ -17,11 +17,8 @@ set virtualedit=onemore
 " New split defaults to bottom and right
 set splitbelow splitright
 
-" Set absolute line number
-set nu
-" Set relative line number in insert mode
-autocmd InsertEnter * :set rnu
-autocmd InsertLeave * :set nornu
+" Set absolute and relative line number
+set nu rnu
 
 " Wildmenu
 set wildmenu
