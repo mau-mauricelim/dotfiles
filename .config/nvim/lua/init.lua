@@ -28,3 +28,6 @@ require('user/telescope')
 
 -- noice.nvim
 require('user/noice')
+
+-- mini.nvim
+require('user/mini')

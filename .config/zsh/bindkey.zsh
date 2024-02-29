@@ -64,3 +64,6 @@ function () {
 		bindkey -M vicmd ${terminfo[$kcap]:-$seq} $widget
 	done
 }
+
+# Bind CTRL-F to CTRL-T instead for FZF
+bindkey -s '^f' '^t'
