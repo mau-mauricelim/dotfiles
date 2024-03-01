@@ -66,3 +66,6 @@ require('mini.comment').setup({
         textobject = '<C-_>',
     },
 })
+
+-- Automatic highlighting of word under cursor
+require('mini.cursorword').setup()
