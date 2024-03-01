@@ -18,7 +18,7 @@ require('user/nvim-tree')
 require('lualine').setup()
 
 -- bufferline.nvim
-require('bufferline').setup{}
+require('user/bufferline')
 
 -- toggleterm.nvim
 require('user/toggleterm')
