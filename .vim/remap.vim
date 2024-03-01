@@ -31,9 +31,5 @@ nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 nnoremap <Leader>cf <cmd>let @" = expand("%")<CR>
 nnoremap <Leader>cp <cmd>let @" = expand("%:p")<CR>
 
-" NERDCommenter
-" Ctrl+/
-map <C-_> <plug>NERDCommenterToggle
-
 " Customizing commands for fzf.vim
 command! -bang -nargs=* Rg call fzf#vim#grep("rg --hidden --glob '!.git' --column --line-number --no-heading --color=always --smart-case -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)

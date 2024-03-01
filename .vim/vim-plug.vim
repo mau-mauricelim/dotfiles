@@ -8,7 +8,6 @@ call plug#begin()
     Plug 'akinsho/bufferline.nvim', { 'tag': '*' }
     Plug 'akinsho/toggleterm.nvim', { 'tag': '*' }
     Plug 'airblade/vim-gitgutter'
-    Plug 'preservim/nerdcommenter'
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
     Plug 'nvim-lua/plenary.nvim'

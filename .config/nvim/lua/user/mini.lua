@@ -46,3 +46,23 @@ require('mini.clue').setup({
         miniclue.gen_clues.z(),
     },
 })
+
+-- Comment lines with Ctrl+/
+require('mini.comment').setup({
+    -- Module mappings. Use `''` (empty string) to disable one.
+    mappings = {
+        -- Toggle comment (like `gcip` - comment inner paragraph) for both
+        -- Normal and Visual modes
+        comment = '<C-_>',
+
+        -- Toggle comment on current line
+        comment_line = '<C-_>',
+
+        -- Toggle comment on visual selection
+        comment_visual = '<C-_>',
+
+        -- Define 'comment' textobject (like `dgc` - delete whole comment block)
+        -- Works also in Visual mode if mapping differs from `comment_visual`
+        textobject = '<C-_>',
+    },
+})
