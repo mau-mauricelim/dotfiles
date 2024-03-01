@@ -1,5 +1,5 @@
 " Toggle line number
-nnoremap <C-n> :set nonu!<CR>
+nnoremap <C-n> :set nonu! nornu!<CR>
 
 " Center screen on current line
 nnoremap j jzz
