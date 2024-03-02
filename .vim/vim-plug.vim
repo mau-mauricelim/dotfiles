@@ -13,6 +13,7 @@ call plug#begin()
     Plug 'nvim-lua/plenary.nvim'
     Plug 'nvim-telescope/telescope.nvim', { 'branch': '0.1.x' }
     Plug 'folke/noice.nvim'
+    Plug 'folke/todo-comments.nvim'
     Plug 'MunifTanjim/nui.nvim'
     Plug 'rcarriga/nvim-notify'
     Plug 'echasnovski/mini.nvim'

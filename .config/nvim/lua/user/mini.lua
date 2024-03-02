@@ -67,5 +67,29 @@ require('mini.comment').setup({
     },
 })
 
+-- Autocompletion and signature help plugin
+require('mini.completion').setup()
+
 -- Automatic highlighting of word under cursor
 require('mini.cursorword').setup()
+
+-- Highlight patterns in text
+--[[ 
+local hipatterns = require('mini.hipatterns')
+hipatterns.setup({
+    highlighters = {
+        -- Highlight standalone 'FIXME', 'HACK', 'TODO', 'NOTE'
+        fixme = { pattern = {'%f[%w]()FIXME()%f[%W]', '%f[%w]()Fixme()%f[%W]', '%f[%w]()fixme()%f[%W]' }, 
+                    group = 'MiniHipatternsFixme' },
+        hack  = { pattern = {'%f[%w]()HACK()%f[%W]',  '%f[%w]()Hack()%f[%W]',  '%f[%w]()hack()%f[%W]'  }, 
+                    group = 'MiniHipatternsHack'  },
+        todo  = { pattern = {'%f[%w]()TODO()%f[%W]',  '%f[%w]()Todo()%f[%W]',  '%f[%w]()todo()%f[%W]'  }, 
+                    group = 'MiniHipatternsTodo'  },
+        note  = { pattern = {'%f[%w]()NOTE()%f[%W]',  '%f[%w]()Note()%f[%W]',  '%f[%w]()note()%f[%W]'  }, 
+                    group = 'MiniHipatternsNote'  },
+        
+        -- Highlight hex color strings (`#rrggbb`) using that color
+        hex_color = hipatterns.gen_highlighter.hex_color(),
+    },
+})
+--]]

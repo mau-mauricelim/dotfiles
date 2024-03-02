@@ -6,9 +6,9 @@ vim.g.loaded_netrwPlugin = 1
 vim.opt.termguicolors = true
 
 -- onedark.nvim
-require('onedark').setup {
+require('onedark').setup({
     style = 'cool'
-}
+})
 require('onedark').load()
 
 -- nvim-tree.lua
@@ -31,3 +31,6 @@ require('user/noice')
 
 -- mini.nvim
 require('user/mini')
+
+-- todo-comments.nvim
+require('user/todo-comments')
