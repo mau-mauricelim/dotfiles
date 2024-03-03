@@ -31,4 +31,4 @@ telescope.setup({
 })
 
 -- Line number preview
-vim.cmd "autocmd User TelescopePreviewerLoaded setlocal number"
+vim.cmd("autocmd User TelescopePreviewerLoaded setlocal number")

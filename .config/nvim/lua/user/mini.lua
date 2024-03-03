@@ -93,3 +93,29 @@ hipatterns.setup({
     },
 })
 --]]
+
+-- Jump to next/previous single character
+require('mini.jump').setup()
+
+-- Jump within visible lines via iterative label filtering
+require('mini.jump2d').setup()
+
+-- Window with buffer text overview, scrollbar, and highlights
+-- Pure scrollbar config
+require('mini.map').setup({
+    -- Customize `symbols` to your liking
+
+    window = {
+      -- Set this to the maximum width of your scroll symbols
+      width = 1,
+
+      -- Set this to your liking. Try values 0, 25, 50, 75, 100
+      winblend = 100,
+
+      -- Don't need extra column
+      show_integration_count = false,
+    }
+})
+vim.keymap.set('n', '<Leader>mt', MiniMap.toggle)
+-- autoopen functionality
+vim.cmd("autocmd vimenter * lua MiniMap.open()")
