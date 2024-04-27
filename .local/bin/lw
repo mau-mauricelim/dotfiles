@@ -1,0 +1,55 @@
+#!/usr/bin/env bash
+## Log watcher script
+# Monitors a log directory containing log files and watches the latest log file
+# Useful for monitoring rolling process logs
+logDir="$1"
+logFile=""
+
+if [ $# -ne 1 ]; then
+    echo "Please supply a log directory"
+    exit
+fi
+
+if ! [ -d "$logDir" ]; then
+    echo "Log directory does not exist: $logDir"
+    exit
+fi
+
+trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+
+banner() {
+    msg="# $* #"
+    edge=$(echo "$msg" | sed 's/./#/g')
+    echo "$edge"
+    echo "$msg"
+    echo "$edge"
+}
+
+while true
+do
+    # Check for the latest log file
+    newFile="$logDir/$(ls -rt "$logDir" | tail -1)"
+    if [ "$newFiles" != "$logFile" ]; then
+
+        if ! [ -z $tailpid ]; then
+            if ps -p $tailpid > /dev/null; then
+                # Kill the tail process
+                kill $tailpid
+            fi
+        fi
+        
+        # Set current log file
+        logFile="$newFile"
+
+        banner "Log file is $(basename $logFile)"
+
+        # Run tail -f in background
+        tail -f "$logFile" &
+
+        # Process id of tail command
+        tailpid=$!
+    else
+        # Wait for some time
+        sleep 1
+    fi
+done

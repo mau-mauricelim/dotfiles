@@ -1,0 +1,26 @@
+name: Release
+
+on: 
+  workflow_dispatch:
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download all workflow run Artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: wsl-distro-custom.yml
+          skip_unpack: true
+          path: target/release
+      - run: ls -lR
+      - name: Upload Artifacts to Release
+        uses: svenstaro/upload-release-action@v2
+        with:
+          repo_token: ${{ secrets.GITHUB_TOKEN }}
+          file: target/release/wsl-*-custom.zip
+          tag: ${{ github.ref }}
+          overwrite: true
+          file_glob: true

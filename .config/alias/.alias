@@ -1,0 +1,60 @@
+if command -v nvim >/dev/null; then
+    # Don't connect to the X server.
+    # Shortens startup time in a terminal, but the window title and clipboard will not be used.
+    alias vi="nvim -X"
+    export MANPAGER='nvim +Man!'
+fi
+
+if command -v eza &> /dev/null; then
+    alias ls="eza --group-directories-first"
+    alias tree="eza --tree --group-directories-first"
+else
+    alias ls="ls --group-directories-first"
+fi
+
+if command -v bat &> /dev/null; then
+    # bat in plain style and disables automatic paging
+    alias cat="bat -pp"
+    alias less="bat --paging=always --style=header,grid"
+else
+    alias less="less -R --incsearch --use-color"
+fi
+
+alias cl="clear"
+
+alias e="exit"
+alias ...="cd ../.."
+alias ....="cd ../../.."
+alias ll="ls -l --icons"
+alias lla="ls -lA --icons"
+alias la="ls -A"
+alias grep="grep --color=auto"
+alias fgrep="fgrep --color=auto"
+alias egrep="egrep --color=auto"
+alias rr="rm -r"
+alias rrf="rm -rf"
+alias tl="tmux ls"
+alias ta="tmux attach || tmux"
+alias td="tmux detach"
+alias pg="ps -ef|grep"
+alias k9="kill -9"
+alias rg="rg --hidden --glob '!.git'"
+alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
+
+# cd with wslpath
+cdw () { cd "`wslpath "$1"`"; }
+
+# Goes up a specified number of directories
+up () {
+    if [ $# -eq 1 ] && [ $1 -gt 0 ]; then
+        local input="../"
+        local count="$1"
+        printf -v string "%*s" "$count"
+        cd $(printf "%s\n" "${string// /$input}")
+    fi
+}
+
+# Make directory and cd into it
+take ()   { [ $# -eq 1 ] && mkdir -p "$1" && cd "$1"; }
+mkpath () { [ $# -eq 1 ] && mkdir -p "$1"; }
+mkfile () { [ $# -eq 1 ] && mkdir -p "$(dirname "$1")" && touch "$1"; }

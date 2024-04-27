@@ -1,0 +1,85 @@
+# History configuration
+export HISTSIZE=10000
+export HISTFILESIZE=10000
+
+# XDG Base directory configuration
+export XDG_CONFIG_HOME="$HOME/.config"
+export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
+export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
+
+# Set system locale
+export LANG=C.UTF-8
+export LANGUAGE=C.UTF-8
+export LC_ALL=C.UTF-8
+export PAGER=less
+
+# Enable 256 colors with xterm
+export TERM=xterm-256color
+
+# Set PATH so it includes user's private bin if it exists
+for user_bin in $HOME/{.,.local}/bin; do
+    [ -d $user_bin ] && PATH="$user_bin:$PATH"
+done
+
+# Set PATH so it includes user's git-scripts if it exists
+[ -d "$XDG_CONFIG_HOME/git/git-scripts" ] && PATH="$PATH:$XDG_CONFIG_HOME/git/git-scripts"
+
+# Source the shell dotfiles
+for file in $XDG_CONFIG_HOME/{alias,q}/.[!.]*; do
+    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+done
+unset file
+
+# Highlighting --help messages with bat
+if command -v bat >/dev/null; then
+    # Ensure help language is installed
+    if bat --list-languages | grep -wq help; then
+        # Example: $ help cp or $ help git commit
+        help() {
+            "$@" --help 2>&1 | bat --plain --language=help
+        }
+        # When you are using zsh, you can also use global aliases to override -h and --help entirely:
+        # Example: cp --help
+        # Be aware that in some cases, -h may not be a shorthand of --help (for example with ls).
+        if [[ -n "${ZSH_VERSION:-}" ]]; then
+            alias -g -- -h='-h 2>&1 | bat --language=help --style=plain'
+            alias -g -- --help='--help 2>&1 | bat --language=help --style=plain'
+        fi
+    fi
+fi
+
+# fzf setup
+if [[ -n "${BASH_VERSION:-}" ]]; then
+    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+elif [[ -n "${ZSH_VERSION:-}" ]]; then
+    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
+fi
+# fzf-git.sh
+[ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh
+if command -v rg >/dev/null; then
+    # Setting fd as the default source for fzf
+    # Now fzf (w/o pipe) will use fd instead of find
+    # Follow symbolic links and don't want it to exclude hidden files
+    export FZF_DEFAULT_COMMAND='fd --type f --strip-cwd-prefix --hidden --follow --exclude .git'
+    # To apply the command to Ctrl-T as well
+    export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+fi
+# Functions for fzf
+if command -v fzf >/dev/null; then
+    if command -v fd >/dev/null; then
+    ff () {
+        # Output to commandline instead of stdout
+        # print -z -- $(commands | fzf)
+        print -z -- $(fd --strip-cwd-prefix --hidden --follow --exclude .git \
+            | fzf --prompt 'All> ' \
+                --header 'Ctrl-A: All / Ctrl-D: Dir / Ctrl-F: File' \
+                --bind 'Ctrl-A:change-prompt(All> )+reload(fd --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                --bind 'Ctrl-D:change-prompt(Dir> )+reload(fd --type d --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                --bind 'Ctrl-F:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)')
+    }
+    fi
+fi
+
+# vim-visual-multi tutor with lazy package manager
+[ -f "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc" ] && \
+    vvmtutor() { vi -Nu "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc"; }

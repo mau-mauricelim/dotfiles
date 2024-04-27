@@ -1,0 +1,43 @@
+" Syntax highlighting
+filetype plugin indent on
+syntax on
+" Show existing tab with 4 spaces width
+set tabstop=4
+" When indenting with '>', use 4 spaces width
+set shiftwidth=4
+" On pressing tab, insert 4 spaces
+set expandtab
+" Cursor line
+set cursorline
+" No wrap
+set nowrap
+" Allow the cursor to move just past the end of the line
+set virtualedit=onemore
+
+" New split defaults to bottom and right
+set splitbelow splitright
+
+" Set absolute and relative line number
+set nu rnu
+
+" Wildmenu
+set wildmenu
+set wildmode=longest:full,full
+
+" Persistent undo
+set undodir=$XDG_DATA_HOME/vim/undo
+set directory=$XDG_DATA_HOME/vim/swap
+set backupdir=$XDG_DATA_HOME/vim/backup
+set viminfo+=n$XDG_DATA_HOME/vim/viminfo
+set undofile
+set undolevels=100000
+set undoreload=100000
+
+" Functions
+source $HOME/.vim/function.vim
+
+" Vim plug
+call SourceIfExists("$HOME/.vim/vim-plug.vim")
+
+" Remaps
+call SourceIfExists("$HOME/.vim/remap.vim")
