@@ -208,7 +208,7 @@ vim.keymap.set('x', '<leader>po', [["_dP]], { desc = '[P]aste [O]ver selection w
 vim.keymap.set({'n', 'v'}, '<leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
 -- Yank to/Paste from system clipboard
 vim.keymap.set('n', '<leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
-vim.keymap.set({ 'n', 'v' }, '<Leader>yy', [["+y]], { desc = 'Yank to system clipboard' })
+vim.keymap.set({ 'n', 'v' }, '<Leader>y', [["+y]], { desc = 'Yank to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>pp', [["+p]], { desc = 'Paste from system clipboard' })
 
 -- [[ Basic Autocommands ]]
