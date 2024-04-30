@@ -163,6 +163,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
       extensions = {
         ['ui-select'] = {
           require('telescope.themes').get_dropdown(),
+          
         },
       },
     })
@@ -170,7 +171,7 @@ return { -- Fuzzy Finder (files, lsp, etc)
     -- Enable telescope extensions, if they are installed
     pcall(require('telescope').load_extension, 'fzf')
     pcall(require('telescope').load_extension, 'ui-select')
-    pcall(require('telescope').load_extension, 'neoclip')
+    pcall(require('telescope').load_extension, 'live_grep_args')
 
     -- See `:help telescope.builtin`
     -- live_grep allows for regex patterns
