@@ -4,8 +4,8 @@
 
 ## Manage dotfiles with GNU Stow
 ```bash
-$ git clone https://github.com/mau-mauricelim/dotfiles.nvim.git
-$ cd dotfiles.nvim
+$ git clone https://github.com/mau-mauricelim/dotfiles.git
+$ cd dotfiles
 $ stow --adopt . -nv # Simulation mode
 $ stow --adopt .
 $ git restore . # OR git reset --hard

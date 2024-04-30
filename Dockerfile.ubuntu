@@ -17,7 +17,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
     # Install required packages
     apt-get -qq update && \
         apt-get -qq install -y --no-install-recommends \
-            sudo zsh ripgrep fd-find tar bzip2 unzip rlwrap bat curl gpg ca-certificates git vim man less stow \
+            sudo zsh ripgrep fd-find tar bzip2 unzip rlwrap bat curl gpg ca-certificates git vim man less stow openssh-server tmux \
             build-essential && \
     # Install PyPy to replace Python - latest stable release from Tarball
     mkdir /usr/.pypy-linux64 && \
@@ -55,7 +55,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
         chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL and Network settings
-    echo -e "[user]\ndefault=$USERNAME" >> /etc/wsl.conf
+    echo -e "[user]\ndefault=$USERNAME\n[interop]\nappendWindowsPath=false" >> /etc/wsl.conf
 
 # Set default user
 USER $USERNAME

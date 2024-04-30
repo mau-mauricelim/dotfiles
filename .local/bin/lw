@@ -37,7 +37,7 @@ do
                 kill $tailpid
             fi
         fi
-        
+
         # Set current log file
         logFile="$newFile"
 
