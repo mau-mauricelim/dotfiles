@@ -159,7 +159,7 @@ vim.keymap.set('v', '<', '<gv')
 vim.keymap.set('v', '>', '>gv')
 
 -- Toggle line number
-vim.keymap.set('n', '<Leader>nu', '<cmd>set nonu! nornu!<CR>', { desc = 'Toggle line [Nu]mber' })
+vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
 
 -- Sentence case word
 vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })

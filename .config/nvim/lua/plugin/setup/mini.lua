@@ -77,8 +77,8 @@ return { -- Collection of various small independent plugins/modules
       draw = { animation = function() return 0 end }
     })
     -- Toggle indent scope
-    vim.keymap.set('n', '<Leader>is', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
-      { desc = 'Toggle [I]ndent [S]cope', silent = true })
+    vim.keymap.set('n', '<Leader>ts', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
+      { desc = 'Toggle indent [S]cope', silent = true })
     -- Toggle all indent lines and scope
     local toggleIndent = function()
       local ibl = require('ibl')
@@ -94,13 +94,8 @@ return { -- Collection of various small independent plugins/modules
         vim.g.miniindentscope_disable = false
       end
     end
-    vim.keymap.set('n', '<Leader>ia', toggleIndent,
-      { desc = 'Toggle [I]ndent [A]ll', silent = true })
-
-    -- "f, F, t, T, ;" to Jump to next/previous single character
-    require('mini.jump').setup()
-    -- "Enter" to jump within visible lines via iterative label filtering
-    require('mini.jump2d').setup()
+    vim.keymap.set('n', '<Leader>ta', toggleIndent,
+      { desc = 'Toggle indent [A]ll', silent = true })
 
     -- Move any selection in any direction
     -- Defaults are Alt (Meta) + hjkl
@@ -131,70 +126,3 @@ return { -- Collection of various small independent plugins/modules
     })
   end,
 }
-
--- To re-enable these features, put it inside of config = function() ... end
-
---[[ -- Minimal and fast autopairs
-require('mini.pairs').setup() ]]
-
---[[ -- Simple and easy statusline.
--- Similar to nvim-lualine/lualine.nvim
---  You could remove this setup call if you don't like it,
---  and try some other statusline plugin
-local statusline = require 'mini.statusline'
-statusline.setup()
-
--- You can configure sections in the statusline by overriding their
--- default behavior. For example, here we set the section for
--- cursor location to LINE:COLUMN
----@diagnostic disable-next-line: duplicate-set-field
-statusline.section_location = function()
-  return '%2l:%-2v'
-end ]]
-
---[[ Show next key clues
--- Similar to folke/which-key.nvim
-local miniclue = require('mini.clue')
-miniclue.setup({
-  triggers = {
-    -- Leader triggers
-    { mode = 'n', keys = '<Leader>' },
-    { mode = 'x', keys = '<Leader>' },
-
-    -- Built-in completion
-    { mode = 'i', keys = '<C-x>' },
-
-    -- `g` key
-    { mode = 'n', keys = 'g' },
-    { mode = 'x', keys = 'g' },
-
-    -- Marks
-    { mode = 'n', keys = "'" },
-    { mode = 'n', keys = '`' },
-    { mode = 'x', keys = "'" },
-    { mode = 'x', keys = '`' },
-
-    -- Registers
-    { mode = 'n', keys = '"' },
-    { mode = 'x', keys = '"' },
-    { mode = 'i', keys = '<C-r>' },
-    { mode = 'c', keys = '<C-r>' },
-
-    -- Window commands
-    { mode = 'n', keys = '<C-w>' },
-
-    -- `z` key
-    { mode = 'n', keys = 'z' },
-    { mode = 'x', keys = 'z' },
-  },
-
-  clues = {
-    -- Enhance this by adding descriptions for <Leader> mapping groups
-    miniclue.gen_clues.builtin_completion(),
-    miniclue.gen_clues.g(),
-    miniclue.gen_clues.marks(),
-    miniclue.gen_clues.registers(),
-    miniclue.gen_clues.windows(),
-    miniclue.gen_clues.z(),
-  },
-}) ]]

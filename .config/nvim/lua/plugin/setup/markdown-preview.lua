@@ -3,7 +3,7 @@ return {
   'iamcco/markdown-preview.nvim',
   cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
   keys = {
-    { '<Leader>md', '<cmd>MarkdownPreviewToggle<CR>', { desc = 'Toggle [M]arkdown [P]review', silent = true } },
+    { '<Leader>tm', '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle [M]arkdown preview' },
   },
   ft = { 'markdown' },
   -- stylua: ignore

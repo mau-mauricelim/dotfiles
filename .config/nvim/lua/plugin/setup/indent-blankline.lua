@@ -13,6 +13,6 @@ return {
     },
   },
   keys = {
-    { '<Leader>il', '<cmd>IBLToggle<CR>', { desc = 'Toggle [I]ndent [L]ines', silent = true } },
+    { '<Leader>ti', '<cmd>IBLToggle<CR>', desc = '[T]oggle [I]ndent lines' },
   },
 }
