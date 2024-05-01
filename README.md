@@ -18,5 +18,4 @@ $ git restore . # OR git reset --hard
 - [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [dropbar](https://github.com/Bekaboo/dropbar.nvim)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
-- [ ] tmux integration
 - [ ] [trouble](https://github.com/folke/trouble.nvim)
