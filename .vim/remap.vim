@@ -20,10 +20,8 @@ nnoremap <Leader>v <C-v>
 " Toggle virtualedit mode between onemore and all
 nnoremap <Leader>ve <cmd>call ToggleVirtualedit()<CR>
 
-" Delete to end of line and insert
-nnoremap <Leader>dd ^d$a
 " Delete all lines and insert
-nnoremap <Leader>da ggdGi
+nnoremap cA ggdGi
 " Search and replace the word under the cursor
 nnoremap <Leader>s :%s/\<<C-r><C-w>\>//g<Left><Left>
 

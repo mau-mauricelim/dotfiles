@@ -118,5 +118,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         ln -s $HOME/.vim/syntax $XDG_CONFIG_HOME/nvim && \
     # bash and zsh key bindings for Git objects, powered by fzf.
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
+    # TPM installation
+    git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
