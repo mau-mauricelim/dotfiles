@@ -33,6 +33,8 @@ Alternatively:
 - bash
 - fzf
 - lazygit
+- ssh
+- tmux
 
 ## 🐱 GitHub Actions
 

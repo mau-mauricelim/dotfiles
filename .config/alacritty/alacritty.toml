@@ -6,13 +6,12 @@ args = ["-d", "ubuntu-custom", "--cd", "~"]
 padding = { x = 8, y = 8 }
 decorations_theme_variant = "Dark"
 
-
 [scrolling]
 history = 10000
 multiplier = 5
 
 [font]
-size = 12
+size = 15
 #normal = { family = "MesloLGS NF", style = "Regular" }
 normal = { family = "JetBrainsMono Nerd Font", style = "Medium" }
 offset = { x = 0, y = 0 }
@@ -34,5 +33,5 @@ bindings = [
 [keyboard]
 bindings = [
   { key = "v", mods = "Control", action = "Paste" },
-  { key = "n", mods = "Control | Shift", action = "CreateNewTab" },
+  { key = "n", mods = "Control | Shift", action = "SpawnNewInstance" },
 ]
