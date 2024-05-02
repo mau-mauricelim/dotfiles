@@ -32,7 +32,6 @@ return { -- Useful plugin to show you pending keybinds.
       ['<leader>g'] = { name = '[G]it',           _ = 'which_key_ignore' },
       ['<leader>h'] = { name = '[H]unk',          _ = 'which_key_ignore' },
       ['<leader>l'] = { name = '[L]azy* and Lua', _ = 'which_key_ignore' },
-      ['<leader>m'] = { name = '[M]arkdown',      _ = 'which_key_ignore' },
       ['<leader>n'] = { name = '[N]oice',         _ = 'which_key_ignore' },
       ['<leader>p'] = { name = '[P]ersistence',   _ = 'which_key_ignore' },
       ['<leader>t'] = { name = '[T]oggle',        _ = 'which_key_ignore' },
