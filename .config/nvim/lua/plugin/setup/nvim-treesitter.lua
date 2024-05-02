@@ -11,6 +11,9 @@ return { -- Highlight, edit, and navigate code
       auto_install = true,
       highlight = { enable = true },
       indent = { enable = true },
+      -- List of parsers to ignore installing (or "all")
+      -- ISSUE: dockerfile parser getting unknown errors
+      ignore_install = { 'dockerfile' },
     })
 
     -- There are additional nvim-treesitter modules that you can use to interact
