@@ -10,8 +10,7 @@ return {
     {
       '<leader>pd',
       function()
-        local persistence = require('persistence')
-        persistence.stop()
+        require('persistence').stop()
         os.execute('rm -r ' .. require('persistence.config').options.dir .. '/*')
       end,
       desc = '[D]elete all session files',
@@ -19,17 +18,20 @@ return {
   },
   init = function()
     local _, argv = next(vim.fn.argv())
-    -- An actual file was opened
-    if argv ~= nil then
-      -- Not a directory
-      if vim.fn.isdirectory(argv) == 0 then
-        local current_buffer = vim.fn.expand('%')
-        -- Restore last session
-        require('persistence').load()
-        -- Remove [No Name] and directory buffers
-        pcall(ClearBuffers)
-        -- Switch back to current buffer
-        vim.cmd('buffer ' .. current_buffer)
+    -- Not using tmux
+    if os.getenv('TMUX') == nil then
+      -- An actual file was opened
+      if argv ~= nil then
+        -- Not a directory
+        if vim.fn.isdirectory(argv) == 0 then
+          local current_buffer = vim.fn.expand('%')
+          -- Restore last session
+          require('persistence').load()
+          -- Remove [No Name] and directory buffers
+          pcall(ClearBuffers)
+          -- Switch back to current buffer
+          vim.cmd('buffer ' .. current_buffer)
+        end
       end
     end
   end,
