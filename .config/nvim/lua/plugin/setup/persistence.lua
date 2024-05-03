@@ -5,7 +5,7 @@ return {
   -- stylua: ignore
   keys = {
     { '<leader>ps', function() require('persistence').save() end,                desc = '[S]ave Session' },
-    { '<leader>pr', function() require('persistence').load() end,                desc = '[R]estore Session' },
+    { '<leader>pr', function() require('persistence').load() end,                desc = '[R]estore Session for the current directory' },
     { '<leader>pl', function() require('persistence').load({ last = true }) end, desc = 'Restore [L]ast Session' },
     {
       '<leader>pd',

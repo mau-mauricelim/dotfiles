@@ -225,6 +225,13 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 -- Disable auto comment new lines
 vim.api.nvim_create_autocmd('BufEnter', {
   desc = 'Disable auto comment new lines',
-  pattern = '',
   command = 'set fo-=c fo-=r fo-=o'
+})
+
+-- Center screen
+vim.api.nvim_create_autocmd('BufReadPre', {
+  desc = 'Center screen',
+  callback = function()
+    vim.api.nvim_feedkeys('zz', 'n', true)
+  end
 })
