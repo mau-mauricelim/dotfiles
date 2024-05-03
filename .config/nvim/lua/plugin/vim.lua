@@ -124,16 +124,18 @@ vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower win
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- Center screen on current line
-vim.keymap.set('n', 'j', 'jzz')
-vim.keymap.set('n', 'k', 'kzz')
-vim.keymap.set('n', 'G', 'Gzz')
-vim.keymap.set('n', '<C-End>', '<C-End>zz')
-vim.keymap.set('n', '<Down>', 'jzz')
-vim.keymap.set('n', '<Up>', 'kzz')
-vim.keymap.set('n', '<PageUp>', '<PageUp>zz')
-vim.keymap.set('n', '<PageDown>', '<PageDown>zz')
-vim.keymap.set('n', '<C-u>', '<C-u>zz')
-vim.keymap.set('n', '<C-d>', '<C-d>zz')
+vim.keymap.set({ 'n', 'v' }, 'k', 'kzz')
+vim.keymap.set({ 'n', 'v' }, 'j', 'jzz')
+vim.keymap.set({ 'n', 'v' }, 'G', 'Gzz')
+vim.keymap.set({ 'n', 'v' }, '<C-End>', 'Gzz')
+vim.keymap.set({ 'n', 'v' }, '<Up>', 'kzz')
+vim.keymap.set({ 'n', 'v' }, '<Down>', 'jzz')
+vim.keymap.set({ 'n', 'v' }, '<C-u>', '<C-u>zz')
+vim.keymap.set({ 'n', 'v' }, '<C-d>', '<C-d>zz')
+vim.keymap.set({ 'n', 'v' }, '<PageUp>', '<C-u>zz')
+vim.keymap.set({ 'n', 'v' }, '<PageDown>', '<C-d>zz')
+vim.keymap.set('i', '<PageUp>', '<Esc><C-u>zzi')
+vim.keymap.set('i', '<PageDown>', '<Esc><C-d>zzi')
 -- Center search and open folds for this line
 vim.keymap.set('n', 'n', 'nzzzv')
 vim.keymap.set('n', 'N', 'Nzzzv')
@@ -222,6 +224,7 @@ vim.api.nvim_create_autocmd('TextYankPost', {
 
 -- Disable auto comment new lines
 vim.api.nvim_create_autocmd('BufEnter', {
+  desc = 'Disable auto comment new lines',
   pattern = '',
   command = 'set fo-=c fo-=r fo-=o'
 })
