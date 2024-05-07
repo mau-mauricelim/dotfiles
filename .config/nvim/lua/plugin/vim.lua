@@ -235,3 +235,7 @@ vim.api.nvim_create_autocmd('BufReadPre', {
     vim.api.nvim_feedkeys('zz', 'n', true)
   end
 })
+
+-- ISSUE: filetype.vim loads ftplugin twice sometimes
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, { pattern = '*.q', command = 'setfiletype q', })
+vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, { pattern = '*.k', command = 'setfiletype k', })

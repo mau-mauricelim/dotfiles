@@ -1,5 +1,7 @@
 return {
   'christoomey/vim-tmux-navigator',
+  -- Enable if using tmux
+  enabled = os.getenv('TMUX') ~= nil,
   cmd = {
     'TmuxNavigateLeft',
     'TmuxNavigateDown',

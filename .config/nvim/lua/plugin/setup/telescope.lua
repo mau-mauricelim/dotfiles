@@ -69,6 +69,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
     local actions = require('telescope.actions')
     local action_layout = require('telescope.actions.layout')
 
+    -- Follow symlinks
+    table.insert(vimgrep_arguments, '-L')
     -- I want to search in hidden/dot files.
     table.insert(vimgrep_arguments, '--hidden')
     -- I don't want to search in the `.git` directory.

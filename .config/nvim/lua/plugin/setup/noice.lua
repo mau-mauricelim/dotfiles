@@ -33,15 +33,15 @@ return { -- UI for messages, cmdline and the popupmenu
       commands = {
         popup = {
           -- options for the message history that you get with `:Noice`
-          view = "popup",
-          opts = { enter = true, format = "details" },
+          view = 'popup',
+          opts = { enter = true, format = 'details' },
           filter = {
             any = {
-              { event = "notify" },
+              { event = 'notify' },
               { error = true },
               { warning = true },
-              { event = "msg_show", kind = { "" } },
-              { event = "lsp", kind = "message" },
+              { event = 'msg_show', kind = { '' } },
+              { event = 'lsp', kind = 'message' },
             },
           },
         },
@@ -53,6 +53,10 @@ return { -- UI for messages, cmdline and the popupmenu
     vim.keymap.set('n', '<leader>np', '<cmd>NoicePopup<CR>', { desc = '[N]oice [P]opup history' })
     -- Noice default view
     vim.keymap.set('n', '<leader>nh', '<cmd>Noice<CR>', { desc = '[N]oice [H]istory' })
+    -- Override the default behaviour in vim.lua
+    vim.keymap.set('n', '<Esc>', '<cmd>NoiceDismiss<CR><cmd>nohlsearch<CR>')
+    -- Normal messages
+    vim.keymap.set('n', '<leader>nm', '<cmd>messages<CR>', { desc = '[N]ormal [M]essages' })
 
     -- Show @recording messages in the statusline
     local status_ok, lualine = pcall(require, 'lualine')
@@ -64,6 +68,15 @@ return { -- UI for messages, cmdline and the popupmenu
               noice.api.statusline.mode.get,
               cond = noice.api.statusline.mode.has,
               color = { fg = '#ff9e64' },
+            },
+            {
+              'fileformat',
+              icons_enabled = true,
+              symbols = {
+                unix = 'LF',
+                dos = 'CRLF',
+                mac = 'CR',
+              },
             },
           },
         },

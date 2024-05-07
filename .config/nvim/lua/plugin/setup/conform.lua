@@ -8,8 +8,9 @@ return { -- Autoformat
       function()
         vim.notify('Formatting buffer')
         require('conform').format({ async = true, lsp_fallback = true })
-        pcall(TrimEndLines)
+        -- pcall(TrimEndLines)
       end,
+      mode = { 'n', 'v' },
       desc = '[F]ormat [b]uffer',
     },
   },

@@ -11,7 +11,7 @@ return {
       '<leader>pd',
       function()
         require('persistence').stop()
-        os.execute('rm -r ' .. require('persistence.config').options.dir .. '/*')
+        os.execute('rm -rf ' .. require('persistence.config').options.dir .. '/*')
       end,
       desc = '[D]elete all session files',
     },

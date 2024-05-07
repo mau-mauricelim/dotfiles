@@ -38,7 +38,7 @@ alias ta="tmux attach || tmux"
 alias td="tmux detach"
 alias pg="ps -ef|grep"
 alias k9="kill -9"
-alias rg="rg --hidden --glob '!.git'"
+alias rg="rg -L --hidden --glob '!.git'"
 alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
 
 # cd with wslpath
