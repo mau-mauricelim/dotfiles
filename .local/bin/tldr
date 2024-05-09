@@ -1,0 +1,49 @@
+#!/usr/bin/env bash
+command -v curl >/dev/null || { echo "curl is not installed"; exit; }
+command -v jq >/dev/null || { echo "jq is not installed"; exit; }
+command -v bat >/dev/null || { echo "bat is not installed"; exit; }
+[ $# -ge 1 ] || { echo "Usage: tldr SEARCH [PLATFORM]"; exit; }
+
+get_page() {
+    if [ -z "${result}" ]; then return; fi
+    count=$(echo "${result}"|wc -l)
+    if [ "$count" -eq 1 ]; then
+        platform=$(echo $index|jq -r ".commands[]|select(.name==\"$result\").platform[]")
+        if [ "$(echo "${platform}"|wc -l)" -gt 1 ]; then
+            echo "Multiple platforms found: [ $(echo $platform) ]"
+            if [ -z $override_platform ]; then
+                echo "To override the default platform, use $ tldr SEARCH PLATFORM"
+            elif [ "$(echo "${platform}"|grep "^$override_platform$"|wc -l)" -eq 1 ]; then
+                platform="$override_platform"
+            else
+                echo "Override platform not found: $override_platform"
+            fi
+            platform=$(echo "${platform}"|head -1)
+            echo ""
+        fi
+        echo "Platform: $platform"
+        curl -s "https://raw.githubusercontent.com/tldr-pages/tldr/main/pages/$platform/$result.md"|\
+            bat -l md --paging=never --style=grid
+        exit
+    fi
+}
+
+query="$1"
+override_platform="$2"
+index=$(curl -sL "https://tldr.sh/assets/index.json" ||\
+        curl -sL "https://github.com/tldr-pages/tldr/releases/latest/download/index.json")
+names=$(echo $index|jq -r ".commands[].name?")
+result=$(echo "${names}"|grep "$query")
+correct=$(echo $result)
+get_page
+
+# Further filter result
+result=$(echo "${result}"|grep "^$query$")
+get_page
+
+# Check final count
+if [ "$count" -eq 0 ]; then
+    echo "No match found for: $query"
+else
+    echo "Did you mean: $correct"
+fi

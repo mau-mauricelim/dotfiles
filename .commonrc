@@ -68,16 +68,44 @@ fi
 # Functions for fzf
 if command -v fzf >/dev/null; then
     if command -v fd >/dev/null; then
-    ff () {
-        # Output to commandline instead of stdout
-        # print -z -- $(commands | fzf)
-        print -z -- $(fd --strip-cwd-prefix --hidden --follow --exclude .git \
-            | fzf --prompt 'All> ' \
-                --header 'Ctrl-A: All / Ctrl-D: Dir / Ctrl-F: File' \
-                --bind 'Ctrl-A:change-prompt(All> )+reload(fd --strip-cwd-prefix --hidden --follow --exclude .git)' \
-                --bind 'Ctrl-D:change-prompt(Dir> )+reload(fd --type d --strip-cwd-prefix --hidden --follow --exclude .git)' \
-                --bind 'Ctrl-F:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)')
-    }
+        ff () {
+            # Output to commandline instead of stdout
+            # print -z -- $(commands | fzf)
+            print -z -- $(fd --strip-cwd-prefix --hidden --follow --exclude .git \
+                | fzf --prompt 'All> ' \
+                    --header 'Ctrl-A: All / Ctrl-D: Dir / Ctrl-F: File' \
+                    --bind 'Ctrl-A:change-prompt(All> )+reload(fd --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                    --bind 'Ctrl-D:change-prompt(Dir> )+reload(fd --type d --strip-cwd-prefix --hidden --follow --exclude .git)' \
+                    --bind 'Ctrl-F:change-prompt(File> )+reload(fd --type f --strip-cwd-prefix --hidden --follow --exclude .git)')
+        }
+    fi
+    if command -v bat >/dev/null && command -v eza >/dev/null; then
+        # Preview file content using bat
+        preview_file="bat -n --color=always --line-range :500 {}"
+        # Preview dir content as a tree using eza
+        preview_dir="eza --tree --group-directories-first --color=always {} | head -200"
+        export FZF_CTRL_T_OPTS="
+            --walker-skip .git,node_modules,target
+            --preview '$preview_file'
+            --bind 'ctrl-/:change-preview-window(down|hidden|)'"
+        export FZF_ALT_C_OPTS="
+            --walker-skip .git,node_modules,target
+            --preview '$preview_dir'"
+        # Advanced customization of fzf options via _fzf_comprun function
+        # - The first argument to the function is the name of the command.
+        # - You should make sure to pass the rest of the arguments to fzf.
+        preview_file_or_dir="if [ -d {} ]; then $preview_dir; else $preview_file; fi"
+        _fzf_comprun() {
+          local command=$1
+          shift
+
+          case "$command" in
+            cd)           fzf --preview "$preview_dir"         "$@" ;;
+            export|unset) fzf --preview "eval 'echo $'{}"      "$@" ;;
+            ssh)          fzf --preview 'dig {}'               "$@" ;;
+            *)            fzf --preview "$preview_file_or_dir" "$@" ;;
+          esac
+        }
     fi
 fi
 

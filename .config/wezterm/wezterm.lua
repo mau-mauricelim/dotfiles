@@ -12,9 +12,15 @@ config.font_size = 16
 config.window_padding = { left = 5, right = 5, top = 0, bottom = 0 }
 config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'
 config.selection_word_boundary = ',│`|:"\' ()[]{}<>\t'
+config.enable_scroll_bar = true
 
 -- For example, changing the color scheme:
 config.color_scheme = 'Campbell (Gogh)'
+config.color_schemes = {
+  ['Campbell (Gogh)'] = {
+    scrollbar_thumb = '9f9f9f',
+  },
+}
 
 -- Mouse bindings
 config.mouse_bindings = {
@@ -32,6 +38,44 @@ config.mouse_bindings = {
       end
     end),
   },
+
+  -- Change the default click behavior so that it only selects
+  -- text and doesn't open hyperlinks
+  {
+    event = { Up = { streak = 1, button = 'Left' } },
+    mods = 'NONE',
+    action = act.Multiple({
+      act.CopyTo('ClipboardAndPrimarySelection'),
+      act.ClearSelection,
+    }),
+  },
+  -- Double click on word
+  {
+    event = { Up = { streak = 2, button = 'Left' } },
+    mods = 'NONE',
+    action = act.Multiple({
+      act.CopyTo('ClipboardAndPrimarySelection'),
+      act.ClearSelection,
+    }),
+  },
+  -- Triple click on line
+  {
+    event = { Up = { streak = 3, button = 'Left' } },
+    mods = 'NONE',
+    action = act.Multiple({
+      act.CopyTo('ClipboardAndPrimarySelection'),
+      act.ClearSelection,
+    }),
+  },
+  -- and make CTRL-Click open hyperlinks
+  {
+    event = { Up = { streak = 1, button = 'Left' } },
+    mods = 'CTRL',
+    action = act.OpenLinkAtMouseCursor,
+  },
+  -- NOTE that binding only the 'Up' event can give unexpected behaviors.
+  -- Read more below on the gotcha of binding an 'Up' event only.
+
   -- Scrolling up while holding CTRL increases the font size
   {
     event = { Down = { streak = 1, button = { WheelUp = 1 } } },
