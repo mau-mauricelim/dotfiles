@@ -13,6 +13,7 @@ config.window_padding = { left = 5, right = 5, top = 0, bottom = 0 }
 config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'
 config.selection_word_boundary = ',│`|:"\' ()[]{}<>\t'
 config.enable_scroll_bar = true
+config.cursor_thickness = 2
 
 -- For example, changing the color scheme:
 config.color_scheme = 'Campbell (Gogh)'
@@ -24,7 +25,7 @@ config.color_schemes = {
 
 -- Mouse bindings
 config.mouse_bindings = {
-  -- Highlight selection to copy and right-click to paste
+  -- Right-click to paste
   {
     event = { Down = { streak = 1, button = 'Right' } },
     mods = 'NONE',
@@ -39,17 +40,24 @@ config.mouse_bindings = {
     end),
   },
 
-  -- Change the default click behavior so that it only selects
-  -- text and doesn't open hyperlinks
+  -- Single Left Up: Focus window does not copy text
   {
     event = { Up = { streak = 1, button = 'Left' } },
     mods = 'NONE',
     action = act.Multiple({
-      act.CopyTo('ClipboardAndPrimarySelection'),
       act.ClearSelection,
     }),
   },
-  -- Double click on word
+  -- Single Left Drag to Highlight and Copy
+  {
+    event = { Drag = { streak = 1, button = 'Left' } },
+    mods = 'NONE',
+    action = act.Multiple({
+      act.ExtendSelectionToMouseCursor('Cell'),
+      act.CopyTo('ClipboardAndPrimarySelection'),
+    }),
+  },
+  -- Double click to Copy
   {
     event = { Up = { streak = 2, button = 'Left' } },
     mods = 'NONE',
@@ -58,7 +66,7 @@ config.mouse_bindings = {
       act.ClearSelection,
     }),
   },
-  -- Triple click on line
+  -- Triple click line to Copy
   {
     event = { Up = { streak = 3, button = 'Left' } },
     mods = 'NONE',
@@ -67,7 +75,7 @@ config.mouse_bindings = {
       act.ClearSelection,
     }),
   },
-  -- and make CTRL-Click open hyperlinks
+  -- CTRL-Click to open hyperlink
   {
     event = { Up = { streak = 1, button = 'Left' } },
     mods = 'CTRL',
@@ -82,13 +90,18 @@ config.mouse_bindings = {
     mods = 'CTRL',
     action = act.IncreaseFontSize,
   },
-
   -- Scrolling down while holding CTRL decreases the font size
   {
     event = { Down = { streak = 1, button = { WheelDown = 1 } } },
     mods = 'CTRL',
     action = act.DecreaseFontSize,
   },
+}
+
+-- Key bindings
+config.keys = {
+  -- Paste from the clipboard
+  { key = 'v', mods = 'CTRL', action = act.PasteFrom('Clipboard') },
 }
 
 -- and finally, return the configuration to wezterm
