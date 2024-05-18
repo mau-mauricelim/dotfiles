@@ -66,4 +66,17 @@ function () {
 }
 
 # Bind Ctrl-F to Ctrl-T instead for FZF
-bindkey -s '^f' '^t'
+# bindkey -s '^f' '^t'
+
+# Bind Ctrl-F to open selection in nvim
+FZF_CTRL_F_COMMAND () {
+    file="$(eval $(echo -n "$FZF_CTRL_T_COMMAND | $(__fzfcmd) $FZF_CTRL_T_OPTS"))"
+    if [ -f "${file}" ]; then
+        (nvim "${file}" < /dev/tty) || return 1
+    fi
+    return 1
+    zle accept-line
+}
+zle -N FZF_CTRL_F_COMMAND
+bindkey '^f' FZF_CTRL_F_COMMAND
+

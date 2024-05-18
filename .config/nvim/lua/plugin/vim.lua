@@ -81,9 +81,6 @@ vim.opt.wrap = false
 -- Allow the cursor to move just past the end of the line
 vim.opt.virtualedit = 'onemore'
 
--- Syntax highlighting that are not supported
-vim.cmd('syntax on')
-
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -143,6 +140,23 @@ vim.keymap.set('n', 'N', 'Nzzzv')
 -- Joins line below cursor
 -- `mz` saves the cursor position using the mark `z`, ` `z` goes back to mark `z`
 vim.keymap.set('n', 'J', 'mzJ`z')
+
+-- Line Operations
+vim.keymap.set('n', '<Leader>lj', 'ggvG<Up>:s/\\n//<Left>', { desc = '[L]ines [J]oin by delimiter in file' })
+vim.keymap.set('v', '<Leader>lj', '<Up>:s/\\n//<Left>', { desc = '[L]ines [J]oin by delimiter in visual selection' })
+vim.keymap.set({ 'n', 'v' }, '<Leader>ls', '<Esc><S-v>:s//\\r/g<Left><Left><Left><Left><Left>', { desc = '[L]ine [S]plit by delimiter' })
+vim.keymap.set('n', '<Leader>lc', 'mz<cmd>%!uniq<CR>`z', { desc = '[C]ontiguous duplicate lines squeeze in file', silent = true })
+vim.keymap.set('v', '<Leader>lc', 'mz:!uniq<CR>`z', { desc = '[C]ontiguous duplicate lines squeeze in visual selection', silent = true })
+vim.keymap.set('n', '<Leader>ld', "mz<cmd>%!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in file', silent = true })
+vim.keymap.set('v', '<Leader>ld', "mz:!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in visual selection', silent = true })
+
+-- Format Operations
+vim.keymap.set('n', '<Leader>fl', 'mz<cmd>%s/\\s\\+$//<CR>`z', { desc = '[F]ormat end of [L]ines in file', silent = true })
+vim.keymap.set('v', '<Leader>fl', 'mz:s/\\s\\+$//<CR>`z', { desc = '[F]ormat end of [L]ines in visual selection', silent = true })
+-- cat -s to squeeze-blank
+-- $(where cat|tail -1) to identify the default command if it has been aliased
+vim.keymap.set('n', '<Leader>fc', 'mz<cmd>%!$(where cat|tail -1) -s<CR>`z', { desc = '[F]ormat [C]ontiguous empty lines in file', silent = true })
+vim.keymap.set('v', '<Leader>fc', 'mz:!$(where cat|tail -1) -s<CR>`z', { desc = '[F]ormat [C]ontiguous empty lines in visual selection', silent = true })
 
 -- Remap C-c to Esc
 vim.keymap.set('i', '<C-c>', '<Esc>')
@@ -236,6 +250,5 @@ vim.api.nvim_create_autocmd('BufReadPre', {
   end
 })
 
--- ISSUE: filetype.vim loads ftplugin twice sometimes
-vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, { pattern = '*.q', command = 'setfiletype q', })
-vim.api.nvim_create_autocmd({ 'BufRead', 'BufNewFile' }, { pattern = '*.k', command = 'setfiletype k', })
+-- Add new filetype mappings
+vim.filetype.add({ extension = { q = 'q', k = 'k' }})

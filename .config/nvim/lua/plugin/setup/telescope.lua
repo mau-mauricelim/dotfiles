@@ -129,8 +129,8 @@ return { -- Fuzzy Finder (files, lsp, etc)
               ['<ScrollWheelUp>'] = actions.preview_scrolling_up,
 
               -- Disable open file in horizontal split
-              -- Use <C-v> to open file in vsplit
-              ['<C-x>'] = false,
+              -- Use <C-v> to open file in vsplit, depends on terminal setup
+              ['<C-x>'] = actions.select_vertical,
 
               -- Cycle history
               ['<C-j>'] = actions.cycle_history_next,

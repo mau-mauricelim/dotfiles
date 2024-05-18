@@ -14,6 +14,7 @@ config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'
 config.selection_word_boundary = ',│`|:"\' ()[]{}<>\t'
 config.enable_scroll_bar = true
 config.cursor_thickness = 2
+config.audible_bell = 'Disabled'
 
 -- For example, changing the color scheme:
 config.color_scheme = 'Campbell (Gogh)'

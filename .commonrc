@@ -17,13 +17,16 @@ export PAGER=less
 # Enable 256 colors with xterm
 export TERM=xterm-256color
 
+addToPath () { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
+addToPathFront () { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
+
 # Set PATH so it includes user's private bin if it exists
 for user_bin in $HOME/{.,.local}/bin; do
-    [ -d $user_bin ] && PATH="$user_bin:$PATH"
+    [ -d $user_bin ] && addToPathFront "$user_bin"
 done
 
 # Set PATH so it includes user's git-scripts if it exists
-[ -d "$XDG_CONFIG_HOME/git/git-scripts" ] && PATH="$PATH:$XDG_CONFIG_HOME/git/git-scripts"
+[ -d "$XDG_CONFIG_HOME/git/git-scripts" ] && addToPath "$XDG_CONFIG_HOME/git/git-scripts"
 
 # Source the shell dotfiles
 for file in $XDG_CONFIG_HOME/{alias,q}/.[!.]*; do
@@ -85,6 +88,7 @@ if command -v fzf >/dev/null; then
         # Preview dir content as a tree using eza
         preview_dir="eza --tree --group-directories-first --color=always {} | head -200"
         export FZF_CTRL_T_OPTS="
+            --header 'Ctrl-/: Toggle preview down/hidden/show'
             --walker-skip .git,node_modules,target
             --preview '$preview_file'
             --bind 'ctrl-/:change-preview-window(down|hidden|)'"

@@ -9,12 +9,15 @@
     lucky = !sh -c 'git checkout $(git which $1 -m1)' -
     # Add files to your previous commit
     commend = commit --amend --no-edit
-    unstage = git restore --staged
-    st = git status --short --branch
+    # Edit commit message
+    edit = commit --amend
+    unstage = restore --staged
+    st = status --short --branch
     br = branch
     co = checkout
     cm = commit -m
-    pm = git pull origin main
+    pm = pull origin main
+    fop = fetch origin --prune
 
 # delta config
 [core]

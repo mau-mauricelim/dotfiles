@@ -31,9 +31,9 @@ end, { desc = 'Toggle unnamedplus [C]lip[b]oard' })
 -- Remove trailing blank lines at the end of file
 function TrimEndLines()
   local cursor_pos = vim.fn.getpos('.')
-  -- Note that this removes all trailing lines that contain only whitespace.
-  -- To remove only truly "empty" lines, remove the \s* from the above command.
   vim.notify('Removing trailing blank lines at the end of file')
+  -- Note that this removes all trailing lines that contain only whitespace.
+  -- To remove only truly "empty" lines, remove the \s* from the below command.
   vim.cmd('silent! %s#\\($\\n\\s*\\)\\+\\%$##')
   vim.fn.setpos('.', cursor_pos)
 end
