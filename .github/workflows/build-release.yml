@@ -6,6 +6,8 @@ on:
 jobs:
   build:
     uses: ./.github/workflows/wsl-distro-custom.yml
+    secrets: inherit
   release:
     needs: build
     uses: ./.github/workflows/release.yml
+    secrets: inherit
