@@ -2,6 +2,7 @@ name: Build WSL Distro custom
 
 on:
   workflow_dispatch:
+  workflow_call:
 
 # Variables in the env map cannot be defined in terms of other variables in the map
 env:
