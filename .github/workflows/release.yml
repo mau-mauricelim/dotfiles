@@ -1,12 +1,11 @@
 name: Release
 
-env:
-  workflow_name: wsl-distro-custom.yml
-
 on:
   workflow_dispatch:
+    inputs:
+      WORKFLOW_NAME: wsl-distro-custom.yml
   workflow_call:
-    env:
+    inputs:
       WORKFLOW_NAME: build-release.yml
 
 jobs:
@@ -18,7 +17,7 @@ jobs:
       - name: Download all workflow run Artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: ${{ env.WORKFLOW_NAME }}
+          workflow: ${{ inputs.WORKFLOW_NAME }}
           skip_unpack: true
           path: target/release
       - run: ls -lR
