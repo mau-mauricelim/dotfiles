@@ -58,10 +58,8 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         chmod +x $HOME/win32yank/win32yank.exe && \
         mv $HOME/win32yank/win32yank.exe $HOME/.local/bin && \
         rm -rf $HOME/win32yank.zip $HOME/win32yank && \
-    # Install vim-plug for Vim and Neovim
+    # Install vim-plug for Vim
     curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
-    curl -sfLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
     # Run PlugInstall non-interactively from command line
     vim +'PlugInstall --sync' +qa && \
