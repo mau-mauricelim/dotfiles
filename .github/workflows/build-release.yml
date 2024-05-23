@@ -1,0 +1,11 @@
+name: Build WSL Distro custom and Release
+
+on:
+  workflow_dispatch:
+
+jobs:
+  build:
+    uses: ./.github/workflows/wsl-distro-custom.yml
+  release:
+    needs: build
+    uses: ./.github/workflows/release.yml

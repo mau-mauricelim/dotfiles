@@ -1,0 +1,121 @@
+FROM debian:stable-slim
+ENV LANG=C.UTF-8 \
+    LANGUAGE=C.UTF-8 \
+    LC_ALL=C.UTF-8 \
+    TERM=xterm-256color
+
+# ARG should be after FROM
+ARG USERNAME=maurice
+ARG USER_UID=1000
+ARG USER_GID=$USER_UID
+ARG HOME=/home/$USERNAME
+
+SHELL ["/bin/bash", "-c"]
+
+# Install required packages
+RUN apt-get -qq update && \
+        apt-get -qq install -y --no-install-recommends \
+            sudo zsh ripgrep fd-find tar bzip2 unzip rlwrap bat curl gpg ca-certificates git vim man less stow openssh-server tmux \
+            build-essential && \
+    # Install PyPy to replace Python - latest stable release from Tarball
+    mkdir /usr/.pypy-linux64 && \
+        curl -s $(curl -s https://www.pypy.org/download.html | grep Download | grep linux64.tar.bz2 | head -1 | grep -o 'href=".*"' | cut -d"=" -f2 | sed 's/"//g') \
+            | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
+        ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
+    # Install eza
+    mkdir -p /etc/apt/keyrings && \
+        curl -s https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
+        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list && \
+        chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && \
+        apt-get -qq update && \
+        apt-get -qq install -y --no-install-recommends eza && \
+    # Install lazygit
+    LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
+        curl -sLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
+        tar xf lazygit.tar.gz lazygit && \
+        install lazygit /usr/local/bin && \
+        rm lazygit lazygit.tar.gz && \
+    # Install delta
+    DELTA_VERSION=$(curl -s "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \
+        dpkg -i delta.deb && \
+        rm delta.deb && \
+    # Clean up
+    apt-get -qq remove gpg ca-certificates && \
+        apt-get -qq autoremove -y && \
+        apt-get -qq clean -y && \
+        rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
+    # Create user
+    groupadd --gid $USER_GID $USERNAME && \
+        # Set Zsh as the default shell
+        useradd --uid $USER_UID --gid $USER_GID -m -N -s /bin/zsh $USERNAME && \
+        mkdir -p /etc/sudoers.d && \
+        echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
+        chmod 0440 /etc/sudoers.d/$USERNAME && \
+    # Set default user for WSL and Network settings
+    echo -e "[user]\ndefault=$USERNAME\n[interop]\nappendWindowsPath=false" >> /etc/wsl.conf
+
+# Set default user
+USER $USERNAME
+WORKDIR $HOME
+# Setup dotfiles
+COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
+COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
+COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
+COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
+
+# Create a symlink for zshenv to HOME
+RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
+    # Source the latest zshenv
+    source $HOME/.zshenv && \
+    # Create ZDOTDIR and XDG_DATA_HOME directories
+    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} && \
+    # Zsh Theme - Powerlevel10k (Requires manual font installation)
+    git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git $ZDOTDIR/powerlevel10k && \
+    # Zsh Auto Suggestions
+    git clone -q https://github.com/zsh-users/zsh-autosuggestions $ZDOTDIR/zsh-autosuggestions && \
+    # Zsh Syntax Highlighting
+    git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
+    # Install zoxide
+    curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
+    # Install Neovim - latest stable release from Tarball
+    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME && \
+        mv $HOME/nvim-linux64 $HOME/.nvim-linux64 && \
+        ln -s $HOME/.nvim-linux64/bin/nvim $HOME/.local/bin && \
+    # Clipboard integration - NOTE that there may be some delays when copying and pasting
+    curl -sfLo $HOME/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
+        unzip -q $HOME/win32yank.zip -d $HOME/win32yank && \
+        chmod +x $HOME/win32yank/win32yank.exe && \
+        mv $HOME/win32yank/win32yank.exe $HOME/.local/bin && \
+        rm -rf $HOME/win32yank.zip $HOME/win32yank && \
+    # Install vim-plug for Vim and Neovim
+    curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
+    curl -sfLo "${XDG_DATA_HOME:-$HOME/.local/share}"/nvim/site/autoload/plug.vim --create-dirs \
+        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
+    # Run PlugInstall non-interactively from command line
+    vim +'PlugInstall --sync' +qa && \
+    # Run Lazy install, clean and update non-interactively from command line
+    nvim --headless '+Lazy! sync' +qa && \
+    # Add bat (batcat) and fd (fdfind) to user's private bin
+    ln -s /usr/bin/batcat $HOME/.local/bin/bat && \
+        ln -s $(which fdfind) $HOME/.local/bin/fd && \
+    # fzf
+    git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
+        $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \
+    # Vim syntax and indent
+    mkdir -p $HOME/.vim/{indent,syntax} && \
+        git clone -q https://github.com/katusk/vim-qkdb-syntax.git $HOME/.vim/vim-qkdb-syntax && \
+            ln -s $HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim $HOME/.vim/indent && \
+            ln -s $HOME/.vim/vim-qkdb-syntax/syntax/k.vim $HOME/.vim/syntax && \
+        git clone -q https://github.com/jshinonome/vim-q-syntax.git $HOME/.vim/vim-q-syntax && \
+            ln -s $HOME/.vim/vim-q-syntax/syntax/q.vim $HOME/.vim/syntax && \
+    # Symlink Vim syntax and indent files to Neovim
+    ln -s $HOME/.vim/indent $XDG_CONFIG_HOME/nvim && \
+        ln -s $HOME/.vim/syntax $XDG_CONFIG_HOME/nvim && \
+    # bash and zsh key bindings for Git objects, powered by fzf.
+    curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
+    # TPM installation
+    git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
+    # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
+    echo exit | script -qec zsh /dev/null >/dev/null

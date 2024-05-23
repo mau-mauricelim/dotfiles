@@ -5,11 +5,12 @@ _comp_options+=(globdots)   # Show hidden files
 
 ## Options
 setopt GLOB_COMPLETE        # Show autocompletion menu with globs
-setopt MENU_COMPLETE        # Automatically highlight first element of completion menu
+# setopt MENU_COMPLETE        # Automatically highlight first element of completion menu
 setopt AUTO_LIST            # Automatically list choices on ambiguous completion.
 setopt COMPLETE_IN_WORD     # Complete from both ends of a word.
 setopt CORRECT              # Correct typos
 setopt NONOMATCH            # Enable asterisk wildcard function
+setopt NOLISTAMBIGUOUS      # Display list of possibilities on single tab
 
 ## Zstyles
 # zstyle pattern

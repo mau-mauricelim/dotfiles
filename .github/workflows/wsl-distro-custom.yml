@@ -12,7 +12,7 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        BASE_IMAGE: [ ubuntu, alpine, arch ]
+        BASE_IMAGE: [ debian, ubuntu, alpine ]
     runs-on: ubuntu-latest
     env:
         IMAGE_NAME: ${{ matrix.BASE_IMAGE }}-custom
