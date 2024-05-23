@@ -3,10 +3,14 @@ name: Release
 on:
   workflow_dispatch:
     inputs:
-      WORKFLOW_NAME: wsl-distro-custom.yml
+      WORKFLOW_NAME:
+        default: 'wsl-distro-custom.yml'
+        type: string
   workflow_call:
     inputs:
-      WORKFLOW_NAME: build-release.yml
+      WORKFLOW_NAME:
+        default: 'build-release.yml'
+        type: string
 
 jobs:
   release:
