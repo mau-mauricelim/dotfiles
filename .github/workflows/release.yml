@@ -40,9 +40,9 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
       - name: Create Release
         uses: softprops/action-gh-release@v2
-        if: startsWith(github.ref, 'refs/tags/')
         with:
           files: target/release/wsl-*-custom.zip
+          tag_name: main
       # - name: Upload Artifacts to Release
       #   uses: svenstaro/upload-release-action@v2
       #   with:
