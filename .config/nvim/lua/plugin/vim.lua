@@ -161,7 +161,7 @@ vim.keymap.set('v', '<Leader>fc', 'mz:!$(where cat|tail -1) -s<CR>`z', { desc = 
 -- Remap C-c to Esc
 vim.keymap.set('i', '<C-c>', '<Esc>')
 -- TEST: kj to Esc
-vim.keymap.set('i', 'kj', '<Esc>', { silent = true })
+vim.keymap.set({ 'i', 'v' }, 'kj', '<Esc>')
 
 -- Remap Home/End to toggle between start/end of line and first/last non-blank space
 vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") ==  1 ? "^" : "0"', { expr = true, silent = true })

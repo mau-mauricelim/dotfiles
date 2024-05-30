@@ -25,7 +25,8 @@ _darcs
 ^/LICENSE.*
 ^/COPYING
 
-doc
+docs
 src
+tests
 ^/Dockerfile.*
 .*.md

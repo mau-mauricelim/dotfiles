@@ -1,6 +1,6 @@
 # ✨ dotfiles
 
-## [Install custom Distribution to use with 🐧 WSL](doc%2Fwsl.md)
+## [Install custom Distribution to use with 🐧 WSL](docs%2Fwsl.md)
 
 ## Manage dotfiles with GNU Stow
 ```bash
