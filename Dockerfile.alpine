@@ -44,6 +44,7 @@ COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
 COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
 COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
 COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
+COPY --chown=$USERNAME:$USERNAME test /tmp/test
 
 SHELL ["/bin/bash", "-c"]
 
@@ -89,6 +90,10 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
+    # Run test
+    echo -e "########\n# TEST #\n########" && \
+        for test in /tmp/test/*.sh; do bash "$test"; done && \
+        rm -rf /tmp/test && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null && \
     # Clean up
