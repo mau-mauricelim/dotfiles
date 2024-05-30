@@ -4,11 +4,11 @@ return {
   opts = { options = vim.opt.sessionoptions:get() },
   -- stylua: ignore
   keys = {
-    { '<leader>ps', function() require('persistence').save() end,                desc = '[S]ave Session' },
-    { '<leader>pr', function() require('persistence').load() end,                desc = '[R]estore Session for the current directory' },
-    { '<leader>pl', function() require('persistence').load({ last = true }) end, desc = 'Restore [L]ast Session' },
+    { '<Leader>ps', function() require('persistence').save() end,                desc = '[S]ave Session' },
+    { '<Leader>pr', function() require('persistence').load() end,                desc = '[R]estore Session for the current directory' },
+    { '<Leader>pl', function() require('persistence').load({ last = true }) end, desc = 'Restore [L]ast Session' },
     {
-      '<leader>pd',
+      '<Leader>pd',
       function()
         require('persistence').stop()
         os.execute('rm -rf ' .. require('persistence.config').options.dir .. '/*')

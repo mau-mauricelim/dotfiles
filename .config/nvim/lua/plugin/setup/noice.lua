@@ -48,15 +48,15 @@ return { -- UI for messages, cmdline and the popupmenu
       },
     })
     -- Dismiss Noice message
-    vim.keymap.set('n', '<leader>nd', '<cmd>NoiceDismiss<CR>', { desc = '[N]oice [D]ismiss message' })
+    vim.keymap.set('n', '<Leader>nd', '<cmd>NoiceDismiss<CR>', { desc = '[N]oice [D]ismiss message' })
     -- Noice popup view
-    vim.keymap.set('n', '<leader>np', '<cmd>NoicePopup<CR>', { desc = '[N]oice [P]opup history' })
+    vim.keymap.set('n', '<Leader>np', '<cmd>NoicePopup<CR>', { desc = '[N]oice [P]opup history' })
     -- Noice default view
-    vim.keymap.set('n', '<leader>nh', '<cmd>Noice<CR>', { desc = '[N]oice [H]istory' })
+    vim.keymap.set('n', '<Leader>nh', '<cmd>Noice<CR>', { desc = '[N]oice [H]istory' })
     -- Override the default behaviour in vim.lua
     vim.keymap.set('n', '<Esc>', '<cmd>NoiceDismiss<CR><cmd>nohlsearch<CR>')
     -- Normal messages
-    vim.keymap.set('n', '<leader>nm', '<cmd>messages<CR>', { desc = '[N]ormal [M]essages' })
+    vim.keymap.set('n', '<Leader>nm', '<cmd>messages<CR>', { desc = '[N]ormal [M]essages' })
 
     -- Show @recording messages in the statusline
     local status_ok, lualine = pcall(require, 'lualine')

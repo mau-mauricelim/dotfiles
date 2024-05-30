@@ -4,7 +4,7 @@ return { -- Autoformat
   cmd = { 'ConformInfo' },
   keys = {
     {
-      '<leader>fb',
+      '<Leader>fb',
       function()
         vim.notify('Formatting buffer')
         require('conform').format({ async = true, lsp_fallback = true })

@@ -28,4 +28,4 @@ require("lazy").setup({
     notify = true, -- get a notification when changes are found
   },
 })
-vim.keymap.set('n', '<leader>lz', '<cmd>Lazy<CR>', { desc = 'Lazy' })
+vim.keymap.set('n', '<Leader>lz', '<cmd>Lazy<CR>', { desc = 'Lazy' })

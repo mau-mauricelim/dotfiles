@@ -94,8 +94,8 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.keymap.set('n', '<Leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
+vim.keymap.set('n', '<Leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -160,6 +160,8 @@ vim.keymap.set('v', '<Leader>fc', 'mz:!$(where cat|tail -1) -s<CR>`z', { desc = 
 
 -- Remap C-c to Esc
 vim.keymap.set('i', '<C-c>', '<Esc>')
+-- TEST: jj to Esc
+vim.keymap.set('i', 'jj', '<Esc>', { silent = true })
 
 -- Remap Home/End to toggle between start/end of line and first/last non-blank space
 vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") ==  1 ? "^" : "0"', { expr = true, silent = true })
@@ -169,7 +171,7 @@ vim.keymap.set('v', '<End>', 'charcol(".") == charcol("$") ? "g_" : "$"', { expr
 vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"', { expr = true, silent = true })
 
 -- Save file
-vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><esc>', { desc = 'Save file' })
+vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
 
 -- Indenting to remain in visual mode
 vim.keymap.set('v', '<', '<gv')
@@ -214,13 +216,16 @@ vim.keymap.set('n', '<Leader>cf', '<cmd>let @" = expand("%")<CR>', { desc = '[C]
 vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[C]opy [P]ath' })
 
 -- Paste over selection without losing yanked lines
-vim.keymap.set('x', '<leader>po', [["_dP]], { desc = '[P]aste [O]ver selection without losing yanked lines' })
+vim.keymap.set('x', '<Leader>po', [["_dP]], { desc = '[P]aste [O]ver selection without losing yanked lines' })
 -- Delete selection without losing yanked lines
-vim.keymap.set({'n', 'v'}, '<leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
+vim.keymap.set({'n', 'v'}, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
 -- Yank to/Paste from system clipboard
-vim.keymap.set('n', '<leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
+vim.keymap.set('n', '<Leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>y', [["+y]], { desc = 'Yank to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>pp', [["+p]], { desc = 'Paste from system clipboard' })
+-- Insert line below/above current line without leaving normal mode
+vim.keymap.set('n', '<Leader>o', 'o<Esc>', { desc = 'Insert line below without leaving normal mode' })
+vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without leaving normal mode' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
