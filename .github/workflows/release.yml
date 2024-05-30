@@ -6,10 +6,16 @@ on:
       WORKFLOW_NAME:
         default: 'wsl-distro-custom.yml'
         type: string
+      WORKFLOW_STATUS:
+        default: 'success'
+        type: string
   workflow_call:
     inputs:
       WORKFLOW_NAME:
         default: 'build-release.yml'
+        type: string
+      WORKFLOW_STATUS:
+        default: 'in_progress'
         type: string
 
 jobs:
@@ -23,7 +29,7 @@ jobs:
         with:
           workflow: ${{ inputs.WORKFLOW_NAME }}
           workflow_search: true
-          workflow_conclusion: [ in_progress, success ]
+          workflow_conclusion: ${{ inputs.WORKFLOW_STATUS }}
           skip_unpack: true
           path: target/release
       - run: ls -lR
