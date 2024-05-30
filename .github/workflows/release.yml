@@ -21,7 +21,7 @@ jobs:
       - name: Download all workflow run Artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
-          # workflow: ${{ inputs.WORKFLOW_NAME }}
+          workflow: ${{ inputs.WORKFLOW_NAME }}
           workflow_search: true
           workflow_conclusion: in_progress
           skip_unpack: true
@@ -32,6 +32,13 @@ jobs:
         with:
           tag_name: main
           github_token: ${{ secrets.GITHUB_TOKEN }}
+      - name: Create Release
+        uses: actions/create-release@latest
+        env:
+          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+        with:
+          tag_name: ${{ github.ref }}
+          release_name: Release ${{ github.ref }}
       - name: Upload Artifacts to Release
         uses: svenstaro/upload-release-action@v2
         with:
