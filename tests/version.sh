@@ -51,7 +51,7 @@ latestAndInstalledVersion zoxide \
     "$(zoxide --version)"
 
 latestAndInstalledVersion nvim \
-    "$(curl -sL https://github.com/nvim/nvim/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(curl -sL https://github.com/neovim/neovim/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
     "$(nvim --version|grep NVIM)"
 
 latestAndInstalledVersion fzf \
