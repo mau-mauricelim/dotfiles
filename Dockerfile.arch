@@ -81,7 +81,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # Run tests
-    echo -e "\n########\n# TESTS #\n########\n" && \
+    echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
         rm -rf /tmp/tests && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)

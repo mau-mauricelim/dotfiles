@@ -21,7 +21,8 @@ jobs:
       - name: Download all workflow run Artifacts
         uses: dawidd6/action-download-artifact@v3
         with:
-          workflow: ${{ inputs.WORKFLOW_NAME }}
+          # workflow: ${{ inputs.WORKFLOW_NAME }}
+          workflow_search: "in_progress"
           skip_unpack: true
           path: target/release
       - run: ls -lR
