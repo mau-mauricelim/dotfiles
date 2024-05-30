@@ -22,7 +22,8 @@ jobs:
         uses: dawidd6/action-download-artifact@v3
         with:
           # workflow: ${{ inputs.WORKFLOW_NAME }}
-          workflow_search: "in_progress"
+          workflow_search: true
+          workflow_status: in_progress
           skip_unpack: true
           path: target/release
       - run: ls -lR
