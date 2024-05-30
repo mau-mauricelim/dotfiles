@@ -23,7 +23,7 @@ jobs:
         with:
           # workflow: ${{ inputs.WORKFLOW_NAME }}
           workflow_search: true
-          workflow_status: in_progress
+          workflow_conclusion: in_progress
           skip_unpack: true
           path: target/release
       - run: ls -lR
