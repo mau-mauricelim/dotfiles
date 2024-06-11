@@ -1,4 +1,9 @@
 git:
   paging:
     colorArg: always
-    useConfig: true
+    # pager: delta --dark --paging=never
+
+# Config relating to things outside of Lazygit like how files are opened, copying to clipboard, etc
+os:
+  # Command for editing a file. Should contain "{{filename}}".
+  edit: "nvim {{filename}}"
