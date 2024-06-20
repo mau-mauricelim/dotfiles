@@ -66,6 +66,13 @@ docker export <container_name> > <file_name>.tar
 docker export <container_name> | gzip > <file_name>.tar.gz
 ```
 
+### Permission denied error
+```sh
+sudo groupadd docker # Create the docker group if it does not exist
+sudo usermod -aG docker $USER # Add your user to the docker group
+newgrp docker # Log in to the new docker group (to avoid having to log out / log in again; but if not enough, try to reboot)
+```
+
 ## 🐧 WSL integration
 
 ### [Import the tar file into WSL](https://learn.microsoft.com/en-us/windows/wsl/use-custom-distro#import-the-tar-file-into-wsl/)
