@@ -16,4 +16,21 @@ local status_mini, completion = pcall(require, 'mini.completion')
 -- stylua: ignore
 if status_mini then completion.setup() end
 
+-- qls override if it exists
+vim.lsp.start({
+  name = 'q language server',
+  cmd = { 'qls', '--stdio' },
+  filetypes = { 'q' },
+  root_dir = vim.fs.dirname(vim.fs.find({ 'src' }, { upward = true })[1]),
+})
+vim.api.nvim_create_autocmd('LspAttach', {
+  group = vim.api.nvim_create_augroup('UserLspConfig', {}),
+  callback = function(ev)
+    vim.bo[ev.buf].omnifunc = 'v:lua.vim.lsp.omnifunc'
+    local opts = { buffer = ev.buf }
+    vim.keymap.set('n', 'gd', vim.lsp.buf.definition, opts)
+    vim.keymap.set('n', 'gr', vim.lsp.buf.references, opts)
+  end,
+})
+
 vim.notify('q.lua loaded!')

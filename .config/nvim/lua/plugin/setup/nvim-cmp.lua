@@ -32,6 +32,14 @@ return { -- Autocompletion
     --    for various frameworks/libraries/etc. but you will have to
     --    set up the ones that are useful for you.
     -- 'rafamadriz/friendly-snippets',
+
+    -- https://www.npmjs.com/package/@jo.shinonome/qls
+    -- q language server
+    -- - autocompletion
+    -- - definitionProvider
+    -- - referencesProvider
+    'hrsh7th/cmp-vsnip',
+    'hrsh7th/vim-vsnip',
   },
   config = function()
     -- See `:help cmp`
@@ -94,6 +102,9 @@ return { -- Autocompletion
         { name = 'nvim_lsp' },
         { name = 'luasnip' },
         { name = 'path' },
+        -- qls
+        { name = 'vsnip' },
+        { name = 'buffer' },
       },
     })
 
