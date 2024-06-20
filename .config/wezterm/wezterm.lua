@@ -102,8 +102,18 @@ config.mouse_bindings = {
 -- Key bindings
 config.keys = {
   -- Paste from the clipboard
-  { key = 'v', mods = 'CTRL', action = act.PasteFrom('Clipboard') },
+  { key = 'v', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  {
+    key = "|",
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },
+  },
+  {
+    key = "_",
+    mods = 'CTRL|SHIFT',
+    action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
+  },
 }
 
--- and finally, return the configuration to wezterm
+-- And finally, return the configuration to wezterm
 return config
