@@ -58,15 +58,20 @@ return { -- UI for messages, cmdline and the popupmenu
     -- Normal messages
     vim.keymap.set('n', '<Leader>nm', '<cmd>messages<CR>', { desc = '[N]ormal [M]essages' })
 
-    -- Show @recording messages in the statusline
     local status_ok, lualine = pcall(require, 'lualine')
     if status_ok then
       lualine.setup({
         sections = {
           lualine_x = {
+            -- Show @recording messages in the statusline
             {
               noice.api.statusline.mode.get,
               cond = noice.api.statusline.mode.has,
+              color = { fg = '#ff9e64' },
+            },
+            {
+              noice.api.status.command.get,
+              cond = noice.api.status.command.has,
               color = { fg = '#ff9e64' },
             },
             {

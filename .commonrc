@@ -116,3 +116,8 @@ fi
 # vim-visual-multi tutor with lazy package manager
 [ -f "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc" ] && \
     vvmtutor() { vi -Nu "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc"; }
+
+# WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
+# https://github.com/iamcco/markdown-preview.nvim/issues/309
+addToPath /mnt/c/Windows/System32/
+
