@@ -19,7 +19,7 @@ IF /I "%CONFIRM%" NEQ "Y" GOTO END
 @echo(
 @SET CONFIRM=n
 :PROMPT
-SET /P CONFIRM=Set WSL distribution [%distro_name%] as default? [Y/n]
+SET /P CONFIRM=Set WSL distribution [%distro_name%] as default? [Y/n] 
 IF /I "%CONFIRM%" NEQ "Y" GOTO END
 @powershell -Command "wsl -s %distro_name%"
 
