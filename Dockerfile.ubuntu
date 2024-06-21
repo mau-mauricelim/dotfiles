@@ -17,7 +17,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
     # Install required packages
     apt-get -qq update && \
         apt-get -qq install -y --no-install-recommends \
-            sudo zsh ripgrep fd-find tar bzip2 unzip rlwrap bat curl gpg ca-certificates git vim man less stow openssh-server tmux \
+            sudo zsh ripgrep fd-find tar bzip2 unzip rlwrap bat curl gpg ca-certificates git vim man less stow openssh-server tmux file \
             build-essential && \
     # Install PyPy to replace Python - latest stable release from Tarball
     mkdir /usr/.pypy-linux64 && \
@@ -42,6 +42,12 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \
         dpkg -i delta.deb && \
         rm delta.deb && \
+    # Install yazi
+    YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
+        unzip yazi.zip && rm yazi.zip && \
+        mv yazi-x86_64-unknown-linux-gnu .yazi-x86_64-unknown-linux-gnu && \
+        ln -s $HOME/.yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \
@@ -54,6 +60,9 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         mkdir -p /etc/sudoers.d && \
         echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
         chmod 0440 /etc/sudoers.d/$USERNAME && \
+        # Add docker permissions
+        groupadd docker && \
+        usermod -aG docker $USERNAME && \
     # Set default user for WSL and Network settings
     echo -e "[user]\ndefault=$USERNAME\n[interop]\nappendWindowsPath=false" >> /etc/wsl.conf
 
@@ -125,10 +134,16 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         nvm install node && \
     # Install q language server for neovim
     npm --global i @jo.shinonome/qls && \
+    # Install yazi themes
+    git clone git@github.com:yazi-rs/flavors.git && \
+        mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavours \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
         rm -rf /tmp/tests && \
+    # Stow the dotfiles
+    git clone git@github.com:mau-mauricelim/dotfiles.git && \
+        stow --adopt $HOME/dotfiles && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null

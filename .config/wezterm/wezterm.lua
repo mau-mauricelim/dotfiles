@@ -7,7 +7,11 @@ local config = wezterm.config_builder()
 
 -- This is where you actually apply your config choices
 config.default_prog = { 'wsl', '--cd', '~' }
-config.font = wezterm.font('JetBrains Mono')
+config.font = wezterm.font {
+  family = 'JetBrains Mono',
+  -- Disable ligatures in most fonts
+  harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
+}
 config.font_size = 16
 config.window_padding = { left = 5, right = 5, top = 0, bottom = 0 }
 config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'

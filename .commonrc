@@ -124,3 +124,16 @@ addToPath /mnt/c/Windows/System32/
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+# yazi
+if command -v yazi >/dev/null; then
+    function yy() {
+        local tmp="$(mktemp -t "yazi-cwd.XXXXXX")"
+        yazi "$@" --cwd-file="$tmp"
+        if cwd="$(cat -- "$tmp")" && [ -n "$cwd" ] && [ "$cwd" != "$PWD" ]; then
+            # If cd is aliased to zoxide, use builtin cd
+            builtin cd -- "$cwd"
+        fi
+        rm -f -- "$tmp"
+    }
+fi

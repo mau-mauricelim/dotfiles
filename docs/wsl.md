@@ -86,6 +86,8 @@ Example `/etc/wsl.conf`:
 # Set default user
 [user]
 default=user
+[interop]
+appendWindowsPath=false
 # Enable Systemd for WSL2 in Windows 11
 [boot]
 systemd=true
@@ -120,9 +122,19 @@ Installation:
 1. Unzip the directory
 2. Select all the fonts
 3. Right-click and "Install all"
+> HINT: It might be useful to disable ligatures.
 
-Usage:
+Windows Terminal Usage:
 1. Open up Settings in Windows Terminal `Ctrl-,`
 2. Select the Profile(s) that you want to apply the font
 3. Scroll down to "Additional Settings" and click "Appearance"
 4. Change "Font face" and hit "Save"
+5. Additionally, to disable ligatures, click "Open JSON file" and edit:
+```json
+"font": {
+   "face": "JetBrainsMono Nerd Font",
+   "features": {
+      "calt": 0,
+   },
+},
+```
