@@ -136,7 +136,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     npm --global i @jo.shinonome/qls && \
     # Install yazi themes
     git clone https://github.com/sxyazi/yazi.git && \
-        mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavours \
+        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavours \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
