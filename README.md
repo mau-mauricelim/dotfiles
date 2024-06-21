@@ -11,6 +11,35 @@ $ stow --adopt .
 $ git restore . # OR git reset --hard
 ```
 
+### 🐚 Shell packages included
+- sudo
+- zsh
+- ripgrep
+- fd(-find) ⚡
+- tar
+- bzip2
+- unzip 🤐
+- rlwrap 🌯
+- bat(cat) 🦇 🐈
+- zoxide
+- curl 🥌
+- gpg
+- git
+- vim
+- less
+- python3 🐍
+- eza
+- neovim
+- bash 👊
+- fzf 🌸
+- lazygit 🦥
+- ssh
+- tmux
+- nvm
+- npm
+- file
+- yazi 🦆
+
 ## 📝 TODO
 - [ ] [codeium](https://github.com/Exafunction/codeium.vim)
 - [ ] [Ansible](https://www.ansible.com/)

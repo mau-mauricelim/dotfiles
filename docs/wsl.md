@@ -11,35 +11,6 @@ Alternatively:
 4. Under `Artifacts`, select and download the artifact
 5. Unzip the directory and run [install.cmd](src%2Finstall.cmd)
 
-### 🐚 Shell packages included
-- sudo
-- zsh
-- ripgrep
-- fd(-find)
-- tar
-- bzip2
-- unzip
-- rlwrap
-- bat(cat)
-- zoxide
-- curl
-- gpg
-- git
-- vim
-- less
-- python3
-- eza
-- neovim
-- bash
-- fzf
-- lazygit
-- ssh
-- tmux
-- nvm
-- npm
-- file
-- yazi
-
 ## 🐱 GitHub Actions
 
 ### Automating the workflow of [🐳 Docker](#-docker-integration) + [🐧 WSL](#-wsl-integration)
