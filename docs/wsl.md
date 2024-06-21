@@ -35,6 +35,10 @@ Alternatively:
 - lazygit
 - ssh
 - tmux
+- nvm
+- npm
+- file
+- yazi
 
 ## 🐱 GitHub Actions
 
