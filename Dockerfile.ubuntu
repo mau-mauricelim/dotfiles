@@ -137,7 +137,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Install yazi themes
     git clone https://github.com/yazi-rs/flavors.git $HOME/flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
-        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavors \
+        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavors && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
