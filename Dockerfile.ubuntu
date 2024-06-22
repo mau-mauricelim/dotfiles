@@ -42,12 +42,6 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \
         dpkg -i delta.deb && \
         rm delta.deb && \
-    # Install yazi
-    YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
-        unzip yazi.zip && rm yazi.zip && \
-        mv yazi-x86_64-unknown-linux-gnu .yazi-x86_64-unknown-linux-gnu && \
-        ln -s $HOME/.yazi-x86_64-unknown-linux-gnu/yazi /usr/local/bin && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \
@@ -134,6 +128,12 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         nvm install node && \
     # Install q language server for neovim
     npm --global i @jo.shinonome/qls && \
+    # Install yazi
+    YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sLo $HOME/yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
+        unzip $HOME/yazi.zip && rm $HOME/yazi.zip && \
+        mv $HOME/yazi-x86_64-unknown-linux-gnu $HOME/.yazi-x86_64-unknown-linux-gnu && \
+        ln -s $HOME/.yazi-x86_64-unknown-linux-gnu/yazi $HOME/.local/bin && \
     # Install yazi themes
     git clone https://github.com/yazi-rs/flavors.git $HOME/flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
