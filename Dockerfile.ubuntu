@@ -135,15 +135,15 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Install q language server for neovim
     npm --global i @jo.shinonome/qls && \
     # Install yazi themes
-    git clone https://github.com/sxyazi/yazi.git && \
-        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavours \
+    git clone https://github.com/yazi-rs/flavors.git $HOME/flavors && \
+        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavors \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
         rm -rf /tmp/tests && \
     # Stow the dotfiles
-    git clone https://github.com/mau-mauricelim/dotfiles.git && \
+    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         stow --adopt $HOME/dotfiles && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
