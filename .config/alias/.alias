@@ -2,6 +2,7 @@ if command -v nvim >/dev/null; then
     # Don't connect to the X server.
     # Shortens startup time in a terminal, but the window title and clipboard will not be used.
     alias vi="nvim -X"
+    export EDITOR=nvim
     export MANPAGER='nvim +Man!'
 fi
 
@@ -19,6 +20,8 @@ if command -v bat &> /dev/null; then
 else
     alias less="less -R --incsearch --use-color"
 fi
+
+if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
 
 alias cl="clear"
 

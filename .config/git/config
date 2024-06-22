@@ -15,6 +15,7 @@
     st = status --short --branch
     br = branch
     co = checkout
+    aa = add -A
     cm = commit -m
     pm = pull origin main
     fop = fetch origin --prune

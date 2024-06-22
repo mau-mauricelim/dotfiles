@@ -139,8 +139,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
         mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavors \
     # Run tests
-    source $HOME/.bashrc && \
-        echo -e "\n#########\n# TESTS #\n#########\n" && \
+    echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
         rm -rf /tmp/tests && \
     # Stow the dotfiles
