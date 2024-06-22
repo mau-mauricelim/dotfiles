@@ -145,6 +145,6 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
         rm -rf /tmp/tests && \
     # Stow the dotfiles
     git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
-        stow --adopt $HOME/dotfiles && \
+        cd $HOME/dotfiles && stow --adopt . && cd $HOME \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
