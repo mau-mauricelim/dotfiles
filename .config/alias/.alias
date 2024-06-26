@@ -43,6 +43,7 @@ alias pg="ps -ef|grep"
 alias k9="kill -9"
 alias rg="rg -L --hidden --glob '!.git'"
 alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
+alias fdh='fd -H'
 
 # cd with wslpath
 cdw () { cd "`wslpath "$1"`"; }
