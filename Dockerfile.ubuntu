@@ -21,16 +21,16 @@ RUN yes | unminimize >/dev/null 2>&1 && \
             build-essential && \
     # Install ripgrep from source
     RIPGREP_VERSION=$(curl -s "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLO https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep_${RIPGREP_VERSION}-1_amd64.deb && \
-        dpkg -i ripgrep_${RIPGREP_VERSION}-1_amd64.deb && rm ripgrep_${RIPGREP_VERSION}-1_amd64.deb && \
+        curl -sLo ripgrep.deb https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep_${RIPGREP_VERSION}-1_amd64.deb && \
+        dpkg -i ripgrep.deb && rm ripgrep.deb && \
     # Install fd from source
     FD_VERSION=$(curl -s "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sLO https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd_${FD_VERSION}_amd64.deb && \
-        dpkg -i fd_${FD_VERSION}_amd64.deb && rm fd_${FD_VERSION}_amd64.deb && \
+        curl -sLo fd.deb https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd_${FD_VERSION}_amd64.deb && \
+        dpkg -i fd.deb && rm fd.deb && \
     # Install bat from source
     BAT_VERSION=$(curl -s "https://api.github.com/repos/sharkdp/bat/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sLO https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat_${BAT_VERSION}_amd64.deb && \
-        dpkg -i bat_${BAT_VERSION}_amd64.deb && rm bat_${BAT_VERSION}_amd64.deb && \
+        curl -sLo bat.deb https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat_${BAT_VERSION}_amd64.deb && \
+        dpkg -i bat.deb && rm bat.deb && \
     # Install PyPy to replace Python - latest stable release from Tarball
     mkdir /usr/.pypy-linux64 && \
         curl -s $(curl -s https://www.pypy.org/download.html | grep Download | grep linux64.tar.bz2 | head -1 | grep -o 'href=".*"' | cut -d"=" -f2 | sed 's/"//g') \
@@ -47,13 +47,11 @@ RUN yes | unminimize >/dev/null 2>&1 && \
     LAZYGIT_VERSION=$(curl -s "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
         curl -sLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
         tar xf lazygit.tar.gz lazygit && \
-        install lazygit /usr/local/bin && \
-        rm lazygit lazygit.tar.gz && \
+        install lazygit /usr/local/bin && rm lazygit lazygit.tar.gz && \
     # Install delta
     DELTA_VERSION=$(curl -s "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \
-        dpkg -i delta.deb && \
-        rm delta.deb && \
+        dpkg -i delta.deb && rm delta.deb && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \
@@ -86,8 +84,8 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
-    # Create ZDOTDIR and XDG_DATA_HOME directories
-    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} && \
+    # Create ZDOTDIR, XDG_DATA_HOME and local source directories
+    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} $HOME/.local./src && \
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
     git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git $ZDOTDIR/powerlevel10k && \
     # Zsh Auto Suggestions
@@ -97,17 +95,14 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Install zoxide
     curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     # Install Neovim - latest stable release from Tarball
-    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME && \
-        mv $HOME/nvim-linux64 $HOME/.nvim-linux64 && \
-        ln -s $HOME/.nvim-linux64/bin/nvim $HOME/.local/bin && \
+    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME/.local./src && \
+        ln -s $HOME/.local/src/nvim-linux64/bin/nvim $HOME/.local/bin && \
     # Clipboard integration - NOTE that there may be some delays when copying and pasting
-    curl -sfLo $HOME/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
-        unzip -q $HOME/win32yank.zip -d $HOME/win32yank && \
-        chmod +x $HOME/win32yank/win32yank.exe && \
-        mv $HOME/win32yank/win32yank.exe $HOME/.local/bin && \
-        rm -rf $HOME/win32yank.zip $HOME/win32yank && \
+    curl -sLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
+        unzip -q win32yank.zip -d win32yank && chmod +x win32yank/win32yank.exe && \
+        mv win32yank/win32yank.exe $HOME/.local/bin && rm -rf win32yank.zip win32yank && \
     # Install vim-plug for Vim
-    curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
+    curl -sLo $HOME/.vim/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
     # Run PlugInstall non-interactively from command line
     vim +'PlugInstall --sync' +qa && \
@@ -139,14 +134,13 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     npm --global i @jo.shinonome/qls && \
     # Install yazi
     YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLo $HOME/yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
-        unzip $HOME/yazi.zip && rm $HOME/yazi.zip && \
-        mv $HOME/yazi-x86_64-unknown-linux-gnu $HOME/.yazi-x86_64-unknown-linux-gnu && \
-        ln -s $HOME/.yazi-x86_64-unknown-linux-gnu/yazi $HOME/.local/bin && \
+        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
+        unzip -q yazi.zip -d $HOME/.local/src && rm yazi.zip && \
+        ln -s $HOME/.local/src/yazi-x86_64-unknown-linux-gnu/yazi $HOME/.local/bin && \
     # Install yazi themes
-    git clone https://github.com/yazi-rs/flavors.git $HOME/flavors && \
+    git clone https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
-        mv $HOME/flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf $HOME/flavors && \
+        mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
