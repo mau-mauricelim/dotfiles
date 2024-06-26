@@ -170,6 +170,8 @@ vim.keymap.set('i', '<Home>', 'charcol(".") ==  1 ? "<Esc>^i" : "<Esc>0i"', { ex
 vim.keymap.set('n', '<End>', 'charcol(".") == charcol("$")-1 ? "g_" : "$"', { expr = true, silent = true })
 vim.keymap.set('v', '<End>', 'charcol(".") == charcol("$") ? "g_" : "$"', { expr = true, silent = true })
 vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"', { expr = true, silent = true })
+-- If EOL, then join, else del char
+vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = true, silent = true })
 
 -- Save file
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
