@@ -85,7 +85,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
     # Create ZDOTDIR, XDG_DATA_HOME and local source directories
-    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} $HOME/.local./src && \
+    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} $HOME/.local/src && \
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
     git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git $ZDOTDIR/powerlevel10k && \
     # Zsh Auto Suggestions
