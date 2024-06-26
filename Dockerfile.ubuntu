@@ -95,7 +95,7 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Install zoxide
     curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     # Install Neovim - latest stable release from Tarball
-    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME/.local./src && \
+    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz -C $HOME/.local/src && \
         ln -s $HOME/.local/src/nvim-linux64/bin/nvim $HOME/.local/bin && \
     # Clipboard integration - NOTE that there may be some delays when copying and pasting
     curl -sLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
