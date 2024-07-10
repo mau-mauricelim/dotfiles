@@ -7,7 +7,7 @@
 $ git clone https://github.com/mau-mauricelim/dotfiles.git
 $ cd dotfiles
 $ stow --adopt . -nv # Simulation mode
-$ stow --adopt .
+$ stow --adopt . # OR stow . if .stowrc exists
 $ git restore . # OR git reset --hard
 ```
 
@@ -45,6 +45,5 @@ $ git restore . # OR git reset --hard
 - [ ] [Ansible](https://www.ansible.com/)
 - [ ] [NixOS](https://nixos.org/)
 - [ ] [undotree](https://github.com/mbbill/undotree)
-- [ ] [dropbar](https://github.com/Bekaboo/dropbar.nvim)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
 - [ ] [trouble](https://github.com/folke/trouble.nvim)
