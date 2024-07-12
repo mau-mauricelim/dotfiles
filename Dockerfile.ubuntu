@@ -92,6 +92,9 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     git clone -q https://github.com/zsh-users/zsh-autosuggestions $ZDOTDIR/zsh-autosuggestions && \
     # Zsh Syntax Highlighting
     git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
+    # Install jq
+    curl -sLo $HOME/.local/bin/jq "https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64" && \
+        chmod +x $HOME/.local/bin/jq && \
     # Install zoxide
     curl -sS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     # Install Neovim - latest stable release from Tarball

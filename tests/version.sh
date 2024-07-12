@@ -71,3 +71,7 @@ latestAndInstalledVersion npm \
 latestAndInstalledVersion yazi \
     "$(curl -sL https://github.com/sxyazi/yazi/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
     "$(yazi --version)"
+
+latestAndInstalledVersion jq \
+    "$(curl -sL https://github.com/jqlang/jq/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(jq --version)"

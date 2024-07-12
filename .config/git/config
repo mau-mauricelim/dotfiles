@@ -2,8 +2,8 @@
     root = rev-parse --show-toplevel
     # Prefixed with a bang (!): evaluate in a shell
     which = !git branch | grep -i
-    # If you are using alias with positional parameters, 
-    # then you need to wrap it in single-quotes so that git does not evaluate it, 
+    # If you are using alias with positional parameters,
+    # then you need to wrap it in single-quotes so that git does not evaluate it,
     # then pass it to your shell along with a dash (-) so that the arguments get passed through
     # and your shell will evaluate it
     lucky = !sh -c 'git checkout $(git which $1 -m1)' -
@@ -19,6 +19,8 @@
     cm = commit -m
     pm = pull origin main
     fop = fetch origin --prune
+    # Git diff toggle side-by-side
+    gdt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
 
 # delta config
 [core]
@@ -28,7 +30,10 @@
     diffFilter = delta --color-only
 
 [delta]
-    navigate = true    # use n and N to move between diff sections
+    navigate = true # use n and N to move between diff sections
+    # Truncate lines longer than this. To prevent any truncation, set to zero.
+    # Note that syntax-highlighting very long lines (e.g. minified .js) will be very slow if they are not truncated [default: 512]
+    max-line-length = 1024
 
     # delta detects terminal colors automatically; set one of these to disable auto-detection
     # dark = true
