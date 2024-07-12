@@ -175,6 +175,8 @@ vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = tr
 
 -- Save file
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
+-- Disable go to sleep keymap
+vim.keymap.set('n', 'gs', '<nop>')
 
 -- Indenting to remain in visual mode
 vim.keymap.set('v', '<', '<gv')
