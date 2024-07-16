@@ -83,7 +83,7 @@ RUN \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
     # Create a symlink for zshenv to HOME
-    ln -s $HOME/.config/zsh/.zshenv $HOME && \
+    ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
     # Create ZDOTDIR, XDG_DATA_HOME and local source directories
@@ -124,7 +124,8 @@ RUN \
     git clone -q https://github.com/jshinonome/vim-q-syntax.git && \
         mv vim-q-syntax/syntax/q.vim $XDG_CONFIG_HOME/nvim/syntax && \
         rm -rf vim-q-syntax && \
-    ln -s $XDG_CONFIG_HOME/nvim/{indent,syntax} $HOME/.vim && \
+    ln -s $XDG_CONFIG_HOME/nvim/indent $HOME/.vim && \
+		ln -s $XDG_CONFIG_HOME/nvim/syntax $HOME/.vim && \
     # bash and zsh key bindings for Git objects, powered by fzf.
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
