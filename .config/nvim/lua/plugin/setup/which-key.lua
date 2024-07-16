@@ -17,10 +17,8 @@ return { -- Useful plugin to show you pending keybinds.
   'folke/which-key.nvim',
   event = 'VeryLazy',
   config = function() -- This is the function that runs, AFTER loading
-    local wk = require("which-key")
+    local wk = require('which-key')
     -- Document existing key chains
-    -- stylua: ignore
-    -- require('which-key').register({
     wk.add({
       { '<Leader>c', group = '[C]ode' },
       { '<Leader>d', group = '[D]ocument' },
