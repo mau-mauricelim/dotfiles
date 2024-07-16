@@ -117,15 +117,15 @@ RUN \
     git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
         $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \
     # (Neo)vim syntax and indent
-    git clone -q https://github.com/katusk/vim-qkdb-syntax.git && \
+    mkdir -p $XDG_CONFIG_HOME/nvim/{indent,syntax} && \
+        git clone -q https://github.com/katusk/vim-qkdb-syntax.git && \
         mv vim-qkdb-syntax/indent/{k,q}.vim $XDG_CONFIG_HOME/nvim/indent && \
         mv vim-qkdb-syntax/syntax/k.vim $XDG_CONFIG_HOME/nvim/syntax && \
         rm -rf vim-qkdb-syntax && \
-    git clone -q https://github.com/jshinonome/vim-q-syntax.git && \
+        git clone -q https://github.com/jshinonome/vim-q-syntax.git && \
         mv vim-q-syntax/syntax/q.vim $XDG_CONFIG_HOME/nvim/syntax && \
         rm -rf vim-q-syntax && \
-    ln -s $XDG_CONFIG_HOME/nvim/indent $HOME/.vim && \
-		ln -s $XDG_CONFIG_HOME/nvim/syntax $HOME/.vim && \
+        ln -s $XDG_CONFIG_HOME/nvim/{indent,syntax} $HOME/.vim && \
     # bash and zsh key bindings for Git objects, powered by fzf.
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
