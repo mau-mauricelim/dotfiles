@@ -74,14 +74,20 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 USER $USERNAME
 WORKDIR $HOME
 # Setup dotfiles
-COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
-COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
-COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
-COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
+# COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
+# COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
+# COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
+# COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
-# Create a symlink for zshenv to HOME
-RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
+# Bootstrap
+RUN \
+    # Stow the dotfiles
+    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
+        cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
+        stow . && git restore . && cd $HOME && \
+    # Create a symlink for zshenv to HOME
+    ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
     # Create ZDOTDIR, XDG_DATA_HOME and local source directories
@@ -148,9 +154,5 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \
         rm -rf /tmp/tests && \
-    # Stow the dotfiles
-    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
-        cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
-        stow --adopt . && cd $HOME && \
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
