@@ -19,8 +19,6 @@
 .local/src/
 .local/state/
 .vim/autoload/
-.vim/indent/
+.vim/indent
 .vim/plugged/
-.vim/syntax/
-.vim/vim-q-syntax/
-.vim/vim-qkdb-syntax/
+.vim/syntax
