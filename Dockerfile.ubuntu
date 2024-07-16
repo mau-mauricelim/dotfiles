@@ -74,10 +74,6 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 USER $USERNAME
 WORKDIR $HOME
 # Setup dotfiles
-COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
-COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
-COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
-COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
@@ -116,16 +112,15 @@ RUN \
     # fzf
     git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
         $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \
-    # Vim syntax and indent
-    mkdir -p $HOME/.vim/{indent,syntax} && \
-        git clone -q https://github.com/katusk/vim-qkdb-syntax.git $HOME/.vim/vim-qkdb-syntax && \
-            ln -s $HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim $HOME/.vim/indent && \
-            ln -s $HOME/.vim/vim-qkdb-syntax/syntax/k.vim $HOME/.vim/syntax && \
-        git clone -q https://github.com/jshinonome/vim-q-syntax.git $HOME/.vim/vim-q-syntax && \
-            ln -s $HOME/.vim/vim-q-syntax/syntax/q.vim $HOME/.vim/syntax && \
-    # Symlink Vim syntax and indent files to Neovim
-    ln -s $HOME/.vim/indent $XDG_CONFIG_HOME/nvim && \
-        ln -s $HOME/.vim/syntax $XDG_CONFIG_HOME/nvim && \
+    # (Neo)vim syntax and indent
+    git clone -q https://github.com/katusk/vim-qkdb-syntax.git && \
+        mv vim-qkdb-syntax/indent/{k,q}.vim $XDG_CONFIG_HOME/nvim/indent && \
+        mv vim-qkdb-syntax/syntax/k.vim $XDG_CONFIG_HOME/nvim/syntax && \
+        rm -rf vim-qkdb-syntax && \
+    git clone -q https://github.com/jshinonome/vim-q-syntax.git && \
+        mv vim-q-syntax/syntax/q.vim $XDG_CONFIG_HOME/nvim/syntax && \
+        rm -rf vim-q-syntax && \
+    ln -s $XDG_CONFIG_HOME/nvim/{indent,syntax} $HOME/.vim && \
     # bash and zsh key bindings for Git objects, powered by fzf.
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
