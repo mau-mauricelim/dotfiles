@@ -80,10 +80,8 @@ COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
 COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
-# Bootstrap
-RUN \
-    # Create a symlink for zshenv to HOME
-    ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
+# Create a symlink for zshenv to HOME
+RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
     # Create ZDOTDIR, XDG_DATA_HOME and local source directories
