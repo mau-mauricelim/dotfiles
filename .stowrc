@@ -1,4 +1,3 @@
---adopt
 --target=$HOME
 --dir=$HOME/dotfiles
 --restow
