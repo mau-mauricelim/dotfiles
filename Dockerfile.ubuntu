@@ -73,13 +73,15 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 # Set default user
 USER $USERNAME
 WORKDIR $HOME
-# Setup dotfiles
+# Setup dotfiles - copy the files before stowing so that stow does not symlink from the top level
+COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
+COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
+COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
+COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
 RUN \
-    # Make the top level directories so that stow does not symlink from the top level
-    mkdir .config .local && \
     # Stow the dotfiles
     git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
