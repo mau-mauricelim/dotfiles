@@ -79,7 +79,7 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 # Bootstrap
 RUN \
     # Create the top level directories before stowing so that stow does not symlink from the top level
-    mkdir -p $HOME/.{config,local/bin,vim} && \
+    mkdir -p $HOME/.config/{tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # Stow the dotfiles
     git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
