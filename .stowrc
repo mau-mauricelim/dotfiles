@@ -1,2 +1,4 @@
 --adopt
---ignore=.stowrc
+--target=$HOME
+--dir=$HOME/dotfiles
+--restow

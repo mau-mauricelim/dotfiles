@@ -44,9 +44,10 @@ alias k9="kill -9"
 alias rg="rg -L --hidden --glob '!.git'"
 alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
 alias fdh='fd -H'
+alias restow='stow .' # use -nv for simulation
 
 # cd with wslpath
-cdw () { cd "`wslpath "$1"`"; }
+cdw () { builtin cd -- "`wslpath "$1"`"; }
 
 # Goes up a specified number of directories
 up () {
