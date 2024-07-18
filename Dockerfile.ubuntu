@@ -74,18 +74,15 @@ RUN yes | unminimize >/dev/null 2>&1 && \
 USER $USERNAME
 WORKDIR $HOME
 # Setup dotfiles
-COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
 RUN \
-    # Clone the dotfiles
-    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
     # Create the top level directories before stowing so that stow does not symlink from the top level
-    mkdir -p $HOME/.{config,local,vim} && \
-        cd $HOME/.config && ls -l $HOME/dotfiles/.config | grep ^d | awk '{print $9}' | xargs mkdir -p && \
+    mkdir -p $HOME/.{config,local/bin,vim} && \
     # Stow the dotfiles
-    cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
+    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
+        cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
     # Create a symlink for zshenv to HOME
     ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
