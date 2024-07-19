@@ -18,7 +18,7 @@ ARG HOME=/home/$USERNAME
 # Install required packages
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors
-        sudo zsh coreutils ripgrep fd tar bzip2 rlwrap bat zoxide curl git vim lazygit stow delta openssh tmux jq yazi \
+        sudo zsh coreutils ripgrep fd tar bzip2 rlwrap bat zoxide curl git vim lazygit stow delta openssh tmux jq \
         build-base \
         # util-linux-misc is for script
         python3 eza neovim bash util-linux-misc \
@@ -96,6 +96,11 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # TODO: Include npm installation
+    # Install yazi from source
+    YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip" && \
+        unzip -q yazi.zip -d $HOME/.local/src && rm yazi.zip && \
+        ln -s $HOME/.local/src/yazi-x86_64-unknown-linux-gnu/yazi $HOME/.local/bin && \
     # Install yazi themes
     git clone https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
