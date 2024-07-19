@@ -16,14 +16,16 @@ ARG HOME=/home/$USERNAME
 # 3. apk add <package>-doc
 
 # Install required packages
-# coreutils is for dircolors
-RUN apk -q --no-progress --no-cache add sudo zsh coreutils ripgrep fd tar bzip2 rlwrap bat zoxide curl git vim lazygit stow delta openssh tmux \
+RUN apk -q --no-progress --no-cache add \
+        # coreutils is for dircolors
+        sudo zsh coreutils ripgrep fd tar bzip2 rlwrap bat zoxide curl git vim lazygit stow delta openssh tmux jq yazi \
         build-base \
-        mandoc man-pages less \
         # util-linux-misc is for script
         python3 eza neovim bash util-linux-misc \
         # Entry in man
-        sudo-doc coreutils-doc ripgrep-doc fd-doc tar-doc bat-doc curl-doc git-doc less-doc neovim-doc && \
+        mandoc man-pages less \
+        # Install the documentation companion package
+        docs && \
     # Create user
     addgroup --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell
@@ -40,16 +42,19 @@ RUN apk -q --no-progress --no-cache add sudo zsh coreutils ripgrep fd tar bzip2 
 USER $USERNAME
 WORKDIR $HOME
 # Setup dotfiles
-COPY --chown=$USERNAME:$USERNAME .bashrc .commonrc .profile $HOME
-COPY --chown=$USERNAME:$USERNAME .vim $HOME/.vim
-COPY --chown=$USERNAME:$USERNAME .config $HOME/.config
-COPY --chown=$USERNAME:$USERNAME .local $HOME/.local
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 SHELL ["/bin/bash", "-c"]
 
-# Create a symlink for zshenv to HOME
-RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
+# Bootstrap
+# Create the top level directories before stowing so that stow does not symlink from the top level
+RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
+    # Stow the dotfiles
+    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
+        cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
+        stow . && git restore . && cd $HOME && \
+    # Create a symlink for zshenv to HOME
+    ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
     # Create ZDOTDIR and XDG_DATA_HOME directories
@@ -90,6 +95,11 @@ RUN ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
+    # TODO: Include npm installation
+    # Install yazi themes
+    git clone https://github.com/yazi-rs/flavors.git flavors && \
+        mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
+        mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors && \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
