@@ -92,13 +92,13 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     ln -s $HOME/.vim/indent $XDG_CONFIG_HOME/nvim && \
         ln -s $HOME/.vim/syntax $XDG_CONFIG_HOME/nvim && \
     # bash and zsh key bindings for Git objects, powered by fzf.
-    curl -so $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
+    curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # Install q language server for neovim
     sudo npm --global i @jo.shinonome/qls && \
     # Install yazi from source
-    YAZI_VERSION=$(curl -s "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+    YAZI_VERSION=$(curl -sL "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip" && \
         unzip -q yazi.zip -d $HOME/.local/src && rm yazi.zip && \
         ln -s $HOME/.local/src/yazi-x86_64-unknown-linux-musl/yazi $HOME/.local/bin && \
