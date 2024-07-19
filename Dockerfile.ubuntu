@@ -78,11 +78,11 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
 # Create the top level directories before stowing so that stow does not symlink from the top level
-RUN mkdir -p $HOME/.config/{tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
+RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # Stow the dotfiles
     git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
-        stow . && cd $HOME && \
+        stow . && git restore . && cd $HOME && \
     # Create a symlink for zshenv to HOME
     ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
