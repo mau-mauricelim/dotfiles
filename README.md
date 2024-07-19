@@ -6,8 +6,8 @@
 ```bash
 $ git clone https://github.com/mau-mauricelim/dotfiles.git
 $ cd dotfiles
-$ stow --adopt . -nv # Simulation mode
-$ stow --adopt . # OR stow . if .stowrc exists
+$ stow . -nv # Simulation mode
+$ stow . # OR stow . if .stowrc exists
 $ git restore . # OR git reset --hard
 ```
 
