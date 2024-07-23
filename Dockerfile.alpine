@@ -110,13 +110,6 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
-    # Install vim-plug for Vim
-    curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
-        https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
-    # Run PlugInstall non-interactively from command line
-    vim +'PlugInstall --sync' +qa && \
-    # Run Lazy install, clean and update non-interactively from command line
-    nvim --headless '+Lazy! sync' +qa && \
     # fzf
     git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
         $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \
@@ -140,6 +133,8 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     git clone https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
         mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors && \
+    # Run Lazy install, clean and update non-interactively from command line
+    nvim --headless '+Lazy! sync' +qa && \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
