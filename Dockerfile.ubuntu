@@ -37,17 +37,13 @@ RUN yes | unminimize >/dev/null 2>&1 && \
             | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
         ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
     # Install eza from source
-    mkdir -p /etc/apt/keyrings && \
-        curl -sL https://raw.githubusercontent.com/eza-community/eza/main/deb.asc | gpg --dearmor -o /etc/apt/keyrings/gierens.gpg && \
-        echo "deb [signed-by=/etc/apt/keyrings/gierens.gpg] http://deb.gierens.de stable main" | tee /etc/apt/sources.list.d/gierens.list && \
-        chmod 644 /etc/apt/keyrings/gierens.gpg /etc/apt/sources.list.d/gierens.list && \
-        apt-get -qq update && \
-        apt-get -qq install -y --no-install-recommends eza && \
+    curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz && \
+        install eza /usr/local/bin && rm eza && \
     # Install lazygit from source
     LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sLo lazygit.tar.gz "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" && \
-        tar xf lazygit.tar.gz lazygit && \
-        install lazygit /usr/local/bin && rm lazygit lazygit.tar.gz && \
+        curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
+            | tar xz lazygit && \
+        install lazygit /usr/local/bin && rm lazygit && \
     # Install delta from source
     DELTA_VERSION=$(curl -sL "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \

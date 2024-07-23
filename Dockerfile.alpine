@@ -10,22 +10,53 @@ ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG HOME=/home/$USERNAME
 
+# NOTE:
 # To search and add entry in man:
 # 1. apk add mandoc-apropos
 # 2. apk search <entry> | grep doc
 # 3. apk add <package>-doc
+# Alpine uses musl binaries
 
 # Install required packages
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors
-        sudo zsh coreutils ripgrep fd tar bzip2 rlwrap bat zoxide curl git vim lazygit stow delta openssh tmux jq \
-        build-base \
+        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux jq build-base \
+        # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
+        grep \
         # util-linux-misc is for script
-        python3 eza neovim bash util-linux-misc nodejs npm \
+        python3 neovim bash util-linux-misc nodejs npm \
         # Entry in man
         mandoc man-pages less \
         # Install the documentation companion package
         docs && \
+    # Install ripgrep from source
+    RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+            | tar xz ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg --strip-components=1 && \
+        install rg /usr/local/bin && rm rg && \
+    # Install fd from source
+    FD_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
+        curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+            | tar xz fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd --strip-components=1 && \
+        install fd /usr/local/bin/ && rm fd && \
+    # Install bat from source
+    BAT_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/bat/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
+        curl -sL https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+            | tar xz bat-v${BAT_VERSION}-x86_64-unknown-linux-musl/bat --strip-components=1 && \
+        install bat /usr/local/bin/ && rm bat && \
+    # Install eza from source
+    curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz | tar xz && \
+        install eza /usr/local/bin && rm eza && \
+    # Install lazygit from source
+    LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
+        curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
+            | tar xz lazygit && \
+        install lazygit /usr/local/bin && rm lazygit && \
+    # Install delta from source
+    DELTA_VERSION=$(curl -sL "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sL https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+            | tar xz delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta --strip-components=1 && \
+        install delta /usr/local/bin && rm delta && \
     # Create user
     addgroup --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell
@@ -65,6 +96,8 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     git clone -q https://github.com/zsh-users/zsh-autosuggestions $ZDOTDIR/zsh-autosuggestions && \
     # Zsh Syntax Highlighting
     git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
+    # Install zoxide
+    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     # Clipboard integration - NOTE that there may be some delays when copying and pasting
     curl -sfLo $HOME/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
         unzip -q $HOME/win32yank.zip -d $HOME/win32yank && \
