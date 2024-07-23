@@ -69,7 +69,7 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         apt-get -qq clean -y && \
         rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
     # Create user
-    groupadd --gid $USER_GID $USERNAME && \
+    groupadd -o --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell
         useradd --uid $USER_UID --gid $USER_GID -m -N -s /bin/zsh $USERNAME && \
         mkdir -p /etc/sudoers.d && \
