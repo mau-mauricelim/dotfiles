@@ -1,4 +1,4 @@
-FROM alpine:3.19.1
+FROM alpine:latest
 ENV LANG=C.UTF-8 \
     LANGUAGE=C.UTF-8 \
     LC_ALL=C.UTF-8 \
@@ -20,43 +20,55 @@ ARG HOME=/home/$USERNAME
 # Install required packages
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors
-        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux jq build-base \
+        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux build-base \
         # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
         grep \
         # util-linux-misc is for script
-        python3 neovim bash util-linux-misc nodejs npm \
+        python3 bash util-linux-misc nodejs npm \
         # Entry in man
         mandoc man-pages less \
         # Install the documentation companion package
         docs && \
-    # Install ripgrep from source
+    # Install MUSL ripgrep from source
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg --strip-components=1 && \
         install rg /usr/local/bin && rm rg && \
-    # Install fd from source
+    # Install MUSL fd from source
     FD_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd --strip-components=1 && \
-        install fd /usr/local/bin/ && rm fd && \
-    # Install bat from source
+        install fd /usr/local/bin && rm fd && \
+    # Install MUSL bat from source
     BAT_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/bat/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
         curl -sL https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz bat-v${BAT_VERSION}-x86_64-unknown-linux-musl/bat --strip-components=1 && \
-        install bat /usr/local/bin/ && rm bat && \
-    # Install eza from source
+        install bat /usr/local/bin && rm bat && \
+    # Install MUSL eza from source
     curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz | tar xz && \
         install eza /usr/local/bin && rm eza && \
-    # Install lazygit from source
+    # Install LINUX lazygit from source
     LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
         curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
             | tar xz lazygit && \
         install lazygit /usr/local/bin && rm lazygit && \
-    # Install delta from source
+    # Install MUSL delta from source
     DELTA_VERSION=$(curl -sL "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sL https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta --strip-components=1 && \
         install delta /usr/local/bin && rm delta && \
+    # Clipboard integration - NOTE that there may be some delays when copying and pasting
+    curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
+        unzip -q win32yank.zip win32yank.exe && \
+        install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
+    # Install LINUX jq
+    curl -sLo jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64 && \
+        install jq /usr/local/bin && rm jq && \
+    # Install MUSL yazi from source
+    YAZI_VERSION=$(curl -sL "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
+        curl -sLo yazi.zip https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip && \
+        unzip -qj yazi.zip yazi-x86_64-unknown-linux-musl/yazi && \
+        install yazi /usr/local/bin && rm yazi yazi.zip && \
     # Create user
     addgroup --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell
@@ -98,12 +110,6 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
-    # Clipboard integration - NOTE that there may be some delays when copying and pasting
-    curl -sfLo $HOME/win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
-        unzip -q $HOME/win32yank.zip -d $HOME/win32yank && \
-        chmod +x $HOME/win32yank/win32yank.exe && \
-        mv $HOME/win32yank/win32yank.exe $HOME/.local/bin && \
-        rm -rf $HOME/win32yank.zip $HOME/win32yank && \
     # Install vim-plug for Vim
     curl -sfLo $HOME/.vim/autoload/plug.vim --create-dirs \
         https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim && \
@@ -130,11 +136,6 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # Install q language server for neovim
     sudo npm --global i @jo.shinonome/qls && \
-    # Install yazi from source
-    YAZI_VERSION=$(curl -sL "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip" && \
-        unzip -q yazi.zip -d $HOME/.local/src && rm yazi.zip && \
-        ln -s $HOME/.local/src/yazi-x86_64-unknown-linux-musl/yazi $HOME/.local/bin && \
     # Install yazi themes
     git clone https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \

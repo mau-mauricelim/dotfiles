@@ -9,6 +9,8 @@ return { -- Collection of various small independent plugins/modules
     --  - va)  - [V]isually select [A]round [)]paren
     --  - yinq - [Y]ank [I]nside [N]ext [']quote
     --  - ci'  - [C]hange [I]nside [']quote
+    -- NOTE:: use closing `)]` brackets to surround textobjects without spaces
+    --        use opening `([` brackets to surround textobjects with spaces
     require('mini.ai').setup({ n_lines = 500 })
 
     -- Align text interactively
