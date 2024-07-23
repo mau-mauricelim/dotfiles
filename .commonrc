@@ -26,6 +26,9 @@ for user_bin in $HOME/{.,.local}/bin; do
     [ -d $user_bin ] && addToPathFront "$user_bin"
 done
 
+# Set PATH to include Neovim
+[ -d /opt/nvim-linux64 ] && addToPathFront /opt/nvim-linux64/bin
+
 # Set PATH so it includes user's git-scripts if it exists
 [ -d "$XDG_CONFIG_HOME/git/git-scripts" ] && addToPath "$XDG_CONFIG_HOME/git/git-scripts"
 

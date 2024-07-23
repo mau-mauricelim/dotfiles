@@ -61,8 +61,9 @@ RUN yes | unminimize >/dev/null 2>&1 && \
         unzip -qj yazi.zip yazi-x86_64-unknown-linux-gnu/yazi && \
         install yazi /usr/local/bin && rm yazi yazi.zip && \
     # Install GNU Neovim from source
-    curl -sL https://github.com/neovim/neovim/releases/download/stable/nvim-linux64.tar.gz | tar xz nvim-linux64/bin/nvim --strip-components=2 && \
-        install nvim /usr/local/bin && rm nvim && \
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
+        sudo rm -rf /opt/nvim && \
+        sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \
