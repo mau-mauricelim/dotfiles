@@ -21,6 +21,8 @@
     fop = fetch origin --prune
     # Git diff toggle side-by-side
     gdt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
+    # Create GitLab merge request
+    mrc = !git push -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
 
 # delta config
 [core]
