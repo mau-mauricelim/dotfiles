@@ -28,5 +28,6 @@ _darcs
 docs
 src
 tests
+bin
 ^/Dockerfile.*
 .*.md

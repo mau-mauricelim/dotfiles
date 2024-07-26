@@ -91,11 +91,13 @@ SHELL ["/bin/bash", "-c"]
 
 # Bootstrap
 # Create the top level directories before stowing so that stow does not symlink from the top level
-RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
+RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim && \
     # Stow the dotfiles
     git clone -q --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
+    # Install local binaries
+    sudo install $HOME/dotfiles/bin/* /usr/local/bin && \
     # Create a symlink for zshenv to HOME
     ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv

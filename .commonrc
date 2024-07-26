@@ -21,11 +21,6 @@ export TERM=xterm-256color
 addToPath () { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
 addToPathFront () { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
 
-# Set PATH so it includes user's private bin if it exists
-for user_bin in $HOME/{.,.local}/bin; do
-    [ -d $user_bin ] && addToPathFront "$user_bin"
-done
-
 # Set PATH to include Neovim
 [ -d /opt/nvim-linux64 ] && addToPathFront /opt/nvim-linux64/bin
 

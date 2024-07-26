@@ -90,17 +90,19 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
 # Create the top level directories before stowing so that stow does not symlink from the top level
-RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
+RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim && \
     # Stow the dotfiles
     git clone -q --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
+    # Install local binaries
+    install $HOME/dotfiles/bin/* /usr/local/bin && \
     # Create a symlink for zshenv to HOME
     ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
     source $HOME/.zshenv && \
-    # Create ZDOTDIR, XDG_DATA_HOME and local source directories
-    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} $HOME/.local/src && \
+    # Create ZDOTDIR, XDG_DATA_HOME
+    mkdir -p $ZDOTDIR $XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup} && \
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
     git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git $ZDOTDIR/powerlevel10k && \
     # Zsh Auto Suggestions
