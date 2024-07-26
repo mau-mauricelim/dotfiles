@@ -9,6 +9,9 @@ on:
       WORKFLOW_STATUS:
         default: 'success'
         type: string
+      TAG_NAME:
+        default: 'beta'
+        type: string
   workflow_call:
     inputs:
       WORKFLOW_NAME:
@@ -16,6 +19,9 @@ on:
         type: string
       WORKFLOW_STATUS:
         default: 'in_progress'
+        type: string
+      TAG_NAME:
+        default: 'beta'
         type: string
 
 jobs:
@@ -33,13 +39,11 @@ jobs:
           skip_unpack: true
           path: target/release
       - run: ls -lR
-      - name: Delete tag and release
-        uses: dev-drprasad/delete-tag-and-release@v1.1
-        with:
-          tag_name: main
-          github_token: ${{ secrets.GITHUB_TOKEN }}
-      - name: Create Release
+      - name: Delete a release
+        run: gh release delete ${{ inputs.TAG_NAME }} --cleanup-tag -y
+      - name: Create pre-Release
         uses: softprops/action-gh-release@v2
         with:
           files: target/release/wsl-*-custom.zip
-          tag_name: main
+          tag_name: ${{ inputs.TAG_NAME}}
+          prerelease: true
