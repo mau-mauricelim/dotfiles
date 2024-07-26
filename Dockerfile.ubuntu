@@ -116,7 +116,7 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim && \
     # Zsh Syntax Highlighting
     git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
     # Install zoxide
-    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
+    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s --bin-dir /usr/local/bin && \
     # fzf
     git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
         $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \

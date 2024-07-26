@@ -4,7 +4,7 @@ term = "xterm-256color"
 [shell]
 program = "wsl"
 # Use default wsl version
-args = ["-d", "--cd", "~"]
+args = ["--cd", "~"]
 
 [window]
 padding = { x = 8, y = 8 }
