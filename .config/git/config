@@ -15,10 +15,13 @@
     st = status --short --branch
     br = branch
     co = checkout
+    cob = checkout -b
     aa = add -A
     cm = commit -m
     pm = pull origin main
     fop = fetch origin --prune
+    bdel = branch -d
+    bdelr = push origin -d
     # Git diff toggle side-by-side
     gdt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
     # Create GitLab merge request

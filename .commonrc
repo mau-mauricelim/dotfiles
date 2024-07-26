@@ -123,7 +123,10 @@ fi
 
 # WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
 # https://github.com/iamcco/markdown-preview.nvim/issues/309
-addToPath /mnt/c/Windows/System32/
+addToPath /mnt/c/Windows/System32
+# Lazygit: Open pull request in browser
+# bash: line 1: powershell.exe: command not found
+addToPath /mnt/c/Windows/System32/WindowsPowerShell/v1.0
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
