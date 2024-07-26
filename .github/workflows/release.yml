@@ -41,6 +41,8 @@ jobs:
       - run: ls -lR
       - name: Delete a release
         run: gh release delete ${{ inputs.TAG_NAME }} --cleanup-tag -y
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
       - name: Create pre-Release
         uses: softprops/action-gh-release@v2
         with:
