@@ -127,14 +127,14 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
     git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
-    # Install q language server for neovim
-    sudo npm --global i @jo.shinonome/qls && \
+    # Install q language server for neovim and yarn for markdown-preview.nvim
+    sudo npm --global i @jo.shinonome/qls yarn && \
     # Install yazi themes
     git clone https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
         mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors && \
     # Run Lazy install, clean and update non-interactively from command line
-    nvim --headless '+Lazy! sync' +qa && \
+    # nvim --headless '+Lazy! sync' +qa && \
     # Run tests
     source $HOME/.bashrc && \
         echo -e "\n#########\n# TESTS #\n#########\n" && \
