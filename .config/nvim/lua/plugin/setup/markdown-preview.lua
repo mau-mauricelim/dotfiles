@@ -1,4 +1,4 @@
--- install without yarn or npm
+-- install with yarn or npm
 return {
   'iamcco/markdown-preview.nvim',
   cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
@@ -6,6 +6,8 @@ return {
     { '<Leader>tm', '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle [M]arkdown preview' },
   },
   ft = { 'markdown' },
-  -- stylua: ignore
-  build = function() vim.fn['mkdp#util#install']() end,
+  build = 'cd app && yarn install',
+  init = function()
+    vim.g.mkdp_filetypes = { 'markdown' }
+  end,
 }
