@@ -59,6 +59,7 @@ return { -- Autocompletion
       -- chosen, you will need to read `:help ins-completion`
       --
       -- No, but seriously. Please read `:help ins-completion`, it is really good!
+      -- stylua: ignore
       mapping = cmp.mapping.preset.insert({
         -- Disable Up/Down keys in insert mode for consistency
         ['<Up>'] = { i = function(fallback) cmp.close() fallback() end },
@@ -119,7 +120,29 @@ return { -- Autocompletion
     })
     -- `:` cmdline setup.
     cmp.setup.cmdline(':', {
-      mapping = cmp.mapping.preset.cmdline(),
+      mapping = cmp.mapping.preset.cmdline({
+        -- Select the [n]ext/[p]revious item
+        -- in the cmd history if there is no selected entry (default)
+        -- in the cmp list if there is a selected entry (Tab)
+        ['<C-n>'] = {
+          c = function(fallback)
+            if cmp.visible() and cmp.get_selected_entry() ~= nil then
+              cmp.select_next_item()
+            else
+              cmp.close() fallback()
+            end
+          end,
+        },
+        ['<C-p>'] = {
+          c = function(fallback)
+            if cmp.visible() and cmp.get_selected_entry() ~= nil then
+              cmp.select_prev_item()
+            else
+              cmp.close() fallback()
+            end
+          end,
+        },
+      }),
       sources = cmp.config.sources({
         { name = 'path' },
       }, {
