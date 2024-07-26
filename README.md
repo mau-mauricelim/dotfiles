@@ -4,7 +4,7 @@
 
 ## Manage dotfiles with GNU Stow
 ```bash
-$ git clone https://github.com/mau-mauricelim/dotfiles.git
+$ git clone -q --depth=1 https://github.com/mau-mauricelim/dotfiles.git
 $ cd dotfiles
 $ stow . -nv # Simulation mode
 $ stow . # OR stow . if .stowrc exists

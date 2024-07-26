@@ -92,7 +92,7 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 # Create the top level directories before stowing so that stow does not symlink from the top level
 RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # Stow the dotfiles
-    git clone https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
+    git clone -q --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
     # Create a symlink for zshenv to HOME
@@ -104,9 +104,9 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
     git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git $ZDOTDIR/powerlevel10k && \
     # Zsh Auto Suggestions
-    git clone -q https://github.com/zsh-users/zsh-autosuggestions $ZDOTDIR/zsh-autosuggestions && \
+    git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions $ZDOTDIR/zsh-autosuggestions && \
     # Zsh Syntax Highlighting
-    git clone -q https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
+    git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting && \
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash && \
     # fzf
@@ -114,10 +114,10 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
         $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1 && \
     # Vim syntax and indent
     mkdir -p $HOME/.vim/{indent,syntax} && \
-        git clone -q https://github.com/katusk/vim-qkdb-syntax.git $HOME/.vim/vim-qkdb-syntax && \
+        git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git $HOME/.vim/vim-qkdb-syntax && \
             ln -s $HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim $HOME/.vim/indent && \
             ln -s $HOME/.vim/vim-qkdb-syntax/syntax/k.vim $HOME/.vim/syntax && \
-        git clone -q https://github.com/jshinonome/vim-q-syntax.git $HOME/.vim/vim-q-syntax && \
+        git clone -q --depth=1 https://github.com/jshinonome/vim-q-syntax.git $HOME/.vim/vim-q-syntax && \
             ln -s $HOME/.vim/vim-q-syntax/syntax/q.vim $HOME/.vim/syntax && \
     # Symlink Vim syntax and indent files to Neovim
     ln -s $HOME/.vim/indent $XDG_CONFIG_HOME/nvim && \
@@ -125,7 +125,7 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # bash and zsh key bindings for Git objects, powered by fzf.
     curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh && \
     # TPM installation
-    # git clone https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
+    # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $HOME/.tmux/plugins/tpm && $HOME/.tmux/plugins/tpm/bin/install_plugins && \
     # Install nvm, node.js, and npm
     PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
@@ -134,7 +134,7 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.{local/bin,vim} && \
     # Install q language server for neovim and yarn for markdown-preview.nvim
     npm --global i @jo.shinonome/qls yarn && \
     # Install yazi themes
-    git clone https://github.com/yazi-rs/flavors.git flavors && \
+    git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
         mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors && \
     # Run Lazy install, clean and update non-interactively from command line
