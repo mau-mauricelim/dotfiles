@@ -96,7 +96,7 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME && \
     # Install local binaries
-    install $HOME/dotfiles/bin/* /usr/local/bin && \
+    sudo install $HOME/dotfiles/bin/* /usr/local/bin && \
     # Create a symlink for zshenv to HOME
     ln -s $HOME/.config/zsh/.zshenv $HOME/.zshenv && \
     # Source the latest zshenv
