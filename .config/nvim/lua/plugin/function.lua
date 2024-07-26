@@ -42,10 +42,10 @@ vim.keymap.set('n', '<Leader>fe', TrimEndLines, { desc = '[F]ormat [E]nd of file
 -- Remove [No Name] and directory buffers
 local function IsNoNameBuffer(buf)
   return vim.api.nvim_buf_is_loaded(buf)
-    and vim.api.nvim_buf_get_option(buf, 'buflisted')
+    and vim.api.nvim_get_option_value('buflisted', buf)
     and vim.api.nvim_buf_get_name(buf) == ''
-    and vim.api.nvim_buf_get_option(buf, 'buftype') == ''
-    and vim.api.nvim_buf_get_option(buf, 'filetype') == ''
+    and vim.api.nvim_get_option_value('buflisted', buf) == ''
+    and vim.api.nvim_get_option_value('buflisted', buf) == ''
 end
 function ClearBuffers()
   for _, buf in pairs(vim.api.nvim_list_bufs()) do
