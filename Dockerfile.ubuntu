@@ -12,49 +12,38 @@ ARG HOME=/home/$USERNAME
 
 SHELL ["/bin/bash", "-c"]
 
-# Unminimize ubuntu before installing packages
-RUN yes | unminimize >/dev/null 2>&1 && \
+# Bootstrap
+RUN \
+    # Unminimize ubuntu before installing packages
+    yes | unminimize >/dev/null 2>&1 && \
     # Install required packages
     apt-get -qq update && \
         apt-get -qq install -y --no-install-recommends \
             sudo zsh tar bzip2 unzip rlwrap curl gpg ca-certificates git vim man less stow openssh-server tmux file \
             build-essential && \
-    # Install ripgrep from source
+    # Install MUSL ripgrep from source
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLo ripgrep.deb https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep_${RIPGREP_VERSION}-1_amd64.deb && \
-        dpkg -i ripgrep.deb && rm ripgrep.deb && \
-    # Install fd from source
+        curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
+            | tar xz ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg --strip-components=1 && \
+        install rg /usr/local/bin && rm rg && \
+    # Install GNU fd from source
     FD_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sLo fd.deb https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd_${FD_VERSION}_amd64.deb && \
-        dpkg -i fd.deb && rm fd.deb && \
-    # Install bat from source
+        curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz fd-v${FD_VERSION}-x86_64-unknown-linux-gnu/fd --strip-components=1 && \
+        install fd /usr/local/bin && rm fd && \
+    # Install GNU bat from source
     BAT_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/bat/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sLo bat.deb https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat_${BAT_VERSION}_amd64.deb && \
-        dpkg -i bat.deb && rm bat.deb && \
-    # Install PyPy to replace Python - latest stable release from Tarball
-    mkdir /usr/.pypy-linux64 && \
-        curl -sL $(curl -sL https://www.pypy.org/download.html | grep Download | grep linux64.tar.bz2 | head -1 | grep -o 'href=".*"' | cut -d"=" -f2 | sed 's/"//g') \
-            | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
-        ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
+        curl -sL https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu/bat --strip-components=1 && \
+        install bat /usr/local/bin && rm bat && \
     # Install GNU eza from source
     curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz && \
         install eza /usr/local/bin && rm eza && \
-    # Install LINUX lazygit from source
-    LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
-        curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
-            | tar xz lazygit && \
-        install lazygit /usr/local/bin && rm lazygit && \
-    # Install delta from source
+    # Install GNU delta from source
     DELTA_VERSION=$(curl -sL "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sLo delta.deb "https://github.com/dandavison/delta/releases/latest/download/git-delta_${DELTA_VERSION}_amd64.deb" && \
-        dpkg -i delta.deb && rm delta.deb && \
-    # Clipboard integration - NOTE that there may be some delays when copying and pasting
-    curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
-        unzip -q win32yank.zip win32yank.exe && \
-        install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
-    # Install LINUX jq
-    curl -sLo jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64 && \
-        install jq /usr/local/bin && rm jq && \
+        curl -sL https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu/delta --strip-components=1 && \
+        install delta /usr/local/bin && rm delta && \
     # Install GNU yazi from source
     YAZI_VERSION=$(curl -sL "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sLo yazi.zip https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip && \
@@ -64,6 +53,23 @@ RUN yes | unminimize >/dev/null 2>&1 && \
     curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
         rm -rf /opt/nvim && \
         tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz && \
+    # Install LINUX lazygit from source
+    LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
+        curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
+            | tar xz lazygit && \
+        install lazygit /usr/local/bin && rm lazygit && \
+    # Install LINUX jq
+    curl -sLo jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64 && \
+        install jq /usr/local/bin && rm jq && \
+    # Clipboard integration - NOTE that there may be some delays when copying and pasting
+    curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
+        unzip -q win32yank.zip win32yank.exe && \
+        install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
+    # Install PyPy to replace Python - latest stable release from Tarball
+    mkdir /usr/.pypy-linux64 && \
+        curl -sL $(curl -sL https://www.pypy.org/download.html | grep Download | grep linux64.tar.bz2 | head -1 | grep -o 'href=".*"' | cut -d"=" -f2 | sed 's/"//g') \
+            | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
+        ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \
