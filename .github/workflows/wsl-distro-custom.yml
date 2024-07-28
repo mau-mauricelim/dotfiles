@@ -36,8 +36,6 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.${{ matrix.BASE_IMAGE }}
-          build-args: |
-            GIT_BRANCH=${{ github.ref_name }}
       - name: Upload docker image to registry
         run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
       - name: Export docker container to a tar.gz file using gzip
