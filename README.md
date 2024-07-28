@@ -32,10 +32,10 @@ $ git restore . # OR git reset --hard
 - bash 👊
 - fzf 🌸
 - lazygit 🦥
-- ssh
+- ssh 🐚
 - tmux
 - npm (nvm)
-- yazi 🦆 (file)
+- yazi 🦆 (file 📁)
 
 ## 📝 TODO
 - [ ] [codeium](https://github.com/Exafunction/codeium.vim)
@@ -44,4 +44,3 @@ $ git restore . # OR git reset --hard
 - [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
 - [ ] [trouble](https://github.com/folke/trouble.nvim)
-- [ ] [PyPy](https://pypy.org/)
