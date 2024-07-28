@@ -14,7 +14,7 @@ ARG HOME=/home/$USERNAME
 # Install required packages
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors
-        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux build-base \
+        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux \
         # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
         grep \
         # util-linux-misc is for script

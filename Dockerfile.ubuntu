@@ -19,8 +19,7 @@ RUN \
     # Install required packages
     apt-get -qq update && \
         apt-get -qq install -y --no-install-recommends \
-            sudo zsh tar bzip2 unzip rlwrap curl gpg ca-certificates git vim man less stow openssh-server tmux file \
-            build-essential && \
+            sudo zsh tar bzip2 unzip rlwrap curl git vim man less stow openssh-server tmux && \
     # Install MUSL ripgrep from source
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
         curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
@@ -66,9 +65,9 @@ RUN \
         unzip -q win32yank.zip win32yank.exe && \
         install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
     # Clean up
-    apt-get -qq remove gpg ca-certificates && \
-        apt-get -qq autoremove -y && \
+    apt-get -qq autoclean -y && \
         apt-get -qq clean -y && \
+        apt-get -qq autoremove -y && \
         rm -rf /var/cache/apt/archives /var/lib/apt/lists && \
     # Create user
     groupadd --gid $USER_GID $USERNAME && \
