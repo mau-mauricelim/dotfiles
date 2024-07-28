@@ -65,11 +65,6 @@ RUN \
     curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
         unzip -q win32yank.zip win32yank.exe && \
         install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
-    # Install PyPy to replace Python - latest stable release from Tarball
-    mkdir /usr/.pypy-linux64 && \
-        curl -sL $(curl -sL https://www.pypy.org/download.html | grep Download | grep linux64.tar.bz2 | head -1 | grep -o 'href=".*"' | cut -d"=" -f2 | sed 's/"//g') \
-            | tar xj -C /usr/.pypy-linux64 --strip-components 1 && \
-        ln -sf $(find /usr/.pypy-linux64/bin -type l) /usr/bin && \
     # Clean up
     apt-get -qq remove gpg ca-certificates && \
         apt-get -qq autoremove -y && \

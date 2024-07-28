@@ -18,7 +18,7 @@ RUN apk -q --no-progress --no-cache add \
         # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
         grep \
         # util-linux-misc is for script
-        python3 neovim bash util-linux-misc nodejs npm \
+        neovim bash util-linux-misc nodejs npm \
         # Entry in man
         mandoc man-pages less \
         # Install the documentation companion package
