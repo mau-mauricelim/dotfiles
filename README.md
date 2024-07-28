@@ -15,7 +15,7 @@ $ git restore . # OR git reset --hard
 - sudo
 - zsh
 - ripgrep
-- fd(-find) ⚡
+- fd ⚡
 - tar
 - bzip2
 - unzip 🤐
@@ -23,7 +23,6 @@ $ git restore . # OR git reset --hard
 - bat(cat) 🦇 🐈
 - zoxide
 - curl 🥌
-- gpg
 - git
 - vim
 - less
@@ -36,7 +35,7 @@ $ git restore . # OR git reset --hard
 - ssh
 - tmux
 - npm (nvm)
-- yazi 🦆
+- yazi 🦆 (file)
 
 ## 📝 TODO
 - [ ] [codeium](https://github.com/Exafunction/codeium.vim)
