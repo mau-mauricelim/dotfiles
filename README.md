@@ -35,9 +35,7 @@ $ git restore . # OR git reset --hard
 - lazygit 🦥
 - ssh
 - tmux
-- nvm
-- npm
-- file
+- npm (nvm)
 - yazi 🦆
 
 ## 📝 TODO
@@ -47,3 +45,4 @@ $ git restore . # OR git reset --hard
 - [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
 - [ ] [trouble](https://github.com/folke/trouble.nvim)
+- [ ] [PyPy](https://pypy.org/)
