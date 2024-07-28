@@ -1,5 +1,7 @@
 return { -- UI for messages, cmdline and the popupmenu
   'folke/noice.nvim',
+  -- BUG: v4.5.0 is causing nvim to hang on exit: https://github.com/folke/noice.nvim/issues/921
+  tag = 'v4.4.7',
   event = 'VeryLazy',
   dependencies = {
     -- If you lazy-load any plugin below, make sure to add proper `module='...'` entries
