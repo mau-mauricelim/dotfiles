@@ -26,7 +26,6 @@ $ git restore . # OR git reset --hard
 - git
 - vim
 - less
-- python3 🐍
 - eza
 - neovim
 - bash 👊
