@@ -27,9 +27,10 @@ RUN apk -q --no-progress --no-cache add \
     mkdir -p /usr/local/share/man/man1 && \
     # Install MUSL ripgrep from source
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4) && \
-        curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
-            | tar xz ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/{rg,doc/rg.1} --strip-components=1 && \
-        install rg /usr/local/bin && mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc && \
+        curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz | tar xz && \
+        install ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg /usr/local/bin && \
+        mv ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/doc/rg.1 /usr/local/share/man/man1 && \
+        rm -r ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl && \
     # Install MUSL fd from source
     FD_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*') && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
