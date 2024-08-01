@@ -14,8 +14,8 @@ SHELL ["/bin/bash", "-c"]
 
 # Bootstrap
 RUN \
-    # Unminimize ubuntu before installing packages
-    yes | unminimize >/dev/null 2>&1 && \
+    # Install man pages in Ubuntu docker image
+    sed -i 's:^path-exclude=/usr/share/man:#path-exclude=/usr/share/man:' /etc/dpkg/dpkg.cfg.d/excludes && \
     # Install required packages
     apt-get -qq update >/dev/null 2>&1 && \
         apt-get -qq install -y --no-install-recommends \
