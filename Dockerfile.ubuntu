@@ -68,7 +68,7 @@ RUN \
         curl -sL https://github.com/jqlang/jq/releases/latest/download/${JQ_VERSION}.tar.gz | tar xz ${JQ_VERSION}/jq.1 --strip-components=1 && \
         install jq /usr/local/bin && mv jq.1 /usr/local/share/man/man1 && rm jq && \
     # Install zoxide
-    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin && \
+    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man/man1 && \
     # Clipboard integration - NOTE that there may be some delays when copying and pasting
     curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
         unzip -q win32yank.zip win32yank.exe && \
