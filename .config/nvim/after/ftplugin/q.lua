@@ -16,6 +16,11 @@ local status_mini, completion = pcall(require, 'mini.completion')
 -- stylua: ignore
 if status_mini then completion.setup() end
 
+-- Comment string
+vim.bo.commentstring = '/%s'
+-- Disable autopair for '`'
+vim.keymap.set('i', '`', '`', { buffer = 0 })
+
 -- qls override if it exists
 vim.lsp.start({
   name = 'q language server',
