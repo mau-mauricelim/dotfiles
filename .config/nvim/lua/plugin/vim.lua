@@ -160,7 +160,7 @@ vim.keymap.set('v', '<Leader>fc', 'mz:!$(where cat|tail -1) -s<CR>`z', { desc = 
 
 -- Remap C-c to Esc
 vim.keymap.set('i', '<C-c>', '<Esc>')
--- TEST: kj to Esc
+-- `kj` to Esc
 vim.keymap.set({ 'i', 'v' }, 'kj', '<Esc>')
 
 -- Remap Home/End to toggle between start/end of line and first/last non-blank space
@@ -221,8 +221,9 @@ vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W
 vim.keymap.set('n', '<Leader>cf', '<cmd>let @" = expand("%")<CR>', { desc = '[C]opy [F]ile' })
 vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[C]opy [P]ath' })
 
--- Paste over selection without losing yanked lines
-vim.keymap.set('x', '<Leader>po', [["_dP]], { desc = '[P]aste [O]ver selection without losing yanked lines' })
+-- nvim: [P]aste over visual selection without losing yanked lines
+-- See `:help put-Visual-mode`
+
 -- Delete selection without losing yanked lines
 vim.keymap.set({'n', 'v'}, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
 -- Yank to/Paste from system clipboard
@@ -232,6 +233,9 @@ vim.keymap.set({ 'n', 'v' }, '<Leader>pp', [["+p]], { desc = 'Paste from system 
 -- Insert line below/above current line without leaving normal mode
 vim.keymap.set('n', '<Leader>o', 'o<Esc>', { desc = 'Insert line below without leaving normal mode' })
 vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without leaving normal mode' })
+
+-- Insert tab space in normal mode
+vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
