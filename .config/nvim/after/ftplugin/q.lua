@@ -20,6 +20,8 @@ if status_mini then completion.setup() end
 vim.bo.commentstring = '/%s'
 -- Disable autopair for '`'
 vim.keymap.set('i', '`', '`', { buffer = 0 })
+-- Add semi-colon separator
+vim.keymap.set({ 'n', 'v' }, '<Leader>;', 'mz:norm A;<CR>`z', { desc = 'Add semi-colon separator', silent = true })
 
 -- qls override if it exists
 vim.lsp.start({
