@@ -17,6 +17,16 @@ vim.keymap.set(
   { desc = 'Toggle [V]irtual[E]dit mode between onemore and all' }
 )
 
+-- Toggle vim keyword
+vim.keymap.set('n', '<Leader>tw', function()
+  local keyword = vim.o.iskeyword
+  if string.find(keyword, '.', 1, true) == nil then
+    vim.opt.iskeyword:append('.')
+  else
+    vim.opt.iskeyword:remove('.')
+  end
+end, { desc = '[T]oggle vim key[w]ord' })
+
 -- Toggle unnamedplus clipboard
 vim.keymap.set('n', '<Leader>cb', function()
   if vim.o.clipboard == '' then

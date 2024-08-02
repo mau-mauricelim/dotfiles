@@ -1,5 +1,6 @@
 -- Custom goto definition
 vim.opt.iskeyword:append('.')
+
 local status_telescope, builtin = pcall(require, 'telescope.builtin')
 -- stylua: ignore
 if status_telescope then
