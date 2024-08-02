@@ -108,6 +108,9 @@ return { -- Collection of various small independent plugins/modules
     vim.keymap.set({ 'v', 'n' }, '<M-down>',  '<M-j>', { desc = 'Move selection down',  remap = true })
     vim.keymap.set({ 'v', 'n' }, '<M-up>',    '<M-k>', { desc = 'Move selection up',    remap = true })
 
+    -- Minimal and fast autopairs
+    require('mini.pairs').setup()
+
     -- "gS" to Toggle split and join arguments
     require('mini.splitjoin').setup()
 
