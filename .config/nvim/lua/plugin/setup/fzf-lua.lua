@@ -37,6 +37,9 @@ return {
           ['Ctrl-x'] = actions.buf_vsplit,
         },
       },
+      grep = {
+        rg_opts = "--column --line-number --no-heading --color=always --smart-case --hidden --glob '!.git' --max-columns=4096 -e",
+      },
     })
 
     -- Function to search for files with path
@@ -56,6 +59,7 @@ return {
     vim.keymap.set('n', '<Leader>sc',       fzf_lua.command_history,      { desc = '[S]earch [C]ommand history' })
     vim.keymap.set('n', '<Leader><Leader>', fzf_lua.buffers,              { desc = '[ ] Find existing buffers' })
     vim.keymap.set('n', '<Leader>/g',       fzf_lua.lgrep_curbuf,         { desc = '[/] [G]rep search current buffer' })
+    vim.keymap.set('n', '<Leader>/h',       fzf_lua.search_history,       { desc = '[/] Search [H]istory' })
     vim.keymap.set('n', '<Leader>sp',       ':lua Files("")<Left><Left>', { desc = '[S]earch Files in [P]ath' })
     -- Shortcut for searching your neovim configuration files
     vim.keymap.set('n', '<Leader>sn', function()

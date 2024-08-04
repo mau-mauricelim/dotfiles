@@ -1,15 +1,15 @@
 -- Custom goto definition
 vim.opt.iskeyword:append('.')
 
-local status_telescope, builtin = pcall(require, 'telescope.builtin')
+local status_fzf_lua, fzf_lua = pcall(require, 'fzf-lua')
 -- stylua: ignore
-if status_telescope then
+if status_fzf_lua then
   -- Naive solution
-  builtin.goto_def = function() builtin.grep_string({ search = vim.fn.expand('<cword>') .. ':' }) end
-  builtin.goto_ref = function() builtin.grep_string({ search = vim.fn.expand('<cword>') }) end
-  vim.keymap.set('n', 'gd', builtin.goto_def, { desc = '[G]oto [D]efinition' })
+  local function Goto_definitons() fzf_lua.grep({ search = vim.fn.expand('<cword>') .. ':' }) end
+  local function Goto_references() fzf_lua.grep({ search = vim.fn.expand('<cword>') }) end
+  vim.keymap.set('n', 'gd', Goto_definitons, { desc = '[G]oto [D]efinition' })
   -- Does not exclude definition
-  vim.keymap.set('n', 'gr', builtin.goto_ref, { desc = '[G]oto [R]eferences' })
+  vim.keymap.set('n', 'gr', Goto_references, { desc = '[G]oto [R]eferences' })
 end
 
 -- Autocompletion and signature help plugin
