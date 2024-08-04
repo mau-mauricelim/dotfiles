@@ -20,7 +20,7 @@ return { -- Autoformat
     formatters_by_ft = {
       lua    = { 'stylua' },
       -- Conform can also run multiple formatters sequentially
-      python = { 'isort', 'black' },
+      python = { 'ruff_fix', 'ruff_format', 'ruff_organize_imports'},
       shell  = { 'shfmt', 'shellcheck' },
       bash   = { 'shfmt', 'shellcheck' },
       zsh    = { 'shfmt', 'shellcheck' },
