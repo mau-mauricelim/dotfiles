@@ -67,7 +67,8 @@ return { -- LSP Configuration & Plugins
         -- Jump to the definition of the word under your cursor.
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-T>.
-        map('gd', fzf_lua.lsp_definitions, '[G]oto [D]efinition')
+        -- https://github.com/ibhagwan/fzf-lua/wiki#lsp-single-result
+        map('gd', function() fzf_lua.lsp_definitions({ jump_to_single_result=true, ignore_current_line=true }) end, '[G]oto [D]efinition')
 
         -- Find references for the word under your cursor.
         map('gr', fzf_lua.lsp_references, '[G]oto [R]eferences')

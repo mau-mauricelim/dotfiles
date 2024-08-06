@@ -13,9 +13,10 @@ return {
         height  = 0.8,
         width   = 0.8,
         preview = {
-          vertical  = 'down:65%', -- up|down:size
-          layout    = 'vertical',
-          scrollbar = 'false',
+          vertical    = 'down:65%', -- up|down:size
+          layout      = 'vertical',
+          scrollbar   = 'true',
+          scrollchars = { "┃", "" },
         },
       },
       keymap = {
