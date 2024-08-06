@@ -20,9 +20,6 @@ on:
       WORKFLOW_STATUS:
         default: 'in_progress'
         type: string
-      TAG_NAME:
-        default: 'beta'
-        type: string
 
 jobs:
   release:

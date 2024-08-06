@@ -2,6 +2,10 @@ name: Build WSL Distro custom and Release
 
 on:
   workflow_dispatch:
+    inputs:
+      TAG_NAME:
+        default: 'beta'
+        type: string
 
 jobs:
   build:
@@ -11,3 +15,5 @@ jobs:
     needs: build
     uses: ./.github/workflows/release.yml
     secrets: inherit
+    with:
+      TAG_NAME: ${{ inputs.TAG_NAME }}
