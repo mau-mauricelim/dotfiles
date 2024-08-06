@@ -19,8 +19,8 @@ RUN \
     # Install required packages
     apt-get -qq update >/dev/null 2>&1 && \
         apt-get -qq install -y --no-install-recommends \
-            # ca-certificates is required for build success, file is required for yazi
-            sudo zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file && \
+            # ca-certificates is required for build success, build-essential is for nvim, file is required for yazi
+            sudo zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux build-essential file && \
     # Manual install of man pages for release binaries
     mkdir -p /usr/local/share/man/man1 && \
     # Install MUSL ripgrep from source
