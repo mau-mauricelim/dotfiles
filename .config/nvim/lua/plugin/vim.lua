@@ -258,6 +258,7 @@ vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
+-- https://www.lazyvim.org/configuration/general#auto-commands
 
 -- Highlight when yanking (copying) text
 --  Try it with `yap` in normal mode
@@ -286,3 +287,21 @@ vim.api.nvim_create_autocmd('BufReadPre', {
 
 -- Add new filetype mappings
 vim.filetype.add({ extension = { q = 'q', k = 'k' } })
+
+-- Go to last location when opening a buffer
+vim.api.nvim_create_autocmd('BufReadPost', {
+  group = vim.api.nvim_create_augroup('lazyvim_last_loc', { clear = true }),
+  callback = function(event)
+  local exclude = { 'gitcommit' }
+  local buf = event.buf
+  if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].lazyvim_last_loc then
+    return
+  end
+  vim.b[buf].lazyvim_last_loc = true
+  local mark = vim.api.nvim_buf_get_mark(buf, '"')
+  local lcount = vim.api.nvim_buf_line_count(buf)
+  if mark[1] > 0 and mark[1] <= lcount then
+    pcall(vim.api.nvim_win_set_cursor, 0, mark)
+  end
+  end,
+})
