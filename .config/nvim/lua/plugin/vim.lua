@@ -217,37 +217,21 @@ vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', 
 vim.keymap.set('n', '<Leader>-', '<cmd>sp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Horizontal [|] Split and move' })
 
 -- Execute vim and lua (print) commands
--- stylua: ignore
 function P(v) print(vim.inspect(v)); return v end
 vim.keymap.set('n', '<Leader>lu', ':lua ', { desc = 'Run [Lu]a command' })
 vim.keymap.set('n', '<Leader>lp', ':lua P()<Left>', { desc = 'Run [L]ua [P]rint command' })
 vim.keymap.set('n', '<Leader>xv', '<cmd>exec getline(".")<CR>', { desc = 'E[X]ecute current line in Vim' })
 vim.keymap.set('n', '<Leader>xl', '<cmd>exec "lua ".getline(".")<CR>', { desc = 'E[X]ecute current line in Lua' })
-vim.keymap.set(
-  'n',
-  '<Leader>xp',
-  '<cmd>exec "lua P(".getline(".").")"<CR>',
-  { desc = 'E[X]ecute current line in Lua print()' }
-)
+vim.keymap.set('n', '<Leader>xp', '<cmd>exec "lua P(".getline(".").")"<CR>', { desc = 'E[X]ecute current line in Lua print()' })
 
 -- Add -- stylua: ignore above current line
-vim.keymap.set(
-  'n',
-  '<Leader>si',
-  'yyP^d$a-- stylua: ignore<Esc>',
-  { desc = 'Add [S]tylua [I]gnore above current line' }
-)
+vim.keymap.set('n', '<Leader>si', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [S]tylua [I]gnore above current line' })
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 
 -- Search and replace the word under the cursor
-vim.keymap.set(
-  'n',
-  '<Leader>/r',
-  [[:%s/<C-r><C-w>//g<Left><Left>]],
-  { desc = '[S]earch and [R]eplace the word under the cursor' }
-)
+vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
 -- Search whole word
 vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W]hole word' })
 -- HINT: Search for visual selection with *
