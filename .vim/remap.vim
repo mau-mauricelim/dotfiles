@@ -31,3 +31,7 @@ nnoremap <Leader>cp <cmd>let @" = expand("%:p")<CR>
 
 " Customizing commands for fzf.vim
 command! -bang -nargs=* Rg call fzf#vim#grep("rg --hidden --glob '!.git' --column --line-number --no-heading --color=always --smart-case -- ".fzf#shellescape(<q-args>), fzf#vim#with_preview(), <bang>0)
+
+" Esc
+inoremap kj <Esc>
+vnoremap kj <Esc>
