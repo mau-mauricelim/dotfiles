@@ -56,7 +56,12 @@ return { -- UI for messages, cmdline and the popupmenu
     -- Noice default view
     vim.keymap.set('n', '<Leader>nh', '<cmd>Noice<CR>', { desc = '[N]oice [H]istory' })
     -- Override the default behaviour in vim.lua
-    vim.keymap.set('n', '<Esc>', '<cmd>NoiceDismiss<CR><cmd>nohlsearch<CR>')
+    vim.keymap.set(
+      'n',
+      '<Esc>',
+      '<cmd>NoiceDismiss<CR><cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>',
+      { desc = 'Noice Dismiss / Redraw / Clear hlsearch / Diff Update', silent = true }
+    )
     -- Normal messages
     vim.keymap.set('n', '<Leader>nm', '<cmd>messages<CR>', { desc = '[N]ormal [M]essages' })
 

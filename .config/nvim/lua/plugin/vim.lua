@@ -89,7 +89,12 @@ vim.opt.virtualedit = 'onemore'
 
 -- Set highlight on search, but clear on pressing <Esc> in normal mode
 vim.opt.hlsearch = true
-vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
+vim.keymap.set(
+  'n',
+  '<Esc>',
+  '<cmd>nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>',
+  { desc = 'Redraw / Clear hlsearch / Diff Update', silent = true }
+)
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
@@ -133,9 +138,16 @@ vim.keymap.set({ 'n', 'v' }, '<PageUp>', '<C-u>zz')
 vim.keymap.set({ 'n', 'v' }, '<PageDown>', '<C-d>zz')
 vim.keymap.set('i', '<PageUp>', '<Esc><C-u>zzi')
 vim.keymap.set('i', '<PageDown>', '<Esc><C-d>zzi')
+
+-- `n` to always search forward and `N` backward
+-- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
 -- Center search and open folds for this line
-vim.keymap.set('n', 'n', 'nzzzv')
-vim.keymap.set('n', 'N', 'Nzzzv')
+vim.keymap.set('n', 'n', "'Nn'[v:searchforward].'zzzv'", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('x', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('o', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
+vim.keymap.set('n', 'N', "'nN'[v:searchforward].'zzzv'", { expr = true, desc = 'Prev Search Result' })
+vim.keymap.set('x', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
+vim.keymap.set('o', 'N', "'nN'[v:searchforward]", { expr = true, desc = 'Prev Search Result' })
 
 -- Joins line below cursor
 -- `mz` saves the cursor position using the mark `z`, ` `z` goes back to mark `z`
@@ -175,8 +187,15 @@ vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = tr
 
 -- Save file
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
+-- New file
+vim.keymap.set('n', '<Leader>nf', '<cmd>enew<CR>', { desc = '[N]ew [F]ile' })
 -- Disable go to sleep keymap
 vim.keymap.set('n', 'gs', '<nop>')
+
+-- Quickfix list
+vim.keymap.set('n', '<Leader>lq', '<cmd>copen<CR>', { desc = '[L]ist [Q]uickfix' })
+vim.keymap.set('n', ']q', vim.cmd.cnext, { desc = 'Next [Q]uickfix' })
+vim.keymap.set('n', '[q', vim.cmd.cprev, { desc = 'Previous [Q]uickfix' })
 
 -- Indenting to remain in visual mode
 vim.keymap.set('v', '<', '<gv')
@@ -193,8 +212,9 @@ vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })
 -- Shift-V for visual line mode
 vim.keymap.set('n', '<Leader>vb', '<C-v>', { desc = '[V]isual [B]lock mode' })
 
--- Vertical split and move
-vim.keymap.set('n', '<Leader>vs', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = '[V]ertical [S]plit and move' })
+-- Split and move
+vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Vertical [-] Split and move' })
+vim.keymap.set('n', '<Leader>-', '<cmd>sp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Horizontal [|] Split and move' })
 
 -- Execute vim and lua (print) commands
 -- stylua: ignore
@@ -203,16 +223,31 @@ vim.keymap.set('n', '<Leader>lu', ':lua ', { desc = 'Run [Lu]a command' })
 vim.keymap.set('n', '<Leader>lp', ':lua P()<Left>', { desc = 'Run [L]ua [P]rint command' })
 vim.keymap.set('n', '<Leader>xv', '<cmd>exec getline(".")<CR>', { desc = 'E[X]ecute current line in Vim' })
 vim.keymap.set('n', '<Leader>xl', '<cmd>exec "lua ".getline(".")<CR>', { desc = 'E[X]ecute current line in Lua' })
-vim.keymap.set('n', '<Leader>xp', '<cmd>exec "lua P(".getline(".").")"<CR>', { desc = 'E[X]ecute current line in Lua print()' })
+vim.keymap.set(
+  'n',
+  '<Leader>xp',
+  '<cmd>exec "lua P(".getline(".").")"<CR>',
+  { desc = 'E[X]ecute current line in Lua print()' }
+)
 
 -- Add -- stylua: ignore above current line
-vim.keymap.set('n', '<Leader>si', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [S]tylua [I]gnore above current line' })
+vim.keymap.set(
+  'n',
+  '<Leader>si',
+  'yyP^d$a-- stylua: ignore<Esc>',
+  { desc = 'Add [S]tylua [I]gnore above current line' }
+)
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 
 -- Search and replace the word under the cursor
-vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
+vim.keymap.set(
+  'n',
+  '<Leader>/r',
+  [[:%s/<C-r><C-w>//g<Left><Left>]],
+  { desc = '[S]earch and [R]eplace the word under the cursor' }
+)
 -- Search whole word
 vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W]hole word' })
 -- HINT: Search for visual selection with *
@@ -225,7 +260,7 @@ vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[
 -- See `:help put-Visual-mode`
 
 -- Delete selection without losing yanked lines
-vim.keymap.set({'n', 'v'}, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
+vim.keymap.set({ 'n', 'v' }, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
 -- Yank to/Paste from system clipboard
 vim.keymap.set('n', '<Leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>y', [["+y]], { desc = 'Yank to system clipboard' })
@@ -266,4 +301,4 @@ vim.api.nvim_create_autocmd('BufReadPre', {
 })
 
 -- Add new filetype mappings
-vim.filetype.add({ extension = { q = 'q', k = 'k' }})
+vim.filetype.add({ extension = { q = 'q', k = 'k' } })
