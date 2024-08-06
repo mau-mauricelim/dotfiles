@@ -19,12 +19,27 @@ vim.keymap.set(
 
 -- Toggle vim keyword
 vim.keymap.set('n', '<Leader>tw', function()
-  local keyword = vim.o.iskeyword
-  if string.find(keyword, '.', 1, true) == nil then
-    vim.opt.iskeyword:append('.')
-  else
-    vim.opt.iskeyword:remove('.')
-  end
+  vim.ui.input({ prompt = '(Toggle vim keyword) Enter keyword: '}, function(input)
+    if input == nil then return nil end
+    -- Remove whitespaces
+    input = input:gsub('%s+', '')
+    -- TODO: Apply a unique function on string input
+    if input == '' then return nil end
+
+    -- Loop through each character
+    for i = 1, #input do
+      local keyword = vim.o.iskeyword
+      local char = input:sub(i, i)
+      vim.cmd('set iskeyword+=' .. char)
+      -- If unchanged
+      if keyword == vim.o.iskeyword then
+        vim.cmd('set iskeyword-='..char)
+        vim.notify('Removed ' .. char .. ' from vim keyword')
+      else
+        vim.notify('Appended ' .. char .. ' to vim keyword')
+      end
+    end
+  end)
 end, { desc = '[T]oggle vim key[w]ord' })
 
 -- Toggle unnamedplus clipboard
