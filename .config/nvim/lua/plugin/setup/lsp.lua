@@ -63,30 +63,32 @@ return { -- LSP Configuration & Plugins
           vim.keymap.set('n', keys, func, { buffer = event.buf, desc = 'LSP: ' .. desc })
         end
 
+        local fzf_lua = require('fzf-lua')
         -- Jump to the definition of the word under your cursor.
         --  This is where a variable was first declared, or where a function is defined, etc.
         --  To jump back, press <C-T>.
-        map('gd', require('telescope.builtin').lsp_definitions, '[G]oto [D]efinition')
+        -- https://github.com/ibhagwan/fzf-lua/wiki#lsp-single-result
+        map('gd', function() fzf_lua.lsp_definitions({ jump_to_single_result=true, ignore_current_line=true }) end, '[G]oto [D]efinition')
 
         -- Find references for the word under your cursor.
-        map('gr', require('telescope.builtin').lsp_references, '[G]oto [R]eferences')
+        map('gr', fzf_lua.lsp_references, '[G]oto [R]eferences')
 
         -- Jump to the implementation of the word under your cursor.
         --  Useful when your language has ways of declaring types without an actual implementation.
-        map('gI', require('telescope.builtin').lsp_implementations, '[G]oto [I]mplementation')
+        map('gI', fzf_lua.lsp_implementations, '[G]oto [I]mplementation')
 
         -- Jump to the type of the word under your cursor.
         --  Useful when you're not sure what type a variable is and you want to see
         --  the definition of its *type*, not where it was *defined*.
-        map('<Leader>D', require('telescope.builtin').lsp_type_definitions, 'Type [D]efinition')
+        map('<Leader>D', fzf_lua.lsp_typedefs, 'Type [D]efinition')
 
         -- Fuzzy find all the symbols in your current document.
         --  Symbols are things like variables, functions, types, etc.
-        map('<Leader>ds', require('telescope.builtin').lsp_document_symbols, '[D]ocument [S]ymbols')
+        map('<Leader>ds', fzf_lua.lsp_document_symbols, '[D]ocument [S]ymbols')
 
         -- Fuzzy find all the symbols in your current workspace
         --  Similar to document symbols, except searches over your whole project.
-        map('<Leader>ws', require('telescope.builtin').lsp_dynamic_workspace_symbols, '[W]orkspace [S]ymbols')
+        map('<Leader>ws', fzf_lua.lsp_workspace_symbols, '[W]orkspace [S]ymbols')
 
         -- Rename the variable under your cursor
         --  Most Language Servers support renaming across files, etc.
