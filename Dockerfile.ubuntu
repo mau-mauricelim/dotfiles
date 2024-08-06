@@ -141,8 +141,8 @@ RUN mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim && \
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
         nvm install node && \
-    # Install q language server for neovim and yarn for markdown-preview.nvim
-    npm --global i @jo.shinonome/qls yarn && \
+    # Install q language server for neovim
+    npm --global i @jo.shinonome/qls && \
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \

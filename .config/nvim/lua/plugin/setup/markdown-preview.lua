@@ -6,8 +6,10 @@ return {
     { '<Leader>tm', '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle [M]arkdown preview' },
   },
   ft = { 'markdown' },
-  build = 'cd app && yarn install',
-  init = function()
-    vim.g.mkdp_filetypes = { 'markdown' }
+  -- BUG: Vim:E117: Unknown function: mkdp#util#install when install by lazy.nvim
+  -- https://github.com/iamcco/markdown-preview.nvim/issues/690
+  -- If build fail, manually run `:call mkdp#util#install()`
+  build = function()
+    vim.fn['mkdp#util#install']()
   end,
 }
