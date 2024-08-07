@@ -82,7 +82,7 @@ return { -- Collection of various small independent plugins/modules
     vim.keymap.set('n', '<Leader>ts', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
       { desc = 'Toggle indent [S]cope', silent = true })
     -- Toggle all indent lines and scope
-    local toggleIndent = function()
+    function ToggleIndent()
       local ibl = require('ibl')
       local conf = require('ibl.config')
       local anyEnabled = (not vim.g.miniindentscope_disable) or conf.get_config(-1).enabled
@@ -96,7 +96,7 @@ return { -- Collection of various small independent plugins/modules
         vim.g.miniindentscope_disable = false
       end
     end
-    vim.keymap.set('n', '<Leader>ta', toggleIndent,
+    vim.keymap.set('n', '<Leader>ta', ToggleIndent,
       { desc = 'Toggle indent [A]ll', silent = true })
 
     -- Move any selection in any direction

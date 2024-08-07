@@ -79,3 +79,20 @@ function ClearBuffers()
     end
   end
 end
+
+-- Toggle Zen mode
+vim.g.zen_mode = false
+function ToggleZenMode()
+  vim.o.signcolumn = vim.g.zen_mode and "yes" or "no"
+  vim.o.nu = vim.g.zen_mode
+  vim.o.rnu = vim.g.zen_mode
+  vim.g.miniindentscope_disable = not vim.g.zen_mode
+  local status_ok, ibl = pcall(require, 'ibl')
+  if status_ok then
+    ibl.update({ enabled = vim.g.zen_mode })
+  end
+  vim.g.zen_mode = not vim.g.zen_mode
+end
+
+-- Toggle signcolumn
+function ToggleSigncolumn() vim.o.signcolumn = vim.o.signcolumn == "yes" and "no" or "yes" end
