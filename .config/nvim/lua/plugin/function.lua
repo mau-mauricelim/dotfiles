@@ -82,7 +82,7 @@ end
 
 -- Toggle Zen mode
 vim.g.zen_mode = false
-function ToggleZenMode()
+local function toggleZenMode()
   vim.o.signcolumn = vim.g.zen_mode and "yes" or "no"
   vim.o.nu = vim.g.zen_mode
   vim.o.rnu = vim.g.zen_mode
@@ -93,6 +93,8 @@ function ToggleZenMode()
   end
   vim.g.zen_mode = not vim.g.zen_mode
 end
+vim.keymap.set('n', '<Leader>tz', toggleZenMode, { desc = '[T]oggle [Z]en mode' })
 
 -- Toggle signcolumn
-function ToggleSigncolumn() vim.o.signcolumn = vim.o.signcolumn == "yes" and "no" or "yes" end
+local function toggleSigncolumn() vim.o.signcolumn = vim.o.signcolumn == "yes" and "no" or "yes" end
+vim.keymap.set('n', '<Leader>tc', toggleSigncolumn, { desc = '[T]oggle sign[C]olumn' })

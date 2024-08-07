@@ -201,12 +201,6 @@ vim.keymap.set('n', '[q', vim.cmd.cprev, { desc = 'Previous [Q]uickfix' })
 vim.keymap.set('v', '<', '<gv')
 vim.keymap.set('v', '>', '>gv')
 
--- Toggle zen mode
-vim.keymap.set('n', '<Leader>tz', ToggleZenMode, { desc = '[T]oggle [Z]en mode' })
-
--- Toggle signcolumn
-vim.keymap.set('n', '<Leader>tc', ToggleSigncolumn, { desc = '[T]oggle sign[C]olumn' })
-
 -- Toggle line number
 vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
 
