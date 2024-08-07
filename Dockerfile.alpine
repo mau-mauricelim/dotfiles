@@ -14,7 +14,7 @@ ARG HOME=/home/$USERNAME
 # Install required packages
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors, build-base is for nvim, procps is for vim-tmux-navigator
-        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux build-base procps \
+        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux build-base procps xclip \
         # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
         grep \
         # util-linux-misc is for script
@@ -67,10 +67,6 @@ RUN apk -q --no-progress --no-cache add \
         install jq /usr/local/bin && mv jq.1 /usr/local/share/man/man1 && rm jq && \
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man && \
-    # Clipboard integration - NOTE that there may be some delays when copying and pasting
-    curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
-        unzip -q win32yank.zip win32yank.exe && \
-        install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
     # Create user
     addgroup --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell

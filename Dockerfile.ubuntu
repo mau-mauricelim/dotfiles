@@ -20,7 +20,7 @@ RUN \
     apt-get -qq update >/dev/null 2>&1 && \
         apt-get -qq install -y --no-install-recommends \
             # ca-certificates is required for build success, build-essential is for nvim, file is required for yazi
-            sudo zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux build-essential file && \
+            sudo zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux build-essential file xclip && \
     # Manual install of man pages for release binaries
     mkdir -p /usr/local/share/man/man1 && \
     # Install MUSL ripgrep from source
@@ -69,10 +69,6 @@ RUN \
         install jq /usr/local/bin && mv jq.1 /usr/local/share/man/man1 && rm jq && \
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man && \
-    # Clipboard integration - NOTE that there may be some delays when copying and pasting
-    curl -sfLo win32yank.zip https://github.com/equalsraf/win32yank/releases/latest/download/win32yank-x64.zip && \
-        unzip -q win32yank.zip win32yank.exe && \
-        install win32yank.exe /usr/local/bin && rm win32yank.exe win32yank.zip && \
     # Clean up
     apt-get -qq remove ca-certificates && \
         apt-get -qq autoclean -y && \

@@ -44,12 +44,11 @@ end, { desc = '[T]oggle vim key[w]ord' })
 
 -- Toggle unnamedplus clipboard
 vim.keymap.set('n', '<Leader>cb', function()
+  local function setClipboard(option) vim.notify('clipboard="' .. option .. '"') vim.opt.clipboard = option end
   if vim.o.clipboard == '' then
-    vim.notify('clipboard="unnamedplus"')
-    vim.opt.clipboard = 'unnamedplus'
+    setClipboard('unnamedplus')
   else
-    vim.notify('clipboard=""')
-    vim.opt.clipboard = ''
+    setClipboard('')
   end
 end, { desc = 'Toggle unnamedplus [C]lip[b]oard' })
 
