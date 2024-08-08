@@ -33,7 +33,7 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 SHELL ["/bin/bash", "-c"]
 
 # Bootstrap
-RUN sh install.sh && rm install.sh \
+RUN sh install.sh && rm install.sh && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do sh "$test"; done && \
