@@ -27,8 +27,6 @@ return {
           local current_buffer = vim.fn.expand('%')
           -- Restore last session
           require('persistence').load()
-          -- Remove [No Name] and directory buffers
-          pcall(ClearBuffers)
           -- Switch back to current buffer
           vim.cmd('buffer ' .. current_buffer)
         end
