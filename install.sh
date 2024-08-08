@@ -96,19 +96,22 @@ common_user_install() {
         mv flavors/*.yazi $XDG_CONFIG_HOME/yazi/flavors && rm -rf flavors
     # Run Lazy install, clean and update non-interactively from command line
     # nvim --headless '+Lazy! sync' +qa
+    # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
+    echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
     chsh -s $(which zsh)
 }
 
 # Alpine uses MUSL binaries
-# coreutils is for dircolors
-# procps is for vim-tmux-navigator
-# build-base installs a C compiler for nvim-treesitter
-# Busybox binaries (default) doesn't support all features. E.g. `grep -P`
-# util-linux-misc is for script
-# docs installs the documentation companion package
-# shadow is for chsh
 alpine_install() {
+    # Install required packages
+    # coreutils is for dircolors
+    # procps is for vim-tmux-navigator
+    # build-base installs a C compiler for nvim-treesitter
+    # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
+    # util-linux-misc is for script
+    # docs installs the documentation companion package
+    # shadow is for chsh
     sudo apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
         mandoc man-pages less docs \
@@ -142,18 +145,62 @@ alpine_install() {
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
     # Common user installs
     common_user_install
-    # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
-    echo exit | script -qec zsh /dev/null >/dev/null
     # Clean up
     sudo apk del util-linux-misc shadow
 }
 
 ubuntu_install() {
+    # Install required packages
+    # ca-certificates is required for build success
+    # file is required for yazi
+    # build-essential installs a C compiler for nvim-treesitter
+    sudo apt-get -qq update >/dev/null 2>&1 && \
+        sudo apt-get -qq install -y --no-install-recommends \
+            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip
+    # Common root installs
+    common_root_install
+    # Install GNU fd from source
+    [ ! -z "${FD_VERSION}" ] && \
+        curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz fd-v${FD_VERSION}-x86_64-unknown-linux-gnu/{fd,fd.1} --strip-components=1 && \
+        sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
+    # Install GNU bat from source
+    [ ! -z "${BAT_VERSION}" ] && \
+        curl -sL https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz bat-v${BAT_VERSION}-x86_64-unknown-linux-gnu/{bat,bat.1} --strip-components=1 && \
+        sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
+    # Install GNU eza from source
+    [ ! -z "${EZA_VERSION}" ] && \
+        curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz && \
+        curl -sL https://github.com/eza-community/eza/releases/latest/download/man-${EZA_VERSION}.tar.gz | tar xz ./target/man-${EZA_VERSION}/eza.1 --strip-components=3 && \
+        sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
+    # Install GNU delta from source
+    [ ! -z "${DELTA_VERSION}" ] && \
+        curl -sL https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu.tar.gz \
+            | tar xz delta-${DELTA_VERSION}-x86_64-unknown-linux-gnu/delta --strip-components=1 && \
+        sudo install delta /usr/local/bin && rm delta
+    # Install GNU yazi from source
+    [ ! -z "${YAZI_VERSION}" ] && \
+        curl -sLo yazi.zip https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-gnu.zip && \
+        unzip -qj yazi.zip yazi-x86_64-unknown-linux-gnu/yazi && \
+        sudo install yazi /usr/local/bin && rm yazi yazi.zip
+    # Install GNU Neovim from source
+    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
+        sudo rm -rf /opt/nvim && \
+        sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz
     # Install nvm, node.js, and npm
     PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
         nvm install node
+    # Common user installs
+    common_user_install
+    # Clean up
+    apt-get -qq remove ca-certificates && \
+        apt-get -qq autoclean -y && \
+        apt-get -qq clean -y && \
+        apt-get -qq autoremove -y && \
+        rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
 # This is put in braces to ensure that the script does not run until it is
