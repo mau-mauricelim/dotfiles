@@ -1,4 +1,5 @@
 #!/bin/sh
+source /etc/profile
 
 latestAndInstalledVersion() {
     echo "$1"
