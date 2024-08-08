@@ -1,6 +1,4 @@
 #!/bin/sh
-ENV=$HOME/.bashrc; export ENV
-source $ENV
 
 latestAndInstalledVersion() {
     echo "$1"
