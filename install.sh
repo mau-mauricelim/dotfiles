@@ -56,13 +56,14 @@ common_root_install() {
 }
 
 common_user_install() {
-    echo "DEBUG: Inside common user install"
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim
     # Stow the dotfiles
-    git clone -q --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
+    # DEBUG
+    git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME
+    ls -lah
     # Install local binaries
     install $HOME/dotfiles/bin/* /usr/local/bin
     # Create a symlink for zshenv to HOME
@@ -147,7 +148,6 @@ alpine_install() {
         unzip -qj yazi.zip yazi-x86_64-unknown-linux-musl/yazi && \
         install yazi /usr/local/bin && rm yazi yazi.zip
     # Common user installs
-    echo "DEBUG: Entering common user install"
     common_user_install
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     # TODO: check if this uses extra space
