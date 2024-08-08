@@ -1,5 +1,4 @@
 #!/usr/bin/env bash
-# Inspired by https://github.com/ajeetdsouza/zoxide/blob/main/install.sh
 # TODO: check if we need to use bash
 
 source /etc/os-release
@@ -32,24 +31,24 @@ get_binary_version() {
 
 common_root_install() {
     # Manual install of man pages for release binaries
-    ensure try_sudo mkdir -p /usr/local/share/man/man1
+    sudo mkdir -p /usr/local/share/man/man1
     # Get binary version
     get_binary_version
     # Install MUSL ripgrep from source
     [ ! -z "${RIPGREP_VERSION}" ] && \
         curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/doc/rg.1 --strip-components=1 && \
-        ensure try_sudo install rg /usr/local/bin && ensure try_sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
+        sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
     # Install LINUX lazygit from source
     [ ! -z "${LAZYGIT_VERSION}" ] && \
         curl -sL https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz \
             | tar xz lazygit && \
-        ensure try_sudo install lazygit /usr/local/bin && rm lazygit
+        sudo install lazygit /usr/local/bin && rm lazygit
     # Install LINUX jq
     [ ! -z "${JQ_VERSION}" ] && \
         curl -sLo jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64 && \
         curl -sL https://github.com/jqlang/jq/releases/latest/download/${JQ_VERSION}.tar.gz | tar xz ${JQ_VERSION}/jq.1 --strip-components=1 && \
-        ensure try_sudo install jq /usr/local/bin && ensure try_sudo mv jq.1 /usr/local/share/man/man1 && rm jq
+        sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man
 }
@@ -62,7 +61,7 @@ common_user_install() {
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME
     # Install local binaries
-    ensure try_sudo install $HOME/dotfiles/bin/* /usr/local/bin
+    sudo install $HOME/dotfiles/bin/* /usr/local/bin
     # Create a symlink for zshenv to HOME
     ln -sf $HOME/.config/zsh/.zshenv $HOME/.zshenv
     # Source the latest zshenv
@@ -93,7 +92,7 @@ common_user_install() {
     # TPM installation
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
     # Install q language server for neovim
-    ensure try_sudo npm --global i @jo.shinonome/qls
+    sudo npm --global i @jo.shinonome/qls
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
@@ -113,7 +112,7 @@ common_user_install() {
 # docs installs the documentation companion package
 # shadow is for chsh
 alpine_install() {
-    ensure try_sudo apk -q --no-progress --no-cache add \
+    sudo apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
         mandoc man-pages less docs \
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
@@ -123,34 +122,34 @@ alpine_install() {
     [ ! -z "${FD_VERSION}" ] && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd fd-v${FD_VERSION}-x86_64-unknown-linux-musl/fd.1 --strip-components=1 && \
-        ensure try_sudo install fd /usr/local/bin && ensure try_sudo mv fd.1 /usr/local/share/man/man1 && rm fd
+        sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
     # Install MUSL bat from source
     [ ! -z "${BAT_VERSION}" ] && \
         curl -sL https://github.com/sharkdp/bat/releases/download/v${BAT_VERSION}/bat-v${BAT_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz bat-v${BAT_VERSION}-x86_64-unknown-linux-musl/bat bat-v${BAT_VERSION}-x86_64-unknown-linux-musl/bat.1 --strip-components=1 && \
-        ensure try_sudo install bat /usr/local/bin && ensure try_sudo mv bat.1 /usr/local/share/man/man1 && rm bat
+        sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
     # Install MUSL eza from source
     [ ! -z "${EZA_VERSION}" ] && \
         curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz | tar xz && \
         curl -sL https://github.com/eza-community/eza/releases/latest/download/man-${EZA_VERSION}.tar.gz | tar xz ./target/man-${EZA_VERSION}/eza.1 --strip-components=3 && \
-        ensure try_sudo install eza /usr/local/bin && ensure try_sudo mv eza.1 /usr/local/share/man/man1 && rm eza
+        sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
     # Install MUSL delta from source
     [ ! -z "${DELTA_VERSION}" ] && \
         curl -sL https://github.com/dandavison/delta/releases/latest/download/delta-${DELTA_VERSION}-x86_64-unknown-linux-musl.tar.gz \
             | tar xz delta-${DELTA_VERSION}-x86_64-unknown-linux-musl/delta --strip-components=1 && \
-        ensure try_sudo install delta /usr/local/bin && rm delta
+        sudo install delta /usr/local/bin && rm delta
     # Install MUSL yazi from source
     [ ! -z "${YAZI_VERSION}" ] && \
         curl -sLo yazi.zip https://github.com/sxyazi/yazi/releases/download/${YAZI_VERSION}/yazi-x86_64-unknown-linux-musl.zip && \
         unzip -qj yazi.zip yazi-x86_64-unknown-linux-musl/yazi && \
-        ensure try_sudo install yazi /usr/local/bin && rm yazi yazi.zip
+        sudo install yazi /usr/local/bin && rm yazi yazi.zip
     # Common user installs
     common_user_install
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     # TODO: check if this uses extra space
     echo exit | script -qec zsh /dev/null >/dev/null
     # Clean up
-    ensure try_sudo apk del util-linux-misc shadow
+    sudo apk del util-linux-misc shadow
 }
 
 ubuntu_install() {
@@ -159,43 +158,6 @@ ubuntu_install() {
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
         nvm install node
-}
-
-try_sudo() {
-    if "$@" >/dev/null 2>&1; then
-        return 0
-    fi
-
-    need_sudo
-    "${SUDO}" "$@"
-}
-
-need_sudo() {
-    if ! check_cmd "${SUDO}"; then
-        err "\
-could not find the command \`${SUDO}\` needed to get permissions for install.
-Please run this script as root, or install \`sudo\`."
-    fi
-
-    if ! "${SUDO}" -v; then
-        err "sudo permissions not granted, aborting installation"
-    fi
-}
-
-check_cmd() {
-    command -v -- "$1" >/dev/null 2>&1
-}
-
-err() {
-    echo "Error: $1" >&2
-    exit 1
-}
-
-# Run a command that should never fail. If the command fails execution
-# will immediately terminate with an error showing the failing
-# command.
-ensure() {
-    if ! "$@"; then err "command failed: $*"; fi
 }
 
 # This is put in braces to ensure that the script does not run until it is
