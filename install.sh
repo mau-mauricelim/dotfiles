@@ -112,11 +112,12 @@ common_user_install() {
 # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
 # util-linux-misc is for script
 # docs installs the documentation companion package
+# shadow is for chsh
 alpine_install() {
     apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
         mandoc man-pages less docs \
-        zsh coreutils procps build-base xclip util-linux-misc nodejs npm
+        zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
     # Common root installs
     common_root_install
     # Install MUSL fd from source
@@ -150,7 +151,7 @@ alpine_install() {
     # TODO: check if this uses extra space
     echo exit | script -qec zsh /dev/null >/dev/null
     # Clean up
-    apk del util-linux-misc
+    apk del util-linux-misc shadow
 }
 
 ubuntu_install() {
