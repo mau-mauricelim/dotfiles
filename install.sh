@@ -36,6 +36,8 @@ common_root_install() {
     mkdir -p /usr/local/share/man/man1
     # Get binary version
     get_binary_version
+    echo "DEBUG"
+    echo "${RIPGREP_VERSION}"
     # Install MUSL ripgrep from source
     [ ! -z "${RIPGREP_VERSION}" ] && \
         curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
