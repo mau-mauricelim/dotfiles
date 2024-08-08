@@ -5,18 +5,20 @@
 
 source /etc/os-release
 
-case $ID in
-    alpine)
-        echo "Running alpine installer"
-        alpine_install
-        ;;
-    ubuntu)
-        echo "Running ubuntu installer"
-        ;;
-    *)
-        echo "$ID is not supported"
-        ;;
-esac
+main() {
+    case $ID in
+        alpine)
+            echo "Running alpine installer"
+            alpine_install
+            ;;
+        ubuntu)
+            echo "Running ubuntu installer"
+            ;;
+        *)
+            echo "$ID is not supported"
+            ;;
+    esac
+}
 
 get_binary_version() {
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4)
@@ -159,4 +161,10 @@ ubuntu_install() {
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
         nvm install node
+}
+
+# This is put in braces to ensure that the script does not run until it is
+# downloaded completely.
+{
+    main "$@" || exit 1
 }
