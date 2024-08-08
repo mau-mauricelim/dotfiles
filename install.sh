@@ -1,6 +1,4 @@
 #!/usr/bin/env bash
-source $HOME/.bashrc
-
 main() {
     source /etc/os-release
     case $ID in
