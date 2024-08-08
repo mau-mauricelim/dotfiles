@@ -106,16 +106,17 @@ common_user_install() {
 }
 
 # Alpine uses MUSL binaries
-# coreutils is for dircolors, procps is for vim-tmux-navigator
+# coreutils is for dircolors
+# procps is for vim-tmux-navigator
 # build-base installs a C compiler for nvim-treesitter
 # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
 # util-linux-misc is for script
-# Entry in man
 # docs installs the documentation companion package
 alpine_install() {
     apk -q --no-progress --no-cache add \
-        zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux procps build-base xclip \
-        grep neovim util-linux-misc nodejs npm mandoc man-pages less docs
+        tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
+        mandoc man-pages less docs \
+        zsh coreutils procps build-base xclip util-linux-misc nodejs npm
     # Common root installs
     common_root_install
     # Install MUSL fd from source
