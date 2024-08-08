@@ -1,94 +1,11 @@
--- Set <space> as the leader key
--- See `:help mapleader`
---  NOTE: Must happen before plugins are loaded (otherwise wrong leader will be used)
-vim.g.mapleader = ' '
-vim.g.maplocalleader = ' '
-
--- [[ Setting options ]]
--- See `:help vim.opt`
--- NOTE: You can change these options as you wish!
---  For more options, you can see `:help option-list`
-
--- Make line numbers default
-vim.opt.number = true
--- You can also add relative line numbers, for help with jumping.
---  Experiment for yourself to see if you like it!
-vim.opt.relativenumber = true
-
--- Enable mouse mode, can be useful for resizing splits for example!
-vim.opt.mouse = 'a'
-vim.opt.mousemodel = 'extend'
-
--- Don't show the mode, since it's already in status line
-vim.opt.showmode = false
-
--- Sync clipboard between OS and Neovim.
---  Remove this option if you want your OS clipboard to remain independent.
---  See `:help 'clipboard'`
--- Use <Leader>cb to toggle unnamedplus clipboard
-vim.opt.clipboard = 'unnamedplus'
-
--- Enable break indent
--- vim.opt.breakindent = true
-
--- Save undo history
-vim.opt.undofile = true
-vim.opt.undolevels = 100000
-vim.opt.undoreload = 100000
-
--- Case-insensitive searching UNLESS \C or capital in search
-vim.opt.ignorecase = true
-vim.opt.smartcase = true
-
--- Keep signcolumn on by default
-vim.opt.signcolumn = 'yes'
---- Set colorcolumn
--- vim.opt.colorcolumn = '120'
-
--- Decrease update time
-vim.opt.updatetime = 100
--- Decrease mapped sequence wait time
--- Displays which-key popup sooner
-vim.opt.timeoutlen = 300
-
--- Configure how new splits should be opened
-vim.opt.splitright = true
-vim.opt.splitbelow = true
-
--- Sets how neovim will display certain whitespace in the editor.
---  See `:help 'list'`
---  and `:help 'listchars'`
-vim.opt.list = true
-vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
-
--- Preview substitutions live, as you type!
-vim.opt.inccommand = 'split'
-
--- Show which line your cursor is on
-vim.opt.cursorline = true
-
--- Minimal number of screen lines to keep above and below the cursor.
--- vim.opt.scrolloff = 10
-
--- Show existing tab with 4 spaces width
-vim.opt.tabstop = 4
--- When indenting with '>', use 4 spaces width
-vim.opt.shiftwidth = 4
--- On pressing tab, insert 4 spaces
-vim.opt.expandtab = true
--- No wrap
-vim.opt.wrap = false
--- Allow the cursor to move just past the end of the line
-vim.opt.virtualedit = 'onemore'
-
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
 -- List of all commands for each mode
 -- :h index
+-- stylua: ignore start
 
--- Set highlight on search, but clear on pressing <Esc> in normal mode
-vim.opt.hlsearch = true
+-- Redraw / Clear hlsearch / Diff Update on pressing <Esc> in normal mode
 vim.keymap.set(
   'n',
   '<Esc>',
@@ -201,9 +118,6 @@ vim.keymap.set('n', '[q', vim.cmd.cprev, { desc = 'Previous [Q]uickfix' })
 vim.keymap.set('v', '<', '<gv')
 vim.keymap.set('v', '>', '>gv')
 
--- Toggle line number
-vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
-
 -- Sentence case word
 vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })
 
@@ -217,7 +131,6 @@ vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', 
 vim.keymap.set('n', '<Leader>-', '<cmd>sp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Horizontal [|] Split and move' })
 
 -- Execute vim and lua (print) commands
-function P(v) print(vim.inspect(v)); return v end
 vim.keymap.set('n', '<Leader>lu', ':lua ', { desc = 'Run [Lu]a command' })
 vim.keymap.set('n', '<Leader>lp', ':lua P()<Left>', { desc = 'Run [L]ua [P]rint command' })
 vim.keymap.set('n', '<Leader>xv', '<cmd>exec getline(".")<CR>', { desc = 'E[X]ecute current line in Vim' })
@@ -234,7 +147,6 @@ vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
 -- Search whole word
 vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W]hole word' })
--- HINT: Search for visual selection with *
 
 -- Copy File Name/Path to unamed register - p to paste
 vim.keymap.set('n', '<Leader>cf', '<cmd>let @" = expand("%")<CR>', { desc = '[C]opy [F]ile' })
@@ -256,52 +168,19 @@ vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without l
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
 
--- [[ Basic Autocommands ]]
---  See `:help lua-guide-autocommands`
--- https://www.lazyvim.org/configuration/general#auto-commands
-
--- Highlight when yanking (copying) text
---  Try it with `yap` in normal mode
---  See `:help vim.highlight.on_yank()`
-vim.api.nvim_create_autocmd('TextYankPost', {
-  desc = 'Highlight when yanking (copying) text',
-  group = vim.api.nvim_create_augroup('kickstart-highlight-yank', { clear = true }),
-  callback = function()
-    vim.highlight.on_yank()
-  end,
-})
-
--- Disable auto comment new lines
-vim.api.nvim_create_autocmd('BufEnter', {
-  desc = 'Disable auto comment new lines',
-  command = 'set fo-=c fo-=r fo-=o'
-})
-
--- Center screen
-vim.api.nvim_create_autocmd('BufReadPre', {
-  desc = 'Center screen',
-  callback = function()
-    vim.api.nvim_feedkeys('zz', 'n', true)
-  end
-})
-
--- Add new filetype mappings
-vim.filetype.add({ extension = { q = 'q', k = 'k' } })
-
--- Go to last location when opening a buffer
-vim.api.nvim_create_autocmd('BufReadPost', {
-  group = vim.api.nvim_create_augroup('lazyvim_last_loc', { clear = true }),
-  callback = function(event)
-  local exclude = { 'gitcommit' }
-  local buf = event.buf
-  if vim.tbl_contains(exclude, vim.bo[buf].filetype) or vim.b[buf].lazyvim_last_loc then
-    return
-  end
-  vim.b[buf].lazyvim_last_loc = true
-  local mark = vim.api.nvim_buf_get_mark(buf, '"')
-  local lcount = vim.api.nvim_buf_line_count(buf)
-  if mark[1] > 0 and mark[1] <= lcount then
-    pcall(vim.api.nvim_win_set_cursor, 0, mark)
-  end
-  end,
-})
+-- Custom toggles
+local M = require('config.functions')
+-- Toggle line number
+vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
+-- Toggle virtual edit mode between onemore and all
+vim.keymap.set( 'n', '<Leader>ve', M.toggleVirtualEdit, { desc = 'Toggle [V]irtual[E]dit mode between onemore and all' })
+-- Toggle clipboard between unnamedplus and none
+vim.keymap.set('n', '<Leader>cb', M.toggleClipboard, { desc = 'Toggle unnamedplus [C]lip[b]oard' })
+-- Toggle signcolumn
+vim.keymap.set('n', '<Leader>tc', M.toggleSigncolumn, { desc = '[T]oggle sign[C]olumn' })
+-- Toggle vim keyword
+vim.keymap.set('n', '<Leader>tw', M.toggleKeyword, { desc = '[T]oggle vim key[w]ord' })
+-- Remove trailing blank lines at the end of file
+vim.keymap.set('n', '<Leader>fe', M.trimEndLines, { desc = '[F]ormat [E]nd of file', silent = true })
+-- Toggle Zen mode
+vim.keymap.set('n', '<Leader>tz', M.toggleZenMode, { desc = '[T]oggle [Z]en mode' })
