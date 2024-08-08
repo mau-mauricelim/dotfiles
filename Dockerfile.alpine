@@ -15,7 +15,7 @@ ARG HOME=/home/$USERNAME
 RUN apk -q --no-progress --no-cache add \
         # coreutils is for dircolors, procps is for vim-tmux-navigator
         # build-base installs a C compiler for nvim-treesitter
-        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux build-base procps xclip \
+        sudo zsh coreutils tar bzip2 rlwrap curl git vim stow openssh tmux procps build-base xclip \
         # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
         grep \
         # util-linux-misc is for script
