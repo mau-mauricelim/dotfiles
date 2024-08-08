@@ -1,7 +1,6 @@
 #!/usr/bin/env bash
+# Inspired by https://github.com/ajeetdsouza/zoxide/blob/main/install.sh
 # TODO: check if we need to use bash
-# Run this script with `sudo`
-# Check and invoke sudo if not ran if sudo rights
 
 source /etc/os-release
 
@@ -162,6 +161,43 @@ ubuntu_install() {
         export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
         [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
         nvm install node
+}
+
+try_sudo() {
+    if "$@" >/dev/null 2>&1; then
+        return 0
+    fi
+
+    need_sudo
+    "${SUDO}" "$@"
+}
+
+need_sudo() {
+    if ! check_cmd "${SUDO}"; then
+        err "\
+could not find the command \`${SUDO}\` needed to get permissions for install.
+Please run this script as root, or install \`sudo\`."
+    fi
+
+    if ! "${SUDO}" -v; then
+        err "sudo permissions not granted, aborting installation"
+    fi
+}
+
+check_cmd() {
+    command -v -- "$1" >/dev/null 2>&1
+}
+
+err() {
+    echo "Error: $1" >&2
+    exit 1
+}
+
+# Run a command that should never fail. If the command fails execution
+# will immediately terminate with an error showing the failing
+# command.
+ensure() {
+    if ! "$@"; then err "command failed: $*"; fi
 }
 
 # This is put in braces to ensure that the script does not run until it is

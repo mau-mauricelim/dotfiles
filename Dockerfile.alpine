@@ -34,7 +34,7 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 SHELL ["/bin/bash", "-c"]
 
 # Bootstrap
-RUN sudo bash install.sh && \
+RUN bash install.sh && \
     ls -l && \
     # Run tests
     source $HOME/.bashrc && \
