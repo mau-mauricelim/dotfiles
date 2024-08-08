@@ -147,7 +147,7 @@ alpine_install() {
     common_user_install
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     # TODO: check if this uses extra space
-    echo exit | script -qec zsh /dev/null >/dev/null
+    # echo exit | script -qec zsh /dev/null >/dev/null
     # Clean up
     sudo apk del util-linux-misc shadow
 }
