@@ -8,7 +8,7 @@ main() {
     case $ID in
         alpine)
             echo "Running alpine installer"
-            ensure try_sudo alpine_install
+            alpine_install
             ;;
         ubuntu)
             echo "Running ubuntu installer"
@@ -118,7 +118,7 @@ alpine_install() {
         mandoc man-pages less docs \
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
     # Common root installs
-    common_root_install
+    ensure try_sudo common_root_install
     # Install MUSL fd from source
     [ ! -z "${FD_VERSION}" ] && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
@@ -145,7 +145,7 @@ alpine_install() {
         unzip -qj yazi.zip yazi-x86_64-unknown-linux-musl/yazi && \
         install yazi /usr/local/bin && rm yazi yazi.zip
     # Common user installs
-    common_user_install
+    ensure try_sudo common_user_install
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     # TODO: check if this uses extra space
     echo exit | script -qec zsh /dev/null >/dev/null
