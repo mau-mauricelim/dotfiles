@@ -74,7 +74,7 @@ common_user_install() {
     git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git $ZDOTDIR/zsh-syntax-highlighting
     # fzf
     git clone -q --depth 1 https://github.com/junegunn/fzf.git $ZDOTDIR/fzf && \
-        $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings
+        $ZDOTDIR/fzf/install --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
     # Vim syntax and indent
     mkdir -p $HOME/.vim/{indent,syntax} && \
         git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git $HOME/.vim/vim-qkdb-syntax && \

@@ -34,5 +34,5 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 RUN sh install.sh && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
-        for test in /tmp/tests/*.sh; do sh "$test"; done && \
+        for test in /tmp/tests/*.sh; do sh -c "sh \"$test\""; done && \
         rm -rf /tmp/tests
