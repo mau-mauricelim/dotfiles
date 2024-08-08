@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+source $HOME/.bashrc
 
 main() {
     source /etc/os-release
@@ -48,7 +49,7 @@ common_root_install() {
         curl -sL https://github.com/jqlang/jq/releases/latest/download/${JQ_VERSION}.tar.gz | tar xz ${JQ_VERSION}/jq.1 --strip-components=1 && \
         sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
     # Install zoxide
-    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | sh -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man
+    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man
 }
 
 common_user_install() {
@@ -144,7 +145,6 @@ alpine_install() {
     # Common user installs
     common_user_install
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
-    # TODO: check if this uses extra space
     echo exit | script -qec zsh /dev/null >/dev/null
     # Clean up
     sudo apk del util-linux-misc shadow

@@ -1,4 +1,5 @@
-#!/bin/sh
+#!/usr/bin/env bash
+source $HOME/.bashrc
 
 latestAndInstalledVersion() {
     echo "$1"
