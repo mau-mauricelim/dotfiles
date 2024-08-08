@@ -11,9 +11,8 @@ ARG USER_GID=$USER_UID
 ARG HOME=/home/$USERNAME
 
 # Install required packages
-# TODO: check if we need to use bash
-RUN apk -q --no-progress --no-cache add sudo bash && \
-   # Create user
+RUN apk -q --no-progress --no-cache add sudo && \
+    # Create user
     addgroup --gid $USER_GID $USERNAME && \
         # Set Zsh as the default shell
         adduser --system $USERNAME --shell /bin/zsh --uid $USER_UID && \
@@ -31,13 +30,9 @@ WORKDIR $HOME
 COPY --chown=$USERNAME:$USERNAME install.sh $HOME/install.sh
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
-SHELL ["/bin/bash", "-c"]
-
 # Bootstrap
-RUN bash install.sh && \
-    ls -l && \
+RUN sh install.sh && \
     # Run tests
-    source $HOME/.bashrc && \
-        echo -e "\n#########\n# TESTS #\n#########\n" && \
-        for test in /tmp/tests/*.sh; do bash "$test"; done && \
+    echo -e "\n#########\n# TESTS #\n#########\n" && \
+        for test in /tmp/tests/*.sh; do sh "$test"; done && \
         rm -rf /tmp/tests
