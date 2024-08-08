@@ -8,7 +8,7 @@ main() {
     case $ID in
         alpine)
             echo "Running alpine installer"
-            alpine_install
+            ensure try_sudo alpine_install
             ;;
         ubuntu)
             echo "Running ubuntu installer"
@@ -118,7 +118,7 @@ alpine_install() {
         mandoc man-pages less docs \
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
     # Common root installs
-    ensure try_sudo common_root_install
+    common_root_install
     # Install MUSL fd from source
     [ ! -z "${FD_VERSION}" ] && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
