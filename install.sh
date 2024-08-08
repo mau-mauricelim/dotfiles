@@ -58,11 +58,9 @@ common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p $HOME/.config/{nvim,tmux,yazi,zsh} $HOME/.vim
     # Stow the dotfiles
-    # DEBUG
     git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git $HOME/dotfiles && \
         cd $HOME/dotfiles && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd $HOME
-    ls -lah
     # Install local binaries
     install $HOME/dotfiles/bin/* /usr/local/bin
     # Create a symlink for zshenv to HOME
@@ -120,7 +118,7 @@ alpine_install() {
         mandoc man-pages less docs \
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
     # Common root installs
-    common_root_install
+    ensure try_sudo common_root_install
     # Install MUSL fd from source
     [ ! -z "${FD_VERSION}" ] && \
         curl -sL https://github.com/sharkdp/fd/releases/download/v${FD_VERSION}/fd-v${FD_VERSION}-x86_64-unknown-linux-musl.tar.gz \
