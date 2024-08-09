@@ -10,8 +10,6 @@ ARG USER_UID=1001
 ARG USER_GID=$USER_UID
 ARG HOME=/home/$USERNAME
 
-SHELL ["/bin/bash", "-c"]
-
 # Install man pages in Ubuntu docker image
 RUN sed -i 's:^path-exclude=/usr/share/man:#path-exclude=/usr/share/man:' /etc/dpkg/dpkg.cfg.d/excludes && \
     # Install required packages

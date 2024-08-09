@@ -30,8 +30,6 @@ WORKDIR $HOME
 COPY --chown=$USERNAME:$USERNAME install.sh $HOME/install.sh
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
-SHELL ["/bin/bash", "-c"]
-
 # Bootstrap
 RUN bash install.sh && rm install.sh && \
     # Run tests
