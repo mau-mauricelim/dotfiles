@@ -14,11 +14,11 @@ main() {
 run_install() { echo "Running $1 installer"; ${1}_install; }
 
 get_binary_version() {
-    latest_release=$(curl -sL "https://api.github.com/repos/$1/releases/latest")
+    local latest_release=$(curl -sL "https://api.github.com/repos/$1/releases/latest")
     if [ "$2" = "true" ]; then
-        echo $latest_release | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
+        echo "${latest_release}" | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
     else
-        echo $latest_release | grep tag_name | cut -d '"' -f4
+        echo "${latest_release}" | grep tag_name | cut -d '"' -f4
     fi
 }
 
