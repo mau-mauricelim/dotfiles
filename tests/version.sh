@@ -60,10 +60,6 @@ latestAndInstalledVersion fzf \
     "$(curl -sL https://github.com/junegunn/fzf/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
     "$(fzf --version)"
 
-latestAndInstalledVersion nvm \
-    "$(curl -sL https://github.com/nvm-sh/nvm/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
-    "$(nvm --version)"
-
 latestAndInstalledVersion npm \
     "$(curl -sL https://github.com/npm/cli/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
     "$(npm --version)"

@@ -11,10 +11,7 @@ main() {
     esac
 }
 
-run_install() {
-    echo "Running $1 installer"
-    ${1}_install
-}
+run_install() { echo "Running $1 installer"; ${1}_install; }
 
 get_binary_version() {
     RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4)
@@ -206,8 +203,5 @@ ubuntu_install() {
         sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
-# This is put in braces to ensure that the script does not run until it is
-# downloaded completely.
-{
-    main "$@" || exit 1
-}
+# This is put in braces to ensure that the script does not run until it is downloaded completely
+{ main "$@" || exit 1; }
