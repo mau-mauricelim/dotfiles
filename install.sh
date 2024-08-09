@@ -89,6 +89,13 @@ common_user_install() {
     curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
+    # Install nvm, node.js, and npm
+    if ! command -v npm >/dev/null; then
+        PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
+            export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+            nvm install node
+    fi
     # Install q language server for neovim
     sudo npm --global i @jo.shinonome/qls
     # Install yazi themes
@@ -157,8 +164,7 @@ ubuntu_install() {
     # build-essential installs a C compiler for nvim-treesitter
     sudo apt-get -qq update >/dev/null 2>&1 && \
         sudo apt-get -qq install -y --no-install-recommends \
-            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip \
-            nodejs npm
+            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip
     # Common root installs
     common_root_install
     # Install GNU fd from source
