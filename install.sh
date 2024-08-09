@@ -2,17 +2,18 @@
 main() {
     source /etc/os-release
     case $ID in
-        alpine)
-            echo "Running alpine installer"
-            alpine_install
-            ;;
-        ubuntu)
-            echo "Running ubuntu installer"
+        alpine|ubuntu)
+            run_install $ID
             ;;
         *)
             echo "$ID is not supported"
             ;;
     esac
+}
+
+run_install() {
+    echo "Running $1 installer"
+    ${1}_install
 }
 
 get_binary_version() {
