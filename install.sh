@@ -97,8 +97,7 @@ common_user_install() {
             nvm install node
     fi
     # Install q language server for neovim
-    ## BUG: sudo: npm: command not found
-    sudo npm --global i @jo.shinonome/qls || npm --global i @jo.shinonome/qls
+    npm --global i @jo.shinonome/qls
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
