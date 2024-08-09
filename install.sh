@@ -89,6 +89,13 @@ common_user_install() {
     curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
+    # Install nvm, node.js, and npm
+    if ! command -v npm >/dev/null; then
+        PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
+            export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
+            [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+            nvm install node
+    fi
     # Install q language server for neovim
     sudo npm --global i @jo.shinonome/qls
     # Install yazi themes
@@ -100,7 +107,7 @@ common_user_install() {
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
-    chsh -s $(which zsh)
+    sudo chsh -s $(which zsh)
 }
 
 # Alpine uses MUSL binaries
@@ -189,11 +196,6 @@ ubuntu_install() {
     curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
         sudo rm -rf /opt/nvim && \
         sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz
-    # Install nvm, node.js, and npm
-    PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
-        export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
-        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-        nvm install node
     # Common user installs
     common_user_install
     # Clean up
