@@ -99,6 +99,7 @@ common_user_install() {
     # nvim --headless '+Lazy! sync' +qa
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
+    echo "Finished running script"
     # Set Zsh as the default shell
     sudo chsh -s $(which zsh)
 }
@@ -193,10 +194,15 @@ ubuntu_install() {
     # Common user installs
     common_user_install
     # Clean up
+    echo "Cleaning up"
     sudo apt-get -qq remove ca-certificates && \
+        echo "Cleaning up 1" && \
         sudo apt-get -qq autoclean -y && \
+        echo "Cleaning up 2" && \
         sudo apt-get -qq clean -y && \
+        echo "Cleaning up 3" && \
         sudo apt-get -qq autoremove -y && \
+        echo "Cleaning up 4" && \
         sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
