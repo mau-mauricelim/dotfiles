@@ -23,14 +23,14 @@ get_binary_version() {
 }
 
 set_binary_version() {
-    JQ_VERSION      = $(get_binary_version "jqlang/jq")
-    YAZI_VERSION    = $(get_binary_version "sxyazi/yazi")
-    DELTA_VERSION   = $(get_binary_version "dandavison/delta")
-    RIPGREP_VERSION = $(get_binary_version "BurntSushi/ripgrep")
-    FD_VERSION      = $(get_binary_version "sharkdp/fd" true)
-    BAT_VERSION     = $(get_binary_version "sharkdp/bat" true)
-    EZA_VERSION     = $(get_binary_version "eza-community/eza" true)
-    LAZYGIT_VERSION = $(get_binary_version "jesseduffield/lazygit" true)
+    JQ_VERSION=     $(get_binary_version "jqlang/jq")
+    YAZI_VERSION=   $(get_binary_version "sxyazi/yazi")
+    DELTA_VERSION=  $(get_binary_version "dandavison/delta")
+    RIPGREP_VERSION=$(get_binary_version "BurntSushi/ripgrep")
+    FD_VERSION=     $(get_binary_version "sharkdp/fd" true)
+    BAT_VERSION=    $(get_binary_version "sharkdp/bat" true)
+    EZA_VERSION=    $(get_binary_version "eza-community/eza" true)
+    LAZYGIT_VERSION=$(get_binary_version "jesseduffield/lazygit" true)
 }
 
 common_root_install() {
