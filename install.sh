@@ -16,20 +16,20 @@ run_install() { echo "Running $1 installer"; ${1}_install; }
 get_binary_version() {
     latest_release=$(curl -sL "https://api.github.com/repos/$1/releases/latest")
     if [ "$2" = "true" ]; then
-        echo latest_release | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
+        echo $latest_release | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
     else
-        echo latest_release | grep tag_name | cut -d '"' -f4
+        echo $latest_release | grep tag_name | cut -d '"' -f4
     fi
 }
 
 set_binary_version() {
-    JQ_VERSION=     $(get_binary_version "jqlang/jq")
-    YAZI_VERSION=   $(get_binary_version "sxyazi/yazi")
-    DELTA_VERSION=  $(get_binary_version "dandavison/delta")
+    JQ_VERSION=$(get_binary_version "jqlang/jq")
+    YAZI_VERSION=$(get_binary_version "sxyazi/yazi")
+    DELTA_VERSION=$(get_binary_version "dandavison/delta")
     RIPGREP_VERSION=$(get_binary_version "BurntSushi/ripgrep")
-    FD_VERSION=     $(get_binary_version "sharkdp/fd" true)
-    BAT_VERSION=    $(get_binary_version "sharkdp/bat" true)
-    EZA_VERSION=    $(get_binary_version "eza-community/eza" true)
+    FD_VERSION=$(get_binary_version "sharkdp/fd" true)
+    BAT_VERSION=$(get_binary_version "sharkdp/bat" true)
+    EZA_VERSION=$(get_binary_version "eza-community/eza" true)
     LAZYGIT_VERSION=$(get_binary_version "jesseduffield/lazygit" true)
 }
 
