@@ -89,8 +89,15 @@ common_user_install() {
     curl -sLo $XDG_CONFIG_HOME/fzf/fzf-git.sh https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
+    # Install nvm, node.js, and npm
+    if ! command -v npm >/dev/null; then
+    PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
+        export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"; \
+        [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
+        nvm install node
+    fi
     # Install q language server for neovim
-    sudo npm --global i @jo.shinonome/qls
+    npm --global i @jo.shinonome/qls || sudo npm --global i @jo.shinonome/qls
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p $XDG_CONFIG_HOME/yazi/flavors && \
@@ -99,7 +106,6 @@ common_user_install() {
     # nvim --headless '+Lazy! sync' +qa
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
-    echo "Finished running script"
     # Set Zsh as the default shell
     sudo chsh -s $(which zsh)
 }
@@ -158,8 +164,7 @@ ubuntu_install() {
     # build-essential installs a C compiler for nvim-treesitter
     sudo apt-get -qq update >/dev/null 2>&1 && \
         sudo apt-get -qq install -y --no-install-recommends \
-            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip \
-                nodejs npm
+            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip
     # Common root installs
     common_root_install
     # Install GNU fd from source
@@ -194,15 +199,10 @@ ubuntu_install() {
     # Common user installs
     common_user_install
     # Clean up
-    echo "Cleaning up"
     sudo apt-get -qq remove ca-certificates && \
-        echo "Cleaning up 1" && \
         sudo apt-get -qq autoclean -y && \
-        echo "Cleaning up 2" && \
         sudo apt-get -qq clean -y && \
-        echo "Cleaning up 3" && \
         sudo apt-get -qq autoremove -y && \
-        echo "Cleaning up 4" && \
         sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
