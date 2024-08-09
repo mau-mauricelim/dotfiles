@@ -193,11 +193,11 @@ ubuntu_install() {
     # Common user installs
     common_user_install
     # Clean up
-    apt-get -qq remove ca-certificates && \
-        apt-get -qq autoclean -y && \
-        apt-get -qq clean -y && \
-        apt-get -qq autoremove -y && \
-        rm -rf /var/cache/apt/archives /var/lib/apt/lists
+    sudo apt-get -qq remove ca-certificates && \
+        sudo apt-get -qq autoclean -y && \
+        sudo apt-get -qq clean -y && \
+        sudo apt-get -qq autoremove -y && \
+        sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
 # This is put in braces to ensure that the script does not run until it is
