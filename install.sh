@@ -14,21 +14,30 @@ main() {
 run_install() { echo "Running $1 installer"; ${1}_install; }
 
 get_binary_version() {
-    RIPGREP_VERSION=$(curl -sL "https://api.github.com/repos/BurntSushi/ripgrep/releases/latest" | grep tag_name | cut -d '"' -f4)
-    FD_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/fd/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    BAT_VERSION=$(curl -sL "https://api.github.com/repos/sharkdp/bat/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    EZA_VERSION=$(curl -sL "https://api.github.com/repos/eza-community/eza/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    DELTA_VERSION=$(curl -sL "https://api.github.com/repos/dandavison/delta/releases/latest" | grep tag_name | cut -d '"' -f4)
-    YAZI_VERSION=$(curl -sL "https://api.github.com/repos/sxyazi/yazi/releases/latest" | grep tag_name | cut -d '"' -f4)
-    LAZYGIT_VERSION=$(curl -sL "https://api.github.com/repos/jesseduffield/lazygit/releases/latest" | grep -Po '"tag_name": "v\K[^"]*')
-    JQ_VERSION=$(curl -sL "https://api.github.com/repos/jqlang/jq/releases/latest" | grep tag_name | cut -d '"' -f4)
+    latest_release=$(curl -sL "https://api.github.com/repos/$1/releases/latest")
+    if [ "$2" = "true" ]; then
+        echo latest_release | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
+    else
+        echo latest_release | grep tag_name | cut -d '"' -f4
+    fi
+}
+
+set_binary_version() {
+    JQ_VERSION      = $(get_binary_version "jqlang/jq")
+    YAZI_VERSION    = $(get_binary_version "sxyazi/yazi")
+    DELTA_VERSION   = $(get_binary_version "dandavison/delta")
+    RIPGREP_VERSION = $(get_binary_version "BurntSushi/ripgrep")
+    FD_VERSION      = $(get_binary_version "sharkdp/fd" true)
+    BAT_VERSION     = $(get_binary_version "sharkdp/bat" true)
+    EZA_VERSION     = $(get_binary_version "eza-community/eza" true)
+    LAZYGIT_VERSION = $(get_binary_version "jesseduffield/lazygit" true)
 }
 
 common_root_install() {
     # Manual install of man pages for release binaries
     sudo mkdir -p /usr/local/share/man/man1
-    # Get binary version
-    get_binary_version
+    # Set binary version
+    set_binary_version
     # Install MUSL ripgrep from source
     [ ! -z "${RIPGREP_VERSION}" ] && \
         curl -sL https://github.com/BurntSushi/ripgrep/releases/download/${RIPGREP_VERSION}/ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl.tar.gz \
