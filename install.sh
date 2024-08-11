@@ -16,8 +16,8 @@ run_install() { echo "Running $1 installer"; "${1}_install"; }
 set_url_and_version() {
     repo_name=$(echo "$1" | cut -d"/" -f2)
     repo_name=${repo_name^^} # Uppercase
-    # Sets release url e.g. RIPGREP_URL=https://github.com/BurntSushi/ripgrep/releases/lastest/download
-    eval "${repo_name}_URL"="https://github.com/$1/releases/lastest/download"
+    # Sets release url e.g. RIPGREP_URL=https://github.com/BurntSushi/ripgrep/releases/latest/download
+    eval "${repo_name}_URL"="https://github.com/$1/releases/latest/download"
     latest_tag=$(curl -sL "https://api.github.com/repos/$1/releases/latest" | grep tag_name | cut -d '"' -f4)
     # Strip v (first charcter) from tag
     if [ "$2" = "true" ]; then latest_tag="${latest_tag:1}"; fi
