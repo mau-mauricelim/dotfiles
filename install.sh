@@ -116,6 +116,41 @@ common_user_install() {
     sudo chsh -s "$(which zsh)"
 }
 
+install_fd() {
+    [ -n "$FD_VERSION" ] && \
+        curl -sL "https://github.com/sharkdp/fd/releases/download/v$FD_VERSION/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+            | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd" "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd.1" --strip-components=1 && \
+        sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
+}
+
+install_bat() {
+    [ -n "$BAT_VERSION" ] && \
+        curl -sL "https://github.com/sharkdp/bat/releases/download/v$BAT_VERSION/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+            | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat" "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat.1" --strip-components=1 && \
+        sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
+}
+
+install_eza() {
+    [ -n "$EZA_VERSION" ] && \
+        curl -sL "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
+        curl -sL "https://github.com/eza-community/eza/releases/latest/download/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
+        sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
+}
+
+install_delta() {
+    [ -n "$DELTA_VERSION" ] && \
+        curl -sL "https://github.com/dandavison/delta/releases/latest/download/delta-$DELTA_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+            | tar xz "delta-$DELTA_VERSION-x86_64-unknown-linux-$1/delta" --strip-components=1 && \
+        sudo install delta /usr/local/bin && rm delta
+}
+
+install_yazi() {
+    [ -n "$YAZI_VERSION" ] && \
+        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/$YAZI_VERSION/yazi-x86_64-unknown-linux-$1.zip" && \
+        unzip -qj yazi.zip "yazi-x86_64-unknown-linux-$1/yazi" && \
+        sudo install yazi /usr/local/bin && rm yazi yazi.zip
+}
+
 # Alpine uses MUSL binaries
 alpine_install() {
     # Install required packages
@@ -132,31 +167,8 @@ alpine_install() {
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow
     # Common root installs
     common_root_install
-    # Install MUSL fd from source
-    [ -n "$FD_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/fd/releases/download/v$FD_VERSION/fd-v$FD_VERSION-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-musl/fd" "fd-v$FD_VERSION-x86_64-unknown-linux-musl/fd.1" --strip-components=1 && \
-        sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
-    # Install MUSL bat from source
-    [ -n "$BAT_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/bat/releases/download/v$BAT_VERSION/bat-v$BAT_VERSION-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-musl/bat" "bat-v$BAT_VERSION-x86_64-unknown-linux-musl/bat.1" --strip-components=1 && \
-        sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
-    # Install MUSL eza from source
-    [ -n "$EZA_VERSION" ] && \
-        curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-musl.tar.gz | tar xz && \
-        curl -sL "https://github.com/eza-community/eza/releases/latest/download/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
-        sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
-    # Install MUSL delta from source
-    [ -n "$DELTA_VERSION" ] && \
-        curl -sL "https://github.com/dandavison/delta/releases/latest/download/delta-$DELTA_VERSION-x86_64-unknown-linux-musl.tar.gz" \
-            | tar xz "delta-$DELTA_VERSION-x86_64-unknown-linux-musl/delta" --strip-components=1 && \
-        sudo install delta /usr/local/bin && rm delta
-    # Install MUSL yazi from source
-    [ -n "$YAZI_VERSION" ] && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/$YAZI_VERSION/yazi-x86_64-unknown-linux-musl.zip" && \
-        unzip -qj yazi.zip yazi-x86_64-unknown-linux-musl/yazi && \
-        sudo install yazi /usr/local/bin && rm yazi yazi.zip
+    # Install MUSL binaries from source
+    for bin in fd bat eza delta yazi; do "install_$bin" musl; done
     # Common user installs
     common_user_install
     # Clean up
@@ -173,31 +185,8 @@ ubuntu_install() {
             zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip
     # Common root installs
     common_root_install
-    # Install GNU fd from source
-    [ -n "$FD_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/fd/releases/download/v$FD_VERSION/fd-v$FD_VERSION-x86_64-unknown-linux-gnu.tar.gz" \
-            | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-gnu/{fd,fd.1}" --strip-components=1 && \
-        sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
-    # Install GNU bat from source
-    [ -n "$BAT_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/bat/releases/download/v$BAT_VERSION/bat-v$BAT_VERSION-x86_64-unknown-linux-gnu.tar.gz" \
-            | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-gnu/{bat,bat.1}" --strip-components=1 && \
-        sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
-    # Install GNU eza from source
-    [ -n "$EZA_VERSION" ] && \
-        curl -sL https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-gnu.tar.gz | tar xz && \
-        curl -sL "https://github.com/eza-community/eza/releases/latest/download/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
-        sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
-    # Install GNU delta from source
-    [ -n "$DELTA_VERSION" ] && \
-        curl -sL "https://github.com/dandavison/delta/releases/latest/download/delta-$DELTA_VERSION-x86_64-unknown-linux-gnu.tar.gz" \
-            | tar xz "delta-$DELTA_VERSION-x86_64-unknown-linux-gnu/delta" --strip-components=1 && \
-        sudo install delta /usr/local/bin && rm delta
-    # Install GNU yazi from source
-    [ -n "$YAZI_VERSION" ] && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/$YAZI_VERSION/yazi-x86_64-unknown-linux-gnu.zip" && \
-        unzip -qj yazi.zip yazi-x86_64-unknown-linux-gnu/yazi && \
-        sudo install yazi /usr/local/bin && rm yazi yazi.zip
+    # Install GNU binaries from source
+    for bin in fd bat eza delta yazi; do "install_$bin" gnu; done
     # Install GNU Neovim from source
     curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
         sudo rm -rf /opt/nvim && \
