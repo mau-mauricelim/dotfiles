@@ -28,6 +28,7 @@ set_url_and_version() {
 set_all_url_and_version() {
     set_url_and_version "jqlang/jq"
     set_url_and_version "sxyazi/yazi"
+    set_url_and_version "neovim/neovim"
     set_url_and_version "dandavison/delta"
     set_url_and_version "BurntSushi/ripgrep"
     set_url_and_version "sharkdp/fd" true
@@ -191,7 +192,7 @@ ubuntu_install() {
     # Install GNU binaries from source
     for bin in fd bat eza delta yazi; do "install_$bin" gnu; done
     # Install GNU Neovim from source
-    curl -LO https://github.com/neovim/neovim/releases/latest/download/nvim-linux64.tar.gz && \
+    curl -LO "$NEOVIM_URL/nvim-linux64.tar.gz" && \
         sudo rm -rf /opt/nvim && \
         sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz
     # Common user installs
