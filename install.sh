@@ -13,47 +13,48 @@ main() {
 
 run_install() { echo "Running $1 installer"; "${1}_install"; }
 
-get_binary_version() {
-    latest_release=$(curl -sL "https://api.github.com/repos/$1/releases/latest")
-    if [ "$2" = "true" ]; then
-        echo "${latest_release}" | grep -Po '"tag_name": "v\K[^"]*' # strip v from tag
-    else
-        echo "${latest_release}" | grep tag_name | cut -d '"' -f4
-    fi
+set_url_and_version() {
+    repo_name=$(echo "$1" | cut -d"/" -f2)
+    repo_name=${repo_name^^} # Uppercase
+    # Sets release url e.g. RIPGREP_URL=https://github.com/BurntSushi/ripgrep/releases/lastest
+    eval "${repo_name}_URL"="https://github.com/$1/releases/lastest"
+    latest_tag=$(curl -sL "https://api.github.com/repos/$1/releases/latest" | grep tag_name | cut -d '"' -f4)
+    # Strip v (first charcter) from tag
+    if [ "$2" = "true" ]; then latest_tag="${latest_tag:1}"; fi
+    # Sets release version e.g. RIPGREP_VERSION=14.1.0
+    eval "${repo_name}_VERSION"="$latest_tag"
 }
 
-set_binary_version() {
-    JQ_VERSION=$(get_binary_version "jqlang/jq")
-    YAZI_VERSION=$(get_binary_version "sxyazi/yazi")
-    DELTA_VERSION=$(get_binary_version "dandavison/delta")
-    RIPGREP_VERSION=$(get_binary_version "BurntSushi/ripgrep")
-    FD_VERSION=$(get_binary_version "sharkdp/fd" true)
-    BAT_VERSION=$(get_binary_version "sharkdp/bat" true)
-    EZA_VERSION=$(get_binary_version "eza-community/eza" true)
-    LAZYGIT_VERSION=$(get_binary_version "jesseduffield/lazygit" true)
+set_all_url_and_version() {
+    set_url_and_version "jqlang/jq"
+    set_url_and_version "sxyazi/yazi"
+    set_url_and_version "dandavison/delta"
+    set_url_and_version "BurntSushi/ripgrep"
+    set_url_and_version "sharkdp/fd" true
+    set_url_and_version "sharkdp/bat" true
+    set_url_and_version "eza-community/eza" true
+    set_url_and_version "jesseduffield/lazygit" true
 }
-
-# TODO: change all github downloads usl to /latest/!
 
 common_root_install() {
     # Manual install of man pages for release binaries
     sudo mkdir -p /usr/local/share/man/man1
-    # Set binary version
-    set_binary_version
+    # Set release url and version
+    set_all_url_and_version
     # Install MUSL ripgrep from source
     [ -n "$RIPGREP_VERSION" ] && \
-        curl -sL "https://github.com/BurntSushi/ripgrep/releases/lastest/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+        curl -sL "$RIPGREP_URL/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz "ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg" "ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl/doc/rg.1" --strip-components=1 && \
         sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
     # Install LINUX lazygit from source
     [ -n "$LAZYGIT_VERSION" ] && \
-        curl -sL "https://github.com/jesseduffield/lazygit/releases/latest/download/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
+        curl -sL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
             | tar xz lazygit && \
         sudo install lazygit /usr/local/bin && rm lazygit
     # Install LINUX jq
     [ -n "$JQ_VERSION" ] && \
-        curl -sLo jq https://github.com/jqlang/jq/releases/latest/download/jq-linux-amd64 && \
-        curl -sL "https://github.com/jqlang/jq/releases/latest/download/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
+        curl -sLo jq "$JQ_URL/jq-linux-amd64" && \
+        curl -sL "$JQ_URL/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
         sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
     # Install zoxide
     curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man
@@ -120,35 +121,35 @@ common_user_install() {
 
 install_fd() {
     [ -n "$FD_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/fd/releases/latest/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sL "$FD_URL/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd" "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd.1" --strip-components=1 && \
         sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
 }
 
 install_bat() {
     [ -n "$BAT_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/bat/releases/latest/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sL "$BAT_URL/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat" "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat.1" --strip-components=1 && \
         sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
 }
 
 install_eza() {
     [ -n "$EZA_VERSION" ] && \
-        curl -sL "https://github.com/eza-community/eza/releases/latest/download/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
-        curl -sL "https://github.com/eza-community/eza/releases/latest/download/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
+        curl -sL "$EZA_URL/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
+        curl -sL "$EZA_URL/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
         sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
 }
 
 install_delta() {
     [ -n "$DELTA_VERSION" ] && \
-        curl -sL "https://github.com/dandavison/delta/releases/latest/download/delta-$DELTA_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sL "$DELTA_URL/delta-$DELTA_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "delta-$DELTA_VERSION-x86_64-unknown-linux-$1/delta" --strip-components=1 && \
         sudo install delta /usr/local/bin && rm delta
 }
 
 install_yazi() {
     [ -n "$YAZI_VERSION" ] && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/latest/yazi-x86_64-unknown-linux-$1.zip" && \
+        curl -sLo yazi.zip "$YAZI_URL/yazi-x86_64-unknown-linux-$1.zip" && \
         unzip -qj yazi.zip "yazi-x86_64-unknown-linux-$1/yazi" && \
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
 }
