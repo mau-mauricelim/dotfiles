@@ -33,6 +33,8 @@ set_binary_version() {
     LAZYGIT_VERSION=$(get_binary_version "jesseduffield/lazygit" true)
 }
 
+# TODO: change all github downloads usl to /latest/!
+
 common_root_install() {
     # Manual install of man pages for release binaries
     sudo mkdir -p /usr/local/share/man/man1
@@ -40,7 +42,7 @@ common_root_install() {
     set_binary_version
     # Install MUSL ripgrep from source
     [ -n "$RIPGREP_VERSION" ] && \
-        curl -sL "https://github.com/BurntSushi/ripgrep/releases/download/$RIPGREP_VERSION/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+        curl -sL "https://github.com/BurntSushi/ripgrep/releases/lastest/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz "ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg" "ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl/doc/rg.1" --strip-components=1 && \
         sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
     # Install LINUX lazygit from source
@@ -118,14 +120,14 @@ common_user_install() {
 
 install_fd() {
     [ -n "$FD_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/fd/releases/download/v$FD_VERSION/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sL "https://github.com/sharkdp/fd/releases/latest/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd" "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd.1" --strip-components=1 && \
         sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
 }
 
 install_bat() {
     [ -n "$BAT_VERSION" ] && \
-        curl -sL "https://github.com/sharkdp/bat/releases/download/v$BAT_VERSION/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sL "https://github.com/sharkdp/bat/releases/latest/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat" "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat.1" --strip-components=1 && \
         sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
 }
@@ -146,7 +148,7 @@ install_delta() {
 
 install_yazi() {
     [ -n "$YAZI_VERSION" ] && \
-        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/download/$YAZI_VERSION/yazi-x86_64-unknown-linux-$1.zip" && \
+        curl -sLo yazi.zip "https://github.com/sxyazi/yazi/releases/latest/yazi-x86_64-unknown-linux-$1.zip" && \
         unzip -qj yazi.zip "yazi-x86_64-unknown-linux-$1/yazi" && \
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
 }
