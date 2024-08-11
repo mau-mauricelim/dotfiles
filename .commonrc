@@ -8,6 +8,10 @@ export XDG_CONFIG_HOME="$HOME/.config"
 export XDG_DATA_HOME="$XDG_CONFIG_HOME/local/share"
 export XDG_CACHE_HOME="$XDG_CONFIG_HOME/cache"
 export XDG_STATE_HOME="$HOME/.local/state"
+# BUG: fix for https://github.com/ibhagwan/fzf-lua/issues/1243
+export XDG_RUNTIME_DIR="$XDG_CONFIG_HOME/local/runtime-dir"
+[ -d $XDG_RUNTIME_DIR ] || mkdir -p $XDG_RUNTIME_DIR
+[ $(stat -c "%a" $XDG_RUNTIME_DIR) = "700" ] || chmod 700 $XDG_RUNTIME_DIR
 
 # Set system locale
 export LANG=C.UTF-8
