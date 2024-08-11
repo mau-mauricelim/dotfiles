@@ -30,4 +30,5 @@ src
 tests
 bin
 ^/Dockerfile.*
+install.sh
 .*.md
