@@ -51,8 +51,7 @@ common_root_install() {
         sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
     # Install LINUX lazygit from source
     [ -n "$LAZYGIT_VERSION" ] && \
-        curl -sL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" \
-            | tar xz lazygit && \
+        curl -sL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz lazygit && \
         sudo install lazygit /usr/local/bin && rm lazygit
     # Install LINUX jq
     [ -n "$JQ_VERSION" ] && \
@@ -60,14 +59,15 @@ common_root_install() {
         curl -sL "$JQ_URL/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
         sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
     # Install zoxide
-    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh | bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man
+    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
+        bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
 }
 
 common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh} "$HOME/.vim"
     # Clone the dotfiles
-    [ -d "$HOME/dotfiles" ] || git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles"
+    [ -d "$HOME/dotfiles" ] || git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Stow the dotfiles
     cd "$HOME/dotfiles" && git pull https://github.com/mau-mauricelim/dotfiles.git HEAD && \
         git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
@@ -105,13 +105,13 @@ common_user_install() {
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
     # Install nvm, node.js, and npm
     if ! command -v npm >/dev/null; then
-        PROFILE=/dev/null bash -c 'curl -o- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash' && \
+        PROFILE=/dev/null bash -c 'curl -so- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null' && \
             export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "$HOME/.nvm" || printf %s "$XDG_CONFIG_HOME/nvm")"; \
             [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" && \
-            nvm install node
+            nvm install node >/dev/null
     fi
     # Install q language server for neovim
-    npm --global i @jo.shinonome/qls || sudo npm --global i @jo.shinonome/qls
+    sudo npm --global i @jo.shinonome/qls || npm --global i @jo.shinonome/qls
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \
@@ -181,7 +181,7 @@ alpine_install() {
     # Common user installs
     common_user_install
     # Clean up
-    sudo apk del util-linux-misc shadow
+    sudo apk -q --no-progress --no-cache del util-linux-misc shadow
 }
 
 ubuntu_install() {
@@ -191,7 +191,7 @@ ubuntu_install() {
     # build-essential installs a C compiler for nvim-treesitter
     sudo apt-get -qq update >/dev/null 2>&1 && \
         sudo apt-get -qq install -y --no-install-recommends \
-            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip
+            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip >/dev/null
     # Common root installs
     common_root_install
     # Install GNU binaries from source
