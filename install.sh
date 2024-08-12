@@ -67,12 +67,13 @@ common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/{nvim,tmux,yazi,zsh}" "$HOME/.vim"
     # Clone the dotfiles
-    [ -d "$HOME/dotfiles" ] || git clone --depth=1 "https://github.com/mau-mauricelim/dotfiles.git" "$HOME/dotfiles"
+    [ -d "$HOME/dotfiles" ] || git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles"
     # Stow the dotfiles
-    cd "$HOME/dotfiles" && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
+    cd "$HOME/dotfiles" && git pull https://github.com/mau-mauricelim/dotfiles.git HEAD && \
+        git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd "$HOME" || exit 1
     # Install local binaries
-    sudo install "$HOME/dotfiles/bin/*" /usr/local/bin
+    sudo install "$HOME/dotfiles/bin/"* /usr/local/bin
     # Create a symlink for zshenv to HOME
     ln -sf "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
     # Source the latest zshenv
@@ -80,7 +81,7 @@ common_user_install() {
     # Create ZDOTDIR and XDG_DATA_HOME directories
     mkdir -p "$ZDOTDIR" "$XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup}"
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
-    [ -d "$ZDOTDIR/powerlevel10k" ] || git clone -q --depth=1 "https://github.com/romkatv/powerlevel10k.git" "$ZDOTDIR/powerlevel10k"
+    [ -d "$ZDOTDIR/powerlevel10k" ] || git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZDOTDIR/powerlevel10k"
     # Zsh Auto Suggestions
     [ -d "$ZDOTDIR/zsh-autosuggestions" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZDOTDIR/zsh-autosuggestions"
     # Zsh Syntax Highlighting
@@ -114,7 +115,7 @@ common_user_install() {
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \
-        mv flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
+        cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
     # Run Lazy install, clean and update non-interactively from command line
     # nvim --headless '+Lazy! sync' +qa
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
