@@ -4,6 +4,8 @@ main() {
     case $ID in
         alpine|ubuntu)
             run_install $ID
+            # TEST
+            run_install $ID
             ;;
         *)
             echo "$ID is not supported"
@@ -63,7 +65,7 @@ common_root_install() {
 
 common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
-    mkdir -p "$HOME/.config/{nvim,tmux,yazi,zsh}" "$HOME/.vim"
+    mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh} "$HOME/.vim"
     # Clone the dotfiles
     [ -d "$HOME/dotfiles" ] || git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles"
     # Stow the dotfiles
@@ -77,7 +79,7 @@ common_user_install() {
     # Source the latest zshenv
     source "$HOME/.zshenv"
     # Create ZDOTDIR and XDG_DATA_HOME directories
-    mkdir -p "$ZDOTDIR" "$XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup}"
+    mkdir -p "$ZDOTDIR" "$XDG_DATA_HOME/"{nvim,vim}/{undo,swap,backup}
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
     [ -d "$ZDOTDIR/powerlevel10k" ] || git clone -q --depth=1 https://github.com/romkatv/powerlevel10k.git "$ZDOTDIR/powerlevel10k"
     # Zsh Auto Suggestions
@@ -88,9 +90,9 @@ common_user_install() {
     [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
     command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
     # Vim syntax and indent
-    mkdir -p "$HOME/.vim/{indent,syntax}"
+    mkdir -p "$HOME/.vim/"{indent,syntax}
     [ -d "$HOME/.vim/vim-qkdb-syntax" ] || git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git "$HOME/.vim/vim-qkdb-syntax"
-    ln -sf "$HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim" "$HOME/.vim/indent"
+    ln -sf "$HOME/.vim/vim-qkdb-syntax/indent/"{k,q}.vim "$HOME/.vim/indent"
     ln -sf "$HOME/.vim/vim-qkdb-syntax/syntax/k.vim" "$HOME/.vim/syntax"
     [ -d "$HOME/.vim/vim-q-syntax" ] || git clone -q --depth=1 https://github.com/jshinonome/vim-q-syntax.git "$HOME/.vim/vim-q-syntax"
     ln -sf "$HOME/.vim/vim-q-syntax/syntax/q.vim" "$HOME/.vim/syntax"
