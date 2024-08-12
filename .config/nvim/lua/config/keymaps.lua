@@ -93,9 +93,9 @@ vim.keymap.set('i', '<C-c>', '<Esc>')
 vim.keymap.set({ 'i', 'v' }, 'kj', '<Esc>')
 
 -- Remap Home/End to toggle between start/end of line and first/last non-blank space
-vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") ==  1 ? "^" : "0"', { expr = true, silent = true })
-vim.keymap.set({ 'n', 'v' }, '0', 'charcol(".") ==  1 ? "^" : "0"', { expr = true, silent = true })
-vim.keymap.set('i', '<Home>', 'charcol(".") ==  1 ? "<Esc>^i" : "<Esc>0i"', { expr = true, silent = true })
+vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") == indent(line(".")) + 1 ? "0" : "^"', { expr = true, silent = true })
+vim.keymap.set({ 'n', 'v' }, '0', 'charcol(".") == indent(line(".")) + 1 ? "0" : "^"', { expr = true, silent = true })
+vim.keymap.set('i', '<Home>', 'charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"', { expr = true, silent = true })
 vim.keymap.set('n', '<End>', 'charcol(".") == charcol("$")-1 ? "g_" : "$"', { expr = true, silent = true })
 vim.keymap.set('v', '<End>', 'charcol(".") == charcol("$") ? "g_" : "$"', { expr = true, silent = true })
 vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"', { expr = true, silent = true })
