@@ -169,11 +169,11 @@ alpine_install() {
     # util-linux-misc is for script
     # docs installs the documentation companion package
     # shadow is for chsh
-    # tput is for fzf-git (fzf-tmux)
+    # ncurses installs tput for fzf-git (fzf-tmux)
     sudo apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
         mandoc man-pages less docs \
-        zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow tput
+        zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow ncurses
     # Common root installs
     common_root_install
     # Install MUSL binaries from source
