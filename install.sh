@@ -4,6 +4,8 @@ main() {
     case $ID in
         alpine|ubuntu)
             run_install $ID
+            # TEST: run install twice to see if anything breaks
+            run_install $ID
             ;;
         *)
             echo "$ID is not supported"
@@ -11,7 +13,7 @@ main() {
     esac
 }
 
-run_install() { echo "Running $1 installer"; "${1}_install"; }
+run_install() { echo "Running $1 installer"; cd "$HOME" || exit 1; "${1}_install"; }
 
 set_url_and_version() {
     repo_name=$(echo "$1" | cut -d"/" -f2)
@@ -64,10 +66,11 @@ common_root_install() {
 common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/{nvim,tmux,yazi,zsh}" "$HOME/.vim"
+    # Clone the dotfiles
+    [ -d "$HOME/dotfiles" ] || git clone --depth=1 "https://github.com/mau-mauricelim/dotfiles.git" "$HOME/dotfiles"
     # Stow the dotfiles
-    git clone --depth=1 "https://github.com/mau-mauricelim/dotfiles.git" "$HOME/dotfiles" && \
-        cd "$HOME/dotfiles" && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
-        stow . && git restore . && cd "$HOME" || exit
+    cd "$HOME/dotfiles" && git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
+        git pull && stow . && git restore . && cd "$HOME" || exit 1
     # Install local binaries
     sudo install "$HOME/dotfiles/bin/*" /usr/local/bin
     # Create a symlink for zshenv to HOME
@@ -77,26 +80,26 @@ common_user_install() {
     # Create ZDOTDIR and XDG_DATA_HOME directories
     mkdir -p "$ZDOTDIR" "$XDG_DATA_HOME/{nvim,vim}/{undo,swap,backup}"
     # Zsh Theme - Powerlevel10k (Requires manual font installation)
-    git clone -q --depth=1 "https://github.com/romkatv/powerlevel10k.git" "$ZDOTDIR/powerlevel10k"
+    [ -d "$ZDOTDIR/powerlevel10k" ] || git clone -q --depth=1 "https://github.com/romkatv/powerlevel10k.git" "$ZDOTDIR/powerlevel10k"
     # Zsh Auto Suggestions
-    git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZDOTDIR/zsh-autosuggestions"
+    [ -d "$ZDOTDIR/zsh-autosuggestions" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZDOTDIR/zsh-autosuggestions"
     # Zsh Syntax Highlighting
-    git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZDOTDIR/zsh-syntax-highlighting"
+    [ -d "$ZDOTDIR/zsh-syntax-highlighting" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZDOTDIR/zsh-syntax-highlighting"
     # fzf
-    git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf" && \
-        "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
+    [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
+    command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
     # Vim syntax and indent
-    mkdir -p "$HOME/.vim/{indent,syntax}" && \
-        git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git "$HOME/.vim/vim-qkdb-syntax" && \
-            ln -sf "$HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim" "$HOME/.vim/indent" && \
-            ln -sf "$HOME/.vim/vim-qkdb-syntax/syntax/k.vim" "$HOME/.vim/syntax" && \
-        git clone -q --depth=1 https://github.com/jshinonome/vim-q-syntax.git "$HOME/.vim/vim-q-syntax" && \
-            ln -sf "$HOME/.vim/vim-q-syntax/syntax/q.vim" "$HOME/.vim/syntax"
+    mkdir -p "$HOME/.vim/{indent,syntax}"
+    [ -d "$HOME/.vim/vim-qkdb-syntax" ] || git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git "$HOME/.vim/vim-qkdb-syntax"
+    ln -sf "$HOME/.vim/vim-qkdb-syntax/indent/{k,q}.vim" "$HOME/.vim/indent"
+    ln -sf "$HOME/.vim/vim-qkdb-syntax/syntax/k.vim" "$HOME/.vim/syntax"
+    [ -d "$HOME/.vim/vim-q-syntax" ] || git clone -q --depth=1 https://github.com/jshinonome/vim-q-syntax.git "$HOME/.vim/vim-q-syntax"
+    ln -sf "$HOME/.vim/vim-q-syntax/syntax/q.vim" "$HOME/.vim/syntax"
     # Symlink Vim syntax and indent files to Neovim
     ln -sf "$HOME/.vim/indent" "$XDG_CONFIG_HOME/nvim" && \
         ln -sf "$HOME/.vim/syntax" "$XDG_CONFIG_HOME/nvim"
     # bash and zsh key bindings for Git objects, powered by fzf.
-    curl -sLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
+    [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
     # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
     # Install nvm, node.js, and npm
