@@ -4,8 +4,6 @@ main() {
     case $ID in
         alpine|ubuntu)
             run_install $ID
-            # TEST
-            run_install $ID
             ;;
         *)
             echo "$ID is not supported"
