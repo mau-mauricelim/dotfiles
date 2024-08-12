@@ -203,7 +203,7 @@ ubuntu_install() {
     # Common user installs
     common_user_install
     # Clean up
-    sudo apt-get -qq remove ca-certificates && \
+    sudo apt-get -qq remove ca-certificates >/dev/null && \
         sudo apt-get -qq autoclean -y && \
         sudo apt-get -qq clean -y && \
         sudo apt-get -qq autoremove -y && \
