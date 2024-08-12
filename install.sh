@@ -204,7 +204,7 @@ ubuntu_install() {
     sudo apt-get -qq remove ca-certificates >/dev/null && \
         sudo apt-get -qq autoclean -y && \
         sudo apt-get -qq clean -y && \
-        sudo apt-get -qq autoremove -y && \
+        sudo apt-get -qq autoremove -y >/dev/null && \
         sudo rm -rf /var/cache/apt/archives /var/lib/apt/lists
 }
 
