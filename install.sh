@@ -4,15 +4,15 @@ main() {
     case $ID in
         alpine|ubuntu)
             run_install $ID
-            cd $HOME && du -shcL .[^.]* *
+            cd $HOME && du -shcL /tmp
             run_install $ID
-            cd $HOME && du -shcL .[^.]* *
+            cd $HOME && du -shcL /tmp
             run_install $ID
-            cd $HOME && du -shcL .[^.]* *
+            cd $HOME && du -shcL /tmp
             run_install $ID
-            cd $HOME && du -shcL .[^.]* *
+            cd $HOME && du -shcL /tmp
             run_install $ID
-            cd $HOME && du -shcL .[^.]* *
+            cd $HOME && du -shcL /tmp
             ;;
         *)
             echo "$ID is not supported"
@@ -129,6 +129,8 @@ common_user_install() {
     echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
     sudo chsh -s "$(which zsh)"
+    # Clear the npm cache
+    [ -d "$HOME/.npm" ] && rm -rf "$HOME/.npm"
 }
 
 install_fd() {
