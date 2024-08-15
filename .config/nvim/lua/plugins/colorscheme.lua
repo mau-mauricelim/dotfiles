@@ -10,6 +10,35 @@ return { -- You can easily change to a different colorscheme.
     -- Setup if any
     require('onedark').setup({
       style = 'cool',
+      -- Highlights from tokyonight.nvim
+      highlights = {
+        FlashBackdrop = {
+          fg = '#545c7e',
+        },
+        Search = {
+          bg = '#3d59a1',
+          fg = '#c0caf5',
+        },
+        IncSearch = {
+          bg = '#ff9e64',
+          fg = '#1d202f',
+        },
+        FlashLabel = {
+          bg = '#ff007c',
+          bold = true,
+          fg = '#c0caf5',
+        },
+        MsgArea = {
+          fg = '#a9b1d6',
+        },
+        Special = {
+          fg = '#2ac3de',
+        },
+        Cursor = {
+          bg = '#c0caf5',
+          fg = '#24283b',
+        },
+      },
     })
 
     -- Load the colorscheme here
@@ -19,3 +48,4 @@ return { -- You can easily change to a different colorscheme.
     vim.cmd.hi('Comment gui=none')
   end,
 }
+
