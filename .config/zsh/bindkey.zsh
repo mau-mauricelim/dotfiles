@@ -4,15 +4,6 @@
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
 
-# Kill line: bindkey | grep kill
-# same as bash
-bindkey '^U' backward-kill-line
-bindkey '^U^U' kill-whole-line
-
-# Arrow key bindings
-bindkey ";5C" forward-word
-bindkey ";5D" backward-word
-
 # Load widgets that are not loaded by default.
 autoload -U up-line-or-beginning-search
 zle -N up-line-or-beginning-search
@@ -41,7 +32,7 @@ function () {
 
     # `seq` is a fallback for the case when terminfo is not available.
     local kcap seq widget
-    for    kcap   seq        widget (                       # key name
+    for kcap   seq        widget (                       # key name
         khome  '^[[H'     beginning-of-line              # Home
         khome  '^[OH'     beginning-of-line              # Home (in app mode)
         kend   '^[[F'     end-of-line                    # End
@@ -58,6 +49,8 @@ function () {
         kDC5   '^[[3;5~'  kill-word                      # Ctrl + Delete
         kRIT5  '^[[1;5C'  forward-word                   # Ctrl + RightArrow
         kLFT5  '^[[1;5D'  backward-word                  # Ctrl + LeftArrow
+        x      '^U'       backward-kill-line             # Ctrl + U
+        x      '^U^U'     kill-whole-line                # Ctrl + UU
     ); do
         bindkey -M emacs ${terminfo[$kcap]:-$seq} $widget
         bindkey -M viins ${terminfo[$kcap]:-$seq} $widget
