@@ -9,6 +9,7 @@ ARG USERNAME=maurice
 ARG USER_UID=1000
 ARG USER_GID=$USER_UID
 ARG HOME=/home/$USERNAME
+ARG INSTALL_TYPE=mini
 
 # Install required packages
 RUN apk -q --no-progress --no-cache add sudo bash && \
@@ -31,7 +32,7 @@ COPY --chown=$USERNAME:$USERNAME install.sh $HOME/install.sh
 COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 
 # Bootstrap
-RUN bash install.sh && rm install.sh && \
+RUN bash install.sh $INSTALL_TYPE && rm install.sh && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
         for test in /tmp/tests/*.sh; do bash "$test"; done && \

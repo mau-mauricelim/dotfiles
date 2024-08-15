@@ -1,4 +1,7 @@
 #!/usr/bin/env bash
+INSTALL_TYPE="${1:-min}"         # Defaults to minimal install
+INSTALL_TYPE="${INSTALL_TYPE,,}" # Lowercase
+
 main() {
     source /etc/os-release
     case $ID in
@@ -100,7 +103,8 @@ common_user_install() {
     # bash and zsh key bindings for Git objects, powered by fzf.
     [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
-    # git clone -q --depth=1 https://github.com/tmux-plugins/tpm $XDG_CONFIG_HOME/tmux/plugins/tpm && $XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins
+    [ "$INSTALL_TYPE" = "full" ] && \
+        git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
     # Install nvm, node.js, and npm
     if ! command -v npm >/dev/null; then
         PROFILE=/dev/null bash -c 'curl -so- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null' && \
@@ -115,7 +119,7 @@ common_user_install() {
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \
         cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
     # Run Lazy install, clean and update non-interactively from command line
-    # nvim --headless '+Lazy! sync' +qa
+    [ "$INSTALL_TYPE" = "full" ] && nvim --headless '+Lazy! sync' +qa
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
