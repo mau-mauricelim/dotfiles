@@ -13,10 +13,11 @@ jobs:
     timeout-minutes: 15
     strategy:
       matrix:
-        BASE_IMAGE: [ ubuntu, alpine ]
+        BASE_IMAGE: [ alpine, ubuntu ]
+        INSTALL_TYPE: [ mini, full ]
     runs-on: ubuntu-latest
     env:
-        IMAGE_NAME: ${{ matrix.BASE_IMAGE }}-custom
+        IMAGE_NAME: ${{ matrix.BASE_IMAGE }}.${{ matrix.INSTALL_TYPE }}-custom
     steps:
       - name: Checkout
         uses: actions/checkout@v4
@@ -36,6 +37,8 @@ jobs:
           cache-from: type=gha
           cache-to: type=gha,mode=max
           file: Dockerfile.${{ matrix.BASE_IMAGE }}
+          build-args: |
+            INSTALL_TYPE=${{ matrix.INSTALL_TYPE }}
       - name: Upload docker image to registry
         run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
       - name: Export docker container to a tar.gz file using gzip

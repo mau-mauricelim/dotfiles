@@ -186,6 +186,11 @@ return { -- LSP Configuration & Plugins
     -- for you, so that they are available from within Neovim.
     local ensure_installed = vim.tbl_keys(servers or {})
     vim.list_extend(ensure_installed, {
+      -- you can turn off/on auto_update per tool
+      { 'bash-language-server', auto_update = true },
+      'shfmt',
+      'shellcheck',
+      'lua-language-server',
       'stylua', -- Used to format lua code
     })
     require('mason-tool-installer').setup({ ensure_installed = ensure_installed })
