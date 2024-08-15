@@ -131,6 +131,8 @@ common_user_install() {
     sudo chsh -s "$(which zsh)"
     # Clear the npm cache
     [ -d "$HOME/.npm" ] && rm -rf "$HOME/.npm"
+    # Clean up tmp directories
+    rm -rf /tmp/tmp.*
 }
 
 install_fd() {
