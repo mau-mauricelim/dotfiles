@@ -4,15 +4,15 @@ main() {
     case $ID in
         alpine|ubuntu)
             run_install $ID
-            cd $HOME && du -shcL /tmp
+            cd $HOME && du -shcL /tmp/*
             run_install $ID
-            cd $HOME && du -shcL /tmp
+            cd $HOME && du -shcL /tmp/*
             run_install $ID
-            cd $HOME && du -shcL /tmp
+            cd $HOME && du -shcL /tmp/*
             run_install $ID
-            cd $HOME && du -shcL /tmp
+            cd $HOME && du -shcL /tmp/*
             run_install $ID
-            cd $HOME && du -shcL /tmp
+            cd $HOME && du -shcL /tmp/*
             ;;
         *)
             echo "$ID is not supported"
