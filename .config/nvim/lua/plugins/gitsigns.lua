@@ -24,16 +24,18 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
           vim.keymap.set(mode, l, r, opts)
         end
         -- Actions
-        gs.blame_line_full = function() gs.blame_line{full = true} end
-        gs.diffthis_tilde  = function() gs.diffthis('~') end
         gs.last_hunk       = function() gs.nav_hunk('last') end
         gs.first_hunk      = function() gs.nav_hunk('first') end
+        gs.stage_hunk_nv   = function() vim.cmd('Gitsigns stage_hunk') end
+        gs.reset_hunk_nv   = function() vim.cmd('Gitsigns reset_hunk') end
+        gs.blame_line_full = function() gs.blame_line({ full = true }) end
+        gs.diffthis_tilde  = function() gs.diffthis('~') end
         map('n',          ']h',         gs.next_hunk,                 { desc = 'Next Hunk' })
         map('n',          '[h',         gs.prev_hunk,                 { desc = 'Prev Hunk' })
         map('n',          ']H',         gs.last_hunk,                 { desc = 'Last Hunk' })
         map('n',          '[H',         gs.first_hunk,                { desc = 'First Hunk' })
-        map({ 'n', 'v' }, '<leader>hs', ':Gitsigns stage_hunk<CR>',   { desc = '[H]unk [S]tage' })
-        map({ 'n', 'v' }, '<leader>hr', ':Gitsigns reset_hunk<CR>',   { desc = '[H]unk [R]eset' })
+        map({ 'n', 'v' }, '<leader>hs', gs.stage_hunk_nv,             { desc = '[H]unk [S]tage' })
+        map({ 'n', 'v' }, '<leader>hr', gs.reset_hunk_nv,             { desc = '[H]unk [R]eset' })
         map('n',          '<Leader>hS', gs.stage_buffer,              { desc = '[S]tage buffer' })
         map('n',          '<Leader>hu', gs.undo_stage_hunk,           { desc = '[H]unk stage [U]ndo' })
         map('n',          '<Leader>hR', gs.reset_buffer,              { desc = '[R]eset buffer' })
