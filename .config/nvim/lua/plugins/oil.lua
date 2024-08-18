@@ -18,6 +18,29 @@ return {
         -- Sort file and directory names case insensitive
         case_insensitive = true,
       },
+      keymaps = {
+        -- Some useful defaults
+        ['g?'] = 'actions.show_help',
+        ['<C-p>'] = 'actions.preview',
+        ['`'] = 'actions.cd',
+        -- Overrides
+        ['<C-s>'] = oil.save,
+        ['<C-\\>'] = 'actions.open_terminal',
+        ['<leader>sf'] = {
+          -- stylua: ignore
+          function() Files(require('oil').get_current_dir()) end,
+          mode = 'n',
+          nowait = true,
+          desc = '[S]earch [F]iles in current directory',
+        },
+        ['<leader>sg'] = {
+          -- stylua: ignore
+          function() require('fzf-lua').live_grep({ cwd = require('oil').get_current_dir() }) end,
+          mode = 'n',
+          nowait = true,
+          desc = '[S]earch by live [g]rep in current directory',
+        },
+      },
     })
     vim.keymap.set('n', '-', oil.open, { desc = 'Open parent directory' })
     vim.keymap.set('n', '_', actions.open_cwd.callback, { desc = 'Open current working directory' })
