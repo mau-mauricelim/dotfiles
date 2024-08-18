@@ -152,8 +152,11 @@ return { -- Autocompletion
         {
           name = 'cmdline',
           option = {
-            ignore_cmds = { 'Man', '!' },
+            ignore_cmds = { 'Man', '!', 'read', 'write' },
           },
+          -- HACK: fix for `:r !` or `:w !`, still hangs if you press space after `!`
+          -- https://github.com/hrsh7th/cmp-cmdline/issues/112
+          -- keyword_pattern = [[\!\@<!\w*]],
         },
       }),
     })
