@@ -25,7 +25,7 @@ return {
         ['`'] = 'actions.cd',
         -- Overrides
         ['<C-s>'] = oil.save,
-        ['<C-\\>'] = 'actions.open_terminal',
+        ['~'] = 'actions.open_terminal',
         ['<leader>sf'] = {
           -- stylua: ignore
           function() Files(require('oil').get_current_dir()) end,
