@@ -25,8 +25,10 @@ vim.opt.showmode = false
 -- Sync clipboard between OS and Neovim.
 --  Remove this option if you want your OS clipboard to remain independent.
 --  See `:help 'clipboard'`
--- Use <Leader>cb to toggle unnamedplus clipboard
-vim.opt.clipboard = 'unnamedplus'
+-- Use <Leader>cb to toggle clipboard between none, unnamed and unnamedplus
+-- `unnamed` syncs clipboard between vim sessions
+-- `unnamedplus` syncs clipboard between OS and Neovim
+vim.opt.clipboard = 'unnamed'
 
 -- Enable break indent
 -- vim.opt.breakindent = true

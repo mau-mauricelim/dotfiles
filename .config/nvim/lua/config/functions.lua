@@ -14,8 +14,8 @@ end
 -- Toggle virtual edit mode between onemore and all
 function M.toggleVirtualEdit() SetVimOpt('virtualedit', vim.o.virtualedit == 'onemore' and 'all' or 'onemore') end
 
--- Toggle clipboard between unnamedplus and none
-function M.toggleClipboard() SetVimOpt('clipboard', vim.o.clipboard == '' and 'unnamedplus' or '') end
+-- Toggle clipboard between none, unnamed and unnamedplus
+function M.toggleClipboard() SetVimOpt('clipboard', vim.o.clipboard == '' and 'unnamed' or (vim.o.clipboard == 'unnamed' and 'unnamedplus' or '')) end
 
 -- Toggle signcolumn
 function M.toggleSigncolumn() SetVimOpt('signcolumn', vim.o.signcolumn == 'yes' and 'no' or 'yes') end
