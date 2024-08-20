@@ -11,7 +11,12 @@ return { -- Collection of various small independent plugins/modules
     --  - ci'  - [C]hange [I]nside [']quote
     -- NOTE:: use closing `)]` brackets to surround textobjects without spaces
     --        use opening `([` brackets to surround textobjects with spaces
-    require('mini.ai').setup({ n_lines = 500 })
+    require('mini.ai').setup({
+      n_lines = 500,
+      custom_textobjects = {
+        b = { { '%b()', '%b[]', '%b{}', '%b<>' }, '^.().*().$' },
+      },
+    })
 
     -- Align text interactively
     --
