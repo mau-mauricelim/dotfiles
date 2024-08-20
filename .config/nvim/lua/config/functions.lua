@@ -69,4 +69,58 @@ function M.toggleZenMode()
   vim.g.zen_mode = not vim.g.zen_mode
 end
 
+-- Open URL in browser
+function M.Browse(url)
+  local _, res = pcall(vim.ui.open, url)
+  if res == nil then
+    -- HACK: WSL
+    vim.fn.systemlist('uname -a|grep -iq wsl && cmd.exe /c start ' .. url)
+  end
+end
+
+function M.GetLineNumber() return vim.api.nvim_win_get_cursor(0)[1] end
+function M.GetFilePath() return vim.fn.shellescape(vim.fn.expand('%:p')) end
+function M.GetFileDir() return vim.fn.shellescape(vim.fn.expand('%:p:h')) end
+
+-- Open git blame commit URL
+function M.GitBlameOpenCommitURL()
+  local line_number = M.GetLineNumber()
+  local filepath = M.GetFilePath()
+  local git_dir = M.GetFileDir()
+  local cmd = 'cd ' .. git_dir .. ' && ' ..
+    'HASH=$(git blame -pl -L ' .. line_number .. ',' .. line_number .. ' ' .. filepath .. '|head -1|cut -d" " -f1);' ..
+    [[ [ -n "$HASH" ] && [ "$HASH" != "0000000000000000000000000000000000000000" ] &&
+      echo $(git config --get remote.origin.url|sed -e 's/\.com:/.com\//g ; s/\.net:/.net\//g ; s/^git@/https:\/\//g ; s/\.git$//g')/commit/$HASH ]]
+  local commit_url = vim.fn.systemlist(cmd)[1]
+  if commit_url ~= nil then
+    vim.notify('Opening ' .. commit_url)
+    M.Browse(commit_url)
+  else
+    vim.notify('Not Commited Yet')
+  end
+end
+
+-- Open git blame commit file URL
+function M.GitBlameOpenCommitFileURL()
+  local line_number = M.GetLineNumber()
+  local filepath = M.GetFilePath()
+  local git_dir = M.GetFileDir()
+  local cmd = 'cd ' .. git_dir .. ' && ' ..
+    'HASH=$(git blame -pl -L ' .. line_number .. ',' .. line_number .. ' ' .. filepath .. '|head -1|cut -d" " -f1);' ..
+    -- Path has `/` so use a different `|` separator
+    'RELPATH_GITROOT=$(readlink -f ' .. filepath .. '|sed "s|^$(git rev-parse --show-toplevel)||g");' ..
+    [[
+      [ -n "$HASH" ] && [ "$HASH" != "0000000000000000000000000000000000000000" ] &&
+      [ -n "$RELPATH_GITROOT" ] &&
+      echo $(git config --get remote.origin.url|sed -e 's/\.com:/.com\//g ; s/\.net:/.net\//g ; s/^git@/https:\/\//g ; s/\.git$//g')/blob/$HASH/$RELPATH_GITROOT
+      ]]
+  local commit_url = vim.fn.systemlist(cmd)[1]
+  if commit_url ~= nil then
+    vim.notify('Opening ' .. commit_url)
+    M.Browse(commit_url)
+  else
+    vim.notify('Not Commited Yet')
+  end
+end
+
 return M

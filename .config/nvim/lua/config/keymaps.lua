@@ -168,8 +168,12 @@ vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without l
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
 
--- Custom toggles
 local M = require('config.functions')
+-- Open git blame commit URL
+vim.keymap.set('n', '<Leader>bc', M.GitBlameOpenCommitURL, { desc = 'Open Git [B]lame [C]ommit URL' })
+vim.keymap.set('n', '<Leader>bf', M.GitBlameOpenCommitFileURL, { desc = 'Open Git [B]lame [F]ile URL' })
+
+-- Custom toggles
 -- Toggle line number
 vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
 -- Toggle virtual edit mode between onemore and all
