@@ -179,7 +179,7 @@ vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggl
 -- Toggle virtual edit mode between onemore and all
 vim.keymap.set( 'n', '<Leader>ve', M.toggleVirtualEdit, { desc = 'Toggle [V]irtual[E]dit mode between onemore and all' })
 -- Toggle clipboard between unnamedplus and none
-vim.keymap.set({ 'n', 'v' }, '<Leader>cb', M.toggleClipboard, { desc = 'Toggle unnamedplus [C]lip[b]oard' })
+vim.keymap.set({ 'n', 'v' }, '<Leader>cb', M.toggleClipboard, { desc = 'Toggle [C]lip[b]oard' })
 -- Toggle signcolumn
 vim.keymap.set('n', '<Leader>tc', M.toggleSigncolumn, { desc = '[T]oggle sign[C]olumn' })
 -- Toggle vim keyword

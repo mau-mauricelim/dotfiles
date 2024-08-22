@@ -16,6 +16,7 @@ return { -- Autoformat
   },
   opts = {
     -- Define your formatters
+    -- NOTE: Formatters need to be installed using `:MasonInstall <package> ...` if they are not in lsp ensure_installed
     -- stylua: ignore
     formatters_by_ft = {
       lua    = { 'stylua' },
