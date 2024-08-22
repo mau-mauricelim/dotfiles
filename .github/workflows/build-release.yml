@@ -4,7 +4,7 @@ on:
   workflow_dispatch:
     inputs:
       TAG_NAME:
-        default: 'beta'
+        default: 'vX.X.X'
         type: string
 
 jobs:
