@@ -43,9 +43,17 @@ jobs:
         run: if gh release view ${{ inputs.TAG_NAME }} &> /dev/null; then gh release delete ${{ inputs.TAG_NAME }} --cleanup-tag -y 2>&1; fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+      - name: Get Previous tag
+        id: previoustag
+        uses: WyriHaximus/github-action-get-previous-tag@v1
+        with:
+          fallback: v1.0.0 # Optional fallback tag to use when no tag can be found
+      - name: Generate Changelog
+        run: echo -e "## [${{ inputs.TAG_NAME }](${{ github.repository }}/compare/${{ steps.previoustag.outputs.tag }}...${{ steps.previoustag.outputs.tag }}) ($(date +%F))\n\n### Features\n\n### Bugs" > ${{ github.workspace }}-CHANGELOG.txt
       - name: Create pre-Release
         uses: softprops/action-gh-release@v2
         with:
+          body_path: ${{ github.workspace }}-CHANGELOG.txt
           files: target/release/wsl-*-custom.zip
           tag_name: ${{ inputs.TAG_NAME}}
           prerelease: true
