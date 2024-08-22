@@ -49,7 +49,7 @@ jobs:
         with:
           fallback: v1.0.0 # Optional fallback tag to use when no tag can be found
       - name: Generate Changelog
-        run: echo -e "## [${{ inputs.TAG_NAME }](${{ github.repository }}/compare/${{ steps.previoustag.outputs.tag }}...${{ steps.previoustag.outputs.tag }}) ($(date +%F))\n\n### Features\n\n### Bugs" > ${{ github.workspace }}-CHANGELOG.txt
+        run: echo "## ["${{ inputs.TAG_NAME }}"]("${{ github.repository }}"/compare/"${{ steps.previoustag.outputs.tag }}"..."${{ steps.previoustag.outputs.tag }}") ($(date +%F))" > ${{ github.workspace }}-CHANGELOG.txt
       - name: Create pre-Release
         uses: softprops/action-gh-release@v2
         with:
