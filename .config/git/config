@@ -42,6 +42,9 @@
 [pull]
     rebase = true
 
+[push]
+    default = current
+
 # delta config
 [core]
     pager = delta
