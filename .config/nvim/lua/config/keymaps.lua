@@ -142,6 +142,10 @@ vim.keymap.set('n', '<Leader>si', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
+-- Select to end of line: similar to `C`, `D` and `Y`
+vim.keymap.set('n', '<Leader>V', 'v$h', { desc = 'Select to end of line' })
+-- Select pasted text: similar to `gv`
+vim.keymap.set('n', '<Leader>gp', '`[v`]', { desc = 'Select previous pasted text' })
 
 -- Search and replace the word under the cursor
 vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
