@@ -1,3 +1,4 @@
+# The variable names are case-insensitive
 [alias]
     root = rev-parse --show-toplevel
     # Prefixed with a bang (!): evaluate in a shell
@@ -22,10 +23,24 @@
     fop = fetch origin --prune
     bdel = branch -d
     bdelr = push origin -d
+    please = push --force-with-lease
+    rbi = rebase -i
+    nuke = reset --hard
+    wipe = git clean -xdf
+    adog = log --all --decorate --oneline --graph # A Dog
+    dogs = log --all --decorate --oneline --graph --stat # All Dogs
+    lg1 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
+    lg2 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
+    lg3 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
     # Git diff toggle side-by-side
     gdt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
     # Create GitLab merge request
     mrc = !git push -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
+    cfg = config -l
+    gcfg = config --global -l
+
+[pull]
+    rebase = true
 
 # delta config
 [core]
