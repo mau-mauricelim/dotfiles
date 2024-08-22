@@ -26,11 +26,11 @@ return { -- Autoformat
       zsh    = { 'shfmt', 'shellcheck' },
       --
       -- You can use a sub-list to tell conform to run *until* a formatter is found
-      javascript = { { 'prettierd', 'prettier' } },
-      html       = { { 'prettierd', 'prettier' } },
-      json       = { { 'prettierd', 'prettier' } },
-      yaml       = { { 'prettierd', 'prettier' } },
-      markdown   = { { 'prettierd', 'prettier' } },
+      javascript = { 'prettierd', 'prettier' },
+      html       = { 'prettierd', 'prettier' },
+      json       = { 'prettierd', 'prettier' },
+      markdown   = { 'prettierd', 'prettier' },
+      yaml       = { 'yq', 'yamlfmt', 'yamlfix' },
     },
     notify_on_error = false,
     -- Set up format-on-save
