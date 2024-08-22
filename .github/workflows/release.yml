@@ -49,7 +49,7 @@ jobs:
       - name: Generate Changelog
         run: |
           REPO_URL=${{ github.server_url }}/${{ github.repository }}
-          LATEST_TAG=$(curl -sL $(echo $REPO_URL)|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)
+          LATEST_TAG=$(curl -sL $(echo $REPO_URL/releases/latest)|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)
           echo -e "## ["${{ inputs.TAG_NAME }}"]($REPO_URL/compare/$LATEST_TAG..."${{ inputs.TAG_NAME }}") ($(date +%F))\n\n### Features\n\n### Bugs" > ${{ github.workspace }}-CHANGELOG.txt
       - name: Create pre-Release
         uses: softprops/action-gh-release@v2
