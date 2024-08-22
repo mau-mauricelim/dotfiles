@@ -43,11 +43,10 @@ jobs:
         run: if gh release view ${{ inputs.TAG_NAME }} &> /dev/null; then gh release delete ${{ inputs.TAG_NAME }} --cleanup-tag -y 2>&1; fi
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-      - name: Get latest tag
-        uses: actions-ecosystem/action-get-latest-tag@v1
-        id: latest-tag
       - name: Generate Changelog
-        run: echo "## ["${{ inputs.TAG_NAME }}"]("${{ github.repository }}"/compare/"${{ steps.latest-tag.outputs.tag }}"..."${{ inputs.TAG_NAME }}") ($(date +%F))\n\n### Features\n\n###Bugs" > ${{ github.workspace }}-CHANGELOG.txt
+        run: |
+          LATEST_TAG=$(curl -sL ${{ github.repository }}|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)
+          echo "## ["${{ inputs.TAG_NAME }}"]("${{ github.repository }}"/compare/$LATEST_TAG..."${{ inputs.TAG_NAME }}") ($(date +%F))\n\n### Features\n\n###Bugs" > ${{ github.workspace }}-CHANGELOG.txt
       - name: Create pre-Release
         uses: softprops/action-gh-release@v2
         with:
