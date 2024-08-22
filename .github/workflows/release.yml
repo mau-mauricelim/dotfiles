@@ -4,8 +4,11 @@ on:
   workflow_dispatch:
     inputs:
       WORKFLOW_NAME:
-        default: 'wsl-distro-custom.yml'
-        type: string
+        type: choice
+        description: workflow name
+        options:
+        - wsl-distro-custom.yml
+        - build-release.yml
       WORKFLOW_STATUS:
         default: 'success'
         type: string
