@@ -113,7 +113,7 @@ common_user_install() {
             nvm install node >/dev/null
     fi
     # Install q language server for neovim
-    sudo npm --global i @jo.shinonome/qls || npm --global i @jo.shinonome/qls
+    sudo npm --global i @jo.shinonome/qls yarn || npm --global i @jo.shinonome/qls yarn
     # Install yazi themes
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \

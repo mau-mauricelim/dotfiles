@@ -5,9 +5,9 @@ return {
   keys = {
     { '<Leader>tm', '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle [M]arkdown preview' },
   },
-  ft = { 'markdown' },
-  build = function()
-    require('lazy').load({ plugins = 'markdown-preview.nvim' })
-    vim.fn['mkdp#util#install']()
+  build = "cd app && yarn install",
+  init = function()
+    vim.g.mkdp_filetypes = { "markdown" }
   end,
+  ft = { 'markdown' },
 }
