@@ -118,8 +118,10 @@ common_user_install() {
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \
         cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
-    # Run Lazy install, clean and update non-interactively from command line
-    [ "$INSTALL_TYPE" = "full" ] && nvim --headless '+Lazy! sync' +qa
+    # Run Lazy install, clean and update non-interactively from command line inside tmux
+    [ "$INSTALL_TYPE" = "full" ] && \
+        tmux new -d "nvim --headless '+Lazy! sync' +qa && echo 'nvim sync lazy from the cmdline in tmux complete' |& tee /tmp/tmux.log"
+        timeout 60s bash -c -- 'while true; do if grep -q "nvim sync lazy from the cmdline in tmux complete" /tmp/tmux.log >/dev/null 2>&1; then rm /tmp/tmux.log; break; fi; done'
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
