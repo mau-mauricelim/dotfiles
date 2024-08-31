@@ -57,7 +57,7 @@ vim.keymap.set('i', '<PageUp>', '<Esc><C-u>zzi')
 vim.keymap.set('i', '<PageDown>', '<Esc><C-d>zzi')
 
 -- `n` to always search forward and `N` backward
--- https://github.com/mhinz/vim-galore#saner-behavior-of-n-and-n
+-- https://github.com/mhinz/vim-galore?tab=readme-ov-file#saner-behavior-of-n-and-n
 -- Center search and open folds for this line
 vim.keymap.set('n', 'n', "'Nn'[v:searchforward].'zzzv'", { expr = true, desc = 'Next Search Result' })
 vim.keymap.set('x', 'n', "'Nn'[v:searchforward]", { expr = true, desc = 'Next Search Result' })
@@ -174,6 +174,13 @@ vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without l
 
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
+
+-- Quickly edit your macros
+-- https://github.com/mhinz/vim-galore?tab=readme-ov-file#quickly-edit-your-macros
+-- This is a real gem! The mapping takes a register (or `*` by default) and opens it in the cmdline-window.
+-- Hit `<cr>` when you're done editing for setting the register.
+-- Use it like this `<leader>m` or `"q<leader>m`.
+vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>]], { desc = 'Edit [M]acros' })
 
 local M = require('config.functions')
 -- Open git blame commit URL

@@ -85,3 +85,10 @@ vim.opt.virtualedit = 'onemore'
 
 -- Set highlight on search
 vim.opt.hlsearch = true
+
+-- Disable audible and visual bells
+vim.cmd([[
+set noerrorbells
+set novisualbell
+set t_vb=
+]])
