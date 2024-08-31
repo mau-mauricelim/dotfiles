@@ -26,7 +26,7 @@
     please = push --force-with-lease
     rbi = rebase -i
     nuke = reset --hard
-    wipe = git clean -xdf
+    wipe = clean -xdf
     adog = log --all --decorate --oneline --graph # A Dog
     dogs = log --all --decorate --oneline --graph --stat # All Dogs
     lg1 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
