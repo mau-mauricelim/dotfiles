@@ -57,6 +57,7 @@ return {
     vim.keymap.set('n', '<Leader>sr',       fzf_lua.resume,               { desc = '[S]earch [R]esume last command/query' })
     vim.keymap.set('n', '<Leader>sq',       fzf_lua.quickfix,             { desc = '[S]earch [Q]uickfix' })
     vim.keymap.set('n', '<Leader>s.',       fzf_lua.oldfiles,             { desc = '[S]earch Recent Files ("." for repeat)' })
+    vim.keymap.set('n', '<Leader>s"',       fzf_lua.registers,            { desc = '[S]earch ["] Registers' })
     vim.keymap.set('n', '<Leader>sc',       fzf_lua.command_history,      { desc = '[S]earch [C]ommand history' })
     vim.keymap.set('n', '<Leader><Leader>', fzf_lua.buffers,              { desc = '[ ] Find existing buffers' })
     vim.keymap.set('n', '<Leader>/g',       fzf_lua.lgrep_curbuf,         { desc = '[/] [G]rep search current buffer' })
