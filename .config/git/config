@@ -33,9 +33,13 @@
     lg2 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset)%C(auto)%d%C(reset)%n''          %C(white)%s%C(reset) %C(dim white)- %an%C(reset)'
     lg3 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
     # Git diff toggle side-by-side
-    gdt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
+    dt = !sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true'
+    ds = diff --staged
+    dss = diff --staged --stat
+    da = diff HEAD
+    das = diff HEAD --stat
     # Create GitLab merge request
-    mrc = !git push -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
+    mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config -l
     gcfg = config --global -l
 
