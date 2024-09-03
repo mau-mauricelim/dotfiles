@@ -1,0 +1,10 @@
+set editing-mode vi
+set show-mode-in-prompt on
+set vi-ins-mode-string \1\e[6 q\2\e[106;30mI\e[0m
+set vi-cmd-mode-string \1\e[2 q\2\e[102;30mN\e[0m
+
+set keymap vi-insert
+"kj": vi-movement-mode
+# v goes vi-editing-mode in cmd mode
+# TODO: Add a keymap in nvim?
+# `:cq` to quit, without saving, with a nonzero exit code to indicate failure - bash will not execute the command
