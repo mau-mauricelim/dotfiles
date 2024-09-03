@@ -104,6 +104,8 @@ vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = tr
 
 -- Save file
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
+-- `:cq` to quit, without saving, with a nonzero exit code to indicate failure - bash will not execute the command
+vim.keymap.set('n', 'ZC', '<cmd>cq<CR>', { desc = 'Quit without saving with a nonzero exit code' })
 -- New file
 vim.keymap.set('n', '<Leader>nf', '<cmd>enew<CR>', { desc = '[N]ew [F]ile' })
 -- Disable go to sleep keymap
