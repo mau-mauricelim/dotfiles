@@ -81,4 +81,3 @@ FZF_CTRL_F_COMMAND () {
 }
 zle -N FZF_CTRL_F_COMMAND
 bindkey '^f' FZF_CTRL_F_COMMAND
-
