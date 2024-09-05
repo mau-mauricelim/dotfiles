@@ -22,6 +22,10 @@ else
 fi
 
 if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
+# Copy and pasting from Windows to Linux
+# ^M is the keyboard equivalent to \r or Ctrl-V + Ctrl-M in Vim
+# dos2unix convert or translate the ^M characters
+if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 
 alias cl="clear"
 
