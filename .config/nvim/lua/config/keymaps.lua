@@ -148,7 +148,9 @@ vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 vim.keymap.set('n', 'yA', '<cmd>%y<CR>', { desc = '[Y]ank [A]ll lines', silent = true })
 -- Select to end of line: similar to `C`, `D` and `Y`
 vim.keymap.set('n', 'L', 'v$h', { desc = 'Select to end of line' })
+vim.keymap.set('v', 'L', '$h', { desc = 'Select to end of line' })
 vim.keymap.set('n', 'H', 'v^', { desc = 'Select to start of line' })
+vim.keymap.set('v', 'H', '^', { desc = 'Select to start of line' })
 -- Select pasted text: similar to `gv`
 vim.keymap.set('n', 'gp', [['`[' . strpart(getregtype(), 0, 1) . '`]']], { expr = true, desc = 'Select previous pasted text' })
 
