@@ -14,6 +14,7 @@
     edit = commit --amend
     unstage = restore --staged
     st = status --short --branch
+    sta = status
     br = branch
     co = checkout
     cob = checkout -b
@@ -25,6 +26,8 @@
     bdelr = push origin -d
     please = push --force-with-lease
     rbi = rebase -i
+    rbc = rebase --continue
+    rba = rebase --abort
     nuke = reset --hard
     wipe = clean -xdf
     adog = log --all --decorate --oneline --graph # A Dog
