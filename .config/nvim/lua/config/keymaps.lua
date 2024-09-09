@@ -104,6 +104,8 @@ vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = tr
 
 -- Save file
 vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
+-- `:cq` to quit, without saving, with a nonzero exit code to indicate failure - bash will not execute the command
+vim.keymap.set('n', 'ZC', '<cmd>cq<CR>', { desc = 'Quit without saving with a nonzero exit code' })
 -- New file
 vim.keymap.set('n', '<Leader>nf', '<cmd>enew<CR>', { desc = '[N]ew [F]ile' })
 -- Disable go to sleep keymap
@@ -146,7 +148,9 @@ vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 vim.keymap.set('n', 'yA', '<cmd>%y<CR>', { desc = '[Y]ank [A]ll lines', silent = true })
 -- Select to end of line: similar to `C`, `D` and `Y`
 vim.keymap.set('n', 'L', 'v$h', { desc = 'Select to end of line' })
+vim.keymap.set('v', 'L', '$h', { desc = 'Select to end of line' })
 vim.keymap.set('n', 'H', 'v^', { desc = 'Select to start of line' })
+vim.keymap.set('v', 'H', '^', { desc = 'Select to start of line' })
 -- Select pasted text: similar to `gv`
 vim.keymap.set('n', 'gp', [['`[' . strpart(getregtype(), 0, 1) . '`]']], { expr = true, desc = 'Select previous pasted text' })
 

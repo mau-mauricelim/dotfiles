@@ -4,12 +4,18 @@
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
 
+# Use vi mode
+[ -f $ZDOTDIR/bindkey-vi.zsh ] && source $ZDOTDIR/bindkey-vi.zsh
+
 # Load widgets that are not loaded by default.
 autoload -U up-line-or-beginning-search
 zle -N up-line-or-beginning-search
 
 autoload -U down-line-or-beginning-search
 zle -N down-line-or-beginning-search
+
+autoload edit-command-line
+zle -N edit-command-line
 
 function () {
     emulate -L zsh -o no_aliases
@@ -51,6 +57,9 @@ function () {
         kLFT5  '^[[1;5D'  backward-word                  # Ctrl + LeftArrow
         x      '^U'       backward-kill-line             # Ctrl + U
         x      '^U^U'     kill-whole-line                # Ctrl + UU
+        # vi mode
+        x      '^Q'       edit-command-line              # Ctrl + Q - edit command line in vim buffer
+        x      '^?'       backward-delete-char           # Fix backspace bug when switching between modes
     ); do
         bindkey -M emacs ${terminfo[$kcap]:-$seq} $widget
         bindkey -M viins ${terminfo[$kcap]:-$seq} $widget
@@ -72,4 +81,3 @@ FZF_CTRL_F_COMMAND () {
 }
 zle -N FZF_CTRL_F_COMMAND
 bindkey '^f' FZF_CTRL_F_COMMAND
-

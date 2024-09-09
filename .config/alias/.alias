@@ -2,6 +2,7 @@ if command -v nvim >/dev/null; then
     # Don't connect to the X server.
     # Shortens startup time in a terminal, but the window title and clipboard will not be used.
     alias vi="nvim -X"
+    export VISUAL=nvim
     export EDITOR=nvim
     export MANPAGER='nvim +Man!'
 fi
@@ -22,6 +23,10 @@ else
 fi
 
 if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
+# Copy and pasting from Windows to Linux
+# ^M is the keyboard equivalent to \r or Ctrl-V + Ctrl-M in Vim
+# dos2unix convert or translate the ^M characters
+if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 
 alias cl="clear"
 

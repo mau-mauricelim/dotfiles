@@ -1,0 +1,27 @@
+set editing-mode vi
+# NOTE: bash 4.3 and readline 6.3 and above
+set show-mode-in-prompt on
+set vi-ins-mode-string \1\e[6 q\2\e[106;30mI\e[0m
+set vi-cmd-mode-string \1\e[2 q\2\e[102;30mN\e[0m
+
+set keymap vi-insert
+"kj": vi-movement-mode
+"\ee": emacs-editing-mode
+"\C-n": next-history
+"\C-p": previous-history
+"\C-a": beginning-of-line
+"\C-e": end-of-line
+
+set keymap vi-command
+"\ee": emacs-editing-mode
+"\C-n": next-history
+"\C-p": previous-history
+"\C-a": beginning-of-line
+"\C-e": end-of-line
+
+set keymap emacs
+"\ee": vi-editing-mode
+
+# v goes vi-editing-mode in cmd mode
+# `:cq` to quit, without saving, with a nonzero exit code to indicate failure - bash will not execute the command
+# - `ZC` custom nvim keymap
