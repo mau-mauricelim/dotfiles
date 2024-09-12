@@ -41,6 +41,8 @@
     dss = diff --staged --stat
     da = diff HEAD
     das = diff HEAD --stat
+    dn = diff --no-index
+    dni = diff --no-index --ignore-space-at-eol
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config -l
