@@ -19,6 +19,8 @@ config.selection_word_boundary = ',│`|:"\' ()[]{}<>\t'
 config.enable_scroll_bar = true
 config.cursor_thickness = 2
 config.audible_bell = 'Disabled'
+-- When set to true, clicking on a wezterm window will focus it
+config.swallow_mouse_click_on_window_focus = true
 
 -- For example, changing the color scheme:
 config.color_scheme = 'Campbell (Gogh)'
