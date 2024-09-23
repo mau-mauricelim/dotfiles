@@ -174,9 +174,9 @@ alpine_install() {
     # procps is for vim-tmux-navigator
     # build-base installs a C compiler for nvim-treesitter
     # Busybox binaries (default) doesn't support all features. E.g. `grep -P`
-    # util-linux-misc is for script
+    # util-linux-misc is for script and column
     # docs installs the documentation companion package
-    # shadow is for chsh
+    # shadow is for chsh and usermod
     # ncurses installs tput for fzf-git (fzf-tmux)
     sudo apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
@@ -188,8 +188,6 @@ alpine_install() {
     for bin in fd bat eza delta yazi; do "install_$bin" musl; done
     # Common user installs
     common_user_install
-    # Clean up
-    sudo apk -q --no-progress --no-cache del util-linux-misc shadow
 }
 
 ubuntu_install() {
