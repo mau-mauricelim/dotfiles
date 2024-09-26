@@ -53,7 +53,7 @@ alias fdh='fd -H'
 alias restow='stow .' # use -nv for simulation
 
 # cd with wslpath
-cdw () { builtin cd -- "`wslpath "$1"`"; }
+if command -v wslpath &> /dev/null; then cdw () { builtin cd -- "`wslpath "$1"`"; }; fi
 
 # Goes up a specified number of directories
 up () {

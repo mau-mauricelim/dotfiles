@@ -6,7 +6,6 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- This is where you actually apply your config choices
-config.default_prog = { 'wsl', '--cd', '~' }
 config.font = wezterm.font {
   family = 'JetBrains Mono',
   -- Disable ligatures in most fonts
