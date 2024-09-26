@@ -25,7 +25,7 @@
     bdel = branch -d
     bdelr = push origin -d
     please = push --force-with-lease
-    rbi = rebase -i
+    rbi = !git fetch && git rebase -i
     rbc = rebase --continue
     rba = rebase --abort
     nuke = reset --hard
@@ -49,7 +49,8 @@
     gcfg = config --global -l
 
 [pull]
-    rebase = true
+    # git pull --rebase=i[nteractive]
+    rebase = interactive
 
 [push]
     default = current
