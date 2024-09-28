@@ -18,15 +18,32 @@ font pango:JetBrainsMono 8
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 # font pango:DejaVu Sans Mono 8
 
-# Disable laptop monitor if monitor is connected on startup
+# Display settings
 # $ xrandr --listmonitors
+# $ xrandr --query
 # $ xrandr --output eDP-1 --off # sometimes it can be eDP1
 # $ xrandr --auto # reset settings
 # exec --no-startup-id xrandr --output eDP-1 --off
 # exec only works on startup, alternative is exec_always
-exec --no-startup-id if [ "$(xrandr --listmonitors | head -1 | cut -d" " -f2)" -gt "1" ]; then xrandr --output $(xrandr --listmonitors | grep eDP | cut -d" " -f6) --off; fi
-# Toggle laptop monitor
-bindsym $mod+p exec "if [ \\"$(xrandr --listmonitors | head -1 | cut -d\\" \\" -f2)\\" -gt \\"1\\" ]; then xrandr --output $(xrandr --listmonitors | grep eDP | cut -d\\" \\" -f6) --off; else xrandr --auto; fi"
+# Disable laptop monitor if monitor is connected on startup
+exec --no-startup-id if [ "$(xrandr --listmonitors|head -1|cut -d" " -f2)" -gt "1" ]; then xrandr --output $(xrandr --listmonitors|grep eDP|cut -d" " -f6) --off; fi
+# TODO: Extend display?
+set $mode_display "Display: [a]uto, [E] eDP ON, [e] eDP OFF, [H] HDMI ON, [h] HDMI OFF; Extend: [1] HDMI1|HDMI2, [2] HDMI2|HDMI1"
+mode $mode_display {
+    bindsym a       exec --no-startup-id xrandr --auto, mode "default"
+    bindsym Shift+e exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep eDP) --auto, mode "default"
+    bindsym e       exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep eDP) --off, mode "default"
+    bindsym Shift+h exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI) --auto, mode "default"
+    bindsym h       exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI) --off, mode "default"
+    bindsym Shift+v exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep VGA) --auto, mode "default"
+    bindsym v       exec --no-startup-id xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep VGA) --off, mode "default"
+    # Entend monitor
+    bindsym 1 exec --no-startup-id xrandr --auto && LAPTOP=$(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep eDP) && xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI*1) --auto --left-of $LAPTOP && xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI*2) --auto --right-of $LAPTOP, mode "default"
+    bindsym 2 exec --no-startup-id xrandr --auto && LAPTOP=$(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep eDP) && xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI*1) --auto --right-of $LAPTOP && xrandr --output $(xrandr --query|grep ' connected '|awk '{ print $1 }'|grep HDMI*2) --auto --left-of $LAPTOP, mode "default"
+    bindsym Escape mode "default"
+    bindsym Return mode "default"
+}
+bindsym $mod+p mode $mode_display
 
 # Start XDG autostart .desktop files using dex. See also
 # https://wiki.archlinux.org/index.php/XDG_Autostart
@@ -182,14 +199,17 @@ bindsym $mod+Shift+c reload
 bindsym $mod+Shift+r restart
 # exit i3 (logs you out of your X session)
 # bindsym $mod+Shift+e exec "i3-nagbar -t warning -m 'You pressed the exit shortcut. Do you really want to exit i3? This will end your X session.' -B 'Yes, exit i3' 'i3-msg exit'"
-mode "exit: [l]ogout, [r]eboot, [s]hutdown" {
+set $mode_system "Power: [l]ogout, [z]sleep, [h]ibernate, [r]eboot, [s]hutdown"
+mode $mode_system {
     bindsym l exec i3-msg [class=$browser] kill && sleep 1 && i3-msg exit
+    bindsym z exec systemctl suspend
+    bindsym h exec systemctl hibernate
     bindsym r exec systemctl reboot
-    bindsym s exec systemctl shutdown
+    bindsym s exec systemctl poweroff
     bindsym Escape mode "default"
     bindsym Return mode "default"
 }
-bindsym $mod+Shift+e mode "exit: [l]ogout, [r]eboot, [s]hutdown"
+bindsym $mod+Shift+e mode $mode_system
 
 # resize window (you can also use the mouse for that)
 mode "resize" {
