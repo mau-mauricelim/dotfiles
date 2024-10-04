@@ -45,6 +45,15 @@ return { -- Collection of various small independent plugins/modules
       end
     end, { desc = '[B]uffer [D]elete' })
 
+    -- Comment lines
+    require('mini.comment').setup({
+      mappings = { -- Map Ctrl-/
+        comment = '<C-_>',
+        comment_visual = '<C-_>',
+        comment_line = '<C-_>',
+      }
+    })
+
     -- Automatic highlighting of word under cursor
     require('mini.cursorword').setup()
 
