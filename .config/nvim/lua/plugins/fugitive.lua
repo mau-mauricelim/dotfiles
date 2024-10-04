@@ -12,7 +12,8 @@ return {
         vim.cmd('G blame')
       end
     end
-    vim.keymap.set('n', '<Leader>gb', function() toggle_gitblame() end,
-      { desc = 'Toggle [G]it [B]lame' })
+    vim.keymap.set('n', '<Leader>gb', function()
+      toggle_gitblame()
+    end, { desc = 'Toggle [G]it [B]lame' })
   end,
 }
