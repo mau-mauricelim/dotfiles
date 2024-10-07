@@ -26,6 +26,18 @@ return { -- Collection of various small independent plugins/modules
     require('mini.align').setup()
 
     -- Common configuration presets
+    -- TODO: Check keymaps
+    --[[ mappings.basic
+    |Keys   |     Modes       |                  Description                  |
+    |-------|-----------------|-----------------------------------------------|
+    | go    | Normal          | Add [count] empty lines after cursor          |
+    | gO    | Normal          | Add [count] empty lines before cursor         |
+    | gy    | Normal, Visual  | Copy to system clipboard                      |
+    | gp    | Normal, Visual  | Paste from system clipboard                   |
+    | gV    | Normal          | Visually select latest changed or yanked text |
+    | g/    | Visual          | Search inside current visual selection        |
+    | *     | Visual          | Search forward for current visual selection   |
+    | #     | Visual          | Search backward for current visual selection  | ]]
     require('mini.basics').setup({
       -- Options. Set to `false` to disable.
       options = {
@@ -44,6 +56,7 @@ return { -- Collection of various small independent plugins/modules
         -- Supply empty string to not create these mappings.
         -- TODO: Update my own toggle keymaps to use the same prefix
         option_toggle_prefix = [[\]],
+        -- TODO: Ctrl-Up/Down is used by vim-visual-multi.lua
         -- Window navigation with <C-hjkl>, resize with <C-arrow>
         windows = true,
         -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
