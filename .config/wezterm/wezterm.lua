@@ -6,11 +6,11 @@ local act = wezterm.action
 local config = wezterm.config_builder()
 
 -- This is where you actually apply your config choices
-config.font = wezterm.font {
+config.font = wezterm.font({
   family = 'JetBrains Mono',
   -- Disable ligatures in most fonts
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
-}
+})
 config.font_size = 16
 config.window_padding = { left = 5, right = 5, top = 0, bottom = 0 }
 config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'
@@ -107,17 +107,19 @@ config.mouse_bindings = {
 -- Key bindings
 config.keys = {
   -- Paste from the clipboard
-  { key = 'v', mods = 'CTRL', action = act.PasteFrom 'Clipboard' },
+  { key = 'v', mods = 'CTRL', action = act.PasteFrom('Clipboard') },
   {
-    key = "|",
+    key = '|',
     mods = 'CTRL|SHIFT',
-    action = wezterm.action.SplitHorizontal { domain = 'CurrentPaneDomain' },
+    action = wezterm.action.SplitHorizontal({ domain = 'CurrentPaneDomain' }),
   },
   {
-    key = "_",
+    key = '_',
     mods = 'CTRL|SHIFT',
-    action = wezterm.action.SplitVertical { domain = 'CurrentPaneDomain' },
+    action = wezterm.action.SplitVertical({ domain = 'CurrentPaneDomain' }),
   },
+  -- BUG: https://github.com/wez/wezterm/discussions/556
+  { key = '/', mods = 'CTRL', action = wezterm.action({ SendString = '\x1f' }) },
 }
 
 -- And finally, return the configuration to wezterm
