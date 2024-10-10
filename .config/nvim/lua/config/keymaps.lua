@@ -126,7 +126,7 @@ vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })
 -- Visual block mode (Default Ctrl-V)
 -- Ctrl-V is bound to paste in Windows Terminal, use Ctrl-Q instead
 -- Shift-V for visual line mode
-vim.keymap.set('n', '<Leader>vb', '<C-v>', { desc = '[V]isual [B]lock mode' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'B', '<C-v>', { desc = 'Toggle visual block' })
 
 -- Split and move
 vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Vertical [-] Split and move' })
@@ -144,15 +144,18 @@ vim.keymap.set('n', '<Leader>si', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
+-- Delete all
+vim.keymap.set('n', 'dA', 'ggdG', { desc = '[D]hange [A]ll lines' })
 -- Yank all
 vim.keymap.set('n', 'yA', '<cmd>%y<CR>', { desc = '[Y]ank [A]ll lines', silent = true })
+-- Highlight all
+vim.keymap.set('n', 'vA', 'ggVG$', { desc = '[V]isual [A]ll lines', silent = true })
+
 -- Select to end of line: similar to `C`, `D` and `Y`
 vim.keymap.set('n', 'L', 'v$h', { desc = 'Select to end of line' })
 vim.keymap.set('v', 'L', '$h', { desc = 'Select to end of line' })
 vim.keymap.set('n', 'H', 'v^', { desc = 'Select to start of line' })
 vim.keymap.set('v', 'H', '^', { desc = 'Select to start of line' })
--- Select pasted text: similar to `gv`
-vim.keymap.set('n', 'gp', [['`[' . strpart(getregtype(), 0, 1) . '`]']], { expr = true, desc = 'Select previous pasted text' })
 
 -- Search and replace the word under the cursor
 vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
@@ -172,9 +175,6 @@ vim.keymap.set({ 'n', 'v' }, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]o
 vim.keymap.set('n', '<Leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>y', [["+y]], { desc = 'Yank to system clipboard' })
 vim.keymap.set({ 'n', 'v' }, '<Leader>pp', [["+p]], { desc = 'Paste from system clipboard' })
--- Insert line below/above current line without leaving normal mode
-vim.keymap.set('n', '<Leader>o', 'o<Esc>', { desc = 'Insert line below without leaving normal mode' })
-vim.keymap.set('n', '<Leader>O', 'O<Esc>', { desc = 'Insert line above without leaving normal mode' })
 
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })

@@ -26,7 +26,6 @@ return { -- Collection of various small independent plugins/modules
     require('mini.align').setup()
 
     -- Common configuration presets
-    -- TODO: Check keymaps
     --[[ mappings.basic
     |Keys   |     Modes       |                  Description                  |
     |-------|-----------------|-----------------------------------------------|
