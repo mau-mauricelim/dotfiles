@@ -8,7 +8,7 @@ function P(v) print(vim.inspect(v)); return v end
 -- Set vim option and notify
 function SetVimOpt(option, value)
   vim.opt[option] = value
-  vim.notify(option..'="'..value..'"')
+  vim.notify(option .. '="' .. value .. '"')
 end
 
 -- Toggle virtual edit mode between onemore and all

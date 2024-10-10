@@ -33,7 +33,6 @@ return { -- Useful plugin to show you pending keybinds.
       { '<Leader>l', group = '[L]azy*' },
       { '<Leader>n', group = '[N]oice' },
       { '<Leader>p', group = '[P]ersistence' },
-      { '<Leader>t', group = '[T]oggle' },
       { '<Leader>v', group = '[V]irtual' },
       { '<Leader>x', group = 'E[X]ecute' },
     })

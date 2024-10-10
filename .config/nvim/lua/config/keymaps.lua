@@ -193,16 +193,16 @@ vim.keymap.set('n', '<Leader>bf', M.GitBlameOpenCommitFileURL, { desc = 'Open Gi
 
 -- Custom toggles
 -- Toggle line number
-vim.keymap.set('n', '<Leader>tn', '<cmd>set nonu! nornu!<CR>', { desc = '[T]oggle line [N]umber' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'n', '<cmd>set nonu! nornu!<CR>', { desc = "Toggle 'nu' & 'rnu'" })
 -- Toggle virtual edit mode between onemore and all
-vim.keymap.set( 'n', '<Leader>ve', M.toggleVirtualEdit, { desc = 'Toggle [V]irtual[E]dit mode between onemore and all' })
+vim.keymap.set( 'n', vim.g.option_toggle_prefix .. 'v', M.toggleVirtualEdit, { desc = "Toggle 'virtualedit'" })
 -- Toggle clipboard between unnamedplus and none
-vim.keymap.set({ 'n', 'v' }, '<Leader>cb', M.toggleClipboard, { desc = 'Toggle [C]lip[b]oard' })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'p', M.toggleClipboard, { desc = "Toggle 'clipboard'" })
 -- Toggle signcolumn
-vim.keymap.set('n', '<Leader>tc', M.toggleSigncolumn, { desc = '[T]oggle sign[C]olumn' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 's', M.toggleSigncolumn, { desc = "Toggle 'signcolumn'" })
 -- Toggle vim keyword
-vim.keymap.set('n', '<Leader>tw', M.toggleKeyword, { desc = '[T]oggle vim key[w]ord' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'W', M.toggleKeyword, { desc = "Toggle 'iskeyword'" })
+-- Toggle Zen mode
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'z', M.toggleZenMode, { desc = "Toggle Zen Mode" })
 -- Remove trailing blank lines at the end of file
 vim.keymap.set('n', '<Leader>fe', M.trimEndLines, { desc = '[F]ormat [E]nd of file', silent = true })
--- Toggle Zen mode
-vim.keymap.set('n', '<Leader>tz', M.toggleZenMode, { desc = '[T]oggle [Z]en mode' })

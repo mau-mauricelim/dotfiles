@@ -23,6 +23,7 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
           opts.buffer = bufnr
           vim.keymap.set(mode, l, r, opts)
         end
+        local otp = vim.g.option_toggle_prefix
         -- Actions
         gs.last_hunk       = function() gs.nav_hunk('last') end
         gs.first_hunk      = function() gs.nav_hunk('first') end
@@ -41,10 +42,10 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
         map('n',          '<Leader>hR', gs.reset_buffer,              { desc = '[R]eset buffer' })
         map('n',          '<Leader>hp', gs.preview_hunk,              { desc = '[H]unk [P]review' })
         map('n',          '<Leader>hb', gs.blame_line_full,           { desc = 'Git [B]lame line' })
-        map('n',          '<Leader>tb', gs.toggle_current_line_blame, { desc = '[T]oggle Git [B]lame line' })
+        map('n',          otp .. 'b',   gs.toggle_current_line_blame, { desc = 'Toggle current line blame' })
         map('n',          '<Leader>hd', gs.diffthis,                  { desc = 'Preview [D]iff' })
         map('n',          '<Leader>hD', gs.diffthis_tilde,            { desc = 'Preview [D]iff ~' })
-        map('n',          '<Leader>td', gs.toggle_deleted,            { desc = '[T]oggle [D]eleted' })
+        map('n',          otp .. 'D',   gs.toggle_deleted,            { desc = 'Toggle deleted' })
         -- Text object
         map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
       end,

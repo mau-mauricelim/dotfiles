@@ -13,6 +13,6 @@ return {
     },
   },
   keys = {
-    { '<Leader>ti', '<cmd>IBLToggle<CR>', desc = '[T]oggle [I]ndent lines' },
+    { vim.g.option_toggle_prefix .. 'I', '<cmd>IBLToggle<CR>', desc = "Toggle 'indent-blankline'" },
   },
 }

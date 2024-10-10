@@ -54,9 +54,7 @@ return { -- Collection of various small independent plugins/modules
         basic = true,
         -- Prefix for mappings that toggle common options ('wrap', 'spell', ...).
         -- Supply empty string to not create these mappings.
-        -- TODO: Update my own toggle keymaps to use the same prefix
-        option_toggle_prefix = [[\]],
-        -- TODO: Ctrl-Up/Down is used by vim-visual-multi.lua
+        option_toggle_prefix = vim.g.option_toggle_prefix,
         -- Window navigation with <C-hjkl>, resize with <C-arrow>
         windows = true,
         -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
@@ -132,8 +130,8 @@ return { -- Collection of various small independent plugins/modules
       draw = { animation = function() return 0 end }
     })
     -- Toggle indent scope
-    vim.keymap.set('n', '<Leader>ts', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
-      { desc = 'Toggle indent [S]cope', silent = true })
+    vim.keymap.set('n', vim.g.option_toggle_prefix .. 'S', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
+      { desc = "Toggle 'miniindentscope'", silent = true })
     -- Toggle all indent lines and scope
     function ToggleIndent()
       local ibl = require('ibl')
@@ -149,8 +147,8 @@ return { -- Collection of various small independent plugins/modules
         vim.g.miniindentscope_disable = false
       end
     end
-    vim.keymap.set('n', '<Leader>ta', ToggleIndent,
-      { desc = 'Toggle indent [A]ll', silent = true })
+    vim.keymap.set('n', vim.g.option_toggle_prefix .. 'a', ToggleIndent,
+      { desc = 'Toggle all indents', silent = true })
 
     -- Move any selection in any direction
     -- Defaults are Alt (Meta) + hjkl
