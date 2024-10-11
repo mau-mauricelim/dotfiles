@@ -18,23 +18,26 @@ return { -- Useful plugin to show you pending keybinds.
   event = 'VeryLazy',
   config = function() -- This is the function that runs, AFTER loading
     local wk = require('which-key')
+    wk.setup({
+      sort = { 'alphanum' },
+    })
     -- Document existing key chains
+    local otp = vim.g.option_toggle_prefix
     wk.add({
+      { '<Leader>b', group = '[B]uffer' },
       { '<Leader>c', group = '[C]ode' },
       { '<Leader>d', group = '[D]ocument' },
-      { '<Leader>r', group = '[R]ename' },
-      { '<Leader>s', group = '[S]earch' },
-      { '<Leader>w', group = '[W]orkspace' },
-      { '<Leader>/', group = '[/]search' },
-      { '<Leader>b', group = '[B]uffer' },
       { '<Leader>f', group = '[F]ormat' },
-      { '<Leader>g', group = '[G]it' },
       { '<Leader>h', group = '[H]unk' },
       { '<Leader>l', group = '[L]azy*' },
       { '<Leader>n', group = '[N]oice' },
-      { '<Leader>p', group = '[P]ersistence' },
+      { '<Leader>r', group = '[R]ename' },
+      { '<Leader>s', group = '[S]earch' },
       { '<Leader>v', group = '[V]irtual' },
+      { '<Leader>w', group = '[W]orkspace' },
       { '<Leader>x', group = 'E[X]ecute' },
+      { '<Leader>/', group = '[/]search' },
+      { otp .. 'g',  group = 'Toggle git' },
     })
   end,
 }

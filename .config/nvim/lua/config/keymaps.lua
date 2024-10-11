@@ -168,13 +168,8 @@ vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[
 
 -- nvim: [P]aste over visual selection without losing yanked lines
 -- See `:help put-Visual-mode`
-
 -- Delete selection without losing yanked lines
-vim.keymap.set({ 'n', 'v' }, '<Leader>dv', [["_d]], { desc = '[D]elete into [V]oid register' })
--- Yank to/Paste from system clipboard
-vim.keymap.set('n', '<Leader>Y', [["+Y]], { desc = 'Yank to end of line to system clipboard' })
-vim.keymap.set({ 'n', 'v' }, '<Leader>y', [["+y]], { desc = 'Yank to system clipboard' })
-vim.keymap.set({ 'n', 'v' }, '<Leader>pp', [["+p]], { desc = 'Paste from system clipboard' })
+vim.keymap.set({ 'n', 'x' }, 'g_', [["_d]], { desc = 'Delete into Black hole register' })
 
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
@@ -188,8 +183,8 @@ vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. 
 
 local M = require('config.functions')
 -- Open git blame commit URL
-vim.keymap.set('n', '<Leader>bc', M.GitBlameOpenCommitURL, { desc = 'Open Git [B]lame [C]ommit URL' })
-vim.keymap.set('n', '<Leader>bf', M.GitBlameOpenCommitFileURL, { desc = 'Open Git [B]lame [F]ile URL' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Commit URL' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'f', M.gitBlameOpenCommitFileURL, { desc = 'Open Commit File URL' })
 
 -- Custom toggles
 -- Toggle line number
@@ -206,3 +201,6 @@ vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'W', M.toggleKeyword,
 vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'z', M.toggleZenMode, { desc = "Toggle Zen Mode" })
 -- Remove trailing blank lines at the end of file
 vim.keymap.set('n', '<Leader>fe', M.trimEndLines, { desc = '[F]ormat [E]nd of file', silent = true })
+
+-- Toggle alternate-file or last edited file
+vim.keymap.set({ 'n', 'v' }, '<Leader>.', M.altFileOrOldFile, { desc = 'Toggle last file ("." for repeat)', silent = true })

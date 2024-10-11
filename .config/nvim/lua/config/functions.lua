@@ -70,7 +70,7 @@ function M.toggleZenMode()
 end
 
 -- Open URL in browser
-function M.Browse(url)
+function M.browse(url)
   local _, res = pcall(vim.ui.open, url)
   if res == nil then
     -- HACK: WSL
@@ -78,33 +78,33 @@ function M.Browse(url)
   end
 end
 
-function M.GetLineNumber() return vim.api.nvim_win_get_cursor(0)[1] end
-function M.GetFilePath() return vim.fn.shellescape(vim.fn.expand('%:p')) end
-function M.GetFileDir() return vim.fn.shellescape(vim.fn.expand('%:p:h')) end
+function M.getLineNumber() return vim.api.nvim_win_get_cursor(0)[1] end
+function M.getFilePath() return vim.fn.shellescape(vim.fn.expand('%:p')) end
+function M.getFileDir() return vim.fn.shellescape(vim.fn.expand('%:p:h')) end
 
 -- Open git blame commit URL
-function M.GitBlameOpenCommitURL()
-  local line_number = M.GetLineNumber()
-  local filepath = M.GetFilePath()
-  local git_dir = M.GetFileDir()
+function M.gitBlameOpenCommitURL()
+  local line_number = M.getLineNumber()
+  local filepath = M.getFilePath()
+  local git_dir = M.getFileDir()
   local cmd = 'cd ' .. git_dir .. ' && ' ..
     'HASH=$(git blame -pl -L ' .. line_number .. ',' .. line_number .. ' ' .. filepath .. '|head -1|cut -d" " -f1);' ..
     [[ [ -n "$HASH" ] && [ "$HASH" != "0000000000000000000000000000000000000000" ] &&
       echo $(git config --get remote.origin.url|sed -e 's/\.com:/.com\//g ; s/\.net:/.net\//g ; s/^git@/https:\/\//g ; s/\.git$//g')/commit/$HASH ]]
-  local commit_url = vim.fn.systemlist(cmd)[1]
+  local commit_url = vim.fn.systemlist(cmd)[2]
   if commit_url ~= nil then
     vim.notify('Opening ' .. commit_url)
-    M.Browse(commit_url)
+    M.browse(commit_url)
   else
     vim.notify('Not Commited Yet')
   end
 end
 
 -- Open git blame commit file URL
-function M.GitBlameOpenCommitFileURL()
-  local line_number = M.GetLineNumber()
-  local filepath = M.GetFilePath()
-  local git_dir = M.GetFileDir()
+function M.gitBlameOpenCommitFileURL()
+  local line_number = M.getLineNumber()
+  local filepath = M.getFilePath()
+  local git_dir = M.getFileDir()
   local cmd = 'cd ' .. git_dir .. ' && ' ..
     'HASH=$(git blame -pl -L ' .. line_number .. ',' .. line_number .. ' ' .. filepath .. '|head -1|cut -d" " -f1);' ..
     -- Path has `/` so use a different `|` separator
@@ -114,12 +114,30 @@ function M.GitBlameOpenCommitFileURL()
       [ -n "$RELPATH_GITROOT" ] &&
       echo $(git config --get remote.origin.url|sed -e 's/\.com:/.com\//g ; s/\.net:/.net\//g ; s/^git@/https:\/\//g ; s/\.git$//g')/blob/$HASH/$RELPATH_GITROOT
       ]]
-  local commit_url = vim.fn.systemlist(cmd)[1]
+  local commit_url = vim.fn.systemlist(cmd)[2]
   if commit_url ~= nil then
     vim.notify('Opening ' .. commit_url)
-    M.Browse(commit_url)
+    M.browse(commit_url)
   else
     vim.notify('Not Commited Yet')
+  end
+end
+
+-- alternate-file or last edited file
+-- `CTRL-^` for alternate-file
+-- `'0` for last edited file
+function M.altFileOrOldFile()
+  local status_ok, _ = pcall(vim.cmd, 'e#')
+  if not status_ok then
+    vim.cmd([[norm '0]])
+    local current_buf_name = vim.api.nvim_buf_get_name(0)
+    vim.cmd('bp')
+    local prev_current_buf_name = vim.api.nvim_buf_get_name(0)
+    if prev_current_buf_name == '' then
+      vim.cmd('bd')
+    elseif current_buf_name == prev_current_buf_name then
+      vim.cmd('e#<2')
+    end
   end
 end
 
