@@ -10,7 +10,6 @@ return {
       defaults = {
         file_icons = false,
         actions = {
-          -- TODO: Send all items to quickfixlist, close quickfixlist, then :Trouble qflist
           ['ctrl-t'] = require('trouble.sources.fzf').actions.open,
         },
       },

@@ -3,7 +3,6 @@ return {
   event = 'VeryLazy',
   opts = {}, -- for default options, refer to the configuration section for custom setup.
   cmd = 'Trouble',
-  -- TODO: Check keys
   keys = {
     {
       '<leader>xx',
