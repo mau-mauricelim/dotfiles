@@ -9,7 +9,7 @@ return {
   version = '*',
   cmd = { 'NvimTreeOpen', 'NvimTreeFindFile' },
   keys = {
-    { vim.g.option_toggle_prefix .. 't', '<cmd>NvimTreeFindFileToggle<CR>', desc = 'Toggle tree' },
+    { vim.g.option_toggle_prefix .. 't', mode = { 'n', 'v' }, '<cmd>NvimTreeFindFileToggle<CR>', desc = 'Toggle tree' },
   },
   dependencies = { 'nvim-tree/nvim-web-devicons' },
   config = function()

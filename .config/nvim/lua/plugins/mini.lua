@@ -55,6 +55,7 @@ return { -- Collection of various small independent plugins/modules
         -- Supply empty string to not create these mappings.
         option_toggle_prefix = vim.g.option_toggle_prefix,
         -- Window navigation with <C-hjkl>, resize with <C-arrow>
+        -- NOTE: vim-visual-multi uses `Ctrl-<Down/Up>`
         windows = true,
         -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
         move_with_alt = true,
@@ -129,7 +130,7 @@ return { -- Collection of various small independent plugins/modules
       draw = { animation = function() return 0 end }
     })
     -- Toggle indent scope
-    vim.keymap.set('n', vim.g.option_toggle_prefix .. 'S', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
+    vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'S', '<cmd>lua vim.g.miniindentscope_disable = not vim.g.miniindentscope_disable<CR>',
       { desc = "Toggle 'miniindentscope'", silent = true })
     -- Toggle all indent lines and scope
     function ToggleIndent()
@@ -146,7 +147,7 @@ return { -- Collection of various small independent plugins/modules
         vim.g.miniindentscope_disable = false
       end
     end
-    vim.keymap.set('n', vim.g.option_toggle_prefix .. 'a', ToggleIndent,
+    vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'a', ToggleIndent,
       { desc = 'Toggle all indents', silent = true })
 
     -- Move any selection in any direction

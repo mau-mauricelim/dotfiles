@@ -42,12 +42,12 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
         map('n',          '<Leader>hR', gs.reset_buffer,              { desc = '[R]eset buffer' })
         map('n',          '<Leader>hp', gs.preview_hunk,              { desc = '[H]unk [P]review' })
         map('n',          '<Leader>hb', gs.blame_line_full,           { desc = 'Git [B]lame line' })
-        map('n',          otp .. 'b',   gs.toggle_current_line_blame, { desc = 'Toggle current line blame' })
+        map({ 'n', 'v' }, otp .. 'b',   gs.toggle_current_line_blame, { desc = 'Toggle current line blame' })
         map('n',          '<Leader>hd', gs.diffthis,                  { desc = 'Preview [D]iff' })
         map('n',          '<Leader>hD', gs.diffthis_tilde,            { desc = 'Preview [D]iff ~' })
-        map('n',          otp .. 'D',   gs.toggle_deleted,            { desc = 'Toggle deleted' })
+        map({ 'n', 'v' }, otp .. 'D',   gs.toggle_deleted,            { desc = 'Toggle deleted' })
         -- Text object
-        map({ 'o', 'x' }, 'ih', ':<C-U>Gitsigns select_hunk<CR>')
+        map({ 'o', 'x' }, 'ih',         ':<C-U>Gitsigns select_hunk<CR>')
       end,
     })
   end,

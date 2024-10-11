@@ -126,7 +126,7 @@ vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })
 -- Visual block mode (Default Ctrl-V)
 -- Ctrl-V is bound to paste in Windows Terminal, use Ctrl-Q instead
 -- Shift-V for visual line mode
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'B', '<C-v>', { desc = 'Toggle visual block' })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'B', '<C-v>', { desc = 'Toggle visual block' })
 
 -- Split and move
 vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Vertical [-] Split and move' })
@@ -193,16 +193,16 @@ vim.keymap.set('n', '<Leader>bf', M.GitBlameOpenCommitFileURL, { desc = 'Open Gi
 
 -- Custom toggles
 -- Toggle line number
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'n', '<cmd>set nonu! nornu!<CR>', { desc = "Toggle 'nu' & 'rnu'" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'n', '<cmd>set nonu! nornu!<CR>', { desc = "Toggle 'nu' & 'rnu'" })
 -- Toggle virtual edit mode between onemore and all
-vim.keymap.set( 'n', vim.g.option_toggle_prefix .. 'v', M.toggleVirtualEdit, { desc = "Toggle 'virtualedit'" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'v', M.toggleVirtualEdit, { desc = "Toggle 'virtualedit'" })
 -- Toggle clipboard between unnamedplus and none
 vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'p', M.toggleClipboard, { desc = "Toggle 'clipboard'" })
 -- Toggle signcolumn
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 's', M.toggleSigncolumn, { desc = "Toggle 'signcolumn'" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 's', M.toggleSigncolumn, { desc = "Toggle 'signcolumn'" })
 -- Toggle vim keyword
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'W', M.toggleKeyword, { desc = "Toggle 'iskeyword'" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'W', M.toggleKeyword, { desc = "Toggle 'iskeyword'" })
 -- Toggle Zen mode
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'z', M.toggleZenMode, { desc = "Toggle Zen Mode" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'z', M.toggleZenMode, { desc = "Toggle Zen Mode" })
 -- Remove trailing blank lines at the end of file
 vim.keymap.set('n', '<Leader>fe', M.trimEndLines, { desc = '[F]ormat [E]nd of file', silent = true })

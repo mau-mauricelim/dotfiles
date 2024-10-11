@@ -3,7 +3,7 @@ return {
   'iamcco/markdown-preview.nvim',
   cmd = { 'MarkdownPreviewToggle', 'MarkdownPreview', 'MarkdownPreviewStop' },
   keys = {
-    { vim.g.option_toggle_prefix .. 'm', '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle markdown preview' },
+    { vim.g.option_toggle_prefix .. 'm', mode = { 'n', 'v' }, '<cmd>MarkdownPreviewToggle<CR>', desc = 'Toggle markdown preview' },
   },
   build = 'cd app && yarn install',
   init = function()
