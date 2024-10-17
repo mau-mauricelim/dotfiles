@@ -24,7 +24,7 @@
     fop = fetch origin --prune
     bdel = branch -d
     bdelr = push origin -d
-    please = push --force-with-lease
+    please = push --force-with-lease origin HEAD
     rbi = !git fetch && git rebase -i
     rbc = rebase --continue
     rba = rebase --abort
