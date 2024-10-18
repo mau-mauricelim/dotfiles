@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+battery() {
+  if [[ -z $BAT_NUMBER ]]; then BAT_NUMBER=0; fi
+  if [[ -z $CPU_NUMBER ]]; then CPU_NUMBER=0; fi
+  LABEL="🔋"
+
+  BAT=$(acpi -b 2>/dev/null|grep "Battery $BAT_NUMBER")
+  PCT=$(echo "$BAT"|grep -Po '\d+(?=%)')
+  LEFT=$(echo "$BAT"|grep 'remaining\|until charged'|awk '{print $5}'|cut -d':' -f1,2)
+  if [[ -n $LEFT ]]; then LEFT=" ($LEFT)"; fi
+  STA=$(echo "$BAT"|awk '{print $3}')
+  GOV=$(cat /sys/devices/system/cpu/cpu$CPU_NUMBER/cpufreq/scaling_governor)
+
+  if [[ "$PCT" -le "30" ]]; then
+    LABEL="🪫"
+    COLOR="#FF0000"
+  elif [[ "$PCT" -le "50" ]]; then
+	COLOR="#FFAE00";
+  elif [[ "$PCT" -le "70" ]]; then
+    COLOR="#FFF600"
+  else
+    COLOR="#A8FF00"
+  fi
+
+  if [[ "$STA" == "Charging," ]]; then
+    LABEL="⚡"
+  fi
+
+  echo "{\"full_text\": \"$LABEL $PCT% $GOV$LEFT\", \"color\": \"$COLOR\"}"
+}
+
+battery
