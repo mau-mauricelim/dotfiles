@@ -1,0 +1,32 @@
+#!/usr/bin/env bash
+brightness() {
+  if [[ -z $LABEL ]]; then LABEL="🔆"; fi
+
+  BRN=$(brightnessctl|grep 'Current brightness'|grep -Po '\d+(?=%)')
+
+  if [ "$HIGHLIGHT" = true ] ; then
+    if [[ "$BRN" -le "30" ]]; then
+      COLOR="#A8FF00"
+    elif [[ "$BRN" -le "50" ]]; then
+      COLOR="#FFAE00";
+    elif [[ "$BRN" -le "70" ]]; then
+      COLOR="#FFF600"
+    else
+      COLOR="#FF0000"
+    fi
+  fi
+
+  echo "{\"full_text\": \"$LABEL $BRN\", \"color\": \"$COLOR\"}"
+}
+
+if [[ -z $MIN_BRIGHTNESS ]]; then MIN_BRIGHTNESS=0.1; fi
+MIN_VAL=$(bc<<<"$(brightnessctl|grep 'Max brightness'|cut -d' ' -f3)"*"$MIN_BRIGHTNESS")
+if [[ -z $STEP ]]; then STEP="5"; fi
+
+case $BLOCK_BUTTON in
+  # 1 = Left, 2 = Middle, 3 = Right, 4 = Scroll Up, 5 = Scroll Down, 6 = Custom, 7 = Custom, 8 = Upper Thumb, 9 = Lower Thumb, 10+ = Custom
+  4) brightnessctl set +${STEP}% > /dev/null 2>&1 ;;                    # Scroll Up, Increase
+  5) brightnessctl --min-val=$MIN_VAL set ${STEP}%- > /dev/null 2>&1 ;; # Scroll Up, Increase
+esac
+
+brightness
