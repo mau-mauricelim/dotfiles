@@ -22,7 +22,6 @@
     cm = commit -m
     pm = pull origin main
     fop = fetch origin --prune
-    fetch = fetch --tags
     bdel = branch -d
     bdelr = push origin -d
     please = push --force-with-lease origin HEAD
