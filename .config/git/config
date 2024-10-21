@@ -10,6 +10,8 @@
     lucky = !sh -c 'git checkout $(git which $1 -m1)' -
     # Add files to your previous commit
     commend = commit --amend --no-edit
+    # Save changes to previous commit and push
+    save = !git add -A && git commit --amend --no-edit && git push --force-with-lease origin HEAD
     # Edit commit message
     edit = commit --amend
     unstage = restore --staged
@@ -22,13 +24,15 @@
     cm = commit -m
     pm = pull origin main
     fop = fetch origin --prune
-    bdel = branch -d
-    bdelr = push origin -d
-    please = push --force-with-lease origin HEAD
+    bdel = branch -D
+    bdelr = push origin --delete
+    please = push --force-with-lease
+    pooh = !git push --force-with-lease origin HEAD
+    done = !git push origin HEAD
     rbi = !git fetch && git rebase -i
     rbc = rebase --continue
     rba = rebase --abort
-    nuke = reset --hard
+    nuke = !git reset --hard
     wipe = clean -xdf
     adog = log --all --decorate --oneline --graph # A Dog
     dogs = log --all --decorate --oneline --graph --stat # All Dogs
