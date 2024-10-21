@@ -1,0 +1,15 @@
+#!/usr/bin/env bash
+set_color() {
+  for THRESHOLD in ${!THRESHOLD_*}; do
+    LVL=$(echo "$THRESHOLD"|cut -d'_' -f2)
+    if [[ "$1" -le "${!THRESHOLD}" ]]; then
+      COLOR_LVL="COLOR_$LVL"
+      COLOR="${!COLOR_LVL}"
+      return
+    fi
+  done
+}
+
+echo_json() {
+  echo "{\"full_text\": \"$1\", \"color\": \"$COLOR\"}"
+}
