@@ -1,0 +1,33 @@
+#!/usr/bin/env bash
+set_variables() {
+  ARRAY=("%A, %d %b %Y, %H:%M %p" "%d %b %Y, %H:%M %p" "%H:%M %p")
+  STATE=/tmp/i3blocks-datetime
+  # File is empty or does not exist
+  if [ ! -s "$STATE" ]; then set_default; fi
+  ARRAY_INDEX=$(head -1 "$STATE")
+  FORMAT=$(tail -1 "$STATE")
+  TOTAL=${#ARRAY[@]}
+}
+set_default() { set_format 0; }
+set_format() {
+  echo "$1" > "$STATE"
+  echo "${ARRAY[$1]}" >> "$STATE"
+}
+change_format() {
+  ARRAY_INDEX=$((ARRAY_INDEX+1))
+  if [ "$ARRAY_INDEX" -eq "$TOTAL" ]; then
+    set_default
+  else
+    set_format $ARRAY_INDEX
+  fi
+  set_variables
+}
+set_variables
+
+case $BLOCK_BUTTON in
+  # 1 = Left, 2 = Middle, 3 = Right, 4 = Scroll Up, 5 = Scroll Down, 6 = Custom, 7 = Custom, 8 = Upper Thumb, 9 = Lower Thumb, 10+ = Custom
+  1) ;;               # Left, Open calendar
+  3) change_format ;; # Right, Toggle datetime format
+esac
+
+echo "🗓️ <span color='black' bgcolor='#ADD8E6'>$(date +"$FORMAT")</span>"
