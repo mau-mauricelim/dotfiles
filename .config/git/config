@@ -49,8 +49,8 @@
     dni = diff --no-index --ignore-space-at-eol
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
-    cfg = config -l
-    gcfg = config --global -l
+    cfg = config --list --show-origin
+    gcfg = config --global --list --show-origin
 
 [pull]
     # git pull --rebase=i[nteractive]
@@ -61,7 +61,7 @@
 
 # delta config
 [core]
-    pager = delta
+    pager = "if command -v delta >/dev/null; then delta; else less -FRX; fi"
 
 [interactive]
     diffFilter = delta --color-only
