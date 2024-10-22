@@ -1,7 +1,15 @@
 #!/usr/bin/env bash
 set_color() {
+  TOTAL=$(echo "${!THRESHOLD_*}"|wc -w)
+
   for THRESHOLD in ${!THRESHOLD_*}; do
-    LVL=$(echo "$THRESHOLD"|cut -d'_' -f2)
+    if [ "$INVERSE_THRESHOLD" = true ] ; then
+      LVL=$TOTAL
+      TOTAL=$((TOTAL-1))
+    else
+      LVL=$(echo "$THRESHOLD"|cut -d'_' -f2)
+    fi
+
     if [[ "$1" -le "${!THRESHOLD}" ]]; then
       COLOR_LVL="COLOR_$LVL"
       COLOR="${!COLOR_LVL}"
