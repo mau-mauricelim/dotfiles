@@ -108,7 +108,7 @@ config.mouse_bindings = {
 config.keys = {
   -- Paste from the clipboard
   { key = 'v', mods = 'CTRL', action = act.PasteFrom('Clipboard') },
-  {
+  --[[ {
     key = '|',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.SplitHorizontal({ domain = 'CurrentPaneDomain' }),
@@ -117,7 +117,7 @@ config.keys = {
     key = '_',
     mods = 'CTRL|SHIFT',
     action = wezterm.action.SplitVertical({ domain = 'CurrentPaneDomain' }),
-  },
+  }, ]]
   -- BUG: https://github.com/wez/wezterm/discussions/556
   { key = '/', mods = 'CTRL', action = wezterm.action({ SendString = '\x1f' }) },
 }
