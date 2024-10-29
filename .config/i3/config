@@ -10,6 +10,9 @@
 
 set $mod Mod4
 
+# Set the wallpaper with feh
+exec --no-startup-id feh --bg-scale ~/.config/i3/wallpaper/ocean_with_cloud.png
+
 # Font for window titles. Will also be used by the bar unless a different font
 # is used in the bar {} block below.
 font pango:JetBrainsMono Nerd Font 8
@@ -64,7 +67,8 @@ exec --no-startup-id nm-applet
 exec_always --no-startup-id autotiling
 
 # Use pactl to adjust volume in PulseAudio.
-set $refresh_i3status killall -SIGUSR1 i3status
+# set $refresh_i3status killall -SIGUSR1 i3status
+set $refresh_i3status pkill -SIGRTMIN+10 i3blocks
 # NOTE: pulsemixer max volume is 150%
 bindsym XF86AudioRaiseVolume exec --no-startup-id pulsemixer --change-volume +5 && $refresh_i3status
 bindsym XF86AudioLowerVolume exec --no-startup-id pulsemixer --change-volume -5 && $refresh_i3status
@@ -74,9 +78,9 @@ bindsym XF86AudioMute exec --no-startup-id pactl set-sink-mute @DEFAULT_SINK@ to
 bindsym XF86AudioMicMute exec --no-startup-id pactl set-source-mute @DEFAULT_SOURCE@ toggle && $refresh_i3status
 
 # Use brightnessctl to adjust brightness
-bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5%
+bindsym XF86MonBrightnessUp exec --no-startup-id brightnessctl set +5% && $refresh_i3status
 # Min brightness is set to 0.1
-bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl --min-val=$(bc<<<$(echo "$(brightnessctl|grep 'Max brightness'|cut -d' ' -f3)*0.1")) set 5%-
+bindsym XF86MonBrightnessDown exec --no-startup-id brightnessctl --min-val=$(bc<<<$(echo "$(brightnessctl|grep 'Max brightness'|cut -d' ' -f3)*0.1")) set 5%- && $refresh_i3status
 
 # Use Mouse+$mod to drag floating windows to their wanted position
 floating_modifier $mod
@@ -179,10 +183,13 @@ bindsym $mod+0 workspace number $ws10
 bindsym $mod+Tab workspace back_and_forth
 
 # Startup apps
-set $browser "firefox"
+set $browser "brave-browser"
 assign [class=$browser] $ws1
+# NOTE : run `xwininfo` in a terminal and select the window for information
+assign [class="Brave"] $ws1
 assign [class=$terminal] $ws2
 for_window [class=$browser] focus
+for_window [class="Brave"] focus
 for_window [class=$terminal] focus
 exec --no-startup-id $browser
 exec --no-startup-id $terminal

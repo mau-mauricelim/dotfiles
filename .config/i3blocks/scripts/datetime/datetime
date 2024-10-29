@@ -1,6 +1,11 @@
 #!/usr/bin/env bash
 set_variables() {
-  ARRAY=("%A, %d %b %Y, %H:%M %p" "%d %b %Y, %H:%M %p" "%H:%M %p")
+  # NOTE: Set preferred formats here
+  ARRAY=(    "%d %b, %H:%M %p"     # 29 Oct, 14:43 PM
+         "%a, %d %b, %H:%M %p"     # Tue, 29 Oct, 14:43 PM
+         "%a, %d %b %Y, %H:%M %p"  # Tue, 29 Oct 2024, 14:43 PM
+             "%d %b %Y, %H:%M %p"  # 29 Oct 2024, 14:43 PM
+                       "%H:%M %p") # 14:43 PM
   STATE=/tmp/i3blocks-datetime
   # File is empty or does not exist
   if [ ! -s "$STATE" ]; then set_default; fi
@@ -26,8 +31,11 @@ set_variables
 
 case $BLOCK_BUTTON in
   # 1 = Left, 2 = Middle, 3 = Right, 4 = Scroll Up, 5 = Scroll Down, 6 = Custom, 7 = Custom, 8 = Upper Thumb, 9 = Lower Thumb, 10+ = Custom
-  1) ;;               # Left, Open calendar
-  3) change_format ;; # Right, Toggle datetime format
+  1) echo -e "clear\ncal -3"|wezterm cli send-text --no-paste --pane-id "$(wezterm cli spawn --new-window)" ;; # Left, Open calendar
+  3) change_format                                                                                          ;; # Right, Toggle datetime format
 esac
 
-echo "🗓️ <span color='black' bgcolor='#ADD8E6'>$(date +"$FORMAT")</span>"
+if [[ -z $LABEL ]]; then LABEL="🗓️"; fi
+if [[ -z $COLOR ]]; then COLOR="black"; fi
+if [[ -z $BGCOLOR ]]; then BGCOLOR="#ADD8E6"; fi
+echo "$LABEL <span color='$COLOR' bgcolor='$BGCOLOR'>$(date +"$FORMAT")</span>"

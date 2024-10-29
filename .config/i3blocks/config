@@ -64,6 +64,9 @@ interval=5
 INVERSE_THRESHOLD=true
 
 [datetime]
+#LABEL=📆
+COLOR=#151820
+BGCOLOR=#6db9f7
 interval=5
 
 # Disk usage
