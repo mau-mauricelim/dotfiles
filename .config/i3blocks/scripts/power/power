@@ -1,0 +1,5 @@
+#!/usr/bin/env bash
+case $BLOCK_BUTTON in
+  # 1 = Left, 2 = Middle, 3 = Right, 4 = Scroll Up, 5 = Scroll Down, 6 = Custom, 7 = Custom, 8 = Upper Thumb, 9 = Lower Thumb, 10+ = Custom
+  1) i3-msg mode $(grep 'set $mode_system' ~/.config/i3/config|cut -d'"' -f2) >/dev/null ;; # Left
+esac

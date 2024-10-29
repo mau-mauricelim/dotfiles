@@ -69,6 +69,11 @@ COLOR=#151820
 BGCOLOR=#6db9f7
 interval=5
 
+[power]
+label=⏻
+full_text=
+interval=once
+
 # Disk usage
 #
 # The directory defaults to $HOME if the instance is not specified.
