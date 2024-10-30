@@ -21,6 +21,7 @@ font pango:JetBrainsMono Nerd Font 8
 # text rendering and scalability on retina/hidpi displays (thanks to pango).
 # font pango:DejaVu Sans Mono 8
 
+# TODO: https://bacardi55.io/2023/07/10/new-laptop-part-6-managing-multi-screens-with-i3wm-and-autorandr/
 # Display settings
 # $ xrandr --listmonitors
 # $ xrandr --query
@@ -189,12 +190,13 @@ bindsym $mod+Tab workspace back_and_forth
 
 # Startup apps
 set $browser "brave-browser"
+set $browserClass "Brave"
 assign [class=$browser] $ws1
 # NOTE : run `xwininfo` in a terminal and select the window for information
-assign [class="Brave"] $ws1
+assign [class=$browserClass] $ws1
 assign [class=$terminal] $ws2
 for_window [class=$browser] focus
-for_window [class="Brave"] focus
+for_window [class=$browserClass] focus
 for_window [class=$terminal] focus
 exec --no-startup-id $browser
 exec --no-startup-id $terminal
@@ -223,7 +225,7 @@ bindsym $mod+Shift+r restart
 set $mode_system "Power: [l]ogout [z]sleep [h]ibernate [r]eboot [s]hutdown"
 mode $mode_system {
     # bindsym l exec i3-msg [class=$browser] kill && sleep 1 && i3-msg exit
-    bindsym l exec i3-msg [class="Brave"] kill && sleep 1 && i3-msg exit
+    bindsym l exec i3-msg [class=$browserClass] kill && sleep 1 && i3-msg exit
     bindsym z exec systemctl suspend
     bindsym h exec systemctl hibernate
     bindsym r exec systemctl reboot
