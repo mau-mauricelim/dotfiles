@@ -94,7 +94,11 @@ return { -- Collection of various small independent plugins/modules
     -- Automatic highlighting of word under cursor
     require('mini.cursorword').setup()
 
+    -- Navigate and manipulate file system
+    require('plugins.custom.MiniFiles')
+
     -- Highlight patterns in text
+    local hipatterns = require('mini.hipatterns')
     -- Helper functions to get pattern for standalone texts in upper, sentence and lower case
     local function standalone(text) return '%f[%w]()' .. text .. '()%f[%W]' end
     local function getPattern(texts)
@@ -107,8 +111,6 @@ return { -- Collection of various small independent plugins/modules
       end
       return pattern
     end
-
-    local hipatterns = require('mini.hipatterns')
     hipatterns.setup({
       highlighters = {
         -- Highlight standalone texts 'FIXME', 'ERROR', 'HACK', 'WARN', 'TODO', 'INFO', 'NOTE', 'DEBUG', 'TEST'
