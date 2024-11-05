@@ -1,3 +1,4 @@
+#!/usr/bin/env bash
 if command -v nvim >/dev/null; then
     # Don't connect to the X server.
     # Shortens startup time in a terminal, but the window title and clipboard will not be used.
