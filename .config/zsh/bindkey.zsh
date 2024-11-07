@@ -5,7 +5,7 @@
 bindkey -e
 
 # Use vi mode
-[ -f $ZDOTDIR/bindkey-vi.zsh ] && source $ZDOTDIR/bindkey-vi.zsh
+SourceIfExists $ZDOTDIR/bindkey-vi.zsh
 
 # Load widgets that are not loaded by default.
 autoload -U up-line-or-beginning-search

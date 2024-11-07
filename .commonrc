@@ -35,6 +35,8 @@ stty -ixon
 
 addToPath () { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
 addToPathFront () { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
+# Function to source file if it exists
+SourceIfExists() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
 # Set PATH to include Neovim
 [ -d /opt/nvim-linux64 ] && addToPathFront /opt/nvim-linux64/bin
@@ -44,7 +46,7 @@ addToPathFront () { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
 
 # Source the shell dotfiles
 for file in $XDG_CONFIG_HOME/{alias,q}/*.sh; do
-    [ -r "$file" ] && [ -f "$file" ] && source "$file"
+    SourceIfExists "$file"
 done
 unset file
 
@@ -68,11 +70,11 @@ fi
 
 # fzf setup
 if [[ -n "${BASH_VERSION:-}" ]]; then
-    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+    SourceIfExists "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
 elif [[ -n "${ZSH_VERSION:-}" ]]; then
-    [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
+    SourceIfExists "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
 fi
-# fzf-git.sh
+# fzf-git.sh - unsure why cannot use SourceIfExists
 [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh
 if command -v rg >/dev/null; then
     # Setting fd as the default source for fzf
