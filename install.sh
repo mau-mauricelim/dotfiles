@@ -86,7 +86,7 @@ common_user_install() {
     # Zsh Auto Suggestions
     [ -d "$ZDOTDIR/zsh-autosuggestions" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZDOTDIR/zsh-autosuggestions"
     # Zsh Syntax Highlighting
-    [ -d "$ZDOTDIR/zsh-syntax-highlighting" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-syntax-highlighting.git "$ZDOTDIR/zsh-syntax-highlighting"
+    [ -d "$ZDOTDIR/fast-syntax-highlighting" ] || git clone -q --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZDOTDIR/fast-syntax-highlighting"
     # fzf
     [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
     command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
