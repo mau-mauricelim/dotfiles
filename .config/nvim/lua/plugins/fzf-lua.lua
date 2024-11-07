@@ -90,7 +90,7 @@ return {
     vim.keymap.set('n', '<Leader>ss',       fzf_lua.builtin,              { desc = '[S]earch [S]elect fzf-lua builtin commands' })
     vim.keymap.set('n', '<Leader>sw',       fzf_lua.grep_cword,           { desc = '[S]earch current [W]ord under cursor' })
     vim.keymap.set('v', '<Leader>sv',       fzf_lua.grep_visual,          { desc = '[S]earch [V]isual selection' })
-    vim.keymap.set('n', '<Leader>sg',       fzf_lua.live_grep,            { desc = '[S]earch by live [g]rep' })
+    vim.keymap.set('n', '<Leader>sg',       fzf_lua.live_grep_native,     { desc = '[S]earch by live [g]rep' })
     vim.keymap.set('n', '<Leader>sd',       fzf_lua.diagnostics_document, { desc = '[S]earch document [D]iagnostics' })
     vim.keymap.set('n', '<Leader>sr',       fzf_lua.resume,               { desc = '[S]earch [R]esume last command/query' })
     vim.keymap.set('n', '<Leader>sq',       fzf_lua.quickfix,             { desc = '[S]earch [Q]uickfix' })
