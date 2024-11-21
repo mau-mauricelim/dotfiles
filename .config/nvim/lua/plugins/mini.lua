@@ -94,6 +94,11 @@ return { -- Collection of various small independent plugins/modules
     -- Automatic highlighting of word under cursor
     require('mini.cursorword').setup()
 
+    -- Work with diff hunks
+    local diff = require('mini.diff')
+    diff.setup()
+    vim.keymap.set('n', '<Leader>ho', diff.toggle_overlay, { desc = '[H]unk [O]verlay' })
+
     -- Navigate and manipulate file system
     require('plugins.custom.MiniFiles')
 
