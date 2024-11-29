@@ -23,7 +23,9 @@
     aa = add -A
     cm = commit -m
     pm = pull origin main
-    fop = fetch origin --prune
+    # Prune and force delete untracked local branches
+    # git fetch --prune && git branch -r | awk "{print \$1}" | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -D
+    fop = !git fetch --prune && git branch -r | awk \"{print \\$1}\" | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk \"{print \\$1}\" | xargs git branch -D
     bdel = branch -D
     bdelr = push origin --delete
     please = push --force-with-lease
@@ -34,6 +36,9 @@
     rba = rebase --abort
     nuke = !git reset --hard
     wipe = clean -xdf
+    # Last log
+    ll = log -1
+    lls = log -1 --stat
     adog = log --all --decorate --oneline --graph # A Dog
     dogs = log --all --decorate --oneline --graph --stat # All Dogs
     lg1 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
@@ -50,6 +55,8 @@
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config --list --show-origin
+    # Config edit
+    cfge = !git config --file $XDG_CONFIG_HOME/git/config --edit
     gcfg = config --global --list --show-origin
 
 [pull]
