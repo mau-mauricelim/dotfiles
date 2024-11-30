@@ -7,12 +7,6 @@ return {
     local fzf_lua = require('fzf-lua')
     local actions = require('fzf-lua.actions')
     fzf_lua.setup({
-      defaults = {
-        file_icons = false,
-        actions = {
-          ['ctrl-t'] = require('trouble.sources.fzf').actions.open,
-        },
-      },
       winopts = {
         height  = 0.8,
         width   = 0.8,
@@ -23,25 +17,6 @@ return {
           layout      = 'vertical',
           scrollbar   = 'true',
           scrollchars = { '┃', '' },
-        },
-      },
-      -- https://github.com/ibhagwan/fzf-lua/wiki#how-do-i-setup-input-history-keybinds
-      -- Fzf supports saving input history into a history file using `--history` flag.
-      -- You can configure a history file globally or per provider.
-      -- Once the `--history` flag is supplied fzf will automatically map `ctrl-{n|p}` to `{next|previous}-history`, you can change the default binds under `keymap.fzf`.
-      -- Example #1: saving global input history under `~/.local/share/nvim/fzf-lua-history`:
-      fzf_opts = {
-        ['--history'] = vim.fn.stdpath('data') .. '/fzf-lua-history',
-      },
-      files = {
-        actions = {
-          ['ctrl-h'] = actions.toggle_hidden,
-        },
-      },
-      grep = {
-        rg_opts = "--column --line-number --no-heading --color=always --smart-case --hidden --glob '!.git' --max-columns=4096 -e",
-        actions = {
-          ['ctrl-h'] = actions.toggle_hidden,
         },
       },
       keymap = {
@@ -61,7 +36,17 @@ return {
           ['ctrl-q'] = 'select-all+accept',
         },
       },
+      -- PROVIDERS SETUP
+      -- use `defaults` (table or function) if you wish to set "global-provider" defaults
+      defaults = {
+        file_icons = false,
+        actions = {
+          ['ctrl-t'] = require('trouble.sources.fzf').actions.open,
+        },
+      },
       actions = {
+        -- Below are the default actions, setting any value in these tables will override
+        -- the defaults, to inherit from the defaults change [1] from `false` to `true`
         files = {
           true, -- inherit from defaults
           -- Pickers inheriting these actions:
@@ -71,11 +56,39 @@ return {
           -- Use <C-v> to open file in vsplit, depends on terminal setup
           ['ctrl-x'] = actions.file_vsplit,
         },
-        buffers = {
-          true, -- inherit from defaults
-          -- Use <C-v> to open file in vsplit, depends on terminal setup
-          ['ctrl-x'] = actions.buf_vsplit,
+      },
+      -- https://github.com/ibhagwan/fzf-lua/wiki#how-do-i-setup-input-history-keybinds
+      -- Fzf supports saving input history into a history file using `--history` flag.
+      -- You can configure a history file globally or per provider.
+      -- Once the `--history` flag is supplied fzf will automatically map `ctrl-{n|p}` to `{next|previous}-history`, you can change the default binds under `keymap.fzf`.
+      -- Example #1: saving global input history under `~/.local/share/nvim/fzf-lua-history`:
+      fzf_opts = {
+        ['--history'] = vim.fn.stdpath('data') .. '/fzf-lua-history',
+      },
+      files = {
+        actions = {
+          -- inherits from 'actions.files', here we can override
+          -- or set bind to 'false' to disable a default action
+          ['ctrl-h'] = actions.toggle_hidden,
         },
+      },
+      grep = {
+        rg_opts = "--column --line-number --no-heading --color=always --smart-case --hidden --glob '!.git' --max-columns=4096 -e",
+        actions = {
+          -- actions inherit from 'actions.files' and merge
+          ['ctrl-h'] = actions.toggle_hidden,
+        },
+      },
+      buffers = {
+        actions = {
+          -- actions inherit from 'actions.files' and merge
+          -- by supplying a table of functions we're telling
+          -- fzf-lua to not close the fzf window, this way we
+          -- can resume the buffers picker on the same window
+          -- eliminating an otherwise unaesthetic win "flash"
+          ['ctrl-x'] = { fn = actions.buf_del, reload = true },
+          -- ['ctrl-x'] = actions.buf_vsplit,
+        }
       },
     })
 
