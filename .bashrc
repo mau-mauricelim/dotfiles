@@ -16,7 +16,7 @@ for option in nocaseglob histappend cdspell autocd globstar checkwinsize; do
 done
 
 # Add tab completion for many Bash commands
-SourceIfExists /etc/bash_completion
+sourceFile /etc/bash_completion
 
 # Add tab completion for SSH hostnames based on $HOME/.ssh/config, ignoring wildcards
 [ -e "$HOME/.ssh/config" ] && complete -o "default" -o "nospace" -W "$(grep "^Host" $HOME/.ssh/config | grep -v "[?*]" | cut -d " " -f2- | tr ' ' '\n')" scp sftp ssh

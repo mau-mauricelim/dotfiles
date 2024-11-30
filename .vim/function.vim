@@ -1,6 +1,6 @@
 " Vimscript function needs to start with a capital letter
 " Function to source file if it exists
-function! SourceIfExists(file)
+function! SourceFile(file)
     " Prefix arguments with a vimscript function with `a:` to indicate argument scope
     if filereadable(expand(a:file))
         exe 'source' a:file

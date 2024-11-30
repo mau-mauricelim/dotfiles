@@ -33,20 +33,20 @@ export TERM=xterm-256color
 # Disable the freeze/unfreeze behavior for Ctrl-S/Q
 stty -ixon
 
-addToPath() { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
-addToPathFront() { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
+addToPath() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
+addToPathFront() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
 # Function to source file if it exists
-SourceIfExists() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
+sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
 # Set PATH to include Neovim
-[ -d /opt/nvim-linux64 ] && addToPathFront /opt/nvim-linux64/bin
+addToPathFront /opt/nvim-linux64/bin
 
 # Set PATH so it includes user's git-scripts if it exists
-[ -d "$XDG_CONFIG_HOME/git/git-scripts" ] && addToPath "$XDG_CONFIG_HOME/git/git-scripts"
+addToPath "$XDG_CONFIG_HOME/git/git-scripts"
 
 # Source the shell dotfiles
 for file in $XDG_CONFIG_HOME/{alias,q}/*.sh; do
-    SourceIfExists "$file"
+    sourceFile "$file"
 done
 unset file
 
@@ -70,11 +70,11 @@ fi
 
 # fzf setup
 if [[ -n "${BASH_VERSION:-}" ]]; then
-    SourceIfExists "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
+    sourceFile "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.bash
 elif [[ -n "${ZSH_VERSION:-}" ]]; then
-    SourceIfExists "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
+    sourceFile "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf.zsh
 fi
-# fzf-git.sh - unsure why cannot use SourceIfExists
+# fzf-git.sh - unsure why cannot use sourceFile
 [ -f "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh ] && source "${XDG_CONFIG_HOME:-$HOME/.config}"/fzf/fzf-git.sh
 if command -v rg >/dev/null; then
     # Setting fd as the default source for fzf

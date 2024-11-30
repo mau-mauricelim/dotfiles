@@ -37,7 +37,7 @@ set undoreload=100000
 source $HOME/.vim/function.vim
 
 " Vim plug
-call SourceIfExists("$HOME/.vim/vim-plug.vim")
+call SourceFile("$HOME/.vim/vim-plug.vim")
 
 " Remaps
-call SourceIfExists("$HOME/.vim/remap.vim")
+call SourceFile("$HOME/.vim/remap.vim")
