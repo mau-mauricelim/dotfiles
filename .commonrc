@@ -33,8 +33,8 @@ export TERM=xterm-256color
 # Disable the freeze/unfreeze behavior for Ctrl-S/Q
 stty -ixon
 
-addToPath () { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
-addToPathFront () { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
+addToPath() { [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
+addToPathFront() { [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
 # Function to source file if it exists
 SourceIfExists() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
@@ -87,7 +87,7 @@ fi
 # Functions for fzf
 if command -v fzf >/dev/null; then
     if command -v fd >/dev/null; then
-        ff () {
+        ff() {
             # Output to commandline instead of stdout
             # print -z -- $(commands | fzf)
             print -z -- $(fd --strip-cwd-prefix --hidden --follow --exclude .git \

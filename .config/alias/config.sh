@@ -54,10 +54,10 @@ alias fdh='fd -H'
 alias restow='stow .' # use -nv for simulation
 
 # cd with wslpath
-if command -v wslpath &> /dev/null; then cdw () { builtin cd -- "`wslpath "$1"`"; }; fi
+if command -v wslpath &> /dev/null; then cdw() { builtin cd -- "`wslpath "$1"`"; }; fi
 
 # Goes up a specified number of directories
-up () {
+up() {
     if [ $# -eq 1 ] && [ $1 -gt 0 ]; then
         local input="../"
         local count="$1"
@@ -67,6 +67,6 @@ up () {
 }
 
 # Make directory and cd into it
-take ()   { [ $# -eq 1 ] && mkdir -p "$1" && cd "$1"; }
-mkpath () { [ $# -eq 1 ] && mkdir -p "$1"; }
-mkfile () { [ $# -eq 1 ] && mkdir -p "$(dirname "$1")" && touch "$1"; }
+take()   { [ $# -eq 1 ] && mkdir -p "$1" && cd "$1"; }
+mkpath() { [ $# -eq 1 ] && mkdir -p "$1"; }
+mkfile() { [ $# -eq 1 ] && mkdir -p "$(dirname "$1")" && touch "$1"; }

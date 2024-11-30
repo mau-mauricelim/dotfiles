@@ -17,7 +17,7 @@ zle -N down-line-or-beginning-search
 autoload edit-command-line
 zle -N edit-command-line
 
-function () {
+function() {
     emulate -L zsh -o no_aliases
 
     # Make sure that the terminal is in application mode when zle is active,
@@ -71,7 +71,7 @@ function () {
 # bindkey -s '^f' '^t'
 
 # Bind Ctrl-F to open selection in nvim
-FZF_CTRL_F_COMMAND () {
+FZF_CTRL_F_COMMAND() {
     file="$(eval $(echo -n "$FZF_CTRL_T_COMMAND | $(__fzfcmd) $FZF_CTRL_T_OPTS"))"
     if [ -f "${file}" ]; then
         (nvim "${file}" < /dev/tty) || return 1
