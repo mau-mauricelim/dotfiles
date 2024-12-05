@@ -78,6 +78,8 @@ vim.keymap.set('n', '<Leader>lc', 'mz<cmd>%!uniq<CR>`z', { desc = '[C]ontiguous 
 vim.keymap.set('v', '<Leader>lc', 'mz:!uniq<CR>`z', { desc = '[C]ontiguous duplicate lines squeeze in visual selection', silent = true })
 vim.keymap.set('n', '<Leader>ld', "mz<cmd>%!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in file', silent = true })
 vim.keymap.set('v', '<Leader>ld', "mz:!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in visual selection', silent = true })
+vim.keymap.set('n', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
+vim.keymap.set('v', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
 
 -- Format Operations
 vim.keymap.set('n', '<Leader>fl', 'mz<cmd>%s/\\s\\+$//<CR>`z', { desc = '[F]ormat end of [L]ines in file', silent = true })

@@ -70,6 +70,10 @@ return { -- Collection of various small independent plugins/modules
       -- Whether to disable showing non-error feedback
       silent = false,
     })
+    -- Paste from system clipboard and convert ff to unix
+    vim.keymap.set('n', 'gp', '"+p<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Paste from system clipboard and convert ff to unix' })
+    -- - Paste in Visual with `P` to not copy selected text (`:h v_P`)
+    vim.keymap.set('x', 'gp', '"+P<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Paste from system clipboard and convert ff to unix' })
 
     -- Go forward/backward with square brackets
     require('mini.bracketed').setup()
