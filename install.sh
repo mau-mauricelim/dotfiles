@@ -19,6 +19,7 @@ run_install() { echo "Running $1 installer"; cd "$HOME" || exit 1; "${1}_install
 set_url_and_version() {
     repo_name=$(echo "$1" | cut -d"/" -f2)
     repo_name=${repo_name^^} # Uppercase
+    repo_name=${repo_name//-/_} # Convert `-` to `_`
     # Sets release url e.g. RIPGREP_URL=https://github.com/BurntSushi/ripgrep/releases/latest/download
     eval "${repo_name}_URL"="https://github.com/$1/releases/latest/download"
     latest_tag=$(curl -sL "https://api.github.com/repos/$1/releases/latest" | grep tag_name | cut -d '"' -f4)
@@ -34,6 +35,7 @@ set_all_url_and_version() {
     set_url_and_version "neovim/neovim"
     set_url_and_version "dandavison/delta"
     set_url_and_version "BurntSushi/ripgrep"
+    set_url_and_version "scarvalhojr/aoc-cli"
     set_url_and_version "sharkdp/fd" true
     set_url_and_version "sharkdp/bat" true
     set_url_and_version "eza-community/eza" true
@@ -50,6 +52,11 @@ common_root_install() {
         curl -sL "$RIPGREP_URL/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz "ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg" "ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl/doc/rg.1" --strip-components=1 && \
         sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
+    # Install MUSL aoc-cli from source
+    [ -n "$AOC_CLI_VERSION" ] && \
+        curl -sL "$AOC_CLI_URL/aoc-cli-$AOC_CLI_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+            | tar xz "aoc-cli-${AOC_CLI_VERSION}-x86_64-unknown-linux-musl/aoc" --strip-components=1 && \
+        sudo install aoc /usr/local/bin && rm aoc
     # Install LINUX lazygit from source
     [ -n "$LAZYGIT_VERSION" ] && \
         curl -sL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz lazygit && \
