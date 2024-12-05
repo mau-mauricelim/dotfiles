@@ -40,6 +40,7 @@ return { -- Adds git related signs to the gutter, as well as utilities for manag
         map('n',          '<Leader>hS', gs.stage_buffer,              { desc = '[S]tage buffer' })
         map('n',          '<Leader>hu', gs.undo_stage_hunk,           { desc = '[H]unk stage [U]ndo' })
         map('n',          '<Leader>hR', gs.reset_buffer,              { desc = '[R]eset buffer' })
+        -- NOTE: Use `<C-w>w` to focus the cursor on a pop-up window
         map('n',          '<Leader>hp', gs.preview_hunk,              { desc = '[H]unk [P]review' })
         map('n',          '<Leader>hb', gs.blame_line_full,           { desc = 'Git [B]lame line' })
         map({ 'n', 'v' }, otp .. 'b',   gs.toggle_current_line_blame, { desc = 'Toggle current line blame' })

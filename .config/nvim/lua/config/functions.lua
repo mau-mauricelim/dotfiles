@@ -126,6 +126,7 @@ end
 -- alternate-file or last edited file
 -- `CTRL-^` for alternate-file
 -- `'0` for last edited file
+-- BUG: sometimes does not work when opening last edited file
 function M.altFileOrOldFile()
   local status_ok, _ = pcall(vim.cmd, 'e#')
   if not status_ok then
