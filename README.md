@@ -49,4 +49,3 @@ $ git restore . # OR git reset --hard
 - [ ] [NixOS](https://nixos.org/)
 - [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
-- [ ] [trouble](https://github.com/folke/trouble.nvim)
