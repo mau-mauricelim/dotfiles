@@ -80,8 +80,6 @@ common_user_install() {
     cd "$HOME/dotfiles" && git pull https://github.com/mau-mauricelim/dotfiles.git HEAD && \
         git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
         stow . && git restore . && cd "$HOME" || exit 1
-    # Install local binaries
-    sudo install "$HOME/dotfiles/bin/"* /usr/local/bin
     # Create a symlink for zshenv to HOME
     ln -sf "$HOME/.config/zsh/.zshenv" "$HOME/.zshenv"
     # Source the latest zshenv

@@ -38,6 +38,8 @@ addToPathFront() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$1:$
 # Function to source file if it exists
 sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
+addToPath "$HOME/bin"
+
 # Set PATH to include Neovim
 addToPathFront /opt/nvim-linux64/bin
 
