@@ -170,8 +170,11 @@ vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[
 
 -- nvim: [P]aste over visual selection without losing yanked lines
 -- See `:help put-Visual-mode`
--- Delete selection without losing yanked lines
-vim.keymap.set({ 'n', 'x' }, 'g_', [["_d]], { desc = 'Delete into Black hole register' })
+-- Delete/change selection without losing yanked lines
+vim.keymap.set('v', 'D', [["_d]], { desc = 'Delete into Black hole register' })
+vim.keymap.set('n', 'dD', [["_dd]], { desc = 'Delete into Black hole register' })
+vim.keymap.set('v', 'C', [["_c]], { desc = 'Delete into Black hole register' })
+vim.keymap.set('n', 'cC', [["_cc]], { desc = 'Delete into Black hole register' })
 
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
