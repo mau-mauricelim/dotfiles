@@ -44,9 +44,5 @@ $ git restore . # OR git reset --hard
 - yazi 🦆 (file 📁)
 
 ## 📝 TODO
-- [ ] [codeium](https://github.com/Exafunction/codeium.vim)
-- [ ] [Ansible](https://www.ansible.com/)
-- [ ] [NixOS](https://nixos.org/)
 - [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
-- [ ] [trouble](https://github.com/folke/trouble.nvim)
