@@ -1,8 +1,8 @@
 #!/usr/bin/env bash
 # Check if WSL
 if isWsl; then
-    # alias q='~/q/w32/./q.exe'
-    alias q='/mnt/c/q/w32/q.exe'
+    # alias q='~/q/w64/./q.exe'
+    alias q='/mnt/c/q/w64/q.exe'
 else
     if command -v rlwrap >/dev/null; then
         alias q35='QHOME=~/q/3.5/2016.10.03 rlwrap -r ~/q/3.5/2016.10.03/l32/q'
