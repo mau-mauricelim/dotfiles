@@ -44,5 +44,4 @@ $ git restore . # OR git reset --hard
 - yazi 🦆 (file 📁)
 
 ## 📝 TODO
-- [ ] [undotree](https://github.com/mbbill/undotree)
 - [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)

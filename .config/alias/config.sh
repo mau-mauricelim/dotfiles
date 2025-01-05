@@ -33,6 +33,8 @@ alias cl="clear"
 
 alias e="exit"
 alias d="du -shcL"
+alias pd="pushd"
+alias xd="popd"
 alias ...="cd ../.."
 alias ....="cd ../../.."
 alias ll="ls -l --icons"

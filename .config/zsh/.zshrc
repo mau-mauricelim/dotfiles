@@ -3,7 +3,7 @@
 # confirmations, etc.) must go above this block; everything else may go below.
 sourceFile "${XDG_CACHE_HOME:-$HOME/.cache}/p10k-instant-prompt-${(%):-%n}.zsh"
 
-setopt histignorealldups sharehistory autocd interactive_comments rmstarsilent
+setopt histignorealldups sharehistory autocd interactive_comments rmstarsilent pushd_ignore_dups
 
 # Characters part of a word. Default is "*?_-.[]~=/&;!#$%^(){}<>"
 WORDCHARS="_-.[]~/;!#%^(){}<>"

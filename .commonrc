@@ -30,6 +30,11 @@ export PAGER=less
 # Enable 256 colors with xterm
 export TERM=xterm-256color
 
+# Start tmux on every shell login (https://wiki.archlinux.org/title/Tmux#Start_tmux_on_every_shell_login)
+if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
+    exec tmux new-session -A -s "${USER}" >/dev/null 2>&1
+fi
+
 # Disable the freeze/unfreeze behavior for Ctrl-S/Q
 stty -ixon
 

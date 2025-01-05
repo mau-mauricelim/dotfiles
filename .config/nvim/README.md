@@ -40,5 +40,6 @@
 | Diagnostics                                | trouble.nvim            |                                                                                                                                                                                                                                                |
 | Useless                                    | cellular-automaton.nvim |                                                                                                                                                                                                                                                |
 |                                            | duck.nvim               |                                                                                                                                                                                                                                                |
+| Undo history                               | undotree                |                                                                                                                                                                                                                                                |
 
 > Inspired by kickstart.nvim
