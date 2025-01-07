@@ -188,8 +188,8 @@ vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. 
 
 local M = require('config.functions')
 -- Open git blame commit URL
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Commit URL' })
-vim.keymap.set('n', vim.g.option_toggle_prefix .. 'f', M.gitBlameOpenCommitFileURL, { desc = 'Open Commit File URL' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Git Commit URL' })
+vim.keymap.set('n', vim.g.option_toggle_prefix .. 'f', M.gitBlameOpenCommitFileURL, { desc = 'Open Git Commit File URL' })
 
 -- Custom toggles
 -- Toggle line number
