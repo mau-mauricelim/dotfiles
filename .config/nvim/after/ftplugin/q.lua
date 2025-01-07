@@ -12,14 +12,6 @@ if status_fzf_lua then
   vim.keymap.set('n', 'gr', Goto_references, { desc = '[G]oto [R]eferences' })
 end
 
-local status_blink, _ = pcall(require, 'blink.cmp')
-if not status_blink then
-  -- Autocompletion and signature help plugin
-  local status_mini, completion = pcall(require, 'mini.completion')
-  -- stylua: ignore
-  if status_mini then completion.setup() end
-end
-
 -- Comment string
 vim.bo.commentstring = '/%s'
 -- Disable autopair for '`'

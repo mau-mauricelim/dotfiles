@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-source $HOME/.bashrc
+source "$HOME/.bashrc"
 
 latestAndInstalledVersion() {
     echo "$1"
@@ -8,66 +8,70 @@ latestAndInstalledVersion() {
     echo ""
 }
 
+latestRelease() { curl -sL https://github.com/"$1"/releases/latest|grep 'breadcrumb-item-selected'|grep -oP '(?<=tag/).+(?=" data)'; }
+# No releases
+latestTag() { curl -s https://github.com/"$1"/tags|grep 'Link--primary Link'|head -1|sed 's/.*class="Link--primary Link">\([^<]*\).*/\1/'; }
+
 latestAndInstalledVersion zsh \
     "$(curl -s https://zsh.sourceforge.io/FAQ/zshfaq01.html|grep 'latest production version'|cut -d' ' -f2)" \
     "$(zsh --version)"
 
 latestAndInstalledVersion git \
-    "$(curl -s https://github.com/git/git/tags|grep 'Link--primary Link'|head -1|sed 's/.*class="Link--primary Link">\([^<]*\).*/\1/')" \
+    "$(latestTag git/git)" \
     "$(git --version)"
 
 latestAndInstalledVersion stow \
-    "$(curl -s https://github.com/aspiers/stow/tags|grep 'Link--primary Link'|head -1|sed 's/.*class="Link--primary Link">\([^<]*\).*/\1/')" \
+    "$(latestTag aspiers/stow)" \
     "$(stow --version)"
 
 latestAndInstalledVersion rg \
-    "$(curl -sL https://github.com/BurntSushi/ripgrep/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease BurntSushi/ripgrep)" \
     "$(rg --version|grep ripgrep)"
 
 latestAndInstalledVersion fd \
-    "$(curl -sL https://github.com/sharkdp/fd/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease sharkdp/fd)" \
     "$(fd --version)"
 
 latestAndInstalledVersion bat \
-    "$(curl -sL https://github.com/sharkdp/bat/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease sharkdp/bat)" \
     "$(bat --version)"
 
 latestAndInstalledVersion tmux \
-    "$(curl -sL https://github.com/tmux/tmux/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease tmux/tmux)" \
     "$(tmux -V)"
 
 latestAndInstalledVersion eza \
-    "$(curl -sL https://github.com/eza-community/eza/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease eza-community/eza)" \
     "$(eza -v|grep ^v)"
 
 latestAndInstalledVersion lazygit \
-    "$(curl -sL https://github.com/jesseduffield/lazygit/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease jesseduffield/lazygit)" \
     "$(lazygit --version|sed 's/.*, version=\([^ ]*\),.*$/\1/'|head -1)"
 
 latestAndInstalledVersion delta \
-    "$(curl -sL https://github.com/dandavison/delta/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease dandavison/delta)" \
     "$(delta --version|head -1)"
 
 latestAndInstalledVersion zoxide \
-    "$(curl -sL https://github.com/ajeetdsouza/zoxide/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease ajeetdsouza/zoxide)" \
     "$(zoxide --version)"
 
 latestAndInstalledVersion nvim \
-    "$(curl -sL https://github.com/neovim/neovim/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease neovim/neovim)" \
     "$(nvim --version|grep NVIM)"
 
 latestAndInstalledVersion fzf \
-    "$(curl -sL https://github.com/junegunn/fzf/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease junegunn/fzf)" \
     "$(fzf --version)"
 
 latestAndInstalledVersion npm \
-    "$(curl -sL https://github.com/npm/cli/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease npm/cli)" \
     "$(npm --version)"
 
 latestAndInstalledVersion yazi \
-    "$(curl -sL https://github.com/sxyazi/yazi/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease sxyazi/yazi)" \
     "$(yazi --version)"
 
 latestAndInstalledVersion jq \
-    "$(curl -sL https://github.com/jqlang/jq/releases/latest|grep 'breadcrumb-item-selected'|rev|cut -d'>' -f1|rev|xargs)" \
+    "$(latestRelease jqlang/jq)" \
     "$(jq --version)"

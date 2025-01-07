@@ -17,9 +17,6 @@ return { -- LSP Configuration & Plugins
         },
       },
     },
-    -- `neodev` configures Lua LSP for your Neovim config, runtime and plugins
-    -- used for completion, annotations and signatures of Neovim apis
-    { 'folke/neodev.nvim', opts = {} },
   },
   config = function()
     -- Brief Aside: **What is LSP?**
@@ -93,7 +90,7 @@ return { -- LSP Configuration & Plugins
 
         -- Rename the variable under your cursor
         --  Most Language Servers support renaming across files, etc.
-        map('<Leader>rn', vim.lsp.buf.rename, '[R]e[n]ame')
+        map('<Leader>rv', vim.lsp.buf.rename, '[R]ename [V]ariable')
 
         -- Execute a code action, usually your cursor needs to be on top of an error
         -- or a suggestion from your LSP for this to activate.
@@ -132,9 +129,12 @@ return { -- LSP Configuration & Plugins
     --  When you add nvim-cmp, luasnip, etc. Neovim now has *more* capabilities.
     --  So, we create new capabilities with nvim cmp, and then broadcast that to the servers.
 
-    -- local capabilities = vim.lsp.protocol.make_client_capabilities()
+    local capabilities = vim.lsp.protocol.make_client_capabilities()
     -- capabilities = vim.tbl_deep_extend('force', capabilities, require('cmp_nvim_lsp').default_capabilities())
-    local capabilities = require('blink.cmp').get_lsp_capabilities()
+    local status_blink, blink = pcall(require, 'blink.cmp')
+    if status_blink then
+      capabilities = vim.tbl_deep_extend('force', capabilities, blink.get_lsp_capabilities())
+    end
     require("lspconfig").lua_ls.setup({ capabilities = capabilities })
 
     -- Enable the following language servers

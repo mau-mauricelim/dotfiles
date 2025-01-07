@@ -29,7 +29,6 @@ return { -- UI for messages, cmdline and the popupmenu
         lsp_doc_border = false, -- add a border to hover docs and signature help
       },
       -- You can add any custom commands below that will be available with `:Noice command`
-      ---@type table<string, NoiceCommand>
       commands = {
         popup = {
           -- options for the message history that you get with `:Noice`
