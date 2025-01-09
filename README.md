@@ -42,6 +42,3 @@ $ git restore . # OR git reset --hard
 - tmux
 - npm (nvm)
 - yazi 🦆 (file 📁)
-
-## 📝 TODO
-- [ ] [bqf](https://github.com/kevinhwang91/nvim-bqf)
