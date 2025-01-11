@@ -21,6 +21,10 @@ return {
       nerd_font_variant = 'mono',
     },
     completion = {
+      -- 'prefix' will fuzzy match on the text before the cursor
+      -- 'full' will fuzzy match on the text before *and* after the cursor
+      -- example: 'foo_|_bar' will match 'foo_' for 'prefix' and 'foo__bar' for 'full'
+      keyword = { range = 'full' },
       -- Disable auto brackets
       -- NOTE: some LSPs may add auto brackets themselves anyway
       accept = { auto_brackets = { enabled = false } },
