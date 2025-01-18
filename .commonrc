@@ -43,6 +43,16 @@ addToPathFront() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$1:$
 # Function to source file if it exists
 sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
+# NOTE: Avoid adding /mnt/c/Windows/System32 to PATH as it is very large!
+# https://github.com/Saghen/blink.cmp/issues/795
+# Use a symlink to `~/dotfiles/bin` if necessary:
+# HACK: WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
+# https://github.com/iamcco/markdown-preview.nvim/issues/309
+# `ln -s /mnt/c/Windows/System32/cmd.exe ~/dotfiles/bin`
+# HACK: Lazygit: Open pull request in browser
+# bash: line 1: powershell.exe: command not found
+# `ln -s /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe ~/dotfiles/bin`
+
 addToPath "$HOME/bin"
 
 # Set PATH to include Neovim
@@ -139,13 +149,6 @@ fi
 # vim-visual-multi tutor with lazy package manager
 [ -f "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc" ] && \
     vvmtutor() { vi -Nu "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc"; }
-
-# WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
-# https://github.com/iamcco/markdown-preview.nvim/issues/309
-addToPath /mnt/c/Windows/System32
-# Lazygit: Open pull request in browser
-# bash: line 1: powershell.exe: command not found
-addToPath /mnt/c/Windows/System32/WindowsPowerShell/v1.0
 
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
