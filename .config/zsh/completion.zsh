@@ -49,3 +49,8 @@ zstyle ':completion:*' matcher-list '' 'm:{a-zA-Z}={A-Za-z}' 'r:|[._-]=* r:|=*' 
 # Use tab to complete menu select
 zmodload -i zsh/complist
 bindkey -M menuselect '^i' .expand-or-complete-prefix
+# vi navigation keys
+bindkey -M menuselect 'h' vi-backward-char
+bindkey -M menuselect 'j' vi-up-line-or-history
+bindkey -M menuselect 'k' vi-forward-char
+bindkey -M menuselect 'l' vi-down-line-or-history
