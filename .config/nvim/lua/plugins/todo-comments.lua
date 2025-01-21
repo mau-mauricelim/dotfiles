@@ -26,12 +26,12 @@ return { -- highlight and search for todo comments
           alt = { 'FIXME', 'BUG', 'FIXIT', 'ISSUE' }, -- a set of other keywords that all map to this FIX keywords
           -- signs = false, -- configure signs for some keywords individually
         },
-        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING', 'XXX' } },
+        WARN = { icon = ' ', color = 'warning', alt = { 'WARNING' } },
         HACK = { icon = ' ', color = 'hack' },
         PERF = { icon = ' ', color = 'perf', alt = { 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' } },
         TODO = { icon = ' ', color = 'todo' },
-        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO' } },
-        TEST = { icon = '⏲ ', color = 'test', alt = { 'TESTING', 'PASSED', 'FAILED' } },
+        NOTE = { icon = ' ', color = 'hint', alt = { 'INFO', 'HINT'} },
+        TEST = { icon = '⏲ ', color = 'test', alt = { 'DEBUG', 'TESTING', 'PASSED', 'FAILED' } },
       },
       -- list of named colors where we try to extract the guifg from the
       -- list of highlight groups or use the hex color if hl not found as a fallback

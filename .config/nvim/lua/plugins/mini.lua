@@ -98,15 +98,17 @@ return { -- Collection of various small independent plugins/modules
       end
       return pattern
     end
+    local colors = require('colors')
     hipatterns.setup({
       highlighters = {
-        -- Highlight standalone texts 'FIXME', 'ERROR', 'HACK', 'WARN', 'TODO', 'INFO', 'NOTE', 'DEBUG', 'TEST'
-        -- 'ERROR', 'Error', 'error'
-        fixme = { pattern = getPattern({ 'FIXME', 'ERROR' }),        group = 'MiniHipatternsFixme' },
-        hack  = { pattern = getPattern({ 'HACK', 'WARN' }),          group = 'MiniHipatternsHack' },
-        todo  = { pattern = getPattern({ 'TODO', 'INFO' }),          group = 'MiniHipatternsTodo' },
-        note  = { pattern = getPattern({ 'NOTE', 'DEBUG', 'TEST' }), group = 'MiniHipatternsNote' },
-
+        -- Highlight standalone texts
+        FIX  = { pattern = getPattern({ 'FIX', 'ERROR', 'FIXME', 'BUG', 'FIXIT', 'ISSUE' }), group = hipatterns.compute_hex_color_group(colors.red, 'bg') },
+        WARN = { pattern = getPattern({ 'WARN', 'WARNING' }),                                group = hipatterns.compute_hex_color_group(colors.orange, 'bg') },
+        HACK = { pattern = getPattern({ 'HACK' }),                                           group = hipatterns.compute_hex_color_group(colors.yellow, 'bg') },
+        PERF = { pattern = getPattern({ 'PERF', 'OPTIM', 'PERFORMANCE', 'OPTIMIZE' }),       group = hipatterns.compute_hex_color_group(colors.green, 'bg') },
+        TODO = { pattern = getPattern({ 'TODO' }),                                           group = hipatterns.compute_hex_color_group(colors.blue, 'bg') },
+        NOTE = { pattern = getPattern({ 'NOTE', 'INFO', 'HINT' }),                           group = hipatterns.compute_hex_color_group(colors.cyan, 'bg') },
+        TEST = { pattern = getPattern({ 'TEST', 'DEBUG', 'TESTING', 'PASSED', 'FAILED' }),   group = hipatterns.compute_hex_color_group(colors.purple, 'bg') },
         -- Highlight hex color strings (`#rrggbb`) using that color
         hex_color = hipatterns.gen_highlighter.hex_color(),
       },
