@@ -69,7 +69,8 @@ return { -- LSP Configuration & Plugins
         map('gd', function() fzf_lua.lsp_definitions({ jump_to_single_result=true, ignore_current_line=true }) end, '[G]oto [D]efinition')
 
         -- Find references for the word under your cursor.
-        map('gr', fzf_lua.lsp_references, '[G]oto [R]eferences')
+        -- `gr` is used by mini-operators
+        map('<Leader>gr', fzf_lua.lsp_references, '[G]oto [R]eferences')
 
         -- Jump to the implementation of the word under your cursor.
         --  Useful when your language has ways of declaring types without an actual implementation.
