@@ -23,6 +23,7 @@ else
     alias less="less -R --incsearch --use-color"
 fi
 
+if command -v hyperfine &> /dev/null; then alias hf="hyperfine"; fi
 if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
 # Copy and pasting from Windows to Linux
 # ^M is the keyboard equivalent to \r or Ctrl-V + Ctrl-M in Vim

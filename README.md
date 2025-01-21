@@ -28,6 +28,7 @@ $ git restore . # OR git reset --hard
 - unzip 🤐
 - rlwrap 🌯
 - bat(cat) 🦇 🐈
+- hyperfine ⏱️
 - zoxide
 - curl 🥌
 - git

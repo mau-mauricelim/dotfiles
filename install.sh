@@ -38,6 +38,7 @@ set_all_url_and_version() {
     set_url_and_version "scarvalhojr/aoc-cli"
     set_url_and_version "sharkdp/fd" true
     set_url_and_version "sharkdp/bat" true
+    set_url_and_version "sharkdp/hyperfine" true
     set_url_and_version "eza-community/eza" true
     set_url_and_version "jesseduffield/lazygit" true
 }
@@ -151,6 +152,13 @@ install_bat() {
         sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
 }
 
+install_hyperfine() {
+    [ -n "$HYPERFINE_VERSION" ] && \
+        curl -sL "$HYPERFINE_URL/hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+            | tar xz "hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1/hyperfine" "hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1/hyperfine.1" --strip-components=1 && \
+        sudo install hyperfine /usr/local/bin && sudo mv hyperfine.1 /usr/local/share/man/man1 && rm hyperfine
+}
+
 install_eza() {
     [ -n "$EZA_VERSION" ] && \
         curl -sL "$EZA_URL/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
@@ -190,7 +198,7 @@ alpine_install() {
     # Common root installs
     common_root_install
     # Install MUSL binaries from source
-    for bin in fd bat eza delta yazi; do "install_$bin" musl; done
+    for bin in fd bat hyperfine eza delta yazi; do "install_$bin" musl; done
     # Common user installs
     common_user_install
 }
@@ -206,7 +214,7 @@ ubuntu_install() {
     # Common root installs
     common_root_install
     # Install GNU binaries from source
-    for bin in fd bat eza delta yazi; do "install_$bin" gnu; done
+    for bin in fd bat hyperfine eza delta yazi; do "install_$bin" gnu; done
     # Install GNU Neovim from source
     curl -LO "$NEOVIM_URL/nvim-linux64.tar.gz" && \
         sudo rm -rf /opt/nvim && \

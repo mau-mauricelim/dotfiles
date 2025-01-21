@@ -36,6 +36,10 @@ latestAndInstalledVersion bat \
     "$(latestRelease sharkdp/bat)" \
     "$(bat --version)"
 
+latestAndInstalledVersion hyperfine \
+    "$(latestRelease sharkdp/hyperfine)" \
+    "$(hyperfine --version)"
+
 latestAndInstalledVersion tmux \
     "$(latestRelease tmux/tmux)" \
     "$(tmux -V)"
