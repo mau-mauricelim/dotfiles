@@ -94,14 +94,16 @@ return {
 
     -- Function to search for files with path
     function Files(path) fzf_lua.files({ cwd = path }) end
-    local function cfd() vim.fn.expand('%:p:h') end
-    fzf_lua.files_cfd = function() fzf_lua.files({ cwd = cfd() }) end
+    -- Current file dir
+    fzf_lua.files_cfd = function() fzf_lua.files({ search = vim.fn.expand('%:p:h') }) end
+    -- cword without bounds
+    fzf_lua.grep_cword_wb = function() fzf_lua.live_grep_native({ cwd = vim.fn.expand('<cword>') }) end
     vim.keymap.set('n', '<Leader>sh',       fzf_lua.helptags,             { desc = '[S]earch [H]elp' })
     vim.keymap.set('n', '<Leader>sk',       fzf_lua.keymaps,              { desc = '[S]earch [K]eymaps' })
     vim.keymap.set('n', '<Leader>sf',       fzf_lua.files,                { desc = '[S]earch [F]iles' })
     vim.keymap.set('n', '<Leader>sF',       fzf_lua.files_cfd,            { desc = '[S]earch [F]iles (cfd)' })
     vim.keymap.set('n', '<Leader>ss',       fzf_lua.builtin,              { desc = '[S]earch [S]elect fzf-lua builtin commands' })
-    vim.keymap.set('n', '<Leader>sw',       fzf_lua.grep_cword,           { desc = '[S]earch current [W]ord under cursor' })
+    vim.keymap.set('n', '<Leader>sw',       fzf_lua.grep_cword_wb,        { desc = '[S]earch current [W]ord under cursor' })
     vim.keymap.set('v', '<Leader>sv',       fzf_lua.grep_visual,          { desc = '[S]earch [V]isual selection' })
     vim.keymap.set('n', '<Leader>sg',       fzf_lua.live_grep_native,     { desc = '[S]earch by live [g]rep' })
     vim.keymap.set('n', '<Leader>sd',       fzf_lua.diagnostics_document, { desc = '[S]earch document [D]iagnostics' })
