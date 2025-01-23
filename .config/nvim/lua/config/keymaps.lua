@@ -42,6 +42,12 @@ vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right win
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Side scroll
+-- zL - Move the view on the text half a screenwidth to the right
+-- zs - Scroll the text horizontally to position the cursor at the start (left side) of the screen
+vim.keymap.set({ 'n', 'v' }, '<S-ScrollWheelUp>', '10zh')
+vim.keymap.set({ 'n', 'v' }, '<S-ScrollWheelDown>', '10zl')
+
 -- Center screen on current line
 vim.keymap.set({ 'n', 'v' }, 'k', 'kzz')
 vim.keymap.set({ 'n', 'v' }, 'j', 'jzz')
