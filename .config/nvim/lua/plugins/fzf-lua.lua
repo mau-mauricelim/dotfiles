@@ -97,7 +97,7 @@ return {
     -- Current file dir
     fzf_lua.files_cfd = function() fzf_lua.files({ search = vim.fn.expand('%:p:h') }) end
     -- cword without bounds
-    fzf_lua.grep_cword_wb = function() fzf_lua.live_grep_native({ cwd = vim.fn.expand('<cword>') }) end
+    fzf_lua.grep_cword_wb = function() fzf_lua.live_grep_native({ search = vim.fn.expand('<cword>') }) end
     vim.keymap.set('n', '<Leader>sh',       fzf_lua.helptags,             { desc = '[S]earch [H]elp' })
     vim.keymap.set('n', '<Leader>sk',       fzf_lua.keymaps,              { desc = '[S]earch [K]eymaps' })
     vim.keymap.set('n', '<Leader>sf',       fzf_lua.files,                { desc = '[S]earch [F]iles' })

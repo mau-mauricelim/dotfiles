@@ -70,7 +70,7 @@ return { -- LSP Configuration & Plugins
 
         -- Find references for the word under your cursor.
         -- `gr` is used by mini-operators
-        map('<Leader>gr', fzf_lua.lsp_references, '[G]oto [R]eferences')
+        map('gR', fzf_lua.lsp_references, '[G]oto [R]eferences')
 
         -- Jump to the implementation of the word under your cursor.
         --  Useful when your language has ways of declaring types without an actual implementation.

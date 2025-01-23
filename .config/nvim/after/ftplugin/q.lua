@@ -9,7 +9,8 @@ if status_fzf_lua then
   local function Goto_references() fzf_lua.grep({ search = vim.fn.expand('<cword>') }) end
   vim.keymap.set('n', 'gd', Goto_definitons, { desc = '[G]oto [D]efinition' })
   -- Does not exclude definition
-  vim.keymap.set('n', 'gr', Goto_references, { desc = '[G]oto [R]eferences' })
+  -- `gr` is used by mini-operators
+  vim.keymap.set('n', 'gR', Goto_references, { desc = '[G]oto [R]eferences' })
 end
 
 local status_blink, _ = pcall(require, 'blink.cmp')
