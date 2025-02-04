@@ -129,7 +129,7 @@ vim.keymap.set('v', '<', '<gv')
 vim.keymap.set('v', '>', '>gv')
 
 -- Sentence case word
-vim.keymap.set('n', '<Leader>gs', 'guiwv~', { desc = '[S]entence case word' })
+vim.keymap.set('n', '<Leader>gS', 'guiwv~', { desc = '[S]entence case word' })
 
 -- Visual block mode (Default Ctrl-V)
 -- Ctrl-V is bound to paste in Windows Terminal, use Ctrl-Q instead
@@ -148,7 +148,7 @@ vim.keymap.set('n', '<Leader>xl', '<cmd>exec "lua ".getline(".")<CR>', { desc = 
 vim.keymap.set('n', '<Leader>xp', '<cmd>exec "lua P(".getline(".").")"<CR>', { desc = 'E[X]ecute current line in Lua print()' })
 
 -- Add -- stylua: ignore above current line
-vim.keymap.set('n', '<Leader>si', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [S]tylua [I]gnore above current line' })
+vim.keymap.set('n', '<Leader>li', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [L]ua [I]gnore above current line' })
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })

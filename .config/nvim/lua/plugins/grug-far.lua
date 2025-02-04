@@ -2,7 +2,7 @@ return { -- Find And Replace plugin for neovim
   'MagicDuck/grug-far.nvim',
   keys = {
     {
-      '<Leader>fr',
+      '<Leader>fR',
       mode = { 'n' },
       function()
         require('grug-far').open({ prefills = { paths = vim.fn.expand('%') } })
@@ -10,7 +10,7 @@ return { -- Find And Replace plugin for neovim
       desc = '[F]ind and [R]eplace in current file',
     },
     {
-      '<Leader>gfw',
+      '<Leader>fW',
       mode = { 'n' },
       function()
         require('grug-far').open({ prefills = { search = vim.fn.expand('<cword>') } })
@@ -18,7 +18,7 @@ return { -- Find And Replace plugin for neovim
       desc = '[G]rug-[F]ar search current [W]ord under the cursor',
     },
     {
-      '<Leader>gfv',
+      '<Leader>fV',
       mode = { 'v' },
       [[:<C-u>lua require('grug-far').with_visual_selection({ prefills = { paths = vim.fn.expand("%") } })<CR>]],
       desc = '[G]rug-[F]ar search current visual selection in current file',
