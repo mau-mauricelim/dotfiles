@@ -16,8 +16,6 @@ vim.keymap.set(
 -- Diagnostic keymaps
 vim.keymap.set('n', '[d', vim.diagnostic.goto_prev, { desc = 'Go to previous [D]iagnostic message' })
 vim.keymap.set('n', ']d', vim.diagnostic.goto_next, { desc = 'Go to next [D]iagnostic message' })
-vim.keymap.set('n', '<Leader>e', vim.diagnostic.open_float, { desc = 'Show diagnostic [E]rror messages' })
-vim.keymap.set('n', '<Leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -149,6 +147,8 @@ vim.keymap.set('n', '<Leader>xp', '<cmd>exec "lua P(".getline(".").")"<CR>', { d
 
 -- Add -- stylua: ignore above current line
 vim.keymap.set('n', '<Leader>li', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [L]ua [I]gnore above current line' })
+-- Add semi-colon separator
+vim.keymap.set({ 'n', 'v' }, '<Leader>;', 'mzA;<Esc>`z', { desc = 'Add semi-colon separator', silent = true })
 
 -- Change all
 vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
@@ -184,6 +184,10 @@ vim.keymap.set('n', 'cC', [["_cc]], { desc = 'Delete into Black hole register' }
 
 -- Insert tab space in normal mode
 vim.keymap.set('n', '<Tab>', 'i<Tab><Esc>', { desc = 'Insert tab space in normal mode' })
+
+-- Comment string
+vim.keymap.set('n', 'gcn', 'ONOTE: <Esc>gccA', { desc = 'NOTE Comment insert above', remap = true })
+vim.keymap.set('n', 'gct', 'OTODO: <Esc>gccA', { desc = 'TODO Comment insert above', remap = true })
 
 -- Quickly edit your macros
 -- https://github.com/mhinz/vim-galore?tab=readme-ov-file#quickly-edit-your-macros

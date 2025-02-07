@@ -15,6 +15,9 @@ return {
         { section = 'startup' },
       },
     },
+    explorer = {
+      replace_netrw = true, -- Replace netrw with the snacks explorer
+    },
     input = { enabled = true },
     quickfile = { enabled = true },
     lazygit = {

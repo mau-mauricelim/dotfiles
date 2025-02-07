@@ -22,11 +22,12 @@ if not status_blink then
 end
 
 -- Comment string
-vim.bo.commentstring = '/%s'
+vim.bo.commentstring = '/ %s'
+vim.keymap.set('n', 'gcn', 'ONOTE: <Esc>gccI/<End>', { desc = 'NOTE Comment insert above', remap = true })
+vim.keymap.set('n', 'gct', 'OTODO: <Esc>gccI/<End>', { desc = 'TODO Comment insert above', remap = true })
+
 -- Disable autopair for '`'
 vim.keymap.set('i', '`', '`', { buffer = 0 })
--- Add semi-colon separator
-vim.keymap.set({ 'n', 'v' }, '<Leader>;', 'mz:norm A;<CR>`z', { desc = 'Add semi-colon separator', silent = true })
 
 -- qls override if it exists
 vim.lsp.start({
