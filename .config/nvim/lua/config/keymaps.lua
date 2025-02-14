@@ -151,13 +151,13 @@ vim.keymap.set('n', '<Leader>li', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add
 vim.keymap.set({ 'n', 'v' }, '<Leader>;', 'mzA;<Esc>`z', { desc = 'Add semi-colon separator', silent = true })
 
 -- Change all
-vim.keymap.set('n', 'cA', 'ggdGi', { desc = '[C]hange [A]ll lines' })
+vim.keymap.set('n', '<Leader>ca', 'ggdGi', { desc = '[C]hange [A]ll lines' })
 -- Delete all
-vim.keymap.set('n', 'dA', 'ggdG', { desc = '[D]hange [A]ll lines' })
+vim.keymap.set('n', '<Leader>da', 'ggdG', { desc = '[D]elete [A]ll lines' })
 -- Yank all
-vim.keymap.set('n', 'yA', '<cmd>%y<CR>', { desc = '[Y]ank [A]ll lines', silent = true })
+vim.keymap.set('n', '<Leader>ya', '<cmd>%y<CR>', { desc = '[Y]ank [A]ll lines', silent = true })
 -- Highlight all
-vim.keymap.set('n', 'vA', 'ggVG$', { desc = '[V]isual [A]ll lines', silent = true })
+vim.keymap.set('n', '<Leader>va', 'ggVG$', { desc = '[V]isual [A]ll lines', silent = true })
 
 -- Select to end of line: similar to `C`, `D` and `Y`
 vim.keymap.set('n', 'L', 'v$h', { desc = 'Select to end of line' })
@@ -169,6 +169,12 @@ vim.keymap.set('v', 'H', '^', { desc = 'Select to start of line' })
 vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
 -- Search whole word
 vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W]hole word' })
+-- Search current
+vim.keymap.set({ 'n', 'v' }, '*', '*N', { desc = 'Search current' })
+vim.keymap.set({ 'n', 'v' }, '#', '#n', { desc = 'Search current' })
+-- Like "*/#", but don't put "\<" and "\>" around the word
+vim.keymap.set({ 'n', 'v' }, 'g*', 'g*N', { desc = 'Search current' })
+vim.keymap.set({ 'n', 'v' }, 'g#', 'g#n', { desc = 'Search current' })
 
 -- Copy File Name/Path to unamed register - p to paste
 vim.keymap.set('n', '<Leader>cf', '<cmd>let @" = expand("%")<CR>', { desc = '[C]opy [F]ile' })
