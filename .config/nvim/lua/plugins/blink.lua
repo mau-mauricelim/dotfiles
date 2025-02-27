@@ -32,6 +32,12 @@ return {
       -- or set either per mode via a function
       -- list = { selection = { preselect = function(ctx) return ctx.mode ~= 'cmdline' end } },
     },
+    cmdline = {
+      completion = {
+        ghost_text = { enabled = false },
+        menu = { auto_show = true },
+      },
+    },
   },
 }
 
