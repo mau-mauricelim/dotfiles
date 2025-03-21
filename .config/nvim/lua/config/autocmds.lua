@@ -70,23 +70,3 @@ vim.api.nvim_create_autocmd('FileType', {
     })
   end,
 })
-
--- Prompt to Open Trouble Quickfix when the qf list opens
--- NOTE: Prevents opening empty Quickfix
-vim.api.nvim_create_autocmd('BufRead', {
-  callback = function(event)
-    if vim.bo[event.buf].buftype == 'quickfix' then
-      if vim.tbl_isempty(vim.fn.getqflist()) then
-        return vim.schedule(function() vim.cmd([[cclose]]) end)
-      end
-
-      local choice = vim.fn.confirm('Open Trouble Quickfix?', '&Yes\n&No\n&Cancel')
-      vim.schedule(function()
-        if choice == 1 then -- Yes
-          vim.cmd([[cclose]])
-          vim.cmd([[Trouble qflist open]])
-        end
-      end)
-    end
-  end,
-})

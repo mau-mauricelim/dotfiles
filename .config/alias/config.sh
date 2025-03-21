@@ -34,6 +34,7 @@ alias cl="clear"
 
 alias e="exit"
 alias d="du -shcL"
+alias s="ssh"
 alias pd="pushd"
 alias xd="popd"
 alias ...="cd ../.."
@@ -42,6 +43,7 @@ alias ll="ls -l --icons"
 alias lla="ls -lA --icons"
 alias la="ls -A"
 alias grep="grep --color=auto"
+if command -v rg &> /dev/null; then alias g="rg"; else alias g="grep"; fi
 alias fgrep="fgrep --color=auto"
 alias egrep="egrep --color=auto"
 alias rr="rm -r"
@@ -61,7 +63,7 @@ if command -v wslpath &> /dev/null; then cdw() { builtin cd -- "`wslpath "$1"`";
 
 # Goes up a specified number of directories
 up() {
-    if [ $# -eq 1 ] && [ $1 -gt 0 ]; then
+    if [ $# -eq 1 ] && [ "$1" -gt 0 ]; then
         local input="../"
         local count="$1"
         printf -v string "%*s" "$count"
