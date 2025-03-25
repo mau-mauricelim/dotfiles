@@ -142,4 +142,25 @@ function M.altFileOrOldFile()
   end
 end
 
+-- Send lines to adjacent tmux pane
+function _G.sendLinesToTmuxPane()
+  -- Determine the current mode
+  local mode = vim.fn.mode()
+  local text
+  if mode == 'V' or mode == 'v' or mode == '' then
+    -- Visual mode: get the selected text
+    -- Save the current visual selection
+    vim.cmd('normal! "vy')
+    text = vim.fn.getreg('v')
+  elseif mode == 'n' then
+    -- Normal mode: get the current line
+    text = vim.fn.getline('.')
+  else
+    return nil
+  end
+  -- Escape special characters and send to tmux
+  local escaped_text = text:gsub('(["$`\\])', '\\%1')
+  vim.fn.system('tmux send-keys -t .+ "' .. escaped_text .. '" Enter')
+end
+
 return M
