@@ -24,6 +24,7 @@ return { -- Useful plugin to show you pending keybinds.
     -- Document existing key chains
     local otp = vim.g.option_toggle_prefix
     wk.add({
+      { '<Leader>/', group = '[/]search' },
       { '<Leader>b', group = '[B]uffer' },
       { '<Leader>c', group = '[C]ode' },
       { '<Leader>d', group = '[D]ocument' },
@@ -31,12 +32,14 @@ return { -- Useful plugin to show you pending keybinds.
       { '<Leader>h', group = '[H]unk' },
       { '<Leader>l', group = '[L]azy*' },
       { '<Leader>n', group = '[N]oice' },
+      { '<Leader>o', group = 'Gl[O]b search' },
+      { '<Leader>of', group = 'Gl[O]b files' },
+      { '<Leader>og', group = 'Gl[O]b grep' },
       { '<Leader>r', group = '[R]ename' },
       { '<Leader>s', group = '[S]earch' },
       { '<Leader>v', group = '[V]irtual' },
       { '<Leader>w', group = '[W]orkspace' },
       { '<Leader>x', group = 'E[X]ecute' },
-      { '<Leader>/', group = '[/]search' },
       { otp .. 'g',  group = 'Toggle git' },
     })
   end,

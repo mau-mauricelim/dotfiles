@@ -3,6 +3,10 @@ if command -v nvim >/dev/null; then
     # Don't connect to the X server.
     # Shortens startup time in a terminal, but the window title and clipboard will not be used.
     alias vi="nvim -X"
+    # <leader>sg
+    alias vg="nvim -X -c 'lua Snacks.picker.grep({ hidden = true })'"
+    # <leader>sf
+    alias vf="nvim -X -c 'lua Snacks.picker.files({ hidden = true })'"
     export VISUAL=nvim
     export EDITOR=nvim
     export MANPAGER='nvim +Man!'

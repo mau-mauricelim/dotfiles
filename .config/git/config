@@ -23,6 +23,7 @@
     aa = add -A
     cm = commit -m
     pm = pull origin main
+    mt = mergetool
     # Prune and force delete untracked local branches
     # git fetch --prune && git branch -r | awk "{print \$1}" | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk "{print \$1}" | xargs git branch -D
     fop = !git fetch --prune && git branch -r | awk \"{print \\$1}\" | grep -E -v -f /dev/fd/0 <(git branch -vv | grep origin) | awk \"{print \\$1}\" | xargs git branch -D
@@ -34,6 +35,7 @@
     rbi = !git fetch && git rebase -i
     rbc = rebase --continue
     rba = rebase --abort
+    ma = merge --abort
     nuke = !git reset --hard
     wipe = clean -xdf
     # Last log
