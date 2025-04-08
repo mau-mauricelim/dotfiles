@@ -26,14 +26,14 @@ return {
         -- Overrides
         ['<C-s>'] = oil.save,
         ['~'] = 'actions.open_terminal',
-        ['<leader>sf'] = {
+        ['<Leader>sf'] = {
           -- stylua: ignore
           function() Files(require('oil').get_current_dir()) end,
           mode = 'n',
           nowait = true,
           desc = '[S]earch [F]iles in current directory',
         },
-        ['<leader>sg'] = {
+        ['<Leader>sg'] = {
           -- stylua: ignore
           function() require('fzf-lua').live_grep({ cwd = require('oil').get_current_dir() }) end,
           mode = 'n',

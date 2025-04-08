@@ -199,7 +199,7 @@ vim.keymap.set('n', 'gct', 'OTODO: <Esc>gccA', { desc = 'TODO Comment insert abo
 -- https://github.com/mhinz/vim-galore?tab=readme-ov-file#quickly-edit-your-macros
 -- This is a real gem! The mapping takes a register (or `*` by default) and opens it in the cmdline-window.
 -- Hit `<cr>` when you're done editing for setting the register.
--- Use it like this `<leader>m` or `"q<leader>m`.
+-- Use it like this `<Leader>m` or `"q<Leader>m`.
 vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>]], { desc = 'Edit [M]acros' })
 
 local M = require('config.functions')

@@ -50,8 +50,8 @@ return { -- highlight and search for todo comments
     vim.keymap.set('n', ']t', function() require('todo-comments').jump_next() end, { desc = 'Go to next [T]odo comment' })
   end,
   keys = {
-    { '<leader>st', function() Snacks.picker.todo_comments() end, desc = '[S]earch [T]odo-comments' },
+    { '<Leader>st', function() Snacks.picker.todo_comments() end, desc = '[S]earch [T]odo-comments' },
     -- keywords recognized as todo comments
-    { '<leader>sT', function () Snacks.picker.todo_comments({ keywords = { 'TODO' } }) end, desc = '[S]earch [T]ODO' },
+    { '<Leader>sT', function () Snacks.picker.todo_comments({ keywords = { 'TODO' } }) end, desc = '[S]earch [T]ODO' },
   },
 }
