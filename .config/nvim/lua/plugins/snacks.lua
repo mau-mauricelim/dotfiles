@@ -64,6 +64,7 @@ return {
           },
         }
       },
+      -- `matcher` is only used in non-live mode
       ---@class snacks.picker.matcher.Config
       matcher = {
         fuzzy = true, -- use fuzzy matching
@@ -370,7 +371,8 @@ return {
     { '<Leader>sd', function() Snacks.picker.diagnostics_buffer() end, desc = '[S]earch [D]iagnostics buffer' },
     { '<Leader>sf', function() Snacks.picker.files({ hidden = true }) end, desc = '[S]earch [F]iles' },
     { '<Leader>sF', function() Snacks.picker.smart() end, desc = '[S]mart Find [F]iles' },
-    { '<Leader>sg', function() Snacks.picker.grep({ hidden = true }) end, desc = 'Grep' },
+    { '<Leader>sg', function() Snacks.picker.grep({ hidden = true }) end, desc = 'Grep' }, -- By default, rg is case insensitive
+    { '<Leader>sG', function() Snacks.picker.grep({ hidden = true, args = { '-s' } }) end, desc = 'Grep --case-sensitive' },
     { '<Leader>sh', function() Snacks.picker.help() end, desc = '[S]earch [H]elp' },
     { '<Leader>sH', function() Snacks.picker.highlights() end, desc = 'Highlights' },
     { '<Leader>si', function() Snacks.picker.icons() end, desc = 'Icons' },

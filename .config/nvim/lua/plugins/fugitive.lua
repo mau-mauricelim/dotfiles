@@ -4,7 +4,7 @@ return {
     local otp = vim.g.option_toggle_prefix
     -- Opening and closing folds
     -- zc (close), zo (open), and za (toggle) operate on one level of folding, at the cursor
-    vim.keymap.set('n', otp .. 'gd', '<cmd>Gvdiffsplit<CR>', { desc = "Toggle 'Gvdiffsplit'" })
+    vim.keymap.set('n', otp .. 'gd', '<cmd>Gvdiffsplit!<CR>', { desc = "vimdiff" })
     -- Toggle git blame
     local function toggle_gitblame()
       if vim.bo.filetype == 'fugitiveblame' then
