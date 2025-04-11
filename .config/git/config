@@ -21,6 +21,7 @@
     co = checkout
     cob = checkout -b
     aa = add -A
+    rmc = rm --cached
     cm = commit -m
     pm = pull origin main
     mt = mergetool
@@ -41,6 +42,9 @@
     # Last log
     ll = log -1
     lls = log -1 --stat
+    lol = log --oneline --decorate
+    lols = log --oneline --decorate --stat
+    graph = log --oneline --decorate --graph
     adog = log --all --decorate --oneline --graph # A Dog
     dogs = log --all --decorate --oneline --graph --stat # All Dogs
     lg1 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold green)(%ar)%C(reset) %C(white)%s%C(reset) %C(dim white)- %an%C(reset)%C(auto)%d%C(reset)'
@@ -57,16 +61,19 @@
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config --list --show-origin
-    # Config edit
+    cfgg = config --list --show-origin --global
     cfge = !git config --file $XDG_CONFIG_HOME/git/config --edit
-    gcfg = config --global --list --show-origin
+
+[init]
+    defaultBranch = main
 
 [pull]
-    # git pull --rebase=i[nteractive]
-    rebase = interactive
+    rebase = interactive # git pull --rebase=i
 
 [push]
     default = current
+    autosetupremote = true
+    followTags = true
 
 # delta config
 [core]
@@ -80,19 +87,34 @@
     # Truncate lines longer than this. To prevent any truncation, set to zero.
     # Note that syntax-highlighting very long lines (e.g. minified .js) will be very slow if they are not truncated [default: 512]
     max-line-length = 1024
-
-    # delta detects terminal colors automatically; set one of these to disable auto-detection
-    # dark = true
-    # light = true
+    side-by-side = true
+    line-numbers = true
 
 [merge]
-    conflictstyle = diff3
+    conflictstyle = zdiff3
 
 [diff]
-    colorMoved = default
+    algorithm = histogram
+    colorMoved = plain
+    mnemonicPrefix = true
 
-[delta]
-    side-by-side = true
+[grep]
+    lineNumber = true
+    patternType = perl
 
-[delta]
-    line-numbers = true
+[column]
+    ui = auto
+
+[branch]
+    sort = -committerdate
+
+[tag]
+    sort = -version:refname
+
+[fetch]
+    prune = true
+    pruneTags = true
+    all = true
+
+[help]
+    autocorrect = prompt
