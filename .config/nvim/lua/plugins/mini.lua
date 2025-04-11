@@ -77,6 +77,8 @@ return { -- Collection of various small independent plugins/modules
 
     -- Go forward/backward with square brackets
     require('mini.bracketed').setup()
+    vim.keymap.set('n', 'u', 'uzz<Cmd>lua MiniBracketed.register_undo_state()<CR>')
+    vim.keymap.set('n', '<C-r>', '<C-r>zz<Cmd>lua MiniBracketed.register_undo_state()<CR>')
 
     -- Automatic highlighting of word under cursor
     require('mini.cursorword').setup()

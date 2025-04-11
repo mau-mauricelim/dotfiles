@@ -34,33 +34,33 @@ if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
 # dos2unix convert or translate the ^M characters
 if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 
-alias cl="clear"
-
-alias e="exit"
-alias d="du -shcL"
-alias s="ssh"
-alias pd="pushd"
-alias xd="popd"
-alias ...="cd ../.."
 alias ....="cd ../../.."
+alias ...="cd ../.."
+alias cl="clear"
+alias d="du -shcL"
+alias e="exit"
+alias egrep="egrep --color=auto"
+alias fdh='fd -H'
+alias fgrep="fgrep --color=auto"
+alias grep="grep --color=auto"
+alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
+alias k9="kill -9"
+alias la="ls -A"
+alias ldr"ls -d {.,}*/"
 alias ll="ls -l --icons"
 alias lla="ls -lA --icons"
-alias la="ls -A"
-alias grep="grep --color=auto"
-if command -v rg &> /dev/null; then alias g="rg"; else alias g="grep"; fi
-alias fgrep="fgrep --color=auto"
-alias egrep="egrep --color=auto"
+alias pd="pushd"
+alias pg="ps -ef|grep"
+alias restow='stow .' # use -nv for simulation
+alias rg="rg -L --hidden --glob '!.git'"
 alias rr="rm -r"
 alias rrf="rm -rf"
-alias tl="tmux ls"
+alias s="ssh"
 alias ta="tmux attach || tmux"
 alias td="tmux detach"
-alias pg="ps -ef|grep"
-alias k9="kill -9"
-alias rg="rg -L --hidden --glob '!.git'"
-alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
-alias fdh='fd -H'
-alias restow='stow .' # use -nv for simulation
+alias tl="tmux ls"
+alias xd="popd"
+if command -v rg &> /dev/null; then alias g="rg"; else alias g="grep"; fi
 
 # cd with wslpath
 if command -v wslpath &> /dev/null; then cdw() { builtin cd -- "`wslpath "$1"`"; }; fi
