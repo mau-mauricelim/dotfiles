@@ -37,7 +37,37 @@ return {
     },
     picker = {
       prompt = ' ',
-      sources = {},
+      sources = {
+        grep = {
+          actions = {
+            -- Disable globally 'Fields cannot be injected into the reference of'
+            ---@diagnostic disable: inject-field
+            toggle_case = function(picker)
+              -- Initialize args
+              picker.opts.args = picker.opts.args or {}
+              -- Create lookup table
+              local args_lookup = {}
+              for i, arg in ipairs(picker.opts.args) do
+                args_lookup[arg] = i
+              end
+              -- Toggle '-s' based on lookup
+              if args_lookup['-s'] then
+                table.remove(picker.opts.args, args_lookup['-s'])
+              else
+                table.insert(picker.opts.args, '-s')
+              end
+              picker:find { refresh = true }
+            end,
+          },
+          win = {
+            input = {
+              keys = {
+                ['<A-s>'] = { 'toggle_case', mode = { 'i', 'n' } },
+              },
+            },
+          },
+        },
+      },
       focus = 'input',
       layout = {
         cycle = false,
@@ -142,35 +172,35 @@ return {
             ['<C-Down>'] = { 'history_forward', mode = { 'i', 'n' } },
             ['<C-Up>'] = { 'history_back', mode = { 'i', 'n' } },
             ['<C-c>'] = { 'close', mode = 'i' },
-            ['<C-w>'] = { '<c-s-w>', mode = { 'i' }, expr = true, desc = 'delete word' },
+            ['<C-w>'] = { '<C-s-w>', mode = { 'i' }, expr = true, desc = 'delete word' },
             ['<CR>'] = { 'confirm', mode = { 'n', 'i' } },
             ['<Down>'] = { 'list_down', mode = { 'i', 'n' } },
             ['<S-CR>'] = { { 'pick_win', 'jump' }, mode = { 'n', 'i' } },
             ['<S-Tab>'] = { 'select_and_prev', mode = { 'i', 'n' } },
             ['<Tab>'] = { 'select_and_next', mode = { 'i', 'n' } },
             ['<Up>'] = { 'list_up', mode = { 'i', 'n' } },
-            ['<a-d>'] = { 'inspect', mode = { 'n', 'i' } },
-            ['<a-f>'] = { 'toggle_follow', mode = { 'i', 'n' } },
-            ['<a-h>'] = { 'toggle_hidden', mode = { 'i', 'n' } },
-            ['<a-i>'] = { 'toggle_ignored', mode = { 'i', 'n' } },
-            ['<a-m>'] = { 'toggle_maximize', mode = { 'i', 'n' } },
-            ['<a-p>'] = { 'toggle_preview', mode = { 'i', 'n' } },
-            ['<a-w>'] = { 'cycle_win', mode = { 'i', 'n' } },
-            ['<c-a>'] = { 'select_all', mode = { 'n', 'i' } },
-            ['<c-b>'] = { 'preview_scroll_up', mode = { 'i', 'n' } },
-            ['<c-d>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
+            ['<A-d>'] = { 'inspect', mode = { 'n', 'i' } },
+            ['<A-f>'] = { 'toggle_follow', mode = { 'i', 'n' } },
+            ['<A-h>'] = { 'toggle_hidden', mode = { 'i', 'n' } },
+            ['<A-i>'] = { 'toggle_ignored', mode = { 'i', 'n' } },
+            ['<A-m>'] = { 'toggle_maximize', mode = { 'i', 'n' } },
+            ['<A-p>'] = { 'toggle_preview', mode = { 'i', 'n' } },
+            ['<A-w>'] = { 'cycle_win', mode = { 'i', 'n' } },
+            ['<C-a>'] = { 'select_all', mode = { 'n', 'i' } },
+            ['<C-b>'] = { 'preview_scroll_up', mode = { 'i', 'n' } },
+            ['<C-d>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
             ['<PageDown>'] = { 'list_scroll_down', mode = { 'i', 'n' } },
-            ['<c-f>'] = { 'preview_scroll_down', mode = { 'i', 'n' } },
-            ['<c-g>'] = { 'toggle_live', mode = { 'i', 'n' } },
-            ['<c-j>'] = { 'list_down', mode = { 'i', 'n' } },
-            ['<c-k>'] = { 'list_up', mode = { 'i', 'n' } },
-            ['<c-n>'] = { 'history_forward', mode = { 'i', 'n' } },
-            ['<c-p>'] = { 'history_back', mode = { 'i', 'n' } },
-            ['<c-q>'] = { 'qflist', mode = { 'i', 'n' } },
-            ['<c-s>'] = { 'edit_split', mode = { 'i', 'n' } },
-            ['<c-u>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
+            ['<C-f>'] = { 'preview_scroll_down', mode = { 'i', 'n' } },
+            ['<C-g>'] = { 'toggle_live', mode = { 'i', 'n' } },
+            ['<C-j>'] = { 'list_down', mode = { 'i', 'n' } },
+            ['<C-k>'] = { 'list_up', mode = { 'i', 'n' } },
+            ['<C-n>'] = { 'history_forward', mode = { 'i', 'n' } },
+            ['<C-p>'] = { 'history_back', mode = { 'i', 'n' } },
+            ['<C-q>'] = { 'qflist', mode = { 'i', 'n' } },
+            ['<C-s>'] = { 'edit_split', mode = { 'i', 'n' } },
+            ['<C-u>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
             ['<PageUp>'] = { 'list_scroll_up', mode = { 'i', 'n' } },
-            ['<c-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
+            ['<C-v>'] = { 'edit_vsplit', mode = { 'i', 'n' } },
             ['?'] = 'toggle_help_input',
             ['G'] = 'list_bottom',
             ['gg'] = 'list_top',
@@ -198,24 +228,24 @@ return {
             ['<S-Tab>'] = { 'select_and_prev', mode = { 'n', 'x' } },
             ['<Tab>'] = { 'select_and_next', mode = { 'n', 'x' } },
             ['<Up>'] = 'list_up',
-            ['<a-d>'] = 'inspect',
-            ['<a-f>'] = 'toggle_follow',
-            ['<a-h>'] = 'toggle_hidden',
-            ['<a-i>'] = 'toggle_ignored',
-            ['<a-m>'] = 'toggle_maximize',
-            ['<a-p>'] = 'toggle_preview',
-            ['<a-w>'] = 'cycle_win',
-            ['<c-a>'] = 'select_all',
-            ['<c-b>'] = 'preview_scroll_up',
-            ['<c-d>'] = 'list_scroll_down',
-            ['<c-f>'] = 'preview_scroll_down',
-            ['<c-j>'] = 'list_down',
-            ['<c-k>'] = 'list_up',
-            ['<c-n>'] = 'list_down',
-            ['<c-p>'] = 'list_up',
-            ['<c-s>'] = 'edit_split',
-            ['<c-u>'] = 'list_scroll_up',
-            ['<c-v>'] = 'edit_vsplit',
+            ['<A-d>'] = 'inspect',
+            ['<A-f>'] = 'toggle_follow',
+            ['<A-h>'] = 'toggle_hidden',
+            ['<A-i>'] = 'toggle_ignored',
+            ['<A-m>'] = 'toggle_maximize',
+            ['<A-p>'] = 'toggle_preview',
+            ['<A-w>'] = 'cycle_win',
+            ['<C-a>'] = 'select_all',
+            ['<C-b>'] = 'preview_scroll_up',
+            ['<C-d>'] = 'list_scroll_down',
+            ['<C-f>'] = 'preview_scroll_down',
+            ['<C-j>'] = 'list_down',
+            ['<C-k>'] = 'list_up',
+            ['<C-n>'] = 'list_down',
+            ['<C-p>'] = 'list_up',
+            ['<C-s>'] = 'edit_split',
+            ['<C-u>'] = 'list_scroll_up',
+            ['<C-v>'] = 'edit_vsplit',
             ['?'] = 'toggle_help_list',
             ['G'] = 'list_bottom',
             ['gg'] = 'list_top',
@@ -240,7 +270,7 @@ return {
             ['i'] = 'focus_input',
             ['<ScrollWheelDown>'] = 'list_scroll_wheel_down',
             ['<ScrollWheelUp>'] = 'list_scroll_wheel_up',
-            ['<a-w>'] = 'cycle_win',
+            ['<A-w>'] = 'cycle_win',
           },
         },
       },
@@ -399,7 +429,7 @@ return {
     --[[ LSP ]]
     -- Jump to the definition of the word under your cursor.
     --  This is where a variable was first declared, or where a function is defined, etc.
-    --  To jump back, press <C-T>.
+    --  To jump back, press <C-t>.
     { 'gd', function() Snacks.picker.lsp_definitions() end, desc = '[G]oto [D]efinition' },
     -- WARN: This is not Goto Definition, this is Goto Declaration.
     --  For example, in C this would take you to the header
