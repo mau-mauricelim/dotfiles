@@ -39,6 +39,7 @@ return {
       prompt = ' ',
       sources = {
         grep = {
+          title = 'Grep -i',
           actions = {
             -- Disable globally 'Fields cannot be injected into the reference of'
             ---@diagnostic disable: inject-field
@@ -53,8 +54,10 @@ return {
               -- Toggle '-s' based on lookup
               if args_lookup['-s'] then
                 table.remove(picker.opts.args, args_lookup['-s'])
+                picker.title = 'Grep -i'
               else
                 table.insert(picker.opts.args, '-s')
+                picker.title = 'Grep -s'
               end
               picker:find { refresh = true }
             end,
