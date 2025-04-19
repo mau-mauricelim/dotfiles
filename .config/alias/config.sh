@@ -36,6 +36,7 @@ if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 
 alias ....="cd ../../.."
 alias ...="cd ../.."
+alias cdl="cd -"
 alias cl="clear"
 alias d="du -shcL"
 alias e="exit"
