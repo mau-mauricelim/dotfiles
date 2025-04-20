@@ -12,14 +12,15 @@
     commend = commit --amend --no-edit
     # Save changes to previous commit and push
     save = !git add -A && git commit --amend --no-edit && git push --force-with-lease origin HEAD
-    # Edit commit message
-    edit = commit --amend
+    reword = commit --amend
     unstage = restore --staged
     st = status --short --branch
     sta = status
     br = branch
+    rename = branch -m
     co = checkout
     cob = checkout -b
+    col = checkout -
     aa = add -A
     rmc = rm --cached
     cm = commit -m
@@ -34,10 +35,17 @@
     pooh = !git push --force-with-lease origin HEAD
     done = !git push origin HEAD
     rbi = !git fetch && git rebase -i
+    rb1 = !git rebase -i HEAD~1
+    rb2 = !git rebase -i HEAD~2
+    rb3 = !git rebase -i HEAD~3
+    rb4 = !git rebase -i HEAD~4
     rbc = rebase --continue
     rba = rebase --abort
     ma = merge --abort
     nuke = !git reset --hard
+    undo = !git reset --soft HEAD~1
+    redo = !git reset ORIG_HEAD # Magic
+    rl = reflog # To redo the change(s) - git reset HEAD@{N}
     wipe = clean -xdf
     # Last log
     ll = log -1
@@ -61,8 +69,9 @@
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config --list --show-origin
+    cfgl = config --list --show-origin --local
     cfgg = config --list --show-origin --global
-    cfge = !git config --file $XDG_CONFIG_HOME/git/config --edit
+    edit = !git config --file $XDG_CONFIG_HOME/git/config --edit
 
 [init]
     defaultBranch = main
