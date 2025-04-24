@@ -47,7 +47,7 @@ alias grep="grep --color=auto"
 alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
 alias k9="kill -9"
 alias la="ls -A"
-alias ldr"ls -d {.,}*/"
+alias ldr="ls -d {.,}*/"
 alias ll="ls -l --icons"
 alias lla="ls -lA --icons"
 alias pd="pushd"
