@@ -158,8 +158,10 @@ function _G.sendLinesToTmuxPane()
   else
     return nil
   end
+  -- HACK: Add white space before '--*'
+  text = text:gsub('^%s*%-%-', ' --')
   -- Escape special characters and send to tmux
-  local escaped_text = text:gsub('(["$`\\])', '\\%1')
+  local escaped_text = text:gsub('([;"$`\\])', '\\%1')
   vim.fn.system('tmux send-keys -t .+ "' .. escaped_text .. '" Enter')
 end
 
