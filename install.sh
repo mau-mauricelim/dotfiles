@@ -96,13 +96,6 @@ common_user_install() {
     # fzf
     [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
     command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
-    # Vim syntax and indent
-    mkdir -p "$HOME/.vim/"{indent,syntax}
-    [ -d "$HOME/.vim/vim-qkdb-syntax" ] || git clone -q --depth=1 https://github.com/katusk/vim-qkdb-syntax.git "$HOME/.vim/vim-qkdb-syntax"
-    ln -sf "$HOME/.vim/vim-qkdb-syntax/indent/"{k,q}.vim "$HOME/.vim/indent"
-    ln -sf "$HOME/.vim/vim-qkdb-syntax/syntax/k.vim" "$HOME/.vim/syntax"
-    [ -d "$HOME/.vim/vim-q-syntax" ] || git clone -q --depth=1 https://github.com/jshinonome/vim-q-syntax.git "$HOME/.vim/vim-q-syntax"
-    ln -sf "$HOME/.vim/vim-q-syntax/syntax/q.vim" "$HOME/.vim/syntax"
     # Symlink Vim syntax and indent files to Neovim
     ln -sf "$HOME/.vim/indent" "$XDG_CONFIG_HOME/nvim" && \
         ln -sf "$HOME/.vim/syntax" "$XDG_CONFIG_HOME/nvim"
