@@ -70,6 +70,24 @@ return {
             },
           },
         },
+        explorer = {
+          actions = {
+            go_in_if_dir = function(picker, item)
+              if item.dir then
+                picker:action 'confirm'
+              end
+            end,
+          },
+          win = {
+          list = {
+            keys = {
+                ['l'] = 'go_in_if_dir', -- Same as ./custom/MiniFiles.lua
+                ['L'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
+                ['<CR>'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
+              },
+            },
+          },
+        },
       },
       focus = 'input',
       layout = {
