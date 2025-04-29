@@ -177,8 +177,8 @@ vim.keymap.set({ 'n', 'v' }, 'g*', 'g*N', { desc = 'Search current' })
 vim.keymap.set({ 'n', 'v' }, 'g#', 'g#n', { desc = 'Search current' })
 
 -- Copy File Name/Path to unamed register - p to paste
-vim.keymap.set('n', '<Leader>cf', '<cmd>let @" = expand("%")<CR>', { desc = '[C]opy [F]ile' })
-vim.keymap.set('n', '<Leader>cp', '<cmd>let @" = expand("%:p")<CR>', { desc = '[C]opy [P]ath' })
+vim.keymap.set('n', '<Leader>cf', ':let @" = expand("%")<CR>', { desc = '[C]opy [F]ile', silent = true })
+vim.keymap.set('n', '<Leader>cp', ':let @" = expand("%:p")<CR>', { desc = '[C]opy [P]ath', silent = true })
 
 -- nvim: [P]aste over visual selection without losing yanked lines
 -- See `:help put-Visual-mode`
