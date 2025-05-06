@@ -22,7 +22,7 @@ set_url_and_version() {
     repo_name=${repo_name//-/_} # Convert `-` to `_`
     # Sets release url e.g. RIPGREP_URL=https://github.com/BurntSushi/ripgrep/releases/latest/download
     eval "${repo_name}_URL"="https://github.com/$1/releases/latest/download"
-    latest_tag=$(curl -sL "https://api.github.com/repos/$1/releases/latest" | grep tag_name | cut -d '"' -f4)
+    latest_tag=$(curl -sSfL "https://api.github.com/repos/$1/releases/latest" | grep tag_name | cut -d '"' -f4)
     # Strip v (first charcter) from tag
     if [ "$2" = "true" ]; then latest_tag="${latest_tag:1}"; fi
     # Sets release version e.g. RIPGREP_VERSION=14.1.0
@@ -50,25 +50,25 @@ common_root_install() {
     set_all_url_and_version
     # Install MUSL ripgrep from source
     [ -n "$RIPGREP_VERSION" ] && \
-        curl -sL "$RIPGREP_URL/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+        curl -sSfL "$RIPGREP_URL/ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz "ripgrep-${RIPGREP_VERSION}-x86_64-unknown-linux-musl/rg" "ripgrep-$RIPGREP_VERSION-x86_64-unknown-linux-musl/doc/rg.1" --strip-components=1 && \
         sudo install rg /usr/local/bin && sudo mv doc/rg.1 /usr/local/share/man/man1 && rm -r rg doc
     # Install MUSL aoc-cli from source
     [ -n "$AOC_CLI_VERSION" ] && \
-        curl -sL "$AOC_CLI_URL/aoc-cli-$AOC_CLI_VERSION-x86_64-unknown-linux-musl.tar.gz" \
+        curl -sSfL "$AOC_CLI_URL/aoc-cli-$AOC_CLI_VERSION-x86_64-unknown-linux-musl.tar.gz" \
             | tar xz "aoc-cli-${AOC_CLI_VERSION}-x86_64-unknown-linux-musl/aoc" --strip-components=1 && \
         sudo install aoc /usr/local/bin && rm aoc
     # Install LINUX lazygit from source
     [ -n "$LAZYGIT_VERSION" ] && \
-        curl -sL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz lazygit && \
+        curl -sSfL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz lazygit && \
         sudo install lazygit /usr/local/bin && rm lazygit
     # Install LINUX jq
     [ -n "$JQ_VERSION" ] && \
-        curl -sLo jq "$JQ_URL/jq-linux-amd64" && \
-        curl -sL "$JQ_URL/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
+        curl -sSfLo jq "$JQ_URL/jq-linux-amd64" && \
+        curl -sSfL "$JQ_URL/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
         sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
     # Install zoxide
-    curl -sLS https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
+    curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
         bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
 }
 
@@ -100,7 +100,7 @@ common_user_install() {
     ln -sf "$HOME/.vim/indent" "$XDG_CONFIG_HOME/nvim" && \
         ln -sf "$HOME/.vim/syntax" "$XDG_CONFIG_HOME/nvim"
     # bash and zsh key bindings for Git objects, powered by fzf.
-    [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
+    [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sSfLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # TPM installation
     [ "$INSTALL_TYPE" = "full" ] && \
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
@@ -133,42 +133,42 @@ common_user_install() {
 
 install_fd() {
     [ -n "$FD_VERSION" ] && \
-        curl -sL "$FD_URL/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sSfL "$FD_URL/fd-v$FD_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd" "fd-v$FD_VERSION-x86_64-unknown-linux-$1/fd.1" --strip-components=1 && \
         sudo install fd /usr/local/bin && sudo mv fd.1 /usr/local/share/man/man1 && rm fd
 }
 
 install_bat() {
     [ -n "$BAT_VERSION" ] && \
-        curl -sL "$BAT_URL/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sSfL "$BAT_URL/bat-v$BAT_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat" "bat-v$BAT_VERSION-x86_64-unknown-linux-$1/bat.1" --strip-components=1 && \
         sudo install bat /usr/local/bin && sudo mv bat.1 /usr/local/share/man/man1 && rm bat
 }
 
 install_hyperfine() {
     [ -n "$HYPERFINE_VERSION" ] && \
-        curl -sL "$HYPERFINE_URL/hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sSfL "$HYPERFINE_URL/hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1/hyperfine" "hyperfine-v$HYPERFINE_VERSION-x86_64-unknown-linux-$1/hyperfine.1" --strip-components=1 && \
         sudo install hyperfine /usr/local/bin && sudo mv hyperfine.1 /usr/local/share/man/man1 && rm hyperfine
 }
 
 install_eza() {
     [ -n "$EZA_VERSION" ] && \
-        curl -sL "$EZA_URL/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
-        curl -sL "$EZA_URL/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
+        curl -sSfL "$EZA_URL/eza_x86_64-unknown-linux-$1.tar.gz" | tar xz && \
+        curl -sSfL "$EZA_URL/man-$EZA_VERSION.tar.gz" | tar xz "./target/man-$EZA_VERSION/eza.1" --strip-components=3 && \
         sudo install eza /usr/local/bin && sudo mv eza.1 /usr/local/share/man/man1 && rm eza
 }
 
 install_delta() {
     [ -n "$DELTA_VERSION" ] && \
-        curl -sL "$DELTA_URL/delta-$DELTA_VERSION-x86_64-unknown-linux-$1.tar.gz" \
+        curl -sSfL "$DELTA_URL/delta-$DELTA_VERSION-x86_64-unknown-linux-$1.tar.gz" \
             | tar xz "delta-$DELTA_VERSION-x86_64-unknown-linux-$1/delta" --strip-components=1 && \
         sudo install delta /usr/local/bin && rm delta
 }
 
 install_yazi() {
     [ -n "$YAZI_VERSION" ] && \
-        curl -sLo yazi.zip "$YAZI_URL/yazi-x86_64-unknown-linux-$1.zip" && \
+        curl -sSfLo yazi.zip "$YAZI_URL/yazi-x86_64-unknown-linux-$1.zip" && \
         unzip -qj yazi.zip "yazi-x86_64-unknown-linux-$1/yazi" && \
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
 }
@@ -209,7 +209,7 @@ ubuntu_install() {
     # Install GNU binaries from source
     for bin in fd bat hyperfine eza delta yazi; do "install_$bin" gnu; done
     # Install GNU Neovim from source
-    curl -LO "$NEOVIM_URL/nvim-linux64.tar.gz" && \
+    curl -sSfLO "$NEOVIM_URL/nvim-linux64.tar.gz" && \
         sudo rm -rf /opt/nvim && \
         sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz
     # Common user installs
