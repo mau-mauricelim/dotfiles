@@ -109,7 +109,7 @@ vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Es
 vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = true, silent = true })
 
 -- Save file
-vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<cr><Esc>', { desc = 'Save file' })
+vim.keymap.set({ 'i', 'x', 'n', 's' }, '<C-s>', '<cmd>w<CR><Esc>', { desc = 'Save file' })
 -- `:cq` to quit, without saving, with a nonzero exit code to indicate failure - bash will not execute the command
 vim.keymap.set('n', 'ZC', '<cmd>cq<CR>', { desc = 'Quit without saving with a nonzero exit code' })
 -- New file
@@ -198,9 +198,9 @@ vim.keymap.set('n', 'gct', 'OTODO: <Esc>gccA', { desc = 'TODO Comment insert abo
 -- Quickly edit your macros
 -- https://github.com/mhinz/vim-galore?tab=readme-ov-file#quickly-edit-your-macros
 -- This is a real gem! The mapping takes a register (or `*` by default) and opens it in the cmdline-window.
--- Hit `<cr>` when you're done editing for setting the register.
+-- Hit `<CR>` when you're done editing for setting the register.
 -- Use it like this `<Leader>m` or `"q<Leader>m`.
-vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<cr><c-f><left>]], { desc = 'Edit [M]acros' })
+vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<CR><c-f><left>]], { desc = 'Edit [M]acros' })
 
 local M = require('config.functions')
 -- Send lines to adjacent tmux pane
