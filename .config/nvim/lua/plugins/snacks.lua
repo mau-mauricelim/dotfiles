@@ -22,7 +22,8 @@ return {
       sections = {
         { section = 'header' },
         { icon = ' ', title = 'Keymaps', section = 'keys', indent = 2, padding = 1 },
-        { icon = ' ', title = 'Recent Files', section = 'recent_files', indent = 2, padding = 1 },
+        { icon = ' ', title = 'Recent Files Cwd', section = 'recent_files', indent = 2, padding = 1, limit = 3, cwd = true },
+        { icon = ' ', title = 'Recent Files', section = 'recent_files', indent = 2, padding = 1, limit = 3 },
         { icon = ' ', title = 'Projects', section = 'projects', indent = 2, padding = 1 },
         { section = 'startup' },
       },
