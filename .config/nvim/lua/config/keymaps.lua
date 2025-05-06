@@ -217,7 +217,7 @@ vim.keymap.set('n', vim.g.option_toggle_prefix .. 'f', M.gitBlameOpenCommitFileU
 -- Toggle line number
 vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'n', '<cmd>set nonu! nornu!<CR>', { desc = "Toggle 'nu' & 'rnu'" })
 -- Toggle virtual edit mode between onemore and all
-vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'v', M.toggleVirtualEdit, { desc = "Toggle 'virtualedit'" })
+vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'V', M.toggleVirtualEdit, { desc = "Toggle 'virtualedit'" })
 -- Toggle clipboard between unnamedplus and none
 vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'p', M.toggleClipboard, { desc = "Toggle 'clipboard'" })
 -- Toggle signcolumn

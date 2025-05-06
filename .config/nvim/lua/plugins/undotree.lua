@@ -4,6 +4,6 @@ return {
     'UndotreeToggle',
   },
   keys = {
-    { vim.g.option_toggle_prefix .. 'u', vim.cmd.UndotreeToggle },
+    { vim.g.option_toggle_prefix .. 'u', vim.cmd.UndotreeToggle, desc = 'Toggle Undo Tree' },
   },
 }
