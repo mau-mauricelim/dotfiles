@@ -28,6 +28,9 @@ else
 fi
 
 if command -v hyperfine &> /dev/null; then alias hf="hyperfine"; fi
+# NOTE: `+`   : makes the view larger
+#       `<CR>`: on a commit shows the files changed
+#       `<CR>`: on a file shows the diff
 if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
 # Copy and pasting from Windows to Linux
 # ^M is the keyboard equivalent to \r or Ctrl-V + Ctrl-M in Vim
