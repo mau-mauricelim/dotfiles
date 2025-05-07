@@ -15,7 +15,7 @@ if ! [ -d "$logDir" ]; then
     exit
 fi
 
-trap "trap - SIGTERM && kill -- -$$" SIGINT SIGTERM EXIT
+trap 'trap - SIGTERM && kill -- -$$' SIGINT SIGTERM EXIT
 
 banner() {
     msg="# $* #"
@@ -29,19 +29,19 @@ while true
 do
     # Check for the latest log file
     newFile="$logDir/$(ls -rt "$logDir" | tail -1)"
-    if [ "$newFiles" != "$logFile" ]; then
+    if [ "$newFile" != "$logFile" ]; then
 
-        if ! [ -z $tailpid ]; then
-            if ps -p $tailpid > /dev/null; then
+        if [ -n "$tailpid" ]; then
+            if ps -p "$tailpid" > /dev/null; then
                 # Kill the tail process
-                kill $tailpid
+                kill "$tailpid"
             fi
         fi
 
         # Set current log file
         logFile="$newFile"
 
-        banner "Log file is $(basename $logFile)"
+        banner "Log file is $(basename "$logFile")"
 
         # Run tail -f in background
         tail -f "$logFile" &

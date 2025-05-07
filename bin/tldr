@@ -8,12 +8,12 @@ get_page() {
     if [ -z "${result}" ]; then return; fi
     count=$(echo "${result}"|wc -l)
     if [ "$count" -eq 1 ]; then
-        platform=$(echo $index|jq -r ".commands[]|select(.name==\"$result\").platform[]")
+        platform=$(echo "$index"|jq -r ".commands[]|select(.name==\"$result\").platform[]")
         if [ "$(echo "${platform}"|wc -l)" -gt 1 ]; then
             echo "Multiple platforms found: [ $(echo $platform) ]"
-            if [ -z $override_platform ]; then
+            if [ -z "$override_platform" ]; then
                 echo "To override the default platform, use $ tldr SEARCH PLATFORM"
-            elif [ "$(echo "${platform}"|grep "^$override_platform$"|wc -l)" -eq 1 ]; then
+            elif [ "$(echo "${platform}"|grep -c "^$override_platform$")" -eq 1 ]; then
                 platform="$override_platform"
             else
                 echo "Override platform not found: $override_platform"
@@ -32,9 +32,9 @@ query="$1"
 override_platform="$2"
 index=$(curl -sL "https://tldr.sh/assets/index.json" ||\
         curl -sL "https://github.com/tldr-pages/tldr/releases/latest/download/index.json")
-names=$(echo $index|jq -r ".commands[].name?")
+names=$(echo "$index"|jq -r ".commands[].name?")
 result=$(echo "${names}"|grep "$query")
-correct=$(echo $result)
+correct=$result
 get_page
 
 # Further filter result
@@ -45,5 +45,5 @@ get_page
 if [ "$count" -eq 0 ]; then
     echo "No match found for: $query"
 else
-    echo "Did you mean: $correct"
+    echo "Did you mean: $(echo $correct)"
 fi
