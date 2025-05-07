@@ -45,8 +45,11 @@ vim.opt.smartcase = true
 
 -- Keep signcolumn on by default
 vim.opt.signcolumn = 'yes'
---- Set colorcolumn
+-- Set colorcolumn
 -- vim.opt.colorcolumn = '120'
+-- Set textwidth for `gq`
+vim.opt.textwidth = 120
+vim.opt.formatoptions:remove('t')
 
 -- Decrease update time
 vim.opt.updatetime = 100
@@ -66,6 +69,8 @@ vim.opt.listchars = { tab = '» ', trail = '·', nbsp = '␣' }
 
 -- Preview substitutions live, as you type!
 vim.opt.inccommand = 'split'
+-- Show 15 results of substitutions
+-- vim.opt.cmdwinheight = 15
 
 -- Show which line your cursor is on
 vim.opt.cursorline = true
