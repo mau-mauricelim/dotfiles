@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+source ~/.config/i3blocks/scripts/common
+
+volume() {
+  MUTE=$(pactl get-sink-mute @DEFAULT_SINK@|cut -d' ' -f2)
+  VOL=$(pactl get-sink-volume @DEFAULT_SINK@|cut -d',' -f1|grep -Po '\d+(?=%)')
+
+  if [[ -z $LABEL ]]; then LABEL="📢 "; fi
+  if [[ "$MUTE" = "yes" ]]; then
+    LABEL="🔇"
+  fi
+
+  set_color "$VOL"
+  echo_json "$LABEL $VOL"
+}
+
+if [[ -z $STEP ]]; then STEP="5"; fi
+
+case $BLOCK_BUTTON in
+  # 1 = Left, 2 = Middle, 3 = Right, 4 = Scroll Up, 5 = Scroll Down, 6 = Custom, 7 = Custom, 8 = Upper Thumb, 9 = Lower Thumb, 10+ = Custom
+  1) pavucontrol ;;                               # Left, Open PulseAudio Volume Control
+  3) pactl set-sink-mute @DEFAULT_SINK@ toggle ;; # Right, Mute/Unmute
+  4) pulsemixer --change-volume +"${STEP}" ;;     # Scroll Up, Increase
+  5) pulsemixer --change-volume -"${STEP}" ;;     # Scroll Down, Decrease
+esac
+
+volume

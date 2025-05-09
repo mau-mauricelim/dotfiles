@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+source ~/.config/i3blocks/scripts/common
+
+battery() {
+  if [[ -z $BAT_NUMBER ]]; then BAT_NUMBER=0; fi
+  if [[ -z $CPU_NUMBER ]]; then CPU_NUMBER=0; fi
+  LABEL="🔋"
+
+  BAT=$(acpi -b 2>/dev/null|grep "Battery $BAT_NUMBER")
+  PCT=$(echo "$BAT"|grep -Po '\d+(?=%)')
+  LEFT=$(echo "$BAT"|grep 'remaining\|until charged'|awk '{print $5}'|cut -d':' -f1,2)
+  if [[ -n $LEFT ]]; then LEFT=" ($LEFT)"; fi
+  STA=$(echo "$BAT"|awk '{print $3}')
+  GOV=$(cat /sys/devices/system/cpu/cpu"$CPU_NUMBER"/cpufreq/scaling_governor)
+
+  if [[ "$PCT" -le "$THRESHOLD_1" ]]; then
+    LABEL="🪫"
+  fi
+  if [[ "$STA" == "Charging," ]]; then
+    LABEL="⚡"
+  fi
+
+  set_color "$PCT"
+  echo_json "$LABEL $PCT% $GOV$LEFT"
+}
+
+battery
