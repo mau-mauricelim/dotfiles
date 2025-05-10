@@ -1,0 +1,6 @@
+#!/usr/bin/env bash
+git reflog expire --expire=now --expire-unreachable=now --all
+git repack -a -d -f --depth=250 --window=250
+git gc --prune=now --aggressive
+git fsck --unreachable --dangling --no-reflogs --full --lost-found
+# git push --force-with-lease --mirror
