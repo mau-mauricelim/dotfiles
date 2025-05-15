@@ -3,8 +3,9 @@ return { -- LSP Configuration & Plugins
   dependencies = {
     -- Automatically install LSPs and related tools to stdpath for neovim
     -- Mason must be loaded before its dependents so we need to set it up here.
-    { 'mason-org/mason.nvim', opts = {} },
-    'mason-org/mason-lspconfig.nvim',
+    -- BUG: Breaking changes: https://github.com/mason-org/mason-lspconfig.nvim/issues/545
+    { 'mason-org/mason.nvim', opts = {}, version = '^1.0.0' },
+    { 'mason-org/mason-lspconfig.nvim', version = '^1.0.0' },
     'WhoIsSethDaniel/mason-tool-installer.nvim',
     'saghen/blink.cmp',
 
