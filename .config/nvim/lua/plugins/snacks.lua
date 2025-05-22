@@ -85,6 +85,7 @@ return {
               },
             },
           },
+          focus = 'input',
         },
       },
       focus = 'input',
