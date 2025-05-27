@@ -15,6 +15,11 @@ return {
       -- jump_next_row = { '<Enter>', mode = { 'n', 'v' } },
       -- jump_prev_row = { '<S-Enter>', mode = { 'n', 'v' } },
     },
+    view = {
+      spacing = 1,
+      display_mode = 'border',
+      header_lnum = 1,
+    },
   },
   keys = {
     {
