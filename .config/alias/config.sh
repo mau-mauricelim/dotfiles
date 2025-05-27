@@ -63,6 +63,7 @@ alias s="ssh"
 alias ta="tmux attach || tmux"
 alias td="tmux detach"
 alias tl="tmux ls"
+alias x="xargs"
 alias xd="popd"
 if command -v rg &> /dev/null; then alias g="rg"; else alias g="grep"; fi
 
