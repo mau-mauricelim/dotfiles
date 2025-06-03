@@ -22,9 +22,10 @@ if isWsl; then
     fi
     ID=$(awk -F= '$1=="ID" { print $2; }' /etc/os-release)
     case $ID in
-        # Alpine uses musl libc
+        # Distro that does not support linux kdb+ binaries
+        # Alpine used to not be able to run linux kdb+ binaries as it uses musl libc
         # Linux kdb+ binaries are compiled against glibc
-        alpine|muslDistro)
+        notSupported)
         # Set q version alias programmatically
         if ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
             for VER in $(ls -d $win_q_home/[0-9].[0-9]); do

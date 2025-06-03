@@ -80,9 +80,9 @@ The file `C:\q\q.q` can be a windows symlink to a file in WSL distro
 mklink C:\q\q.q \\wsl.localhost\<distro name>\home\<user>\q.q
 ```
 
-### Musl libc
+### Distro that does not support linux kdb+ binaries
+Alpine used to not be able to run linux kdb+ binaries as it uses musl libc.
 Linux kdb+ binaries are compiled against glibc.
-Distro using musl as its C standard library such as Alpine Linux is unable to run Linux kdb+ binaries natively.
 
 The temporary solution is to run the windows kdb+ binaries.
 
