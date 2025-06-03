@@ -209,9 +209,9 @@ ubuntu_install() {
     # Install GNU binaries from source
     for bin in fd bat hyperfine eza delta yazi; do "install_$bin" gnu; done
     # Install GNU Neovim from source
-    curl -sSfLO "$NEOVIM_URL/nvim-linux64.tar.gz" && \
+    curl -sSfLO "$NEOVIM_URL/nvim-linux-x86_64.tar.gz" && \
         sudo rm -rf /opt/nvim && \
-        sudo tar -C /opt -xzf nvim-linux64.tar.gz && rm nvim-linux64.tar.gz
+        sudo tar -C /opt -xzf nvim-linux-x86_64.tar.gz && rm nvim-linux-x86_64.tar.gz
     # Common user installs
     common_user_install
     # Clean up
