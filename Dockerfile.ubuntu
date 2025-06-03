@@ -29,6 +29,8 @@ RUN sed -i 's:^path-exclude=/usr/share/man:#path-exclude=/usr/share/man:' /etc/d
         # Add docker permissions
         groupadd docker && \
         usermod -aG docker $USERNAME && \
+    # Remove the default "ubuntu" user
+    userdel -r ubuntu && \
     # Set default user for WSL and Network settings
     echo -e "[user]\ndefault=$USERNAME\n[interop]\nappendWindowsPath=false" >> /etc/wsl.conf
 
