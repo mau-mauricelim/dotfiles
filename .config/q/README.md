@@ -81,14 +81,17 @@ mklink C:\q\q.q \\wsl.localhost\<distro name>\home\<user>\q.q
 ```
 
 ### Musl libc
-Linux kdb+ binaries are compiled against glibc.
-Distro using musl as its C standard library such as Alpine Linux is unable to run Linux kdb+ binaries natively.
+Linux kdb+ binaries are compiled against glibc
+- To run them, glibc compatibility layer for musl is required: https://github.com/Stantheman/gcompat
+- Example: Alpine Linux: `sudo apk add gcompat`
 
-The temporary solution is to run the windows kdb+ binaries.
+HACK: For distros that uses musl but does not support gcompat:
+- The convoluted solution is to run the windows kdb+ binaries
+- WARN: There may be compatibility issues
 
-To run multiple versions of windows kdb+ binaries inside these distros, we need to use some sort of a HACK.
-- The alias of the q version requires to copy its q.k file into the default QHOME directory which is C:\q
-- Using this method, do not set windows environment QHOME and QLIC
+HACK: To run multiple versions of windows kdb+ binaries inside these distros:
+- The alias of q and the q version requires to copy its `q.k` file into the default `QHOME` directory which is `C:\q`
+- WARN: Do not set the windows environment variables: `QHOME` and `QLIC`
 
 ### (Glibc) GNU C Library
 These distros can run the linux kdb+ binaries
