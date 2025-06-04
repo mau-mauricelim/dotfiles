@@ -5,6 +5,7 @@ Install via the install script:
 - Only supported on Alpine and Ubuntu
 ```sh
 curl -sSfL https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/install.sh | bash
+curl -sSfL https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/install.sh | bash -s -- full
 ```
 
 ### [Install custom Distribution to use with 🐧 WSL](docs%2Fwsl.md)

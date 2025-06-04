@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# Usage: bash install.sh [full]
 INSTALL_TYPE="${1:-min}"         # Defaults to minimal install
 INSTALL_TYPE="${INSTALL_TYPE,,}" # Lowercase
 
