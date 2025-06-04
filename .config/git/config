@@ -12,6 +12,8 @@
     commend = commit --amend --no-edit
     # Save changes to previous commit and push
     save = !git add -A && git commit --amend --no-edit && git push --force-with-lease origin HEAD
+    # Clone repository and cd into it
+    take = "!f() { git clone \"$1\" && cd \"$(basename \"$1\" .git)\"; }; f"
     reword = commit --amend
     unstage = restore --staged
     st = status --short --branch
