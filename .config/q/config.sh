@@ -12,8 +12,8 @@ if isWsl; then
         mkdir $q_home
         cp $win_q_home/kc.lic $q_home
         # Copy q version programmatically
-        if ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
-            for VER in $(ls -d $win_q_home/[0-9].[0-9]); do
+        if /bin/ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
+            for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
                 VER=$(echo $VER|awk -F'/' '{print $NF}')
                 mkdir $q_home/$VER
                 cp -r $win_q_home/$VER/{l64,q.k} $q_home/$VER
@@ -27,8 +27,8 @@ if isWsl; then
         # - WARN: There may be compatibility issues
         muslDistro)
         # Set q version alias programmatically
-        if ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
-            for VER in $(ls -d $win_q_home/[0-9].[0-9]); do
+        if /bin/ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
+            for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
                 VER=$(echo $VER|awk -F'/' '{print $NF}')
                 # HACK: Need to copy q version q.k file to C:\q
                 # WARN: Do not set windows environment QHOME and QLIC
@@ -64,8 +64,8 @@ run_q() {
     eval "$QCMD"
 }
 # Set q version alias programmatically
-if ls "$q_home"/[0-9].[0-9] >/dev/null 2>&1; then
-    for VER in $(ls -d $q_home/[0-9].[0-9]); do
+if /bin/ls "$q_home"/[0-9].[0-9] >/dev/null 2>&1; then
+    for VER in $(/bin/ls -d $q_home/[0-9].[0-9]); do
         VER=$(echo $VER|awk -F'/' '{print $NF}')
         eval "alias $(echo q$VER|tr -d '.')='run_q '$VER"
     done
@@ -73,4 +73,4 @@ fi
 # Set default q version
 [ -d $q_home/$q_ver ] && alias q="run_q $q_ver"
 # List all available q versions
-alias qv="ls -d $q_home/[0-9].[0-9]"
+alias qv="/bin/ls -d $q_home/[0-9].[0-9]"

@@ -28,7 +28,7 @@ banner() {
 while true
 do
     # Check for the latest log file
-    newFile="$logDir/$(ls -rt "$logDir" | tail -1)"
+    newFile="$logDir/$(/bin/ls -rt "$logDir" | tail -1)"
     if [ "$newFile" != "$logFile" ]; then
 
         if [ -n "$tailpid" ]; then
