@@ -168,11 +168,12 @@ if command -v yazi >/dev/null; then
 fi
 
 # ssh key permissions
-SSH_KEY="$HOME/.ssh/id_ed25519"
-if [ -f "$SSH_KEY" ]; then
-    PERM=$(stat -c "%a" "$SSH_KEY")
-    if (( 10#$PERM > 600 )); then
-        echo "Permissions $PERM for '$SSH_KEY' are too open. Updating permissions to 600."
-        chmod 600 "$SSH_KEY"
+for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do
+    if [ -f "$SSH_KEY" ]; then
+        PERM=$(stat -c "%a" "$SSH_KEY")
+        if (( 10#$PERM > 600 )); then
+            echo "Permissions $PERM for '$SSH_KEY' are too open. Updating permissions to 600."
+            chmod 600 "$SSH_KEY"
+        fi
     fi
-fi
+done
