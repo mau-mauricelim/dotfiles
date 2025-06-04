@@ -77,7 +77,7 @@ common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh} "$HOME/.vim"
     # Clone the dotfiles
-    [ -d "$HOME/dotfiles" ] || git clone --depth=1 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
+    [ -d "$HOME/dotfiles" ] || git clone --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Stow the dotfiles
     cd "$HOME/dotfiles" && git pull https://github.com/mau-mauricelim/dotfiles.git HEAD && \
         git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \
