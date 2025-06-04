@@ -46,7 +46,9 @@ jobs:
           docker run -dit --hostname ${{ env.IMAGE_NAME }} --name ${{ env.IMAGE_NAME }} ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
           docker export ${{ env.IMAGE_NAME }} | gzip > /tmp/${{ env.IMAGE_NAME }}.tar.gz
       - name: Export WSL install script
-        run: sed "s/SET_DISTRO_NAME/${{ env.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
+        # run: sed "s/SET_DISTRO_NAME/${{ env.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
+        # Use the same distro name
+        run: sed "s/SET_DISTRO_NAME/${{ matrix.BASE_IMAGE }}-custom/g" src/install.cmd > /tmp/install.cmd
       - name: Upload WSL image
         uses: actions/upload-artifact@v4
         with:
