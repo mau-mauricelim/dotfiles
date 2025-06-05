@@ -63,14 +63,14 @@ common_root_install() {
     [ -n "$LAZYGIT_VERSION" ] && \
         curl -sSfL "$LAZYGIT_URL/lazygit_${LAZYGIT_VERSION}_Linux_x86_64.tar.gz" | tar xz lazygit && \
         sudo install lazygit /usr/local/bin && rm lazygit
-    # Install LINUX jq
+    # Install LINUX jq from source
     [ -n "$JQ_VERSION" ] && \
         curl -sSfLo jq "$JQ_URL/jq-linux-amd64" && \
         curl -sSfL "$JQ_URL/$JQ_VERSION.tar.gz" | tar xz "$JQ_VERSION/jq.1" --strip-components=1 && \
         sudo install jq /usr/local/bin && sudo mv jq.1 /usr/local/share/man/man1 && rm jq
-    # Install zoxide
+    # Install zoxide from source
     curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
-        bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
+        sudo bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
 }
 
 common_user_install() {
@@ -102,9 +102,6 @@ common_user_install() {
         ln -sf "$HOME/.vim/syntax" "$XDG_CONFIG_HOME/nvim"
     # bash and zsh key bindings for Git objects, powered by fzf.
     [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sSfLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
-    # TPM installation
-    [ "$INSTALL_TYPE" = "full" ] && \
-        git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
     # Install nvm, node.js, and npm
     if ! command -v npm >/dev/null; then
         PROFILE=/dev/null bash -c 'curl -so- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null' && \
@@ -118,10 +115,14 @@ common_user_install() {
     git clone -q --depth=1 https://github.com/yazi-rs/flavors.git flavors && \
         mkdir -p "$XDG_CONFIG_HOME/yazi/flavors" && \
         cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
-    # Run Lazy install, clean and update non-interactively from command line inside tmux
-    [ "$INSTALL_TYPE" = "full" ] && \
+    # Full install
+    if [ "$INSTALL_TYPE" = "full" ]; then
+        # TPM installation
+        git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
+        # Run Lazy install, clean and update non-interactively from command line inside tmux
         tmux new -d "nvim --headless '+Lazy! sync' +qa && echo 'nvim sync lazy from the cmdline in tmux complete' |& tee /tmp/tmux.log"
         timeout 60s bash -c -- 'while true; do if grep -q "nvim sync lazy from the cmdline in tmux complete" /tmp/tmux.log >/dev/null 2>&1; then rm /tmp/tmux.log; break; fi; done'
+    fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
     # Set Zsh as the default shell
@@ -129,7 +130,7 @@ common_user_install() {
     # Clear the npm cache
     [ -d "$HOME/.npm" ] && rm -rf "$HOME/.npm"
     # Clean up tmp directories
-    rm -rf /tmp/tmp.*
+    sudo rm -rf /tmp/tmp.*
 }
 
 install_fd() {
