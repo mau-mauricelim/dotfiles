@@ -8,14 +8,14 @@ q_home=$HOME/q
 if isWsl; then
     # Check if kdb+ binaries exist
     if [ -d $win_q_home ] && [ ! -d $q_home ]; then
-        echo "Setting up kdb+ binaries for the first time"
-        mkdir $q_home
+        echo "🚀 Setting up kdb+ binaries for the first time"
+        mkdir -p $q_home
         cp $win_q_home/kc.lic $q_home
         # Copy q version programmatically
         if /bin/ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
             for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
                 VER=$(echo $VER|awk -F'/' '{print $NF}')
-                mkdir $q_home/$VER
+                mkdir -p $q_home/$VER
                 cp -r $win_q_home/$VER/{l64,q.k} $q_home/$VER
             done
         fi
