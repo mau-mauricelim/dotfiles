@@ -63,7 +63,7 @@ addToPathFront /opt/nvim-linux-x86_64/bin
 addToPath "$XDG_CONFIG_HOME/git/git-scripts"
 
 # Source the shell dotfiles
-for file in $XDG_CONFIG_HOME/{alias,q}/*.sh; do
+for file in $(find -L $XDG_CONFIG_HOME/{alias,q} -type f -name '*.sh'); do
     sourceFile "$file"
 done
 unset file
