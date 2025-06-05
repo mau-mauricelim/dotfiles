@@ -78,6 +78,8 @@ common_user_install() {
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim"
     # Clone the dotfiles
     [ -d "$HOME/dotfiles" ] || git clone --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
+    # Copy the q folder as static files
+    cp -r "$HOME/dotfiles/q" "$HOME"
     # Stow the dotfiles
     cd "$HOME/dotfiles" && git pull https://github.com/mau-mauricelim/dotfiles.git HEAD && \
         git remote set-url origin git@github.com:mau-mauricelim/dotfiles.git && \

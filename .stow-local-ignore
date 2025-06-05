@@ -26,6 +26,7 @@ _darcs
 ^/COPYING
 
 docs
+q
 src
 tests
 ^/Dockerfile.*
