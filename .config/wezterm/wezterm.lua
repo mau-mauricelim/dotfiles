@@ -11,7 +11,7 @@ config.font = wezterm.font({
   -- Disable ligatures in most fonts
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
 })
-config.font_size = 16
+config.font_size = 14
 config.window_padding = { left = 5, right = 5, top = 0, bottom = 0 }
 config.window_decorations = 'INTEGRATED_BUTTONS|RESIZE'
 config.selection_word_boundary = ',│`|:"\' ()[]{}<>\t'
