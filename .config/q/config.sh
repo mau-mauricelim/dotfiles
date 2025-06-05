@@ -49,6 +49,7 @@ q_home=$HOME/q
     export QLIC=$q_home &&\
     export q_home || return
 [ -f $q_home/q.q ] && export QINIT=$q_home/q.q
+[ -d $HOME/Qurious ] && [ ! -L $q_home/q.q ] && ln -sf $q_home/q.q $HOME/Qurious/q.q
 run_q() {
     VER=$1
     export QHOME=$q_home/$VER
