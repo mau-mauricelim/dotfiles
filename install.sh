@@ -75,7 +75,7 @@ common_root_install() {
 
 common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
-    mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh} "$HOME/.vim"
+    mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim"
     # Clone the dotfiles
     [ -d "$HOME/dotfiles" ] || git clone --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Stow the dotfiles

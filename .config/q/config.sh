@@ -7,17 +7,20 @@ q_home=$HOME/q
 # Check if WSL
 if isWsl; then
     # Check if kdb+ binaries exist
-    if [ -d $win_q_home ] && [ ! -d $q_home ]; then
-        echo "🚀 Setting up kdb+ binaries for the first time"
-        mkdir -p $q_home
-        cp $win_q_home/kc.lic $q_home
-        # Copy q version programmatically
-        if /bin/ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
-            for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
-                VER=$(echo $VER|awk -F'/' '{print $NF}')
-                mkdir -p $q_home/$VER
-                cp -r $win_q_home/$VER/{l64,q.k} $q_home/$VER
-            done
+    if [ -d $win_q_home ]; then
+        # Copy q version if it does not exist
+        if ! find "$q_home" -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
+            echo "🚀 Setting up kdb+ binaries for the first time"
+            mkdir -p $q_home
+            cp $win_q_home/kc.lic $q_home
+            # Copy q version programmatically
+            if /bin/ls "$win_q_home"/[0-9].[0-9] >/dev/null 2>&1; then
+                for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
+                    VER=$(echo $VER|awk -F'/' '{print $NF}')
+                    mkdir -p $q_home/$VER
+                    cp -r $win_q_home/$VER/{l64,q.k} $q_home/$VER
+                done
+            fi
         fi
     fi
     ID=$(awk -F= '$1=="ID" { print $2; }' /etc/os-release)
@@ -49,7 +52,14 @@ q_home=$HOME/q
     export QLIC=$q_home &&\
     export q_home || return
 [ -f $q_home/q.q ] && export QINIT=$q_home/q.q
-[ -d $HOME/Qurious ] && [ ! -L $q_home/q.q ] && ln -sf $q_home/q.q $HOME/Qurious/q.q
+
+if [ -d $HOME/Qurious ]; then
+    if readlink -m $q_home/q.q | grep -q '/dotfiles/'; then
+        ln -sf $q_home/q.q $HOME/Qurious/q.q
+        ln -sf $q_home/q.test.q $HOME/Qurious/q.test.q
+    fi
+fi
+
 run_q() {
     VER=$1
     export QHOME=$q_home/$VER
@@ -64,12 +74,14 @@ run_q() {
     fi
     eval "$QCMD"
 }
-# Set q version alias programmatically
-if /bin/ls "$q_home"/[0-9].[0-9] >/dev/null 2>&1; then
-    for VER in $(/bin/ls -d $q_home/[0-9].[0-9]); do
-        VER=$(echo $VER|awk -F'/' '{print $NF}')
-        eval "alias $(echo q$VER|tr -d '.')='run_q '$VER"
-    done
+# Set q version alias programmatically if directory exist
+if find "$q_home" -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
+    if /bin/ls "$q_home"/[0-9].[0-9] >/dev/null 2>&1; then
+        for VER in $(/bin/ls -d $q_home/[0-9].[0-9]); do
+            VER=$(echo $VER|awk -F'/' '{print $NF}')
+            eval "alias $(echo q$VER|tr -d '.')='run_q '$VER"
+        done
+    fi
 fi
 # Set default q version
 [ -d $q_home/$q_ver ] && alias q="run_q $q_ver"
