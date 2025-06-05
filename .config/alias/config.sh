@@ -85,3 +85,11 @@ up() {
 take()   { [ $# -eq 1 ] && mkdir -p "$1" && cd "$1"; }
 mkpath() { [ $# -eq 1 ] && mkdir -p "$1"; }
 mkfile() { [ $# -eq 1 ] && mkdir -p "$(dirname "$1")" && touch "$1"; }
+# Git clone and cd into it
+clone()  {
+    if [ "$#" -eq 1 ]; then
+        git clone "$1" && cd "$(basename "$1" .git)"
+    else
+        git clone "$1" "$2" && cd "$2"
+    fi
+}
