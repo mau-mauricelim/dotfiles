@@ -59,9 +59,9 @@ fi
 [ -f $q_home/q.q ] && export QINIT=$q_home/q.q
 
 [ -d $HOME/Qurious ] && [ ! -L $q_home/q.q ] &&\
-    echo "🔗 Symlinking Qurious to q.q and q.test.q" &&\
-    ln -sf $q_home/q.q $HOME/Qurious/q.q &&\
-    ln -sf $q_home/q.test.q $HOME/Qurious/q.test.q
+    echo "🔗 Symlinking q.q and q.test.q to Qurious" &&\
+    ln -sf $HOME/Qurious/q.q $q_home/q.q &&\
+    ln -sf $HOME/Qurious/q.test.q $q_home/q.test.q
 
 run_q() {
     VER=$1
