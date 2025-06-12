@@ -3,6 +3,8 @@
 q_ver=4.1
 win_q_home=/mnt/c/q
 q_home=$HOME/q
+# TODO: Cannot run l32
+ARCH=l64
 
 # Check if WSL
 if isWsl; then
@@ -36,7 +38,7 @@ if isWsl; then
                 VER=$(echo $VER|awk -F'/' '{print $NF}')
                 if [ ! -d "$q_home/$VER" ]; then
                     mkdir $q_home/$VER
-                    cp -r $win_q_home/$VER/{l64,q.k} $q_home/$VER
+                    cp -r $win_q_home/$VER/{$ARCH,q.k} $q_home/$VER
                 fi
                 if [ "$WIN_Q" = "true" ]; then
                     # HACK: Need to copy q version q.k file to C:\q
@@ -68,9 +70,9 @@ run_q() {
     export QHOME=$q_home/$VER
     # export LD_LIBRARY_PATH=
     # Add q PATH if it does not exist
-    [[ ! "$PATH" =~ "$q_home/*/l64" ]] && addToPath $QHOME/l64
+    [[ ! "$PATH" =~ "$q_home/*/$ARCH" ]] && addToPath $QHOME/$ARCH
     # Replace q PATH with correct version
-    export PATH=$(echo $PATH | sed "s:$q_home/.*/l64:$QHOME/l64:g")
+    export PATH=$(echo $PATH | sed "s:$q_home/.*/$ARCH:$QHOME/$ARCH:g")
     QCMD="q ${@:2}"
     if command -v rlwrap >/dev/null; then
         QCMD="rlwrap -r "$QCMD
