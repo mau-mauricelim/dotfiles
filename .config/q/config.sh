@@ -25,14 +25,14 @@ if isWsl; then
         if [ ! -d "$q_home" ]; then
             echo "🚀 Setting up kdb+ binaries for the first time"
             mkdir $q_home
-        elif ! find "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
+        elif ! find -L "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
             echo "🚀 Setting up kdb+ binaries for the first time"
         fi
         if [ -f "$win_q_home/kc.lic" ] && [ ! -f "$q_home/kc.lic" ]; then
             cp $win_q_home/kc.lic $q_home
         fi
         # Check if q versions exists
-        if find "$win_q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
+        if find -L "$win_q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
             # Copy q versions programmatically
             for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
                 VER=$(echo $VER|awk -F'/' '{print $NF}')
@@ -80,7 +80,7 @@ run_q() {
     eval "$QCMD"
 }
 # Check if q versions exists
-if find "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
+if find -L "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
     # Set q versions alias programmatically
     for VER in $(/bin/ls -d $q_home/[0-9].[0-9]); do
         VER=$(echo $VER|awk -F'/' '{print $NF}')
