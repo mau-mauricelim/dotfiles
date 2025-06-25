@@ -47,4 +47,6 @@ if[not all(0000000000000000000000000000000000000000000000000000000000010100b~`bi
     80~`bxor 123 45 6);
     '"Bitwise operation functions failed!"];
 
+if[not .uri.chr~.uri.dec .uri.enc .uri.chr;'"URI encoding functions failed!"];
+
 exit 0*-1"All tests passed!";

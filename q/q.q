@@ -385,6 +385,17 @@ banner:{[msg;qComment] side:"#"; $[qComment;"/",';](cover;side," ",msg," ",side;
 tree:{[path] .tree.tree[;10;1b;0b]$[(::)~path;`:.;path]};
 treea:{[path].tree.tree[;10;1b;1b]$[(::)~path;`:.;path]};
 
+/#######
+/# URI #
+/#######
+HEX:"0123456789ABCDEF";
+.uri.chr:.Q.an,.Q.sc," ";
+/ URI-encoding has reserved and unreserved characters set
+/ But in this encoding map all characters are used
+.uri.map:"%",'HEX 16 vs'.uri.chr!`int$.uri.chr;
+.uri.enc:{raze((d!d:distinct x),y)x}[;.uri.map];
+.uri.dec:{1_(value[y]!key y)"%",'"%"vs x}[;.uri.map];
+
 /###########
 /# Trivial #
 /###########
