@@ -55,7 +55,6 @@ alias ldr="ls -d {.,}*/"
 alias ll="ls -l --icons"
 alias lla="ls -lA --icons"
 alias pd="pushd"
-alias pg="ps -ef|grep"
 alias restow='stow .' # use -nv for simulation
 alias rg="rg -L --hidden --glob '!.git'"
 alias rr="rm -r"
@@ -71,6 +70,9 @@ if command -v rg &> /dev/null; then alias g="rg"; else alias g="grep"; fi
 # cd with wslpath
 if command -v wslpath &> /dev/null; then cdw() { builtin cd -- "`wslpath "$1"`"; }; fi
 
+# NOTE: Function would fail if patten is grep
+# Allows passthrough args and grep again to highlight
+pg() { ps -ef|grep "$@"|grep -vw grep|grep "$@"; }
 # Goes up a specified number of directories
 up() {
     if [ $# -eq 1 ] && [ "$1" -gt 0 ]; then
