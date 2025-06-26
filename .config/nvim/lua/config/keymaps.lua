@@ -148,7 +148,8 @@ vim.keymap.set('n', '<Leader>xp', '<cmd>exec "lua P(".getline(".").")"<CR>', { d
 -- Add -- stylua: ignore above current line
 vim.keymap.set('n', '<Leader>li', 'yyP^d$a-- stylua: ignore<Esc>', { desc = 'Add [L]ua [I]gnore above current line' })
 -- Add semi-colon separator
-vim.keymap.set({ 'n', 'v' }, '<Leader>;', 'mzA;<Esc>`z', { desc = 'Add semi-colon separator', silent = true })
+vim.keymap.set('n', '<Leader>;', 'mzA;<Esc>`z', { desc = 'Add semi-colon separator', silent = true })
+vim.keymap.set('v', '<Leader>;', 'mz<C-q>$A;<Esc>', { desc = 'Add semi-colon separator', silent = true })
 
 -- Change all
 vim.keymap.set('n', '<Leader>ca', 'ggdGi', { desc = '[C]hange [A]ll lines' })
