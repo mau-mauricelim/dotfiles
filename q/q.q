@@ -35,6 +35,19 @@ ls2:{(!). flip
 
 / TP Log
 truncate:{[tplog] if[7h~type chunk:-11!(-2;tplog);sys"truncate ",sp[tplog]," --size=",string last chunk]};
+/ Replay tplog from n-th index
+/ @param - tplog - same params as -11!
+replay:{[index;tplog]
+    index|:.u.i:0;
+    oldUpd:upd;
+    if[index<>.u.i;
+        `upd set{[tab;data;index;oldUpd]
+            if[index~.u.i;`upd set oldUpd];
+            .u.i+:1}[;;index-1;oldUpd];
+        ];
+    res:-11!tplog;
+    `upd set oldUpd;
+    res};
 
 / Normalize path
 np:ssr[;"//";"/"]over ssr[;"\\";"/"]@;
@@ -115,6 +128,7 @@ Parse:{
 paste:{value{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv enlist r]}/[""]};
 clear:{1"\033[H\033[J";};
 resize:{system"c ",first system"stty size"};
+full:{system"c 2000 2000"};
 
 /draw:.[;;:;][;;]/[;];
 draw:{[grid;coor;char] .[grid;coor;:;char]}[;;]/[;];
