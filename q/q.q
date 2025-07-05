@@ -3,8 +3,28 @@
 /########
 
 P:0N!;
+PC:{-1 x;};
 reorder:xcols;
 rename:xcol;
+
+/ @param n - default number to take
+/ @param x
+/ - if x is (::), returns a function that takes the first N (lesser of 100 or count of data) entries of given data
+/ - if x is a +N, returns a function that takes the first N (lesser of   x or count of data) entries of given data
+/ - if x is a -N, returns a function that takes the last  N (lesser of   x or count of data) entries of given data
+/ - else,         returns a result of first N (lesser of 100 or count of data) entries of x
+/ @example
+/ - head til 200
+/ - head[10]til 200
+/ - head[-10]til 200
+head:{[n;x]
+    f:{(signum[x]*abs[x]&count y)#y};
+    $[101h~typ:type x;f n;
+        typ in neg 5 6 7 8h;f x;
+        f[n;x]]}100; / Default
+
+// TODO: Create a tail util opposite of head
+
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
 / Delete variable from namespace
@@ -15,15 +35,15 @@ vdels:{![x;();0b;`symbol$()]};
 fcy:desc count each group raze read0@;
 / Frecency of all special chars
 fcys:desc .Q.sc#fcy@;
-sys:{1"system: ";-1 x;system x};
+sys:{1"system: ";PC x;system x};
 exceptNulls:{$[0>type x;'list;x where not null x]};
 / List directory contents
 ls:{
     {[path;lsDir]
         dirStr:.Q.s1 dir:$[path in(::;`);`:.;hsym`$np sp path];
         if[not exists dir;:-1(dirStr,": \"ERROR: No such file or directory\"";"")];
-        if[lsDir;-1 dirStr,":"];
-        -1(.Q.s1`#key dir;"");
+        if[lsDir;PC dirStr,":"];
+        -1(.Q.s1 key dir;"");
         }[;1<count x]each x;};
 / @return - dict
 ls2:{(!). flip
@@ -82,9 +102,8 @@ whoami:{t:fzfv`;exec obj from t where val~'x};
 
 / https://code.kx.com/q/basics/funsql/#the-solution
 / Better `parse` function
-Parse:{
+PARSE:{
     system"c 30 200";
-
     / Replace k representation with equivalent q keyword
     funcK:{
         kreplace:{[x] $[`=qval:.q?x;x;"~~",string[qval],"~~"]};
@@ -98,7 +117,6 @@ Parse:{
         };
     tidy:{ssr/[;("\"~~";"~~\"");("";"")] $[","=first x;1_x;x]};
     basic:tidy .Q.s1 funcK funcEn ::;
-
     / Where clause needs to be a list of Where clauses,
     / so if only one Where clause, need to enlist.
     stringify:{[x;basic] $[(0=type x) and 1=count x;"enlist ";""],basic x}[;basic];
@@ -109,7 +127,6 @@ Parse:{
             99=type x; (addbraks stringify key x ),"!",stringify value x;
             stringify x]
         }[;stringify];
-
     inner:{[x;ab]
         idxs:2 3 4 5 6 inter ainds:til count x;
         x:@[x;idxs;'[ab;eval]];
@@ -120,9 +137,9 @@ Parse:{
         strBrk:{y,(";" sv x),z};
         x[0],strBrk[1_x;"[";"]"]
         }[;ab];
-
-    inner parse x
-    };
+    inner parse x};
+/ Prints result to console and returns result
+Parse:{PC res:PARSE x;res};
 
 / https://github.com/CillianReilly/qtools/blob/master/q.q
 paste:{value{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv enlist r]}/[""]};
@@ -383,7 +400,7 @@ banner:{[msg;qComment] side:"#"; $[qComment;"/",';](cover;side," ",msg," ",side;
         / "└── entryN"
         branch:$[islast;"\300";"\303"],"\304\304 ";
         / Print current entry (with colors)
-        -1 params[`prefix],branch,
+        PC params[`prefix],branch,
             $[params`showColors;{.colors.ansi[`bold,(`yellow`cyan x),`default],y,.colors.reset[]}typeD;]string entry;
         / The next level would be in the following format:
         / "├── " becomes "│   "
@@ -418,3 +435,203 @@ HEX:"0123456789ABCDEF";
 reflect:{x,1_reverse x};
 / Composing using :: instead of @ also gives some performance:
 pyramid:reflect reflect each{x&/:x:1+til x}::;
+
+/########
+/# Docs #
+/########
+
+/ https://code.kx.com/q/ref/#command-line-options-and-system-commands
+.docs.CL:(
+    "file                                                         ";
+    "\\a     tables                  \\r        rename            ";
+    "-b     blocked                 -s \\s     secondary processes";
+    "\\b \\B  views                   -S \\S     random seed      ";
+    "-c \\c  console size            -t \\t     timer ticks       ";
+    "-C \\C  HTTP size               \\ts       time and space    ";
+    "\\cd    change directory        -T \\T     timeout           ";
+    "\\d     directory               -u -U \\u  usr-pwd           ";
+    "-e \\e  error traps             -u        disable syscmds    ";
+    "-E \\E  TLS server mode         \\v        variables         ";
+    "\\f     functions               -w \\w     memory            ";
+    "-g \\g  garbage collection      -W \\W     week offset       ";
+    "\\l     load file or directory  \\x        expunge           ";
+    "-l -L  log sync                -z \\z     date format        ";
+    "-o \\o  UTC offset              \\1 \\2     redirect         ";
+    "-p \\p  listening port          \\_        hide q code       ";
+    "-P \\P  display precision       \\         terminate         ";
+    "-q     quiet mode              \\         toggle q/k         ";
+    "-r \\r  replicate               \\\\        quit             ");
+
+/ https://code.kx.com/q/basics/datatypes/#datatypes
+/ https://code.kx.com/q4m3/2_Basic_Data_Types_Atoms/#20-overview
+.docs.DT:(
+    "Basic datatypes                                                            ";
+    "n   c   name      sz  literal            null inf SQL                      ";
+    "                                                                           ";
+    "----------------------------------------------------------                 ";
+    "0   *   list                                                               ";
+    "1   b   boolean   1   0b                                                   ";
+    "2   g   guid      16                     0Ng                               ";
+    "4   x   byte      1   0x00                                                 ";
+    "                                                                           ";
+    "5   h   short     2   0h                 0Nh  0Wh smallint                 ";
+    "6   i   int       4   0i                 0Ni  0Wi int                      ";
+    "7   j   long      8   0j                 0Nj  0Wj bigint                   ";
+    "                      0                  0N   0W                           ";
+    "8   e   real      4   0e                 0Ne  0We real                     ";
+    "9   f   float     8   0.0                0n   0w  float                    ";
+    "                      0f                 0Nf                               ";
+    "10  c   char      1   \" \"                \" \"                           ";
+    "11  s   symbol        `                  `        varchar                  ";
+    "12  p   timestamp 8   dateDtimespan      0Np  0Wp                          ";
+    "13  m   month     4   2000.01m           0Nm  0Wm                          ";
+    "14  d   date      4   2000.01.01         0Nd  0Wd date                     ";
+    "15  z   datetime  8   dateTtime          0Nz  0wz timestamp                ";
+    "16  n   timespan  8   00:00:00.000000000 0Nn  0Wn                          ";
+    "17  u   minute    4   00:00              0Nu  0Wu                          ";
+    "18  v   second    4   00:00:00           0Nv  0Wv                          ";
+    "19  t   time      4   00:00:00.000       0Nt  0Wt time                     ";
+    "                                                                           ";
+    "Columns:                                                                   ";
+    "n    short int returned by type and used for Cast, e.g. 9h$3               ";
+    "c    character used lower-case for Cast and upper-case for Tok and Load CSV";
+    "sz   size in bytes                                                         ";
+    "inf  infinity (no math on temporal types); 0Wh is 32767h                   ";
+    "                                                                           ";
+    "RO: read only; RW: read-write                                              ";
+    "                                                                           ";
+    "Other datatypes                                                            ";
+    "20-76   enums                                                              ";
+    "77      anymap                                      104  projection        ";
+    "78-96   77+t – mapped list of lists of type t       105  composition       ";
+    "97      nested sym enum                             106  f'                ";
+    "98      table                                       107  f/                ";
+    "99      dictionary                                  108  f\\               ";
+    "100     lambda                                      109  f':               ";
+    "101     unary primitive                             110  f/:               ";
+    "102     operator                                    111  f\\:              ";
+    "103     iterator                                    112  dynamic load      ";
+    "                                                                           ";
+    "Above, f is an applicable value.                                           ";
+    "Nested types are 77+t (e.g. 78 is boolean. 96 is time.)                    ";
+    "The type is a short int:                                                   ";
+    "- zero for a general list                                                  ";
+    "- negative for atoms of basic datatypes                                    ";
+    "- positive for everything else                                             ");
+
+/ https://code.kx.com/q/ref/dotq/#the-q-namespace
+.docs.DQ:(
+    "General                           Datatype                                  ";
+    " addmonths                         btoa        b64 encode                   ";
+    " dd       join symbols             j10         encode binhex                ";
+    " f        precision format         j12         encode base 36               ";
+    " fc       parallel on cut          ty          type                         ";
+    " ff       append columns           x10         decode binhex                ";
+    " fmt      precision format         x12         decode base 36               ";
+    " ft       apply simple                                                      ";
+    " fu       apply unique            Database                                  ";
+    " gc       garbage collect          chk         fill HDB                     ";
+    " gz       GZip                     dpft dpfts  save table                   ";
+    " id       sanitize                 dpt  dpts   save table unsorted          ";
+    " qt       is table                 dsftg       load process save            ";
+    " res      keywords                 en          enumerate varchar cols       ";
+    " s        plain text               ens         enumerate against domain     ";
+    " s1       string representation    fk          foreign key                  ";
+    " sha1     SHA-1 encode             hdpf        save tables                  ";
+    " V        table to dict            l           load                         ";
+    " v        value                    ld          load and group               ";
+    " view     subview                  li          load partitions              ";
+    "                                   lo          load without                 ";
+    " Constants                         M           chunk size                   ";
+    " A a an   alphabets                qp          is partitioned               ";
+    " b6       bicameral alphanums      qt          is table                     ";
+    " n nA     nums & alphanums                                                  ";
+    "                                  Partitioned database state                ";
+    " Debug/Profile                     bv          build vp                     ";
+    " bt       backtrace                bvi         build incremental vp         ";
+    " prf0     code profiler            cn          count partitioned table      ";
+    " sbt      string backtrace         D           partitions                   ";
+    " trp      extend trap at           ind         partitioned index            ";
+    " trpd     extend trap              MAP         maps partitions              ";
+    " ts       time and space           par         locate partition             ";
+    "                                   PD          partition locations          ";
+    " Environment                       pd          modified partition locns     ";
+    " K k      version                  pf          partition field              ";
+    " w        memory stats             pn          partition counts             ";
+    "                                   pt          partitioned tables           ";
+    " Environment (Command-line)        PV          partition values             ";
+    " def      command defaults         pv          modified partition values    ";
+    " opt      command parameters       qp          is partitioned               ";
+    " x        non-command parameters   vp          missing partitions           ";
+    "                                                                            ";
+    "IPC                               Segmented database state                  ";
+    " addr     IP/host as int           P           segments                     ";
+    " fps fpn  pipe streaming           u           date based                   ";
+    " fs  fsn  file streaming                                                    ";
+    " hg       HTTP get                File I/O                                  ";
+    " host     IP to hostname           Cf          create empty nested char file";
+    " hp       HTTP post                Xf          create file                  ");
+
+/ https://code.kx.com/q/ref/dotz/#the-z-namespace
+.docs.DZ:(
+    "Environment                              Callbacks               ";
+    " .z.a    IP address                       .z.bm    msg validator ";
+    " .z.b    view dependencies                .z.exit  action on exit";
+    " .z.c    cores                            .z.pc    close         ";
+    " .z.f    file                             .z.pd    peach handles ";
+    " .z.h    host                             .z.pg    get           ";
+    " .z.i    PID                              .z.pi    input         ";
+    " .z.K    version                          .z.po    open          ";
+    " .z.k    release date                     .z.pq    qcon          ";
+    " .z.l    license                          .z.r     blocked       ";
+    " .z.o    OS version                       .z.ps    set           ";
+    " .z.q    quiet mode                       .z.pw    validate user ";
+    " .z.s    self                             .z.ts    timer         ";
+    " .z.u    user ID                          .z.vs    value set     ";
+    " .z.X/x  raw/parsed command line                                 ";
+    "                                         Callbacks (HTTP)        ";
+    "Environment (Compression/Encryption)      .z.ac    HTTP auth     ";
+    " .z.zd   compression/encryption defaults  .z.ph    HTTP get      ";
+    "                                          .z.pm    HTTP methods  ";
+    "Environment (Connections)                 .z.pp    HTTP post     ";
+    " .z.e    TLS connection status                                   ";
+    " .z.H    active sockets                  Callbacks (WebSockets)  ";
+    " .z.W/w  handles/handle                   .z.wc    WebSocket clos";
+    "                                          .z.wo    WebSocket open";
+    "Environment (Debug)                       .z.ws    WebSockets    ";
+    " .z.ex   failed primitive                                        ";
+    " .z.ey   arg to failed primitive                                 ";
+    "                                                                 ";
+    "Environment (Time/Date)                                          ";
+    " .z.D/d  date shortcuts                                          ";
+    " .z.N/n  local/UTC timespan                                      ";
+    " .z.P/p  local/UTC timestamp                                     ";
+    " .z.T/t  time shortcuts                                          ";
+    " .z.Z/z  local/UTC datetime                                      ");
+
+/ https://code.kx.com/q/basics/internal/#internal-functions
+.docs.IF:(
+    "0N!x        show                          Replaced:    ";
+    "-4!x        tokens                        -1!   hsym   ";
+    "-8!x        to bytes                      -2!   attr   ";
+    "-9!x        from bytes                    -3!   .Q.s1  ";
+    "-10!x       type enum                     -5!   parse  ";
+    "-11!        streaming execute             -6!   eval   ";
+    "-14!x       quote escape                  -7!   hcount ";
+    "-16!x       ref count                     -12!  .Q.host";
+    "-18!x       compress bytes                -13!  .Q.addr";
+    "-21!x       compression/encryption stats  -15!  md5    ";
+    "-22!x       uncompressed length           -19!  set    ";
+    "-23!x       memory map                    -20!  .Q.gc  ";
+    "-25!x       async broadcast               -24!  reval  ";
+    "-26!x       SSL                           -29!  .j.k   ";
+    "-27!(x;y)   format                        -31!  .j.jd  ";
+    "-30!x       deferred response             -32!  .Q.btoa";
+    "-33!x       SHA-1 hash                    -34!  .Q.ts  ";
+    "-36!        load master key               -35!  .Q.gz  ";
+    "-38!x       socket table                  -37!  .Q.prf0";
+    "-120!x      memory domain                              ");
+
+/ @global - `CL`DT`DQ`DZ`IF
+/ The global functions print the docs to the console
+{x set{x;PC y;}[;y]}.'flip(key;value)@\:.docs _`;

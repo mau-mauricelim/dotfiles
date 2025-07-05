@@ -1,4 +1,13 @@
-if[not all{[f;funcForm;qSql] funcForm~f qSql}[`Parse].'(
+if[not{[n]
+    res :n~count head r:til n2:n*2;
+    res&:r~head[n2* 2]r;
+    res&:r~head[n2*-2]r;
+    res&:( n05#r)~head[n05 :n div 2]r;
+    res&:(nn05#r)~head[nn05:neg n05]r;
+    res}100; / Default
+    '"`head function failed!"];
+
+if[not all{[f;funcForm;qSql] funcForm~f qSql}[`PARSE].'(
     ("?[t;enlist (=;`c1;enlist`c);0b;(enlist`c2)!enlist (*;2;`c2)]"                        ;"select c2:2*c2 from t where c1=`c");
     ("?[trade;enlist (>;`price;50);0b;(`sym`price`size)!`sym`price`size]"                  ;"select sym,price,size from trade where price>50");
     ("?[trade;enlist (>;140;(fby;(enlist;count;`i);`sym));0b;(enlist`x)!enlist (count;`i)]";"select count i from trade where 140>(count;i) fby sym");
