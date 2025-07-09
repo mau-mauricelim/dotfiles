@@ -4,10 +4,12 @@ if[not{[n]
     res&:r~head[n2*-2]r;
     res&:( n05#r)~head[n05 :n div 2]r;
     res&:(nn05#r)~head[nn05:neg n05]r;
-    res}100; / Default
-    '"`head function failed!"];
+    res&:(tail[ n05]r)~head[nn05]r;
+    res&:(tail[nn05]r)~head[ n05]r;
+    res}.head.n;
+    '"`head` or `tail` function failed!"];
 
-if[not all{[f;funcForm;qSql] funcForm~f qSql}[`PARSE].'(
+if[not all{[f;funcForm;qSql] funcForm~f qSql}[`.parse.parse].'(
     ("?[t;enlist (=;`c1;enlist`c);0b;(enlist`c2)!enlist (*;2;`c2)]"                        ;"select c2:2*c2 from t where c1=`c");
     ("?[trade;enlist (>;`price;50);0b;(`sym`price`size)!`sym`price`size]"                  ;"select sym,price,size from trade where price>50");
     ("?[trade;enlist (>;140;(fby;(enlist;count;`i);`sym));0b;(enlist`x)!enlist (count;`i)]";"select count i from trade where 140>(count;i) fby sym");
@@ -57,5 +59,7 @@ if[not all(0000000000000000000000000000000000000000000000000000000000010100b~`bi
     '"Bitwise operation functions failed!"];
 
 if[not .uri.chr~.uri.dec .uri.enc .uri.chr;'"URI encoding functions failed!"];
+
+// TODO: Add a test for docs to check the same keys as .docs
 
 exit 0*-1"All tests passed!";

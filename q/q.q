@@ -7,7 +7,18 @@ PC:{-1 x;};
 reorder:xcols;
 rename:xcol;
 
-/ @param n - default number to take
+/ @param f - boolean - display first (1b) or last N entries
+/ @param n - number - number of entries to display
+/ @param x - data to display entries
+.disp.disp:{[f;n;x]($[f;;-1*]signum[n]*abs[n]&count x)#x};
+disp:.disp.disp 1b; / Display first N entries
+.head.n:100; / Default
+.head.head:{[h;x]
+    f:.disp.disp h;
+    $[101h~typ:type x;f .head.n;
+        typ in neg 5 6 7h;f x;
+        f[.head.n;x]]
+    };
 / @param x
 / - if x is (::), returns a function that takes the first N (lesser of 100 or count of data) entries of given data
 / - if x is a +N, returns a function that takes the first N (lesser of   x or count of data) entries of given data
@@ -17,13 +28,8 @@ rename:xcol;
 / - head til 200
 / - head[10]til 200
 / - head[-10]til 200
-head:{[n;x]
-    f:{(signum[x]*abs[x]&count y)#y};
-    $[101h~typ:type x;f n;
-        typ in neg 5 6 7 8h;f x;
-        f[n;x]]}100; / Default
-
-// TODO: Create a tail util opposite of head
+head:.head.head 1b;
+tail:.head.head 0b;
 
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
@@ -56,7 +62,7 @@ ls2:{(!). flip
 / TP Log
 truncate:{[tplog] if[7h~type chunk:-11!(-2;tplog);sys"truncate ",sp[tplog]," --size=",string last chunk]};
 / Replay tplog from n-th index
-/ @param - tplog - same params as -11!
+/ @param tplog - same params as -11!
 replay:{[index;tplog]
     index|:.u.i:0;
     oldUpd:upd;
@@ -79,8 +85,8 @@ diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
 / rm -rf
 nuke:hdel each desc diR@; / desc sort
 / Fuzzy search namespace objects - case and order insensitive
-/ @global - creates a cache (dict)
-/ @param - pat - sym (list)
+/ @global `.fzf.cache - dict cache
+/ @param pat - sym (list)
 / NOTE: add a null sym to regenerate cache
 / @example - fzf`search`pattern
 / @return - sym list
@@ -102,7 +108,7 @@ whoami:{t:fzfv`;exec obj from t where val~'x};
 
 / https://code.kx.com/q/basics/funsql/#the-solution
 / Better `parse` function
-PARSE:{
+.parse.parse:{
     system"c 30 200";
     / Replace k representation with equivalent q keyword
     funcK:{
@@ -139,7 +145,7 @@ PARSE:{
         }[;ab];
     inner parse x};
 / Prints result to console and returns result
-Parse:{PC res:PARSE x;res};
+Parse:{PC res:.parse.parse x;res};
 
 / https://github.com/CillianReilly/qtools/blob/master/q.q
 paste:{value{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv enlist r]}/[""]};
@@ -352,7 +358,8 @@ valence:{if[100h<>type x;'function]; count value[x]1};
     if[`FATAL~lvl;exit 1];
     if[`SYSTEM~lvl;:system msg];
     };
-/ Create functions .log.info, .log.warn etc.
+/ Sets the global logging functions
+/ @global `.log.debug`.log.info`.log.warn`.log.error`.log.backtrace`.log.fatal`.log.system
 {.Q.dd[`.log;lower x]set .log.log upper x}each .log.lvls;
 
 / https://code.kx.com/q/basics/debug/#trap
@@ -440,31 +447,35 @@ pyramid:reflect reflect each{x&/:x:1+til x}::;
 /# Docs #
 /########
 
-/ https://code.kx.com/q/ref/#command-line-options-and-system-commands
-.docs.CL:(
-    "file                                                         ";
-    "\\a     tables                  \\r        rename            ";
-    "-b     blocked                 -s \\s     secondary processes";
-    "\\b \\B  views                   -S \\S     random seed      ";
-    "-c \\c  console size            -t \\t     timer ticks       ";
-    "-C \\C  HTTP size               \\ts       time and space    ";
-    "\\cd    change directory        -T \\T     timeout           ";
-    "\\d     directory               -u -U \\u  usr-pwd           ";
-    "-e \\e  error traps             -u        disable syscmds    ";
-    "-E \\E  TLS server mode         \\v        variables         ";
-    "\\f     functions               -w \\w     memory            ";
-    "-g \\g  garbage collection      -W \\W     week offset       ";
-    "\\l     load file or directory  \\x        expunge           ";
-    "-l -L  log sync                -z \\z     date format        ";
-    "-o \\o  UTC offset              \\1 \\2     redirect         ";
-    "-p \\p  listening port          \\_        hide q code       ";
-    "-P \\P  display precision       \\         terminate         ";
-    "-q     quiet mode              \\         toggle q/k         ";
-    "-r \\r  replicate               \\\\        quit             ");
+docs:`cmdline`dtype`dotq`dotz`intfunc!("Command-line options and system commands";"Datatypes";"The .Q namespace";"The .Z namespace";"Internal functions");
 
-/ https://code.kx.com/q/basics/datatypes/#datatypes
-/ https://code.kx.com/q4m3/2_Basic_Data_Types_Atoms/#20-overview
-.docs.DT:(
+.docs.cmdline:(
+    "https://code.kx.com/q/ref/#command-line-options-and-system-commands";
+    "                                                                   ";
+    "file                                                               ";
+    "\\a     tables                  \\r        rename                  ";
+    "-b     blocked                 -s \\s     secondary processes      ";
+    "\\b \\B  views                   -S \\S     random seed            ";
+    "-c \\c  console size            -t \\t     timer ticks             ";
+    "-C \\C  HTTP size               \\ts       time and space          ";
+    "\\cd    change directory        -T \\T     timeout                 ";
+    "\\d     directory               -u -U \\u  usr-pwd                 ";
+    "-e \\e  error traps             -u        disable syscmds          ";
+    "-E \\E  TLS server mode         \\v        variables               ";
+    "\\f     functions               -w \\w     memory                  ";
+    "-g \\g  garbage collection      -W \\W     week offset             ";
+    "\\l     load file or directory  \\x        expunge                 ";
+    "-l -L  log sync                -z \\z     date format              ";
+    "-o \\o  UTC offset              \\1 \\2     redirect               ";
+    "-p \\p  listening port          \\_        hide q code             ";
+    "-P \\P  display precision       \\         terminate               ";
+    "-q     quiet mode              \\         toggle q/k               ";
+    "-r \\r  replicate               \\\\        quit                   ");
+
+.docs.dtype:(
+    "https://code.kx.com/q/basics/datatypes/#datatypes                          ";
+    "https://code.kx.com/q4m3/2_Basic_Data_Types_Atoms/#20-overview             ";
+    "                                                                           ";
     "Basic datatypes                                                            ";
     "n   c   name      sz  literal            null inf SQL                      ";
     "                                                                           ";
@@ -519,8 +530,9 @@ pyramid:reflect reflect each{x&/:x:1+til x}::;
     "- negative for atoms of basic datatypes                                    ";
     "- positive for everything else                                             ");
 
-/ https://code.kx.com/q/ref/dotq/#the-q-namespace
-.docs.DQ:(
+.docs.dotq:(
+    "https://code.kx.com/q/ref/dotq/#the-q-namespace                             ";
+    "                                                                            ";
     "General                           Datatype                                  ";
     " addmonths                         btoa        b64 encode                   ";
     " dd       join symbols             j10         encode binhex                ";
@@ -572,8 +584,9 @@ pyramid:reflect reflect each{x&/:x:1+til x}::;
     " host     IP to hostname           Cf          create empty nested char file";
     " hp       HTTP post                Xf          create file                  ");
 
-/ https://code.kx.com/q/ref/dotz/#the-z-namespace
-.docs.DZ:(
+.docs.dotz:(
+    "https://code.kx.com/q/ref/dotz/#the-z-namespace                  ";
+    "                                                                 ";
     "Environment                              Callbacks               ";
     " .z.a    IP address                       .z.bm    msg validator ";
     " .z.b    view dependencies                .z.exit  action on exit";
@@ -609,29 +622,30 @@ pyramid:reflect reflect each{x&/:x:1+til x}::;
     " .z.T/t  time shortcuts                                          ";
     " .z.Z/z  local/UTC datetime                                      ");
 
-/ https://code.kx.com/q/basics/internal/#internal-functions
-.docs.IF:(
-    "0N!x        show                          Replaced:    ";
-    "-4!x        tokens                        -1!   hsym   ";
-    "-8!x        to bytes                      -2!   attr   ";
-    "-9!x        from bytes                    -3!   .Q.s1  ";
-    "-10!x       type enum                     -5!   parse  ";
-    "-11!        streaming execute             -6!   eval   ";
-    "-14!x       quote escape                  -7!   hcount ";
-    "-16!x       ref count                     -12!  .Q.host";
-    "-18!x       compress bytes                -13!  .Q.addr";
-    "-21!x       compression/encryption stats  -15!  md5    ";
-    "-22!x       uncompressed length           -19!  set    ";
-    "-23!x       memory map                    -20!  .Q.gc  ";
-    "-25!x       async broadcast               -24!  reval  ";
-    "-26!x       SSL                           -29!  .j.k   ";
-    "-27!(x;y)   format                        -31!  .j.jd  ";
-    "-30!x       deferred response             -32!  .Q.btoa";
-    "-33!x       SHA-1 hash                    -34!  .Q.ts  ";
-    "-36!        load master key               -35!  .Q.gz  ";
-    "-38!x       socket table                  -37!  .Q.prf0";
-    "-120!x      memory domain                              ");
+.docs.intfunc:(
+    "https://code.kx.com/q/basics/internal/#internal-functions";
+    "                                                         ";
+    "0N!x        show                          Replaced:      ";
+    "-4!x        tokens                        -1!   hsym     ";
+    "-8!x        to bytes                      -2!   attr     ";
+    "-9!x        from bytes                    -3!   .Q.s1    ";
+    "-10!x       type enum                     -5!   parse    ";
+    "-11!        streaming execute             -6!   eval     ";
+    "-14!x       quote escape                  -7!   hcount   ";
+    "-16!x       ref count                     -12!  .Q.host  ";
+    "-18!x       compress bytes                -13!  .Q.addr  ";
+    "-21!x       compression/encryption stats  -15!  md5      ";
+    "-22!x       uncompressed length           -19!  set      ";
+    "-23!x       memory map                    -20!  .Q.gc    ";
+    "-25!x       async broadcast               -24!  reval    ";
+    "-26!x       SSL                           -29!  .j.k     ";
+    "-27!(x;y)   format                        -31!  .j.jd    ";
+    "-30!x       deferred response             -32!  .Q.btoa  ";
+    "-33!x       SHA-1 hash                    -34!  .Q.ts    ";
+    "-36!        load master key               -35!  .Q.gz    ";
+    "-38!x       socket table                  -37!  .Q.prf0  ";
+    "-120!x      memory domain                                ");
 
-/ @global - `CL`DT`DQ`DZ`IF
 / The global functions print the docs to the console
-{x set{x;PC y;}[;y]}.'flip(key;value)@\:.docs _`;
+/ @global `cmdline`dtype`dotq`dotz`intfunc
+{x set{x;PC y;}[;trim y]}.'flip(key;value)@\:.docs _`;
