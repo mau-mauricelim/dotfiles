@@ -1,8 +1,10 @@
+if[.z.os~`unknown;'"Update unknown os"];
+
 if[not{[n]
     res :n~count head r:til n2:n*2;
     res&:r~head[n2* 2]r;
     res&:r~head[n2*-2]r;
-    res&:( n05#r)~head[n05 :n div 2]r;
+    res&:( n05#r)~head[ n05:n div 2]r;
     res&:(nn05#r)~head[nn05:neg n05]r;
     res&:(tail[ n05]r)~head[nn05]r;
     res&:(tail[nn05]r)~head[ n05]r;

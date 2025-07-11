@@ -1,6 +1,7 @@
 /########
 /# Core #
 /########
+.z.os:$[.z.o~`l64arm;`linuxArm;.z.o like"l*";`linux;.z.o like"m*";`mac;.z.o like"s*";`solaris;.z.o like"v*";`solarisIntel;.z.o like"w*";`win;`unknown];
 
 P:0N!;
 PC:{-1 x;};
@@ -30,6 +31,18 @@ disp:.disp.disp 1b; / Display first N entries
 / - head[-10]til 200
 head:.head.head 1b;
 tail:.head.head 0b;
+
+/ Grep util
+/ @param pat - sym/string - pattern to search for
+/ @param inp - string list - input text
+grep:{[pat;inp]
+    pat:raze string pat;
+    if[not"*"in pat;pat:"*",pat,"*"];
+    inp where inp like pat};
+/ Exact word match
+grepw:{[pat;inp]
+    pat:raze string pat;
+    inp where{[pat;line]any pat~/:" "vs?[lower[line]in .Q.a;line;" "]}[pat]each inpt};
 
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
@@ -184,17 +197,6 @@ hbu:{[bytes;unit]
     $[specified;,\:[;string unit];,'[;string units power]]string[size],'" "};
 hb:hbu[;(::)];
 
-/ Json merge tool
-/ Merge jsons based on kdb type
-jm:{f:key x;
-    f@:where f like"*.json";
-    f@:where not f like"merged_type*.json"
-    if[not count f;:()];
-    k:{.j.k read1 x}peach` sv'x,'f;
-    j:.j.j peach k group type each k;
-    {.Q.dd[x;`$"merged_type",y,".json"]0:enlist z}[x]'[string abs key j;value j]
-    };
-
 /##############
 /# AOC helper #
 /##############
@@ -257,7 +259,7 @@ splitEmpty:splitBy[;""];
     trimZero[0b;numStr]
     };
 bprd:.maths.bigPrd[;1b];
-bmprd:.maths.bigPrd[;0b];
+bprdm:.maths.bigPrd[;0b];
 
 / Get all prime numbers up to N - using Sieve of Eratosthenes
 / https://stackoverflow.com/questions/71571704/finding-prime-numbers-kdb-discussion-about-projection-and-functions
@@ -400,12 +402,14 @@ banner:{[msg;qComment] side:"#"; $[qComment;"/",';](cover;side," ",msg," ",side;
     if[params`dirFirst;entries@:raze group[isFile peach .Q.dd[path]peach entries]01b];
     / Process each entry
     params[`maxDepth]-:1;
-    raze{[params;entry;islast]
+    raze{[params;entry;isLast]
         typeD:isDir params[`path]:.Q.dd[params`path;entry];
         / The current branch would be in the following format:
         / "├── entry1"
         / "└── entryN"
-        branch:$[islast;"\300";"\303"],"\304\304 ";
+        branch:$[.z.o like"w*";
+            $[isLast;"\300";"\303"],"\304\304";
+            $[isLast;"└"   ;"├"   ],"──"     ]," ";
         / Print current entry (with colors)
         PC params[`prefix],branch,
             $[params`showColors;{.colors.ansi[`bold,(`yellow`cyan x),`default],y,.colors.reset[]}typeD;]string entry;
@@ -414,7 +418,7 @@ banner:{[msg;qComment] side:"#"; $[qComment;"/",';](cover;side," ",msg," ",side;
         / "└── " becomes "    "
         / e.g. level1: "[    │   ├── ]level1"     OR "[    │   └── ]level1"
         /      level2: "[    │   │   ]├── level2"    "[    │       ]└── level2"
-        params[`prefix],:$[islast;" ";"\263"],"   ";
+        params[`prefix],:$[isLast;" ";.z.o like"w*";"\263";"│"],"   ";
         / Recursively process directories
         typeD,$[params[`maxDepth]&typeD;.tree.branch[params];()]
         }[params]'[entries;entries=last entries]
