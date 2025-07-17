@@ -1,95 +1,147 @@
 #!/usr/bin/env bash
-# Set default q version
-q_ver=4.1
-win_q_home=/mnt/c/q
-q_home=$HOME/q
-# TODO: Cannot run l32
-ARCH=l64
+main() {
+    # NOTE: If `ONE_TIME_SETUP` is set to true
+    #       kdb+ binaries will only be installed the first time if:
+    #           1. Directory "$LIN_Q_HOME" does not exist OR
+    #           2. Directory "$LIN_Q_HOME" does not contain any directories (kdb+ binaries)
+    #       To always check for updated license file or kdb+ binaries, unset `ONE_TIME_SETUP` (or set it to anything other than true)
+    #       However, this will slow down the startup shell significantly.
+    #       Personal startup times:
+    #           1. ONE_TIME_SETUP=true                 |  .142742216 seconds ⚡
+    #           2. ONE_TIME_SETUP= with `fd` installed |  .297109394 seconds 🚀 (recommended)
+    #           3. ONE_TIME_SETUP= with default `find` | 1.039979396 seconds 🐢
+    local ONE_TIME_SETUP=true
 
-# Check if WSL
-if isWsl; then
+    local DEFAULT_Q_VER=4.1
+    WIN_Q_HOME=/mnt/c/q
+    LIN_Q_HOME=$HOME/q
+    local LICENSE_FILE=kc.lic
+    local WIN_Q_LIC="$WIN_Q_HOME/$LICENSE_FILE"
+    local LIN_Q_LIC="$LIN_Q_HOME/$LICENSE_FILE"
+    local INIT_FILE=q.q
+    local LIN_Q_INIT="$LIN_Q_HOME/$INIT_FILE"
+    local BIT=64
+    WIN_OS=w$BIT
+    LIN_OS=l$BIT
+    local GREP=grep
+    command -v rg >/dev/null && local GREP=rg
+
+    # Check if WSL
+    if isWsl; then wsl_kdb_setup; fi
+
+    [ -d "$LIN_Q_HOME" ] &&\
+        export QLIC="$LIN_Q_HOME" &&\
+        export LIN_Q_HOME || exit
+
+    [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
+
+    [ -d "$HOME/Qurious" ] && [ ! -L "$LIN_Q_HOME/q.q" ] &&\
+        echo "🔗 Symlinking q.q and q.test.q to Qurious" &&\
+        ln -sf "$HOME/Qurious/q.q" "$LIN_Q_HOME/q.q" &&\
+        ln -sf "$HOME/Qurious/q.test.q" "$LIN_Q_HOME/q.test.q"
+
+    local q_ver_installed
+    for q_ver_path in $(get_q_ver_path "$LIN_Q_HOME" "$LIN_OS"); do
+        q_ver_installed=$(get_q_ver "$q_ver_path")
+        alias_setup "$q_ver_installed" "$LIN_OS"
+    done
+}
+
+first_setup() { echo "🚀 Setting up kdb+ binaries for the first time"; mkdir -pv "$LIN_Q_HOME"; }
+license_setup() { echo "🔑 Setting up kdb+ license"; cp "$WIN_Q_LIC" "$LIN_Q_LIC"; }
+get_q_ver_path() {
+    if command -v fd >/dev/null; then
+        fd --glob "{q,q.exe}" --exact-depth 3 --type f "q" | $GREP "$2/q"
+    else
+        find "$1" -mindepth 3 -maxdepth 3 -type f -name 'q' -o -name 'q.exe' | $GREP "$2/q"
+    fi
+    }
+get_q_ver() { echo "$1" | rev | cut -d'/' -f3 | rev; }
+install_q_ver() { echo "⚡ Installing kdb+ version: $1"; cp -r "$WIN_Q_HOME/$1" "$LIN_Q_HOME"; }
+# shellcheck disable=SC2139
+alias_setup() {
+    local stripped_version
+    stripped_version=$(echo "$1" | tr -d '.') # 4.1 becomes 41
+    if [[ "$WIN_Q" == "true" ]] && [[ "$2" == "$WIN_OS" ]]; then
+        local q_alias="cp $WIN_Q_HOME/$1/q.k $WIN_Q_HOME && $WIN_Q_HOME/$1/$WIN_OS/q.exe"
+    else
+        local q_alias="run_q $1"
+    fi
+    alias "q$stripped_version"="$q_alias"
+    # Set default q version
+    if [[ "$1" == "$DEFAULT_Q_VER" ]]; then alias q="$q_alias"; fi
+    LIN_Q_VERSIONS+=("$LIN_Q_HOME/$1")
+}
+
+wsl_kdb_setup() {
+    local ID
     ID=$(awk -F= '$1=="ID" { print $2; }' /etc/os-release)
-    case $ID in
+    case "$ID" in
         # HACK: For distros that uses musl but does not support gcompat:
         # - The convoluted solution is to run the windows kdb+ binaries
         # - WARN: There may be compatibility issues
         musl|unsupported|distro|names)
-            WIN_Q=true
+            local WIN_Q=true
             ;;
         *)
             ;;
     esac
 
     # Check if kdb+ binaries exist
-    if [ -d $win_q_home ]; then
-        if [ ! -d "$q_home" ]; then
-            echo "🚀 Setting up kdb+ binaries for the first time"
-            mkdir $q_home
-        elif ! find -L "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
-            echo "🚀 Setting up kdb+ binaries for the first time"
+    if [ -d "$WIN_Q_HOME" ]; then
+        if [ ! -d "$LIN_Q_HOME" ];                                              then first_setup
+        elif ! find "$LIN_Q_HOME" -mindepth 1 -maxdepth 1 -type d | $GREP -q .; then first_setup
+        elif [[ "$ONE_TIME_SETUP" == "true" ]]; then return
         fi
-        if [ -f "$win_q_home/kc.lic" ] && [ ! -f "$q_home/kc.lic" ]; then
-            cp $win_q_home/kc.lic $q_home
+
+        if [ -f "$WIN_Q_LIC" ]; then
+            if [ ! -f "$LIN_Q_LIC" ];                then license_setup
+            elif ! cmp -s "$WIN_Q_LIC" "$LIN_Q_LIC"; then license_setup
+            fi
         fi
-        # Check if q versions exists
-        if find -L "$win_q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
-            # Copy q versions programmatically
-            for VER in $(/bin/ls -d $win_q_home/[0-9].[0-9]); do
-                VER=$(echo $VER|awk -F'/' '{print $NF}')
-                if [ ! -d "$q_home/$VER" ]; then
-                    mkdir $q_home/$VER
-                    cp -r $win_q_home/$VER/{$ARCH,q.k} $q_home/$VER
-                fi
-                if [ "$WIN_Q" = "true" ]; then
-                    # HACK: Need to copy q version q.k file to C:\q
-                    # WARN: Do not set windows environment QHOME and QLIC
-                    eval "alias $(echo q$VER|tr -d '.')='cp $win_q_home/$VER/q.k $win_q_home && $win_q_home/$VER/w64/q.exe'"
-                    # Set default q version
-                    if [ "$VER" = "$q_ver" ]; then
-                        alias q="cp $win_q_home/$q_ver/q.k $win_q_home && $win_q_home/$q_ver/w64/q.exe"
-                    fi
+
+        local win_q_ver_avail q_ver_installed
+        for win_q_ver_path in $(get_q_ver_path "$WIN_Q_HOME" "$LIN_OS"); do
+            win_q_ver_avail=$(get_q_ver "$win_q_ver_path")
+            for q_ver_path in $(get_q_ver_path "$LIN_Q_HOME" "$LIN_OS"); do
+                q_ver_installed=$(get_q_ver "$q_ver_path")
+                if [[ "$q_ver_installed" == "$win_q_ver_avail" ]]; then
+                    if ! cmp -s "$win_q_ver_path" "$q_ver_path"; then install_q_ver "$win_q_ver_avail"; fi
+                        continue 2
                 fi
             done
-            [ "$WIN_Q" = "true" ] && return
+            install_q_ver "$win_q_ver_avail"
+        done
+
+        if [[ "$WIN_Q" == "true" ]]; then
+            local win_q_ver_avail
+            for win_q_ver_path in $(get_q_ver_path "$WIN_Q_HOME" "$WIN_OS"); do
+                win_q_ver_avail=$(get_q_ver "$win_q_ver_path")
+                alias_setup "$win_q_ver_avail" "$WIN_OS"
+            done
+            exit
         fi
     fi
-fi
+}
 
-[ -d $q_home ] &&\
-    export QLIC=$q_home &&\
-    export q_home || return
-[ -f $q_home/q.q ] && export QINIT=$q_home/q.q
+main
 
-[ -d $HOME/Qurious ] && [ ! -L $q_home/q.q ] &&\
-    echo "🔗 Symlinking q.q and q.test.q to Qurious" &&\
-    ln -sf $HOME/Qurious/q.q $q_home/q.q &&\
-    ln -sf $HOME/Qurious/q.test.q $q_home/q.test.q
+unset -f main first_setup license_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
 
 run_q() {
-    VER=$1
-    export QHOME=$q_home/$VER
+    export QHOME="$LIN_Q_HOME/$1"
     # export LD_LIBRARY_PATH=
     # Add q PATH if it does not exist
-    [[ ! "$PATH" =~ "$q_home/*/$ARCH" ]] && addToPath $QHOME/$ARCH
+    [[ ! "$PATH" =~ $LIN_Q_HOME/*/$LIN_OS ]] && addToPath "$QHOME/$LIN_OS"
     # Replace q PATH with correct version
-    export PATH=$(echo $PATH | sed "s:$q_home/.*/$ARCH:$QHOME/$ARCH:g")
+    # shellcheck disable=SC2001
+    PATH=$(echo "$PATH" | sed "s:$LIN_Q_HOME/.*/$LIN_OS:$QHOME/$LIN_OS:g")
+    export PATH
+    # shellcheck disable=SC2124
     QCMD="q ${@:2}"
-    if command -v rlwrap >/dev/null; then
-        QCMD="rlwrap -r "$QCMD
-    fi
+    if command -v rlwrap >/dev/null; then QCMD="rlwrap -r "$QCMD; fi
     eval "$QCMD"
 }
-# Check if q versions exists
-if find -L "$q_home" -mindepth 1 -maxdepth 1 -type d -name '[0-9].[0-9]' | grep -q .; then
-    # Set q versions alias programmatically
-    for VER in $(/bin/ls -d $q_home/[0-9].[0-9]); do
-        VER=$(echo $VER|awk -F'/' '{print $NF}')
-        eval "alias $(echo q$VER|tr -d '.')='run_q '$VER"
-        # Set default q version
-        if [ "$VER" = "$q_ver" ]; then
-            alias q="run_q $q_ver"
-        fi
-    done
-fi
+
 # List all available q versions
-alias qv="ls -d $q_home/[0-9].[0-9]"
+qv() { printf "%s\\n" "${LIN_Q_VERSIONS[@]}"; }
