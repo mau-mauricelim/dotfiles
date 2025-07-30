@@ -32,6 +32,7 @@
     unshallow = fetch --unshallow
     bdel = branch -D
     bdelr = push origin --delete
+    bnew = "!f() { branch -D \"$1\"; git checkout -b \"$1\"; }; f"
     please = push --force-with-lease
     pooh = !git push --force-with-lease origin HEAD
     done = !git push origin HEAD
