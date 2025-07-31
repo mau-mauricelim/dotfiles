@@ -7,16 +7,7 @@ return { -- LSP Configuration & Plugins
     { 'mason-org/mason-lspconfig.nvim' },
     'WhoIsSethDaniel/mason-tool-installer.nvim',
     'saghen/blink.cmp',
-    -- Useful status updates for LSP.
-    -- NOTE: `opts = {}` is the same as calling `require('fidget').setup({})`
-    {
-      'j-hui/fidget.nvim',
-      opts = {
-        integration = {
-          ['nvim-tree'] = { enable = false }, -- Disable integration unless nvim-tree is loaded
-        },
-      },
-    },
+    -- Status updates for LSP is handled by noice.nvim
   },
   config = function()
     -- LSP stands for Language Server Protocol. It's a protocol that helps editors
