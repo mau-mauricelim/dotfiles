@@ -51,9 +51,9 @@ first_setup() { echo "🚀 Setting up kdb+ binaries for the first time"; mkdir -
 license_setup() { echo "🔑 Setting up kdb+ license"; cp "$WIN_Q_LIC" "$LIN_Q_LIC"; }
 get_q_ver_path() {
     if command -v fd >/dev/null; then
-        fd --glob "{q,q.exe}" --exact-depth 3 --type f "q" | $GREP "$2/q"
+        fd -L --glob "{q,q.exe}" --exact-depth 3 --type f "$1" | $GREP "$2/q"
     else
-        find "$1" -mindepth 3 -maxdepth 3 -type f -name 'q' -o -name 'q.exe' | $GREP "$2/q"
+        find -L "$1" -mindepth 3 -maxdepth 3 -type f -name 'q' -o -name 'q.exe' | $GREP "$2/q"
     fi
     }
 get_q_ver() { echo "$1" | rev | cut -d'/' -f3 | rev; }
