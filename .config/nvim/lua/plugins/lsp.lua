@@ -135,7 +135,7 @@ return { -- LSP Configuration & Plugins
       --    https://github.com/pmizio/typescript-tools.nvim
       --
       -- But for many setups, the LSP (`pyright`) will work just fine
-      pyright = {},
+      -- pyright = {},
       lua_ls = {
         -- cmd = {...},
         -- filetypes { ...},
