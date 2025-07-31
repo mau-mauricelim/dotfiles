@@ -38,6 +38,9 @@ vim.opt.clipboard = 'unnamed'
 vim.opt.undofile = true
 vim.opt.undolevels = 100000
 vim.opt.undoreload = 100000
+-- Disable swapfile
+-- WARN: This will prevent vim from knowing if multiple users are trying to edit the same file
+vim.opt.swapfile = false
 
 -- Case-insensitive searching UNLESS \C or capital in search
 vim.opt.ignorecase = true
