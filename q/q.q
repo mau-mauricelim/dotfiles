@@ -2,11 +2,17 @@
 /# Core #
 /########
 .z.os:$[.z.o~`l64arm;`linuxArm;.z.o like"l*";`linux;.z.o like"m*";`mac;.z.o like"s*";`solaris;.z.o like"v*";`solarisIntel;.z.o like"w*";`win;`unknown];
+/.z.ip:`$"."sv string"h"$0x0 vs .z.a;
+.z.ip:`$"."sv string 256h vs .z.a;
+.z.hf:.Q.host .z.a;
 
 P:0N!;
 PC:{-1 x;};
 reorder:xcols;
 rename:xcol;
+ytd:.z.d-1;
+tdy:.z.d;
+tmr:.z.d+1;
 
 / @param f - boolean - display first (1b) or last N entries
 / @param n - number - number of entries to display
@@ -73,6 +79,7 @@ ls2:{(!). flip
         }peach distinct(),x};
 
 / TP Log
+// TODO: Add a bkp option and check if linux
 truncate:{[tplog] if[7h~type chunk:-11!(-2;tplog);sys"truncate ",sp[tplog]," --size=",string last chunk]};
 / Replay tplog from n-th index
 / @param tplog - same params as -11!
