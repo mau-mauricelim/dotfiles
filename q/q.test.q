@@ -1,4 +1,4 @@
-if[.z.os~`unknown;'"Update unknown os"];
+// TODO: Add a test for np and npw
 
 if[not{[n]
     res :n~count head r:til n2:n*2;

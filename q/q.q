@@ -1,7 +1,6 @@
 /########
 /# Core #
 /########
-.z.os:$[.z.o~`l64arm;`linuxArm;.z.o like"l*";`linux;.z.o like"m*";`mac;.z.o like"s*";`solaris;.z.o like"v*";`solarisIntel;.z.o like"w*";`win;`unknown];
 /.z.ip:`$"."sv string"h"$0x0 vs .z.a;
 .z.ip:`$"."sv string 256h vs .z.a;
 .z.hf:.Q.host .z.a;
@@ -95,10 +94,16 @@ replay:{[index;tplog]
     `upd set oldUpd;
     res};
 
+/ Ensure string
+es:{(":"~first x)_x:"",raze string x};
 / Normalize path
 np:ssr[;"//";"/"]over ssr[;"\\";"/"]@;
+/ Normalize path windows
+npw:ssr[;"\\\\";"\\"]over ssr[;"/";"\\"]@;
 / String path
-sp:{np(":"~first x)_x:raze string x};
+sp:np es@;
+/ String path windows
+spw:npw es@;
 / https://code.kx.com/q/ref/hdel/#hdel
 / Recursive dir listing
 diR:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
