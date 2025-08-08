@@ -47,6 +47,8 @@ for km in viopp visual; do
   for c in {a,i}${(s..)^:-\'\"\`\|,./:;=+@}; do
     bindkey -M $km $c select-quoted
   done
+  # b is used for ()
+  # B is used for {}
   for c in {a,i}${(s..)^:-'()[]{}<>bB'}; do
     bindkey -M $km $c select-bracketed
   done
