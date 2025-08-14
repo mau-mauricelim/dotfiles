@@ -9,14 +9,14 @@ return {
       enabled = true,
       preset = {
         keys = {
-          { icon = " ", key = "f", desc = "Find File", action = ":lua Snacks.dashboard.pick('files', { hidden = true })" },
-          { icon = " ", key = "e", desc = "New File", action = ":ene | startinsert" },
-          { icon = " ", key = "g", desc = "Find Text", action = ":lua Snacks.dashboard.pick('grep', { hidden = true })" },
-          { icon = " ", key = ".", desc = "Recent Files", action = ":lua Snacks.dashboard.pick('oldfiles')" },
-          { icon = " ", key = "n", desc = "Config", action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config'), follow = true })" },
-          -- { icon = " ", key = "s", desc = "Restore Session", section = "session" },
-          { icon = "󰒲 ", key = "z", desc = "Lazy", action = ":Lazy", enabled = package.loaded.lazy ~= nil },
-          { icon = " ", key = "q", desc = "Quit", action = ":qa" },
+          { icon = ' ', key = 'f', desc = 'Find File', action = ":lua Snacks.dashboard.pick('files', { hidden = true })" },
+          { icon = ' ', key = 'e', desc = 'New File', action = ':ene | startinsert' },
+          { icon = ' ', key = 'g', desc = 'Find Text', action = ":lua Snacks.dashboard.pick('grep', { hidden = true })" },
+          { icon = ' ', key = '.', desc = 'Recent Files', action = ":lua Snacks.dashboard.pick('oldfiles')" },
+          { icon = ' ', key = 'n', desc = 'Config', action = ":lua Snacks.dashboard.pick('files', { cwd = vim.fn.stdpath('config'), follow = true })" },
+          -- { icon = ' ', key = 's', desc = 'Restore Session', section = 'session' },
+          { icon = '󰒲 ', key = 'z', desc = 'Lazy', action = ':Lazy', enabled = package.loaded.lazy ~= nil },
+          { icon = ' ', key = 'q', desc = 'Quit', action = ':qa' },
         },
       },
       sections = {
@@ -76,13 +76,38 @@ return {
                 picker:action 'confirm'
               end
             end,
+            custom_confirm = function(picker, item)
+              -- If in insert mode
+              if vim.fn.mode() == 'i' then
+                -- Confirm removes the current search pattern and goes into normal mode
+                picker:action 'confirm'
+                vim.defer_fn(function()
+                  if item.dir then
+                    picker:action 'confirm'
+                  else
+                    picker:action { 'confirm', 'close' }
+                  end
+                end, 0)
+              else
+                if item.dir then
+                  return picker:action 'confirm'
+                else
+                  picker:action { 'confirm', 'close' }
+                end
+              end
+            end,
           },
           win = {
+            input = {
+              keys = {
+                ['<CR>'] = { 'custom_confirm', mode = { 'n', 'i' } },
+              },
+            },
             list = {
               keys = {
                 ['l'] = 'go_in_if_dir', -- Same as ./custom/MiniFiles.lua
-                ['L'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
-                ['<CR>'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
+                ['L'] = 'custom_confirm',
+                ['<CR>'] = { 'custom_confirm', mode = { 'n', 'i' } },
               },
             },
           },
