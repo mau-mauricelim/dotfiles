@@ -1,3 +1,6 @@
+/ -clean flag
+if[`clean in key .Q.opt .z.x;:(::)];
+
 /########
 /# Core #
 /########
@@ -8,6 +11,7 @@
 .q.xor:<>;
 .q.rename:xcol;
 .q.reorder:xcols;
+.q.Hsym:{hsym$[11h~abs type x;;`$]x};
 .z.hf:.Q.host .z.a;
 .z.ip:`$"."sv string 256h vs .z.a;
 .util.isWin:{.z.o like"w*"};
@@ -18,6 +22,9 @@ O:.util.stdout:{-1 x;};
 /E:.util.stderr:{-2 x;};
 .util.sysCd:{system"cd ",x};
 .util.sysLoad:{system"l ",x};
+// INFO: https://code.kx.com/q/ref/value/#lambda
+// WARN: The structure of the result of value on a lambda is subject to change between versions
+.util.getScriptPath:{.util.normPath(reverse get x)2};
 
 // NOTE:`not .util.isFile x` is not equivalent to `.util.isDir x`!
 exists:.util.exists:{not()~key x};
@@ -30,7 +37,7 @@ exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 // INFO: https://github.com/CillianReilly/qtools/blob/master/q.q
 clear:.term.clear:{1"\033[H\033[J";};
 c:.term.setSize:{system"c ",$[10h~type x;;" "sv string 2#]x};
-full:.term.full:{.term.setSize 2000};
+full:.term.full:{.term.setSize 20000};
 // TODO: Move to os?
 resize:.term.resize:{.term.setSize first system"stty size"};
 paste:.term.paste:{get{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv enlist r]}/[""]};
@@ -38,14 +45,33 @@ paste:.term.paste:{get{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv e
 / Ensure string
 es:.util.ensureStr:{"",raze string x};
 .util.removeColon:{(":"~first x)_x};
+.util.i.strPath:.util.removeColon .util.ensureStr@;
+/ @param filePath - sym/string
+/ @return directory path of the same input type
+.util.i.normPath:{[normalize;filePath]
+    typ:type filePath;
+    filePathStr:.util.i.strPath filePath;
+    filePathStr:normalize filePathStr;
+    $[10h~typ;;.q.Hsym]filePathStr};
 / Normalize path
-np:.util.normPath:ssr[;"//";"/"]over ssr[;"\\";"/"]@;
+np:.util.normPath:.util.i.normPath[ssr[;"//";"/"]over ssr[;"\\";"/"]@];
 / Normalize path windows
-npw:.util.normPathWin:ssr[;"\\\\";"\\"]over ssr[;"/";"\\"]@;
+npw:.util.normPathWin:.util.i.normPath[ssr[;"\\\\";"\\"]over ssr[;"/";"\\"]@];
 / String path
-sp:.util.strPath:.util.removeColon .util.normPath .util.ensureStr@;
+sp:.util.strPath:.util.i.strPath .util.normPath@;
 / String path windows
-spw:.util.strPathWin:.util.removeColon .util.normPathWin .util.ensureStr@;
+spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
+/ @param filePath - sym/string
+/ @return directory path of the same input type
+.util.dirname:{[filePath]
+    typ:type filePath;
+    filePathStr:.util.i.strPath filePath;
+    found:(pathSep:"/\\")in filePathStr;
+    pathSep:$[all found;[filePathStr:.util.normPath filePathStr;"/"];
+        any found;first pathSep where found;"/"];
+    dirname:pathSep sv -1_pathSep vs filePathStr;
+    $[10h~typ;;.q.Hsym]dirname};
+
 // INFO: https://code.kx.com/q/ref/hdel/#hdel
 / Recursive dir listing
 diR:.util.recurseDir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
@@ -199,10 +225,8 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
     if[@[get;`.lib.i.initPath;{:not .lib.i.initPath:1b}];:(::)];
     .log.debug"Initializing library path: .lib.path";
     if[""~.lib.path:getenv`QLIB;
-        // INFO: https://code.kx.com/q/ref/value/#lambda
-        // WARN: The structure of the result of value on a lambda is subject to change between versions
-        f:.util.normPath(reverse get{})2;
-        .lib.path:"/"sv(-1_"/"vs f),enlist"lib"];
+        scriptPath:.util.getScriptPath{};
+        .lib.path:.util.dirname[scriptPath],"/lib"];
     .log.debug".lib.path is: ",.lib.path;
     .log.debug"Finished initializing library path";
     };
@@ -239,7 +263,7 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
     {[pwd;file]
         errTrapLoad:{[pwd;file;err]
             msg:"Failed to load file: ",(.util.normPath .util.sysCd[""],"/",file),". Error is: ",err;
-            .util.sysCd pwd
+            .util.sysCd pwd;
             '.log.error msg;
             }[pwd;file];
         @[.util.sysLoad;file;errTrapLoad];

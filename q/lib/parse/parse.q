@@ -37,4 +37,4 @@
         }[;ab];
     inner parse x};
 / Prints result to console and returns result
-Parse:{-1 res:.parse.parse x;res};
+.q.Parse:{-1 res:.parse.parse x;res};
