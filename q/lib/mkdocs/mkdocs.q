@@ -1,5 +1,5 @@
 // INFO: Inspired by https://github.com/KxSystems/help
-/ Create docs q script from ./docs/*.md files
+/ Make docs q script from ./docs/*.md files
 
 .mkdocs.indent:4;
 .mkdocs.header:(
@@ -11,26 +11,45 @@
     "";
     ".docs.ref:()!()");
 .mkdocs.footer:(
-    "/ The global functions print the docs to the console";
+    "";
+    "/ Set the keys of .docs.docs as global variables to modified functions of it's values (docs)";
+    "/ The modified function prints the docs to the console";
     "{x set{x;.util.stdout y;}[;trim y]}.'flip(key;value)@\\:.docs.docs _`;");
+
+.mkdocs.docFmt:(
+    "+------------- Start of file -------------+";
+    "|# Title            <--- First line       |";
+    "|                   <--- Second line empty|";
+    "|```txt             <--- Third line       |";
+    "|Example content                          |";
+    "|...                                      |";
+    "|```                <--- Last line        |";
+    "+-------------- End of file --------------+")
+.mkdocs.chkFmt:{[filePath;content]
+    ok:first[content]like"# *";
+    ok&:content[1]~"";
+    ok&:content[2]~"```txt";
+    ok&:last[content]~"```";
+    if[not ok;
+        .log.warn"The format of the docs file is wrong: ",.util.strPath filePath;
+        .log.info"The format should follow: ";
+        -1 .mkdocs.docFmt]};
 
 .mkdocs.mkhead:{[k;title]
     ("";
-    ".docs.ref[`",k,"]:",(-3!title),";"
+    ".docs.ref[`",k,"]:",(-3!title),";";
     ".docs.docs.",k,":(")};
-.mkdocs.mkdoc:{[path;file]
-    content:read0 .Q.dd[path;file];
-    // TODO: Maybe update logic?
+.mkdocs.mkdoc:{[h;path;file]
+    content:read0 filePath:.Q.dd[path;file];
+    .log.info"Making docs for: ",.util.strPath filePath;
+    .mkdocs.chkFmt[filePath;content];
     title:2_first content;
     body:-1_3_content;
-    // BUG? Need to update logic if single line?
-    body:.mkdocs.i.indent,/:(-3!body),'";";
+    body:.mkdocs.i.indent,/:(-3!'body),'";";
     body:@[body;-1+count body;{(-1_x),");"}];
-
     k:string .Q.id first` vs file;
     head:.mkdocs.mkhead[k;title];
-    .mkdocs.docsQfileHandle head,body;
-    };
+    h head,body;};
 
 / Main
 .mkdocs.mkdocs:{
@@ -40,22 +59,22 @@
     scriptPath:.util.getScriptPath{};
     dirname:.util.dirname scriptPath;
     docsPath:.q.Hsym docsPathStr:dirname,"/docs";
-    docsFile:key docsPath;
+    if[not .util.exists docsPath;.log.info"Docs path not found: ",docsPathStr;:(::)];
+    docsFile:key[docsPath]except`template.md;
     docsFile@:where docsFile like"*.md";
     if[not count docsFile;.log.info"No ",docsPathStr,"/*.md files found";:(::)];
 
-    docsQfile:.q.Hsym docsPathStr,".q";
-    @[hdel;docsQfile;{}];
-    .mkdocs.docsQfileHandle:neg hopen docsQfile;
+    .mkdocs.saveFile:.q.Hsym docsQfileStr:docsPathStr,".q";
+    @[hdel;.mkdocs.saveFile;{}];
+    .log.info"Making docs q script: ",docsQfileStr;
+    h:neg hopen .mkdocs.saveFile;
 
     .mkdocs.i.indent:.mkdocs.indent#"";
-    .mkdocs.docsQfileHandle .mkdocs.header;
-    .mkdocs.mkdoc[docsPath]'[docsFile];
-    hclose abs .mkdocs.docsQfileHandle;
+    h .mkdocs.header;
+    .mkdocs.mkdoc[h;docsPath]'[docsFile];
+    h .mkdocs.footer;
+    hclose abs h;
+    -1 read0 .mkdocs.saveFile;
     };
 
-// TODO: Add a template format
-/        Add a README
-/        Add cmdline arguments for script name and output dir
-/        Add code comments for above
-/        Add logging
+// TODO: Add cmdline arguments q mkdocs.q docsPath saveFile

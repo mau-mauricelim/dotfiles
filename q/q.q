@@ -18,6 +18,8 @@ if[`clean in key .Q.opt .z.x;:(::)];
 
 P:.util.print:0N!;
 // INFO: https://code.kx.com/q/basics/handles/#connection-handles
+// TODO: Ensure is string? .log.plainText
+// TODO: And update -1 code to use .util.stdout
 O:.util.stdout:{-1 x;};
 /E:.util.stderr:{-2 x;};
 .util.sysCd:{system"cd ",x};
