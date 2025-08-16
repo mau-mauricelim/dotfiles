@@ -9,12 +9,8 @@
     "/# Docs #";
     "/########";
     "";
-    ".docs.ref:()!()");
-.mkdocs.footer:(
-    "";
-    "/ Set the keys of .docs.docs as global variables to modified functions of it's values (docs)";
-    "/ The modified function prints the docs to the console";
-    "{x set{x;.util.stdout y;}[;trim y]}.'flip(key;value)@\\:.docs.docs _`;");
+    "refs:.docs.refs:.docs.libs:()!();";
+    "docs:.docs.docs:{[name]\n    if[not name in key .docs.refs;.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs;:(::)];\n    .util.stdout .docs.libs name};");
 
 .mkdocs.docFmt:(
     "+------------- Start of file -------------+";
@@ -37,8 +33,8 @@
 
 .mkdocs.mkhead:{[k;title]
     ("";
-    ".docs.ref[`",k,"]:",(-3!title),";";
-    ".docs.docs.",k,":(")};
+    ".docs.refs[`",k,"]:",(-3!title),";";
+    ".docs.libs[`",k,"]:(")};
 .mkdocs.mkdoc:{[h;path;file]
     content:read0 filePath:.Q.dd[path;file];
     .log.info"Making docs for: ",.util.strPath filePath;
@@ -52,7 +48,7 @@
     h head,body;};
 
 / Main
-.mkdocs.mkdocs:{
+mkdocs:.mkdocs.mkdocs:{
     / Ensure full console size
     .term.full[];
 
@@ -72,7 +68,6 @@
     .mkdocs.i.indent:.mkdocs.indent#"";
     h .mkdocs.header;
     .mkdocs.mkdoc[h;docsPath]'[docsFile];
-    h .mkdocs.footer;
     hclose abs h;
     -1 read0 .mkdocs.saveFile;
     };

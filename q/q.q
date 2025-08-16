@@ -8,6 +8,9 @@ if[`clean in key .Q.opt .z.x;:(::)];
 .Q.hex:.Q.n,6#.Q.A;
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
+/ Datatypes
+.Q.dtype:([name:`list`boolean`guid`byte`short`int`long`real`float`char`symbol`timestamp`month`date`datetime`timespan`minute`second`time]
+    n:til[20]_3; c:"*bgxhijefcspmdznuvt"; sz:0N 1 16 1 2 4 8 4 8 1 0N 8 4 4 8 8 4 4 4);
 .q.xor:<>;
 .q.rename:xcol;
 .q.reorder:xcols;
@@ -18,8 +21,6 @@ if[`clean in key .Q.opt .z.x;:(::)];
 
 P:.util.print:0N!;
 // INFO: https://code.kx.com/q/basics/handles/#connection-handles
-// TODO: Ensure is string? .log.plainText
-// TODO: And update -1 code to use .util.stdout
 O:.util.stdout:{-1 x;};
 /E:.util.stderr:{-2 x;};
 .util.sysCd:{system"cd ",x};
@@ -33,12 +34,27 @@ exists:.util.exists:{not()~key x};
 isDir:.util.isDir:11h~type key@;
 isFile:.util.isFile:{x~key x};
 
+/ @param force - boolean - 1b to enforce upper types
+.util.i.getTableSchema:{[force;colNames;colTypes]
+    colNames,:();
+    colTypes,:();
+    uppColTypes:where colTypes in .Q.A;
+    colTypes:?[null colTypes;"*";colTypes];
+    if[not force;colTypes:@[colTypes;uppColTypes;:;"*"]];
+    / This returns an empty table with lower types
+    schema:flip colNames!colTypes$\:();
+    / This returns a table with a row with the correct types
+    $[force;![;();0b;uppColNames!enlist,/:uppColNames:colNames uppColTypes]1#;]schema};
+.util.getTableSchema:.util.i.getTableSchema 0b;
+.util.getTableSchemaForce:.util.i.getTableSchema 1b;
+
+.util.isStr:10h~abs type@;
 randSeed:.util.randSeed:{system"S ",0N?string[.z.t]except":."};
 exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 
 // INFO: https://github.com/CillianReilly/qtools/blob/master/q.q
 clear:.term.clear:{1"\033[H\033[J";};
-c:.term.setSize:{system"c ",$[10h~type x;;" "sv string 2#]x};
+c:.term.setSize:{system"c ",$[.util.isStr x;;" "sv string 2#]x};
 full:.term.full:{.term.setSize 20000};
 // TODO: Move to os?
 resize:.term.resize:{.term.setSize first system"stty size"};
@@ -51,10 +67,9 @@ es:.util.ensureStr:{"",raze string x};
 / @param filePath - sym/string
 / @return directory path of the same input type
 .util.i.normPath:{[normalize;filePath]
-    typ:type filePath;
     filePathStr:.util.i.strPath filePath;
     filePathStr:normalize filePathStr;
-    $[10h~typ;;.q.Hsym]filePathStr};
+    $[.util.isStr filePath;;.q.Hsym]filePathStr};
 / Normalize path
 np:.util.normPath:.util.i.normPath[ssr[;"//";"/"]over ssr[;"\\";"/"]@];
 / Normalize path windows
@@ -66,13 +81,12 @@ spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
 / @param filePath - sym/string
 / @return directory path of the same input type
 .util.dirname:{[filePath]
-    typ:type filePath;
     filePathStr:.util.i.strPath filePath;
     found:(pathSep:"/\\")in filePathStr;
     pathSep:$[all found;[filePathStr:.util.normPath filePathStr;"/"];
         any found;first pathSep where found;"/"];
     dirname:pathSep sv -1_pathSep vs filePathStr;
-    $[10h~typ;;.q.Hsym]dirname};
+    $[.util.isStr filePath;;.q.Hsym]dirname};
 
 // INFO: https://code.kx.com/q/ref/hdel/#hdel
 / Recursive dir listing
@@ -120,7 +134,7 @@ whoami:.util.getObjectName:{t:.util.fzfObjectVal`;exec obj from t where val~'x};
 /draw:.util.draw:.[;;:;][;;]/[;];
 draw:.util.draw:{[grid;coor;char] .[grid;coor;:;char]}[;;]/[;];
 pad:.util.pad:{
-    if[10h~type y;:x$y];
+    if[.util.isStr y;:x$y];
     padding:(0|abs[x]-count y)#(y,()) -1;
     x#$[x<0;padding,y;y,padding]};
 / Rotate grid (anti-)clockwise 90 degrees
@@ -172,7 +186,7 @@ ls2:.util.lsReturnDict:{(!). flip
 /###########
 
 / Plain text
-.log.plainText:{$["\n"in msg;"\n",;]msg:$[10h=abs type x;;-1_.Q.s@]x};
+.log.plainText:{$["\n"in msg;"\n",;]msg:$[.util.isStr x;;-1_.Q.s@]x};
 .log.lvl:`INFO;
 .log.lvls:`DEBUG`INFO`WARN`ERROR`BACKTRACE`FATAL`SYSTEM;
 .log.colors:`magenta`cyan`red`red`yellow`red`green;

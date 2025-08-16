@@ -6,9 +6,7 @@ https://code.kx.com/q/basics/datatypes/#datatypes
 Basic datatypes
 
 Columns:
-n    short int returned by type and used for Cast, e.g. 9h$3
-     negative for atoms of basic datatypes
-     positive for everything else
+n    short int returned by type and used for Cast, e.g. 9h$3 (negative for atoms of basic datatypes, positive for everything else)
 c    character used lower-case for Cast and upper-case for Tok and Load CSV
 sz   size in bytes
 inf  infinity (no math on temporal types); 0Wh is 32767h

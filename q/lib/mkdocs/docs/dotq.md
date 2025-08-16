@@ -4,63 +4,63 @@
 https://code.kx.com/q/ref/dotq/#the-q-namespace
 
 The .Q namespace
-+------------------------------------+--------------------------------------------+
-| General                            | Datatype                                   |
-+-----------+------------------------+------------+-------------------------------+
-| addmonths |                        | btoa       | b64 encode                    |
-| dd        | join symbols           | j10        | encode binhex                 |
-| f         | precision format       | j12        | encode base 36                |
-| fc        | parallel on cut        | ty         | type                          |
-| ff        | append columns         | x10        | decode binhex                 |
-| fmt       | precision format       | x12        | decode base 36                |
-| ft        | apply simple           +------------+-------------------------------+
-| fu        | apply unique           | Database                                   |
-| gc        | garbage collect        +------------+-------------------------------+
-| gz        | GZip                   | chk        | fill HDB                      |
-| id        | sanitize               | dpft dpfts | save table                    |
-| qt        | is table               | dpt  dpts  | save table unsorted           |
-| res       | keywords               | dsftg      | load process save             |
-| s         | plain text             | en         | enumerate varchar cols        |
-| s1        | string representation  | ens        | enumerate against domain      |
-| sha1      | SHA-1 encode           | fk         | foreign key                   |
-| V         | table to dict          | hdpf       | save tables                   |
-| v         | value                  | l          | load                          |
-| view      | subview                | ld         | load and group                |
-|-----------+------------------------| li         | load partitions               |
-| Constants                          | lo         | load without                  |
-|-----------+------------------------| M          | chunk size                    |
-| A a an    | alphabets              | qp         | is partitioned                |
-| b6        | bicameral alphanums    | qt         | is table                      |
-| n nA      | nums & alphanums       |            |                               |
-+-----------+------------------------+------------+-------------------------------+
-| Debug/Profile                      | Partitioned database state                 |
-+-----------+------------------------+------------+-------------------------------+
-| bt        | backtrace              | bv         | build vp                      |
-| prf0      | code profiler          | bvi        | build incremental vp          |
-| sbt       | string backtrace       | cn         | count partitioned table       |
-| trp       | extend trap at         | D          | partitions                    |
-| trpd      | extend trap            | ind        | partitioned index             |
-| ts        | time and space         | MAP        | maps partitions               |
-+-----------+------------------------+ par        | locate partition              |
-| Environment                        | PD         | partition locations           |
-+-----------+------------------------+ pd         | modified partition locns      |
-| K k       | version                | pf         | partition field               |
-| w         | memory stats           | pn         | partition counts              |
-+-----------+------------------------+ pt         | partitioned tables            |
-| Environment (Command-line)         | PV         | partition values              |
-+-----------+------------------------+ pv         | modified partition values     |
-| def       | command defaults       | qp         | is partitioned                |
-| opt       | command parameters     | vp         | missing partitions            |
-| x         | non-command parameters |            |                               |
-+-----------+------------------------+------------+-------------------------------+
-| IPC                                | Segmented database state                   |
-+-----------+------------------------+------------+-------------------------------+
-| addr      | IP/host as int         | P          | segments                      |
-| fps fpn   | pipe streaming         | u          | date based                    |
-| fs  fsn   | file streaming         +------------+-------------------------------+
-| hg        | HTTP get               | File I/O                                   |
-| host      | IP to hostname         +------------+-------------------------------+
-| hp        | HTTP post              | Cf         | create empty nested char file |
-|           |                        | Xf         | create file                   |
-+-----------+------------------------+------------+-------------------------------+
++------------------------------------------+--------------------------------------------------+
+| General                                  | Datatype                                         |
++-----------------+------------------------+------------------+-------------------------------+
+| .Q.addmonths    | add months             | .Q.btoa          | b64 encode                    |
+| .Q.dd           | join symbols           | .Q.j10           | encode binhex                 |
+| .Q.f            | precision format       | .Q.j12           | encode base 36                |
+| .Q.fc           | parallel on cut        | .Q.ty            | type                          |
+| .Q.ff           | append columns         | .Q.x10           | decode binhex                 |
+| .Q.fmt          | precision format       | .Q.x12           | decode base 36                |
+| .Q.ft           | apply simple           +------------------+-------------------------------+
+| .Q.fu           | apply unique           | Database                                         |
+| .Q.gc           | garbage collect        +------------------+-------------------------------+
+| .Q.gz           | GZip                   | .Q.chk           | fill HDB                      |
+| .Q.id           | sanitize               | .Q.dpft .Q.dpfts | save table                    |
+| .Q.qt           | is table               | .Q.dpt  .Q.dpts  | save table unsorted           |
+| .Q.res          | keywords               | .Q.dsftg         | load process save             |
+| .Q.s            | plain text             | .Q.en            | enumerate varchar cols        |
+| .Q.s1           | string representation  | .Q.ens           | enumerate against domain      |
+| .Q.sha1         | SHA-1 encode           | .Q.fk            | foreign key                   |
+| .Q.V            | table to dict          | .Q.hdpf          | save tables                   |
+| .Q.v            | value                  | .Q.l             | load                          |
+| .Q.view         | subview                | .Q.ld            | load and group                |
++-----------------+------------------------+ .Q.li            | load partitions               |
+| Constants                                | .Q.lo            | load without                  |
++-----------------+------------------------+ .Q.M             | chunk size                    |
+| .Q.A .Q.a .Q.an | alphabets              | .Q.qp            | is partitioned                |
+| .Q.b6           | bicameral alphanums    | .Q.qt            | is table                      |
+| .Q.n .Q.nA      | nums & alphanums       |                  |                               |
++-----------------+------------------------+------------------+-------------------------------+
+| Debug/Profile                            | Partitioned database state                       |
++-----------------+------------------------+------------------+-------------------------------+
+| .Q.bt           | backtrace              | .Q.bv            | build vp                      |
+| .Q.prf0         | code profiler          | .Q.bvi           | build incremental vp          |
+| .Q.sbt          | string backtrace       | .Q.cn            | count partitioned table       |
+| .Q.trp          | extend trap at         | .Q.D             | partitions                    |
+| .Q.trpd         | extend trap            | .Q.ind           | partitioned index             |
+| .Q.ts           | time and space         | .Q.MAP           | maps partitions               |
++-----------------+------------------------+ .Q.par           | locate partition              |
+| Environment                              | .Q.PD            | partition locations           |
++-----------------+------------------------+ .Q.pd            | modified partition locns      |
+| .Q.K .Q.k       | version                | .Q.pf            | partition field               |
+| .Q.w            | memory stats           | .Q.pn            | partition counts              |
++-----------------+------------------------+ .Q.pt            | partitioned tables            |
+| Environment (Command-line)               | .Q.PV            | partition values              |
++-----------------+------------------------+ .Q.pv            | modified partition values     |
+| .Q.def          | command defaults       | .Q.qp            | is partitioned                |
+| .Q.opt          | command parameters     | .Q.vp            | missing partitions            |
+| .Q.x            | non-command parameters |                  |                               |
++-----------------+------------------------+------------------+-------------------------------+
+| IPC                                      | Segmented database state                         |
++-----------------+------------------------+------------------+-------------------------------+
+| .Q.addr         | IP/host as int         | .Q.P             | segments                      |
+| .Q.fps .Q.fpn   | pipe streaming         | .Q.u             | date based                    |
+| .Q.fs  .Q.fsn   | file streaming         +------------------+-------------------------------+
+| .Q.hg           | HTTP get               | File I/O                                         |
+| .Q.host         | IP to hostname         +------------------+-------------------------------+
+| .Q.hp           | HTTP post              | .Q.Cf            | create empty nested char file |
+|                 |                        | .Q.Xf            | create file                   |
++-----------------+------------------------+------------------+-------------------------------+
 ```
