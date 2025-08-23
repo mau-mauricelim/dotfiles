@@ -84,6 +84,9 @@ vim.keymap.set('n', '<Leader>ld', "mz<cmd>%!awk '\\!a[$0]++'<CR>`z", { desc = 'R
 vim.keymap.set('v', '<Leader>ld', "mz:!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in visual selection', silent = true })
 vim.keymap.set('n', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
 vim.keymap.set('v', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
+-- Json Line Operations
+vim.keymap.set('n', '<Leader>jq', ':%!jq<CR>', { desc = 'Pretty print json', silent = true })
+vim.keymap.set('v', '<Leader>jq', ':!jq<CR>',  { desc = 'Pretty print json', silent = true })
 
 -- Format Operations
 vim.keymap.set('n', '<Leader>fl', 'mz<cmd>%s/\\s\\+$//<CR>`z', { desc = '[F]ormat end of [L]ines in file', silent = true })
@@ -97,6 +100,7 @@ vim.keymap.set('v', '<Leader>fc', 'mz:!$(where cat|tail -1) -s<CR>`z', { desc = 
 vim.keymap.set('i', '<C-c>', '<Esc>')
 -- `kj` to Esc
 vim.keymap.set({ 'i', 'v' }, 'kj', '<Esc>')
+vim.keymap.set({ 'i', 'v' }, 'KJ', '<Esc>')
 
 -- Remap Home/End to toggle between start/end of line and first/last non-blank space
 vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") == indent(line(".")) + 1 ? "0" : "^"', { expr = true, silent = true })

@@ -30,6 +30,7 @@ return { -- Useful plugin to show you pending keybinds.
       { '<Leader>d', group = '[D]ocument' },
       { '<Leader>f', group = '[F]ormat' },
       { '<Leader>h', group = '[H]unk' },
+      { '<Leader>j', group = '[J]son' },
       { '<Leader>l', group = '[L]azy*' },
       { '<Leader>n', group = '[N]oice' },
       { '<Leader>o', group = 'Gl[O]b search' },
