@@ -30,9 +30,6 @@
 .os.cmd.nproc.l:{"nproc"};
 .os.cmd.nproc.w:{"echo %NUMBER_OF_PROCESSORS%"};
 
-.os.cmd.termsize.l:{"stty size"};
-.os.cmd.termsize.w:{"mode con"};
-
 .os.cmd.cd.w:.os.cmd.cd.l:"cd ",;
 
 .os.cmd.ls.l:"ls ",;

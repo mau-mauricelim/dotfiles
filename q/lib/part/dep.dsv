@@ -1,0 +1,3 @@
+filepath       | object
+../util/util.q | .util.exists
+../util/util.q | .util.recurseDel

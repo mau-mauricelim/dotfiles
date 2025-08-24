@@ -1,0 +1,4 @@
+filepath  | object
+../../q.q | .log.system
+../../q.q | .util.strPath
+../../q.q | .util.strPathWin

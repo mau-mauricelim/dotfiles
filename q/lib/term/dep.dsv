@@ -1,0 +1,3 @@
+filepath       | object
+../../q.q      | .util.isStr
+../util/util.q | .util.isWin

@@ -131,7 +131,7 @@ deletecol:{[dbdir;table;col] delete1col[;col]each allpaths[dbdir;table];};
 / @example - findcol[`:/k4/data/taq;`trade;`iz]
 findcol:{[dbdir;table;col] find1col[;col]each allpaths[dbdir;table];};
 
-/ TODO: adds missing columns, but DOESN'T delete extra columns - do that manually
+// TODO: adds missing columns, but DOESN'T delete extra columns - do that manually
 / @example - fixtable[`:/k4/data/taq;`trade;`:/data/taq/2005.02.19]
 fixtable:{[dbdir;table;goodpartition]
     fix1table[;goodpartition;allcols goodpartition]each allpaths[dbdir;table]except goodpartition;

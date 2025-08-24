@@ -1,0 +1,7 @@
+action    | minver | code   | repeat | ms | bytes | comment
+afterall  |        | 2+2    | 1      | 0  | 0     |
+before    |        | 2+2    | 1      |    |       |
+beforeany |        | 2+2    |        |    |       |
+comment   |        | 2+2    | 1      |    |       | line ignored
+fail      |        | 2+`two | 1      | 0  | 0     |
+run       |        | 2+2    | 1      |    |       |

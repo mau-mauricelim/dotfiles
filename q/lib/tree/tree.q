@@ -1,6 +1,8 @@
 / List contents of directories/namespaces in a tree-like format
 .tree.tree:{[path;maxDepth;dirFirst;showHidden]
-    -1@1_string path;
+    strPath:.util.strPath path;
+    if[not .util.exists path;-2(strPath,": ",.error.fileNotFound;"");:(::)];
+    -1 strPath;
     colors:@[value;".colors.enabled[]";0b];
     params:`path`prefix`maxDepth`dirFirst`showHidden`showColors!(path;"";maxDepth;dirFirst;showHidden;colors);
     cnt:1b,.tree.branch params;
@@ -34,6 +36,5 @@
         }[params]'[entries;entries=last entries]
     };
 / If function is called with [], path defaults to current directory: `:.
-// BUG: tree`hello
 tree:{[path] .tree.tree[;10;1b;0b]$[(::)~path;`:.;path]};
 treea:{[path].tree.tree[;10;1b;1b]$[(::)~path;`:.;path]};

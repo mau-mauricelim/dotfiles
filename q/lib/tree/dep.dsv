@@ -1,0 +1,7 @@
+filepath       | object
+../../q.q      | .error.fileNotFound
+../../q.q      | .util.strPath
+../util/util.q | .util.exists
+../util/util.q | .util.isDir
+../util/util.q | .util.isFile
+../util/util.q | .util.isWin

@@ -1,6 +1,13 @@
-/ Check all @require exists
-value each`.util.exists`.util.recurseDir`.util.exceptNulls`.util.fzfObject`.util.fzfObjectVal`.util.humanReadableBytes`.util.normPath`.util.strPath`.Q.sc;
+.Q.hex~"0123456789ABCDEF"
+all`:filepath~'.q.Hsym each(`:filepath;`filepath;":filepath";"filepath")
+(~). .Q.addr each .z.h,.z.ip
+11111000b~.util.exists each(`;`.;`:.;`:lib;`:q.q;`varNoExists;`.nameSpaceNoExists;`:fileNoExists)
+11110000b~.util.isDir each(`;`.;`:.;`:lib;`:q.q;`varNoExists;`.nameSpaceNoExists;`:fileNoExists)
+00001000b~.util.isFile each(`;`.;`:.;`:lib;`:q.q;`varNoExists;`.nameSpaceNoExists;`:fileNoExists)
+{not[count x]&exec"b x  "~t from meta x}.util.getTableSchema[`a`b`c`d`e;"bGx* "]
+{(1~count x)&exec"bGx  "~t from meta x}.util.getTableSchemaForce[`a`b`c`d`e;"bGx* "]
 
+/
 // TODO: Add a test for .util.normPath and .util.normPathWin
 
 if[not all{[f;out;inp] out~f inp}[`hb].'(

@@ -1,0 +1,11 @@
+action     | minver | code | repeat | ms | bytes | comment
+beforeany  |        | 1+1  |        |    |       | onetime, run before any tests
+beforeeach |        | 1+1  |        |    |       | run code before tests in every file
+before     |        | 1+1  | 1      | 0  | 0     | run code before tests in this file ONLY
+run        |        | 1+1  | 1      | 0  | 0     | run code, check execution time against ms
+run        | 3.6    | 1+1  | 100000 | 10 | 10000 | repeat
+true       |        | 1+1  | 1      | 0  | 0     | run code, check if returns true (1b)
+fail       |        | 1+1  | 1      | 0  | 0     | run code, it should fail (2+`two)
+after      |        | 1+1  | 1      | 0  | 0     | run code after tests in this file ONLY
+aftereach  |        | 1+1  | 1      | 0  | 0     | run code after tests in each file
+afterall   |        | 1+1  | 1      | 0  | 0     | afterall - onetime, run code after all tests, use for cleanup/finalise

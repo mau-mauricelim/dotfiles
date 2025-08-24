@@ -1,0 +1,5 @@
+filepath       | object
+../../q.q      | .log.info
+../../q.q      | .log.plainText
+../../q.q      | .log.warn
+../util/util.q | .util.stdout

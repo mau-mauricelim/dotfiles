@@ -22,7 +22,3 @@ cacheFn:.cache.cacheFn:{[fnName;fn]
     };
 / (Re-)init cache (dict) for the function name
 cacheInit:.cache.cacheInit:{[fnName] .Q.dd[`.cache.cache;fnName]set(`g#enlist 0#0x0)!enlist{value}};
-
-// INFO: https://code.kx.com/q/ref/value/#lambda
-/ Valence (rank) of a function
-valence:.util.valence:{if[100h<>type x;'function]; count value[x]1};

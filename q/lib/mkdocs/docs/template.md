@@ -1,5 +1,5 @@
 # Title
 
 ```txt
-Docs content
+Example content
 ```

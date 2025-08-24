@@ -5,54 +5,27 @@ if[`clean in key .Q.opt .z.x;:(::)];
 /# Core #
 /########
 
-.Q.hex:.Q.n,6#.Q.A;
-/ Special characters on the keyboard
-.Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
-.q.xor:<>;
-.q.rename:xcol;
-.q.reorder:xcols;
 .q.Hsym:{hsym$[11h~abs type x;;`$]x};
-.z.hf:.Q.host .z.a;
-.z.ip:`$"."sv string 256h vs .z.a;
-.util.isWin:{.z.o like"w*"};
 
-P:.util.print:0N!;
-// INFO: https://code.kx.com/q/basics/handles/#connection-handles
-O:.util.stdout:{-1 x;};
-/E:.util.stderr:{-2 x;};
 .util.sysCd:{system"cd ",x};
 .util.sysLoad:{system"l ",x};
 // INFO: https://code.kx.com/q/ref/value/#lambda
 // WARN: The structure of the result of value on a lambda is subject to change between versions
+/ @param x - lambda - {} from script
 .util.getScriptPath:{.util.normPath(reverse get x)2};
-
-// NOTE:`not .util.isFile x` is not equivalent to `.util.isDir x`!
-exists:.util.exists:{not()~key x};
-isDir:.util.isDir:11h~type key@;
-isFile:.util.isFile:{x~key x};
-
-randSeed:.util.randSeed:{system"S ",0N?string[.z.t]except":."};
-exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
-
-// INFO: https://github.com/CillianReilly/qtools/blob/master/q.q
-clear:.term.clear:{1"\033[H\033[J";};
-c:.term.setSize:{system"c ",$[10h~type x;;" "sv string 2#]x};
-full:.term.full:{.term.setSize 20000};
-// TODO: Move to os?
-resize:.term.resize:{.term.setSize first system"stty size"};
-paste:.term.paste:{get{$[(""~r:read0 0)and not sum 124-7h$x inter"{}";x;x,` sv enlist r]}/[""]};
+.util.isStartupFile:{(~).{last` vs .q.Hsym x}each(.z.f;.util.getScriptPath x)};
 
 / Ensure string
 es:.util.ensureStr:{"",raze string x};
 .util.removeColon:{(":"~first x)_x};
 .util.i.strPath:.util.removeColon .util.ensureStr@;
+.util.isStr:10h~abs type@;
 / @param filePath - sym/string
 / @return directory path of the same input type
 .util.i.normPath:{[normalize;filePath]
-    typ:type filePath;
     filePathStr:.util.i.strPath filePath;
     filePathStr:normalize filePathStr;
-    $[10h~typ;;.q.Hsym]filePathStr};
+    $[.util.isStr filePath;;.q.Hsym]filePathStr};
 / Normalize path
 np:.util.normPath:.util.i.normPath[ssr[;"//";"/"]over ssr[;"\\";"/"]@];
 / Normalize path windows
@@ -64,114 +37,30 @@ spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
 / @param filePath - sym/string
 / @return directory path of the same input type
 .util.dirname:{[filePath]
-    typ:type filePath;
     filePathStr:.util.i.strPath filePath;
     found:(pathSep:"/\\")in filePathStr;
     pathSep:$[all found;[filePathStr:.util.normPath filePathStr;"/"];
         any found;first pathSep where found;"/"];
     dirname:pathSep sv -1_pathSep vs filePathStr;
-    $[10h~typ;;.q.Hsym]dirname};
-
-// INFO: https://code.kx.com/q/ref/hdel/#hdel
-/ Recursive dir listing
-diR:.util.recurseDir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
-/ rm -rf
-nuke:.util.recurseDel:hdel each desc .util.recurseDir@; / desc sort
-/ Delete object from namespace
-odel:.util.objectDel:{![$[1=count v;`.;` sv -1_v];();0b;(),last v:` vs x]};
-/ Delete all objects from namespace. Namespaces cannot be deleted once it is created.
-odels:.util.namespaceDel:{![x;();0b;`symbol$()]};
-
-/ Human-readable bytes in specified unit
-hbu:.util.humanReadableBytesInUnit:{[bytes;unit]
-    units:`$b,"KMGTPEZY",'b:"B";
-    if[specified:not(::)~unit;
-        if[null units offset:units?unit:upper unit;'"Unit not found in: ",-3!units]];
-    power:0^floor(binary:1024)xlog bytes,:();
-    size:bytes%binary xexp power;
-    if[specified;size*:binary xexp power-offset];
-    $[specified;,\:[;string unit];,'[;string units power]]string[size],'" "};
-hb:.util.humanReadableBytes:.util.humanReadableBytesInUnit[;(::)];
-
-/ Fuzzy search namespace objects - case and order insensitive
-/ @global `.fzf.cache - dict cache
-/ @param pat - sym (list)
-// NOTE: add a null sym to regenerate cache
-/ @example - .util.fzfObject`search`pattern
-/ @return - sym list
-fzf:.util.fzfObject:{[pat]
-    if[(any null pat)|not .util.exists`.fzf.cache;
-        obj@:where -11h=type each obj:1_.util.recurseDir`;
-        obj,:last each` vs'1_.util.recurseDir`.;
-        .fzf.cache:obj!lower string .Q.id peach obj];
-    pat:{"*",x,"*"}each lower string .util.exceptNulls(),pat;
-    where{all y like/:x}[pat]peach .fzf.cache};
-/ @return - table of objects and its values
-fzfv:.util.fzfObjectVal:{[pat]([]obj;val:get each obj:.util.fzfObject pat)};
-/ @return - table of objects and its approximate memory usage
-fzfm:.util.fzfObjectMem:{[pat] delete val from update human:hb peach size from update size:{-22!x}peach val from .util.fzfObjectVal pat};
-/ Get the object name of the value
-/ @example - q)).util.getObjectName .z.s
-/            q)whoami whoami
-whoami:.util.getObjectName:{t:.util.fzfObjectVal`;exec obj from t where val~'x};
-
-/draw:.util.draw:.[;;:;][;;]/[;];
-draw:.util.draw:{[grid;coor;char] .[grid;coor;:;char]}[;;]/[;];
-pad:.util.pad:{
-    if[10h~type y;:x$y];
-    padding:(0|abs[x]-count y)#(y,()) -1;
-    x#$[x<0;padding,y;y,padding]};
-/ Rotate grid (anti-)clockwise 90 degrees
-acw90:.util.acw90:{reverse flip x};
-cw90:.util.cw90:{reverse each flip x};
-
-// INFO: https://code.kx.com/q/ref/sublist/#head-or-tail
-.util.i.head:{[isHead;x]
-    @[get;`.head.n;{.head.n:10}]; / Set default value here
-    n:$[isHead;;neg].head.n;
-    / If input is (::) or atomic number, return unary function: x sublist
-    $[101h~typ:type x;n sublist;
-        typ in neg 5 6 7h;($[isHead;;neg]x)sublist;
-        n sublist x]};
-head:.util.head:.util.i.head 1b;
-tail:.util.tail:.util.i.head 0b;
-
-// TODO: Add a smart-case feature
-/ Grep util
-/ @param pat - sym/string - pattern to search for
-/ @param inp - string list - input text
-grep:.util.grep:{[pat;inp]
-    pat:raze string pat;
-    if[not"*"in pat;pat:"*",pat,"*"];
-    inp where inp like pat};
-/ Exact word match
-grepw:.util.grepw:{[pat;inp]
-    pat:raze string pat;
-    inp where{[pat;line]any pat~/:" "vs?[lower[line]in .Q.a;line;" "]}[pat]each inp};
-
-/ List directory contents
-ls:.util.ls:{
-    {[path;lsDir]
-        dirStr:.Q.s1 dir:$[path in(::;`);`:.;hsym`$.util.strPath path];
-        if[not .util.exists dir;:-1(dirStr,": \"ERROR: No such file or directory\"";"")];
-        if[lsDir;-1 dirStr,":"];
-        -1(.Q.s1 key dir;"");
-        }[;1<count x]each x;};
-/ @return - dict
-ls2:.util.lsReturnDict:{(!). flip
-    {[path]
-        dir:$[path in(::;`);`:.;hsym`$.util.strPath path];
-        entries:$[.util.exists dir;`#key dir;`$"\"ERROR: No such file or directory\""];
-        (dir;entries)
-        }peach distinct(),x};
+    $[.util.isStr filePath;;.q.Hsym]dirname};
 
 /###########
 /# Logging #
 /###########
 
 / Plain text
-.log.plainText:{$["\n"in msg;"\n",;]msg:$[10h=abs type x;;-1_.Q.s@]x};
-.log.lvl:`INFO;
+.log.plainText:{$["\n"in msg;"\n",;]msg:$[.util.isStr x;;-1_.Q.s@]x};
+.log.reset:{.log.lvl:`INFO};
+.log.reset[];
+.log.pause:{
+    if[@[value;`.log.paused;{:not .log.paused:1b}];:(::)];
+    .log.paused:1b;
+    .log.i.lvl:.log.lvl;
+    .log.lvl:`ERROR};
+.log.resume:{
+    if[not@[value;`.log.paused;{:.log.paused:0b}];:(::)];
+    .log.paused:0b;
+    .log.lvl:.log.i.lvl};
 .log.lvls:`DEBUG`INFO`WARN`ERROR`BACKTRACE`FATAL`SYSTEM;
 .log.colors:`magenta`cyan`red`red`yellow`red`green;
 .log.log:{[lvl;msg]
@@ -198,27 +87,14 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
 .util.banner:{[msg] (cover;side," ",msg," ",side;cover:(4+count msg)#side:"#")};
 .log.banner:{[msg] .log.info each e,.util.banner[msg],e:enlist"";};
 
-/##########
-/# Colors #
-/##########
-
-/ Select Graphic Rendition
-.colors.sgr:{[style;fg;bg]
-    s:`reset`bold`faint`italic`underline!til 5;
-    c:`default`black`red`green`yellow`blue`magenta`cyan`white!39 30 31 32 33 34 35 36 37;
-    (s;c;c+10)@'style,fg,bg}.;
-.colors.ansi:{[style;fg;bg]
-    n:";"sv string .colors.sgr style,fg,bg;
-    csi:"\033[";
-    csi,n,"m"}.;
-.colors.reset:{@[get;`.colors.i.reset;{:.colors.i.reset:.colors.ansi`reset``}]};
-.colors.enabled:{@[get;`.colors.i.enabled;{:.util.isWin[]|"xterm-256color"~getenv`TERM}]};
+.error.fileNotFound:"ERROR: No such file or directory";
 
 /#############
 /# Libraries #
 /#############
 
 /.log.lvl:`DEBUG;
+.log.pause[];
 
 .lib.initPath:{
     / Return if lib path has already been initialized
@@ -281,12 +157,18 @@ reqf:.lib.requireForce:.lib.i.require 1b;
     if[@[get;`.lib.i.init;{:not .lib.i.init:1b}];:(::)];
     .lib.scan[];
     .log.debug"Loading required libraries";
-    .lib.require`parse`tree`docs;
+    .lib.require`dotx`util;
+    .log.debug"Finished loading required libraries";
+    .log.debug"Loading optional libraries";
+    .lib.require`colors`term`parse`docs`tree`fzf`bytes`browse`qnix;
     .lib.require`os`tplog;
     .lib.require`aoc`bits`cache`maths`uri`misc;
+    /.lib.require`mkdocs;
+    /.lib.require`schema;
     /.lib.require`dbmaint;
     /.lib.require`partitioned;
-    .log.debug"Finished loading required libraries";
+    .log.debug"Finished loading optional libraries";
+    .log.resume[];
     .log.info"QINIT SUCCEED";
     };
 
