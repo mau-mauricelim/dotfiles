@@ -35,10 +35,10 @@ main() {
 
     [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
 
-    [ -d "$HOME/Qurious" ] && [ ! -L "$LIN_Q_HOME/q.q" ] &&\
-        echo "🔗 Symlinking q.q and q.test.q to Qurious" &&\
-        ln -sf "$HOME/Qurious/q.q" "$LIN_Q_HOME/q.q" &&\
-        ln -sf "$HOME/Qurious/q.test.q" "$LIN_Q_HOME/q.test.q"
+    [ -d "$HOME/qoolbox" ] && [ ! -L "$LIN_Q_HOME/q.q" ] &&\
+        echo "🔗 Symlinking q.q and q.test.q to qoolbox" &&\
+        ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q" &&\
+        ln -sf "$HOME/qoolbox/q.test.q" "$LIN_Q_HOME/q.test.q"
 
     local q_ver_installed
     for q_ver_path in $(get_q_ver_path "$LIN_Q_HOME" "$LIN_OS"); do
