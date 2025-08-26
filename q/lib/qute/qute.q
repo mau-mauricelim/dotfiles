@@ -29,7 +29,8 @@ QUTR:.Q.ff[QUT;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean$
     cnt:.qute.loadTest each .qute.findDsv path;
     .log.info"Loaded ",string[sum cnt]," tests to QUT";
     / Sort by file, custom action order - preserves run, true fail orders
-    `QUT set`file xasc QUT iasc .qute.qut.actions?QUT`action;};
+    replaceAssert:{?[x in`run`true`fail;`assert;x]};
+    `QUT set`file xasc QUT iasc replaceAssert[.qute.qut.actions]?replaceAssert QUT`action;};
 
 .qute.runTests:{
     if[not count QUT;.log.warn"No tests found in QUT. Please load tests first.";:(::)];
@@ -66,6 +67,22 @@ QUTR:.Q.ff[QUT;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean$
     okbytes:$[bytes;not bytesx>bytes;1b];
     `msx`bytesx`okms`okbytes`ok`valid`error`timestamp`result`idx!
     (msx;bytesx;okms;okbytes;ok;not failed;error;.z.Z;enlist .qute.i.runCode;i)};
+
+// TODO: Add a testSummary function
+/ Add logging
+.qute.testSummary:{
+    .qute.qutr.testFile:exec distinct file from QUTR;
+    .qute.qutr.slow:select from QUTR where not okms;
+    .qute.qutr.slowFile:exec distinct file from .qute.qutr.slow;
+    .qute.qutr.big:select from QUTR where not okbytes;
+    .qute.qutr.bigFile:exec distinct file from .qute.qutr.big;
+    .qute.qutr.err:select from QUTR where not ok;
+    .qute.qutr.errFile:exec distinct file from .qute.qutr.err;
+    .qute.qutr.invalid:select from QUTR where not valid;
+    .qute.qutr.invalidFile:exec distinct file from .qute.qutr.invalid;
+    / all ok
+    / any not ok
+    .qute.qutr};
 
 .qute.loadTests`:lib
 .qute.runTests[]
