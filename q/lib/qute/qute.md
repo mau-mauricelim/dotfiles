@@ -16,10 +16,8 @@
 / Loads the qute library
 .lib.require`qute
 
-/ Load tests from a directory
+/ Load tests from a directory/file
 .qute.loadTests`:test/dir
-/ Load tests from a file
-.qute.loadTest`:qute.test.dsv
 
 / Run tests
 .qute.runTests[]
@@ -30,20 +28,20 @@
 **qute** provides several configuration options:
 ```q
 / Delimiter for dsv files (default: "|")
-.qute.delim:"|";
+.qute.cfg.delim:"|";
 
 / Enable verbose output (default: 0b)
-.qute.verbose:1b;
+.qute.cfg.verbose:1b;
 
-/ Enable debug mode (default: 0b)
-.qute.debug:1b;
+/ Enable fail on error for debugging
+.qute.cfg.failOnError:1b;
 
-/ File to save results (default: `:QUTR.dsv)
-.qute.saveFile:`:myresults.dsv;
+/ File to save results (default: `:qutr.dsv)
+.qute.cfg.saveFile:`:myresults.dsv;
 
 / Save method: `all (default) or `last
 / Keep all/last run per test
-.qute.saveMethod:`last;
+.qute.cfg.saveMethod:`last;
 ```
 
 ## 🧪 Test Formats
@@ -65,7 +63,7 @@ Additional columns are added when the test files are loaded:
 | `file` | Symbol | Relative file path to test file           |
 | `line` | Int    | Absolute line number of test in test file |
 
-Test definitions are stored in the `QUT` table when the test files are loaded.
+Test definitions are stored in the `qut` table when the test files are loaded.
 
 #### 🎬 Test Actions
 **qute** supports the following test actions executed in a specific order:
@@ -93,9 +91,9 @@ after     |        | delete from`.test                 |        |     |       | 
 ```
 
 ### 📊 Test Results
-Test results are stored in the `QUTR` table with comprehensive metrics.
+Test results are stored in the `qutr` table with comprehensive metrics.
 
-The `QUTR` table shares the same columns as the `QUT` table with the following additional columns:
+The `qutr` table shares the same columns as the `qut` table with the following additional columns:
 | Column      | Description                                                                                               |
 | -           | -                                                                                                         |
 | `msx`       | Milliseconds taken to eXecute code                                                                        |
@@ -107,16 +105,3 @@ The `QUTR` table shares the same columns as the `QUT` table with the following a
 | `error`     | Error message if test failed                                                                              |
 | `timestamp` | When the test was executed                                                                                |
 | `result`    | Actual result of code execution                                                                           |
-
-#### 🔎 Inspecting Test Results
-```q
-KUf::distinct exec file from KUTR
-KUslow::delete okms from select from KUTR where not okms
-KUslowf::distinct exec file from KUslow
-KUbig::delete okbytes from select from KUTR where not okbytes
-KUbigf::distinct exec file from KUbig
-KUerr::delete ok from select from KUTR where not ok
-KUerrf::distinct exec file from KUerr
-KUinvalid::delete ok,valid from select from KUTR where not valid
-KUinvalidf::distinct exec file from KUinvalid
-```
