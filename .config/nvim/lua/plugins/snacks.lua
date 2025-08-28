@@ -76,38 +76,13 @@ return {
                 picker:action 'confirm'
               end
             end,
-            custom_confirm = function(picker, item)
-              -- If in insert mode
-              if vim.fn.mode() == 'i' then
-                -- Confirm removes the current search pattern and goes into normal mode
-                picker:action 'confirm'
-                vim.defer_fn(function()
-                  if item.dir then
-                    picker:action 'confirm'
-                  else
-                    picker:action { 'confirm', 'close' }
-                  end
-                end, 0)
-              else
-                if item.dir then
-                  return picker:action 'confirm'
-                else
-                  picker:action { 'confirm', 'close' }
-                end
-              end
-            end,
           },
           win = {
-            input = {
-              keys = {
-                ['<CR>'] = { 'custom_confirm', mode = { 'n', 'i' } },
-              },
-            },
             list = {
               keys = {
                 ['l'] = 'go_in_if_dir', -- Same as ./custom/MiniFiles.lua
-                ['L'] = 'custom_confirm',
-                ['<CR>'] = { 'custom_confirm', mode = { 'n', 'i' } },
+                ['L'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
+                ['<CR>'] = { { 'confirm', 'close' } }, ---@diagnostic disable-line: assign-type-mismatch
               },
             },
           },
