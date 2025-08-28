@@ -33,12 +33,11 @@ main() {
         export QLIC="$LIN_Q_HOME" &&\
         export LIN_Q_HOME || exit
 
-    [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
+    [ -d "$HOME/qoolbox" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
+        echo "🔗 Symlinking q.q to qoolbox" &&\
+        ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q"
 
-    [ -d "$HOME/qoolbox" ] && [ ! -L "$LIN_Q_HOME/q.q" ] &&\
-        echo "🔗 Symlinking q.q and q.test.q to qoolbox" &&\
-        ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q" &&\
-        ln -sf "$HOME/qoolbox/q.test.q" "$LIN_Q_HOME/q.test.q"
+    [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
 
     local q_ver_installed
     for q_ver_path in $(get_q_ver_path "$LIN_Q_HOME" "$LIN_OS"); do
@@ -47,6 +46,7 @@ main() {
     done
 }
 
+broken_symlink() { [ ! -L "$1" ] || [ ! -e "$1" ]; }
 first_setup() { echo "🚀 Setting up kdb+ binaries for the first time"; mkdir -pv "$LIN_Q_HOME"; }
 license_setup() { echo "🔑 Setting up kdb+ license"; cp "$WIN_Q_LIC" "$LIN_Q_LIC"; }
 get_q_ver_path() {
@@ -126,7 +126,7 @@ wsl_kdb_setup() {
 
 main
 
-unset -f main first_setup license_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
+unset -f main broken_symlink first_setup license_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
 
 run_q() {
     export QHOME="$LIN_Q_HOME/$1"
