@@ -30,9 +30,9 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
     tests:(.qute.i.definitionTypes;enlist .qute.cfg.delim)0:path;
     / Set defaults
     tests:update lower action,minver|0,repeat|1i,ms|0i,bytes|0,file:path,line:`int$2+i from tests;
-    qutd,:tests:select from tests where minver<=.z.K,action in .qute.actions;
-    / Ensure no duplicates when reloading tests
-    `qutd set?[select by file,line from qutd;();0b;c!c:cols qutd];
+    tests:select from tests where minver<=.z.K,action in .qute.actions;
+    / Remove previous tests loaded from the same path if any
+    `qutd set(delete from qutd where file=path),tests;
     .log.info"Loaded ",string[cnt:count tests]," tests from file: ",(-3!path)," to qutd";
     cnt};
 

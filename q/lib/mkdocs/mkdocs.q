@@ -10,7 +10,8 @@
     "/########";
     "";
     ".docs.refs:.docs.libs:()!();";
-    ".docs.docs:{[name]\n    if[not name in key .docs.refs;.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs;:(::)];\n    .util.stdout .docs.libs name};");
+    ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    $[null name;notFound[];\n        not cnt:sum found:(k:key .docs.refs)like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where found;\n        (.log.info\"Did you mean: \",-3!k where found;notFound[])];};");
+
 .mkdocs.footer:(
     "";
     "/ Set globals for easy access";
@@ -60,10 +61,10 @@
     / Ensure full console size
     .term.full[];
 
-    if[not .util.exists docsPath;.log.error"DOCSPATH not found: ",docsPathStr;:(::)];
+    if[not .util.exists docsPath;:{}.log.error"DOCSPATH not found: ",docsPathStr];
     docsFile:key[docsPath]except`template.md;
     docsFile@:where lower[docsFile]like"*.md";
-    if[not count docsFile;.log.error"No markdown files found in DOCSPATH";:(::)];
+    if[not count docsFile;:{}.log.error"No markdown files found in DOCSPATH"];
 
     @[hdel;.mkdocs.saveFile:saveFile;{}];
     .log.info"Making docs file: ",saveFileStr;
