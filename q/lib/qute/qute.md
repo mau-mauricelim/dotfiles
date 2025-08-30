@@ -1,5 +1,7 @@
 # 🧸 qute _(q unit tests)_
-**qute** is a minimal and lightweight unit-testing harness for q/kdb+, inspired by [k4unit](https://github.com/simongarland/k4unit)
+**qute** is a minimal and lightweight unit-testing harness for q/kdb+, inspired by [k4unit](https://github.com/simongarland/k4unit).
+
+It is designed to be simple and extensible. The framework manages test discovery, execution order, result collection, and performance validation.
 
 ## ✨ Features
 - **Data-Driven Testing**: Define tests in simple `dsv` files
@@ -21,27 +23,30 @@
 
 / Run tests
 .qute.runTests[]
+
+/ Saving tests to .qute.cfg.saveFile
+.qute.saveTestResults[]
+
+/ Reloading tests from .qute.cfg.saveFile
+// WARN: This overrides qutr
+.qute.loadTestResults[]
 ```
 - [Inspecting Test Results](#-inspecting-test-results)
 
 ### ⚙️ Configuration
 **qute** provides several configuration options:
 ```q
-/ Delimiter for dsv files (default: "|")
+/ Delimiter for dsv file
 .qute.cfg.delim:"|";
-
-/ Enable verbose output (default: 0b)
-.qute.cfg.verbose:1b;
 
 / Enable fail on error for debugging
 .qute.cfg.failOnError:1b;
 
-/ File to save results (default: `:qutr.dsv)
-.qute.cfg.saveFile:`:myresults.dsv;
+/ File to save/load result
+.qute.cfg.saveFile:`:qutr.dsv;
 
-/ Save method: `all (default) or `last
-/ Keep all/last run per test
-.qute.cfg.saveMethod:`last;
+/ Save method affects how repeated (`beforeeach`aftereach action) code run results are saved: `all/`last
+.qute.cfg.saveMethod:`all;
 ```
 
 ## 🧪 Test Formats
@@ -105,3 +110,21 @@ The `qutr` table shares the same columns as the `qut` table with the following a
 | `error`     | Error message if test failed                                                                              |
 | `timestamp` | When the test was executed                                                                                |
 | `result`    | Actual result of code execution                                                                           |
+
+#### Test Summary functions
+```q
+/ Shows tests that passed all (okms, bytesms, ok) checks
+quts.oks[]
+/ Shows tests that failed any (okms, bytesms, ok) checks
+quts.notOks[]
+/ Shows tests that passed logic (ok) check
+quts.ok[]
+/ Shows tests that failed logic (ok) check
+quts.notOk[]
+/ Shows tests that failed performance (okms) check
+quts.slow[]
+/ Shows tests that failed memory (okbytes) check
+quts.big[]
+/ Shows tests that failed code execution
+quts.invalid[]
+```

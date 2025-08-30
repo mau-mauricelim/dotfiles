@@ -27,6 +27,10 @@ exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 dir:.util.recurseDirNoHidden:.util.i.recurseDir 0b;
 // FIXME:
 /
+q)dir`
+.q
+.q.
+.q.neg
 q)diR`
 'type
   [5]  /home/maurice/qoolbox/lib/util/util.q:25: .util.i.recurseDir:

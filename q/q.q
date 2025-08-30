@@ -1,3 +1,4 @@
+.lib.st:.z.p;
 / -clean flag
 if[`clean in key .Q.opt .z.x;:(::)];
 
@@ -163,10 +164,6 @@ reqf:.lib.requireForce:.lib.i.require 1b;
     .lib.require`colors`term`parse`docs`tree`fzf`bytes`browse`qnix;
     .lib.require`os`tplog;
     .lib.require`aoc`bits`cache`maths`uri`misc;
-    /.lib.require`mkdocs;
-    /.lib.require`schema;
-    /.lib.require`dbmaint;
-    /.lib.require`partitioned;
     .log.debug"Finished loading optional libraries";
     .log.resume[];
     .log.info"QINIT SUCCEED";
@@ -174,7 +171,4 @@ reqf:.lib.requireForce:.lib.i.require 1b;
 
 / Error trap QINIT
 @[.lib.init;[];{.log.error"QINIT FAILED"}];
-
-// TODO: This is a temporary function. Create a test lib similar to k4unit.
-//       Create a test for every function
-.test.passed:{[e] $[e;exit;]0*-1"All tests passed!"};
+.log.debug"Startup time: ",string(.lib.et:.z.p)-.lib.st;

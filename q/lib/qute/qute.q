@@ -4,11 +4,10 @@
 // INFO: Inspired by https://github.com/simongarland/k4unit
 
 .qute.cfg.delim:"|";
-.qute.cfg.verbose:0b;
-.qute.cfg.failOnError:0b;
+.qute.cfg.failOnError:1b;
 .qute.cfg.saveFile:`:qutr.dsv;
-/ Save method affects how repeated (`beforeeach`aftereach action) code run results are saved
-.qute.cfg.saveMethod:`last; /`all
+/ Save method affects how repeated (`beforeeach`aftereach action) code run results are saved: `all/`last
+.qute.cfg.saveMethod:`all;
 
 / Test Definitions
 qutd:([]action:`symbol$();minver:`float$();code:`symbol$();repeat:`int$();ms:`int$();bytes:`long$();comment:`symbol$();file:`symbol$();line:`int$());
@@ -62,7 +61,14 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
         (update idx:i from qutd)lj select by idx:i from result;
         result lj select by idx:i from qutd];
     `qutr set?[result;();0b;c!c:cols qutr];
-    .log.info"Test results are stored in qutr";};
+    .log.info"Test results are stored in qutr";
+    .qute.testSummary[]};
+
+.qute.testSummary:{
+    total:count qutr;
+    if[total~count quts.oks[];:{}.log.info"All tests passed"];
+    .log.error string[count notOks:quts.notOks[]]," tests failed:";
+    .log.error notOks;};
 
 .qute.i.runCodeError:`.qute.i.runCodeError;
 .qute.i.runCodeErrorTrap:{[action;idx;error]
@@ -80,11 +86,11 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
             .qute.i.runCodeResult:();
             action in`fail];
         [error:"";
-            $[action=`true;.qute.i.runCodeResult~;]1b]];
+            $[action=`true;.qute.i.runCodeResult~1b;action<>`fail]]];
     msx:first ts;
     bytesx:last ts;
-    okms:$[ms;not msx>ms;1b];
-    okbytes:$[bytes;not bytesx>bytes;1b];
+    okms:$[ms;ms>msx;1b];
+    okbytes:$[bytes;bytes>bytesx;1b];
     ([msx;bytesx;okms;okbytes;ok;valid:not failed;error;timestamp:.z.Z;result:enlist .qute.i.runCodeResult;idx])};
 
 .qute.i.encodeDelim:";";
@@ -94,7 +100,7 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
 // WARN: This overrides qutr
 .qute.loadTestResults:{`qutr set update .qute.i.decodeColumn result from(.qute.i.resultTypes;enlist .qute.cfg.delim)0:.qute.cfg.saveFile};
 
-/ Test Summary
+/ Test Summary functions
 quts:([
     oks    :{select from qutr where okms,okbytes,ok};
     notOks :{select from qutr where not okms&okbytes&ok};
@@ -103,7 +109,3 @@ quts:([
     slow   :{select from qutr where not okms};
     big    :{select from qutr where not okbytes};
     invalid:{select from qutr where not valid}]);
-
-/
-.qute.loadTests`:lib
-.qute.runTests[]
