@@ -20,27 +20,10 @@ exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 
 // INFO: https://code.kx.com/q/ref/hdel/#hdel
 / Recursive dir listing
-.util.i.recurseDir:{[hidden;x]
-    xIsDir:11h=type d:key x;
-    if[hidden;d@:where not(d,:())like".*"];
-    $[xIsDir;raze x,.z.s[hidden]each` sv/:x,/:d;d]};
+.util.i.recurseDir:{[hidden;x] $[11h=type d:key x;raze x,.z.s[hidden]each` sv/:x,/:d$[hidden;;where not d like".*"];d]};
 dir:.util.recurseDirNoHidden:.util.i.recurseDir 0b;
-// FIXME:
-/
-q)dir`
-.q
-.q.
-.q.neg
-q)diR`
-'type
-  [5]  /home/maurice/qoolbox/lib/util/util.q:25: .util.i.recurseDir:
-    xIsDir:11h=type d:key x;
-    if[hidden;d@:where not(d,:())like".*"];
-                                 ^
-    $[xIsDir;raze x,.z.s[hidden]each` sv/:x,/:d;d]}
-\
 diR:.util.recurseDir:.util.i.recurseDir 1b;
-diR:.util.recurseDir:{$[11h=type d:key x;raze x,.z.s each` sv/:x,/:d;d]};
+
 / rm -rf
 nuke:.util.recurseDel:hdel each desc .util.recurseDir@; / desc sort
 / Delete object from namespace

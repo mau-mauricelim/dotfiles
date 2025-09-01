@@ -1,0 +1,4 @@
+action | minver | code                                                                             | repeat | ms | bytes | comment
+before |        | .lib.require`schema                                                              |        |    |       | Initialize library
+true   |        | {not[count x]&exec"b x  "~t from meta x}.schema.getTable[`a`b`c`d`e;"bGx* "]     |        |    |       |
+true   |        | {(1~count x)&exec"bGx  "~t from meta x}.schema.getTableForce[`a`b`c`d`e;"bGx* "] |        |    |       |

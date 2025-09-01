@@ -1,0 +1,3 @@
+action | minver | code                         | repeat | ms | bytes | comment
+before |        | .lib.require`dotx            |        |    |       | Initialize library
+true   |        | (~). .Q.addr each .z.h,.z.ip |        |    |       | Check that IP address variable is valid
