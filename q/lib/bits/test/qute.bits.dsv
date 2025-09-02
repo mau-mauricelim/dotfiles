@@ -1,0 +1,9 @@
+action | minver | code                           | repeat | ms | bytes | comment
+before |        | .lib.require`bits              |        |    |       | Initialize library
+true   |        | 20~2 sv .bits.intToBin 20      |        |    |       |
+true   |        | 20~.bits.binToInt 10100b       |        |    |       |
+true   |        | 20~.bits.binToInt 1 0 1 0 0    |        |    |       |
+true   |        | 512~.bits.leftShift[256;1]     |        |    |       |
+true   |        | 128~.bits.rightShift[256;1]    |        |    |       |
+true   |        | 127~.bits.inclusiveOr 123 45 6 |        |    |       |
+true   |        | 80~.bits.exclusiveOr 123 45 6  |        |    |       |

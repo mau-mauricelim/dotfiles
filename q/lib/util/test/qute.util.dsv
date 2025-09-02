@@ -1,0 +1,7 @@
+action | minver | code                               | repeat | ms | bytes | comment
+before |        | .lib.require`util                  |        |    |       | Initialize library
+true   |        | 101000b~.util.pad[6;101b]          |        |    |       |
+true   |        | 000101b~.util.pad[-6;101b]         |        |    |       |
+true   |        | 1 2 3 0N 0N 0N~.util.pad[6;1 2 3]  |        |    |       |
+true   |        | 0N 0N 0N 1 2 3~.util.pad[-6;1 2 3] |        |    |       |
+true   |        | 0 1 2 3 4 5~.util.pad[6;til 10]    |        |    |       |

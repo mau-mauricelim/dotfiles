@@ -1,0 +1,17 @@
+action | minver | code                                                    | repeat | ms | bytes | comment
+before |        | .lib.require`util                                       |        |    |       | Initialize library
+before |        | .util.randSeed[];system"S"                              |        |    |       | Set random seed
+before |        | .lib.require`qnix                                       |        |    |       | Initialize library
+before |        | .test.n2:2*.test.n:.head.n:rand 10000                   |        |    |       | Setup test variable
+run    |        | .test.result:.head.head til .test.n2                    |        |    |       |
+true   |        | .head.n~count .test.result                              |        |    |       |
+true   |        | .test.result~.head.head[ 2*.test.n2].test.result        |        |    |       |
+true   |        | .test.result~.head.head[-2*.test.n2].test.result        |        |    |       |
+before |        | .test.nn05:neg .test.n05:.test.n div 2;                 |        |    |       | Setup test variable
+run    |        | .test.headResultN05: .head.head[ .test.n05].test.result |        |    |       |
+run    |        | .test.headResultNn05:.head.head[.test.nn05].test.result |        |    |       |
+true   |        | ( .test.n05#.test.result)~ .test.headResultN05          |        |    |       |
+true   |        | (.test.nn05#.test.result)~.test.headResultNn05          |        |    |       |
+true   |        | .test.headResultN05~.head.tail[.test.nn05].test.result  |        |    |       |
+true   |        | .test.headResultNn05~.head.tail[ .test.n05].test.result |        |    |       |
+after  |        | delete from`.test                                       |        |    |       | Cleanup test variable
