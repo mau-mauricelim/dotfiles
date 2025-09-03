@@ -26,3 +26,5 @@ sourceFile $ZDOTDIR/.p10k.zsh
 sourceFile $ZDOTDIR/zsh-autosuggestions/zsh-autosuggestions.zsh
 # Zsh Syntax Highlighting
 sourceFile $ZDOTDIR/fast-syntax-highlighting/fast-syntax-highlighting.plugin.zsh
+# Zsh fzf-tab
+sourceFile $ZDOTDIR/fzf-tab/fzf-tab.plugin.zsh

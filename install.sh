@@ -98,6 +98,8 @@ common_user_install() {
     [ -d "$ZDOTDIR/fast-syntax-highlighting" ] || git clone -q --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZDOTDIR/fast-syntax-highlighting"
     # fzf
     [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
+    # fzf-tab
+    [ -d "$ZDOTDIR/fzf-tab" ] || git clone -q --depth 1 https://github.com/Aloxaf/fzf-tab "$ZDOTDIR/fzf-tab"
     command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
     # Symlink Vim syntax and indent files to Neovim
     ln -sf "$HOME/.vim/indent" "$XDG_CONFIG_HOME/nvim" && \
