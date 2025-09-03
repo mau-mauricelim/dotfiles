@@ -23,7 +23,9 @@ jobs:
           git clone git@github.com:mau-mauricelim/qoolbox.git
       - name: Copy q files
         run: |
-          rsync -av qoolbox/q.q qoolbox/lib ./q/
+          rm -rf ./q
+          mkdir ./q
+          cp -r qoolbox/{lib,test,q.q,runTests.q} ./q
       - name: Commit and push if changes
         run: |
           git config user.name "github-actions[bot]"
