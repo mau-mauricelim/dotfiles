@@ -129,6 +129,7 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
 .lib.i.require:{[force;libName]
     .lib.init[];
     .log.debug"Loading library: ",sx:string libName;
+    // TODO: Add a did you mean lib?
     if[not count lib:select from .lib.info where name=libName;:{}.log.error"Library not found: ",sx];
     lib:first lib;
     / Use .lib.requireForce to reload library
