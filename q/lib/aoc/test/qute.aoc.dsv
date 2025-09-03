@@ -1,0 +1,20 @@
+action | minver | code                                                                                             | repeat | ms | bytes | comment
+before |        | .lib.require`aoc                                                                                 |        |    |       | Initialize library
+true   |        | (1 1;2 3;2 4)~.aoc.getCoor(00000b;01000b;00011b;00000b)                                          |        |    |       |
+true   |        | (-0.5 -0.5;-0.5 0;-0.5 0.5;0 0f;0.5 0;0.5 -0.5;0 0.5;0 -0.5)~.aoc.chebyshev 0.5                  |        |    |       |
+true   |        | (-2 -2;-2 0;-2 2;0 2;2 2;2 0;2 -2;0 -2)~.aoc.chebyshev 2                                         |        |    |       |
+true   |        | (-0.5 0;0.5 0;0 0.5;0 -0.5)~.aoc.orthogonal 0.5                                                  |        |    |       |
+true   |        | (-2 0;0 2;2 0;0 -2)~.aoc.orthogonal 2                                                            |        |    |       |
+true   |        | (-0.5 -0.5;-0.5 0.5;0 0f;0.5 -0.5)~.aoc.diagonal 0.5                                             |        |    |       |
+true   |        | (-2 -2;-2 2;2 2;2 -2)~.aoc.diagonal 2                                                            |        |    |       |
+true   |        | 8 8~(count .aoc.chebyshev@)@'0.5 2                                                               |        |    |       | Check result count
+true   |        | all 4=(count value@)@'.aoc[`orthogonal`diagonal]cross 0.5 2                                      |        |    |       | Check result count
+true   |        | `type`domain~@[.aoc.manhatten;;{`$x}]@'(0.5;-2)                                                  |        |    |       | Function only allows positive whole number
+true   |        | (-2 0;-1 1;0 2;1 1;2 0;1 -1;0 -2;-1 -1)~.aoc.manhatten 2                                         |        |    |       |
+true   |        | (4*til 10)~(count .aoc.manhatten@)@'til 10                                                       |        |    |       | Result count is input multiplied by 4
+true   |        | (11b;111b;(),1b;111b)~.aoc.splitBy[110111010111b;0b]                                             |        |    |       |
+true   |        | ((),0b;(),0b;(),0b)  ~.aoc.splitBy[110111010111b;1b]                                             |        |    |       | Result strips out empty values after splits
+true   |        | ("split";"by";"space")~.aoc.splitBy["  split  by  space  ";" "]                                  |        |    |       | Result strips out empty values after splits
+true   |        | (`cei`mio`mio;`mio`cei`cei;(),`mio)~.aoc.splitBy[`cei`mio`mio`mga`mio`cei`cei`mga`mga`mio;`mga]  |        |    |       |
+true   |        | (enlist@'("split mixed list";`mio`cei))~.aoc.splitBy[("split mixed list";1 2;`mio`cei);1 2]      |        |    |       | Function works with mixed list as well
+true   |        | (enlist@'("split ";"by";"empty line"))~.aoc.splitByEmptyStr("split ";"";"";"by";"";"empty line") |        |    |       | Function works with mixed list as well

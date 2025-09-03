@@ -1,0 +1,15 @@
+action | minver | code                                                           | repeat | ms | bytes | comment
+before |        | .test.filepath:(`:filepath;`filepath;":filepath";"filepath")   |        |    |       | Setup test variable
+true   |        | all`:filepath~'.q.Hsym@'.test.filepath                         |        |    |       | Check all filepath arguments are the same
+true   |        | all"test"~/:.util.ensureStr@'(`test;"test";("t";"e";"s";"t"))  |        |    |       |
+true   |        | all""~/:.util.ensureStr@'(`;"";())                             |        |    |       |
+true   |        | all"filepath"~/:.util.removeColon@'-2#.test.filepath           |        |    |       |
+true   |        | (":filepath";"")~.util.removeColon@'("::filepath";"")          |        |    |       |
+true   |        | 1110000b~.util.isStr@'("";" ";"test";`;`test;1;til 3)          |        |    |       |
+run    |        | .test.filepath:{x,hsym x}`$"norm\\path//to/\\file"             |        |    |       | Setup test variable
+true   |        | all`:norm/path/to/file~'.util.normPath@'.test.filepath         |        |    |       |
+true   |        | all"norm/path/to/file"~/:.util.normPath@'string .test.filepath |        |    |       |
+true   |        | all`:norm/path/to~'.util.dirname@'.test.filepath               |        |    |       |
+true   |        | all"norm/path/to"~/:.util.dirname@'string .test.filepath       |        |    |       |
+true   |        | ("##########";"# banner #";"##########")~.util.banner"banner"  |        |    |       |
+after  |        | delete from`.test                                              |        |    |       | Cleanup test variable
