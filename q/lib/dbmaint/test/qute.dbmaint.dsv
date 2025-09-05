@@ -1,0 +1,25 @@
+action | minver | code                 | repeat | ms | bytes | comment
+before |        | .lib.require`dbmaint |        |    |       | Initialize library
+true   |        | 1b                   |        |    |       | TODO
+
+TODO
+.lib.require`dbmaint
+.test.g:{n:1000;t:`sym`time xasc([]time:2023.01.02+n?3D;sym:n?`3;price:n?10000f;size:n?10000);t group`date$t`time}[]
+{[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[.test.tmpHdb:`:tmp/hdb]'[key .test.g;.test.g]
+reload .test.tmpHdb
+addCol[thisDb;`trade;`noo;0h]
+castCol[thisDb;`trade;`size;`short]
+clearAttrCol[thisDb;`trade;`sym]
+copyCol[thisDb;`trade;`size;`size2]
+deleteCol[thisDb;`trade;`size]
+findCol[thisDb;`trade;`iz]
+reload thisDb
+.Q.dd[thisDb;2023.01.03,`trade`]set .Q.en[thisDb]delete size2 from select from trade where date=2023.01.03
+fixTab[thisDb;`trade;2023.01.04]
+funcCol[thisDb;`trade;`price;2*]
+listCols[thisDb;`trade]
+renameCol[thisDb;`trade;`woz;`iz] / fail
+renameCol[thisDb;`trade;`size2;`size]
+reload thisDb
+
+https://github.com/KxSystems/kdb/blob/master/utils/dbmaint.md

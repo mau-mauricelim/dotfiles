@@ -85,3 +85,8 @@
 
 .os.cmd.sleep.l:"sleep ",;
 .os.cmd.sleep.w:{"ping 127.0.0.1 -n ",(string 1+"J"$x)," >nul"};
+
+/ Set .os.cmd.cmdName to .os.cmdName for .os.type
+/ @global `.os.pwd`.os.env`.os.ver`.os.nproc`.os.cd`.os.ls`.os.mkdir`.os.rmdir`.os.rm`.os.rmrf`.os.mv`.os.cp
+/         `.os.cpr`.os.ln`.os.tail`.os.touch`.os.which`.os.pg`.os.sigint`.os.sigterm`.os.sigkill`.os.sleep
+{{(` sv`.os,x)set .os.run x}each cmds:key(`_.os.cmd)[;.os.type];}[];

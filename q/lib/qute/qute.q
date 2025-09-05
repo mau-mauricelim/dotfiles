@@ -35,7 +35,7 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
     .log.info"Loaded ",string[cnt:count tests]," tests from file: ",(-3!path)," to qutd";
     cnt};
 
-.qute.loadTests:{[path]
+qult:.qute.loadTests:{[path]
     .log.info"Loading tests to qutd";
     files:raze .qute.findTestFiles each path;
     if[not count files;:{}.log.warn"No test files found to load: ",-3!path];
@@ -45,7 +45,7 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
     replaceAssert:{?[x in`run`true`fail;`assert;x]};
     `qutd set`file xasc qutd iasc replaceAssert[.qute.actions]?replaceAssert qutd`action;};
 
-.qute.runTests:{
+qurt:.qute.runTests:{
     if[not count qutd;:{}.log.warn"No tests found in qutd, please load tests first."];
     .log.info"Running ",string[count qutd]," tests from qutd";
     result :exec .qute.i.runCode'[action;code;repeat;ms;bytes;i]from qutd where action=`beforeany;

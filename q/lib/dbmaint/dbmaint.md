@@ -12,7 +12,7 @@ If you are making changes to current database you need to reload (`\l .`) to mak
 
 If the database you’ve been modifying is a tick database, remember to adjust the schema (tick/???.q) to reflect your changes to the data.
 
-In the following: 
+In the following:
 
 `dbdir`
 : a file symbol for the database folder
@@ -49,11 +49,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
-size | j  
+time | t
+price| f
+size | j
 ```
 
 ## addcol
@@ -87,12 +87,12 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
-size | j    
-noo  | h    
+time | t
+price| f
+size | j
+noo  | h
 ```
 
 ## castcol
@@ -113,11 +113,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
-size | h  
+time | t
+price| f
+size | h
 ```
 
 ## clearattrcol
@@ -139,11 +139,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
-sym  | s   
-time | t    
-price| f    
-size | j    
+date | d
+sym  | s
+time | t
+price| f
+size | j
 ```
 
 ## copycol
@@ -179,19 +179,19 @@ _meta_
 meta
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
-size | j    
-size2| j   
+time | t
+price| f
+size | j
+size2| j
 ```
 
 ## deletecol
 
 `deletecol[dbdir;table;col]`
 
-Delete column `col` from `table`. 
+Delete column `col` from `table`.
 
 This doesn’t delete the col# files for nested columns (the files containing the actual values) – you will need to delete these manually.
 
@@ -217,10 +217,10 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
+time | t
+price| f
 ```
 
 
@@ -292,7 +292,7 @@ fncol[`:data/taq;`trade;`price;2*]
 _before_
 ```txt
 q)select price from trade
-price   
+price
 --------
 4812.041
 1399.557
@@ -306,7 +306,7 @@ _after_
 
 ```txt
 q)select price from trade
-price   
+price
 --------
 9624.081
 2799.113
@@ -363,11 +363,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   p
-time | t    
-price| f    
-size | j    
+time | t
+price| f
+size | j
 ```
 
 ## reordercols
@@ -386,11 +386,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
-size | j    
-price| f    
+date | d
+size | j
+price| f
 sym  | s   p
-time | t    
+time | t
 ```
 
 
@@ -411,11 +411,11 @@ _meta_
 ```txt
 c    | t f a
 -----| -----
-date | d    
+date | d
 sym  | s   g
-time | t    
-price| f    
-size | j    
+time | t
+price| f
+size | j
 ```
 
 ## addtable

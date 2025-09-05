@@ -1,170 +1,169 @@
 // INFO: https://github.com/KxSystems/kdb/blob/master/utils/dbmaint.q
 / kdb+ partitioned database maintenance
 
-// TODO: Standardise os utils with new lib
-// TODO: Standardise function and argument names
-.os.WIN:.z.o in`w32`w64;
-.os.pth:{p:$[10h=type x;x;string x];if[.os.WIN;p[where"/"=p]:"\\"];(":"=first p)_ p};
-.os.cpy:{system$[.os.WIN;"copy /v /z ";"cp "],.os.pth[x]," ",.os.pth y};
-.os.del:{system$[.os.WIN;"del ";"rm "],.os.pth x};
-.os.ren:{system$[.os.WIN;"move ";"mv "],.os.pth[x]," ",.os.pth y};
-.os.here:{hsym`$system$[.os.WIN;"cd";"pwd"]};
+.lib.require`os;
+joinPath:{" "sv .os.strPath[.os.type]@'(x;y)};
 
 / General utils
-invalidcolname:{(x in`i,.Q.res,key`.q)and x<>.Q.id x};
-allcols:{[tabledir] get tabledir,`.d};
-allpaths:{[dbdir;table]
-    files:key dbdir;
-    if[any files like"par.txt";:raze allpaths[;table]each hsym each`$read0` sv dbdir,`par.txt];
+invalidName:{(x in`i,.Q.res,key`.q)and x<>.Q.id x};
+allCols:{[tabDir] get tabDir,`.d};
+allPaths:{[hdbDir;tabName]
+    files:key hdbDir;
+    if[any files like"par.txt";:raze allPaths[;tabName]each hsym each`$read0` sv hdbDir,`par.txt];
     files@:where files like"[0-9]*";
-    ` sv'dbdir,'files,'table};
-enum:{[dbdir;val] $[not 11=abs type val;val;(` sv dbdir,`sym)?val]};
-coltype:{
+    ` sv'hdbDir,'files,'tabName};
+enum:{[hdbDir;val] $[not 11=abs type val;val;(` sv hdbDir,`sym)?val]};
+colType:{
     n:type x;
     c:.Q.ty$[n within 20 76;`$();
         n;x;
         not type raze x;();x];
     " "sv .Q.s1 each(n;c)};
+reload:{[hdbDir] system"l ",.util.strPath hdbDir};
 
 / Helper functions
-add1col:{[tabledir;colname;defaultvalue]
-    if[not colname in ac:allcols tabledir;
-        num:count get` sv tabledir,first ac;
-        colvalue:num#defaultvalue;
-        .log.info"Adding column: ",(string colname)," (type ",(coltype colvalue),") to `",string tabledir;
-        .[` sv tabledir,colname;();:;colvalue];
-        @[tabledir;`.d;,;colname]]};
+add1Col:{[tabDir;colName;defaultVal]
+    if[not colName in colNames:allCols tabDir;
+        num:count get` sv tabDir,first colNames;
+        colVal:num#defaultVal;
+        .log.info"Adding column: ",(string colName)," (type ",(colType colVal),") to ",-3!tabDir;
+        .[` sv tabDir,colName;();:;colVal];
+        @[tabDir;`.d;,;colName]]};
 
-copy1col:{[tabledir;oldcol;newcol]
-    if[(found:oldcol in ac)and not newcol in ac:allcols tabledir;
-        .log.info"Copying column: ",(string oldcol)," to ",(string newcol)," in `",string tabledir;
-        .os.cpy .` sv'tabledir,'(oldcol;newcol);
-        @[tabledir;`.d;,;newcol]];
-    if[not found;'.log.error"Column: ",(string oldcol)," is missing in `",string tabledir]};
+copy1Col:{[tabDir;oldName;newName]
+    if[(found:oldName in colNames)and not newName in colNames:allCols tabDir;
+        .log.info"Copying column: ",(string oldName)," to ",(string newName)," in ",-3!tabDir;
+        .os.cp joinPath .` sv'tabDir,'(oldName;newName);
+        @[tabDir;`.d;,;newName]];
+    if[not found;'.log.error"Column: ",(string oldName)," is missing in ",-3!tabDir]};
 
-delete1col:{[tabledir;col]
-    if[col in ac:allcols tabledir;
-        .log.info"Deleting column: ",(string col)," from `",string tabledir;
-        .os.del[` sv tabledir,col];
-        @[tabledir;`.d;:;ac except col]]};
+delete1Col:{[tabDir;colName]
+    if[colName in colNames:allCols tabDir;
+        .log.info"Deleting column: ",(string colName)," from ",-3!tabDir;
+        hdel[` sv tabDir,colName];
+        @[tabDir;`.d;:;colNames except colName]]};
 
-find1col:{[tabledir;col]
-    .log.info"Column: ",string[col],$[col in allcols tabledir;
+find1Col:{[tabDir;colName]
+    .log.info"Column: ",string[colName],$[colName in allCols tabDir;
         // NOTE: Use read1 if performance is an issue
-        /" (type ",(.Q.s1"h"$first read1(` sv tabledir,col;2;1)),")";
-        " (type ",(coltype get` sv tabledir,col),")";
-        " *NOT*FOUND*"]," in ",.Q.s1 tabledir;};
+        /" (type ",(.Q.s1"h"$first read1(` sv tabDir,colName;2;1)),")";
+        " (type ",(colType get` sv tabDir,colName),")";
+        // TODO: Maybe change this to warn?
+        " *NOT*FOUND*"]," in ",.Q.s1 tabDir;};
 
-fix1table:{[tabledir;goodpartition;goodpartitioncols]
-    partitioncols:allcols tabledir;
-    missingcols:goodpartitioncols except partitioncols;
-    extracols:partitioncols except goodpartitioncols;
-    if[not partitioncols~goodpartitioncols;
-        .log.info"Fixing table `",string tabledir;
-        {add1col[x;z;0#get y,z]}[tabledir;goodpartition]each missingcols;
-        delete1col[tabledir]each extracols;
-        reorder1cols[tabledir;goodpartitioncols]]};
+fix1Tab:{[tabDir;goodTabDir;goodColNames]
+    missingColNames:goodColNames except colNames:allCols tabDir;
+    extraColNames:colNames except goodColNames;
+    if[not colNames~goodColNames;
+        .log.info"Fixing table ",-3!tabDir;
+        {add1Col[x;z;0#get y,z]}[tabDir;goodTabDir]each missingColNames;
+        delete1Col[tabDir]each extraColNames;
+        reorder1Cols[tabDir;goodColNames]]};
 
-fn1col:{[tabledir;col;fn]
-    if[not col in allcols tabledir;'.log.error"Column: ",(string col)," is missing in `",string tabledir];
-    oldattr:-2!oldvalue:get coldir:` sv tabledir,col;
-    newattr:-2!newvalue:fn oldvalue;
-    if[$[not oldattr~newattr;1b;not oldvalue~newvalue];
-        .log.info"Resaving column: ",(string col)," (type ",(coltype newvalue),") in `",string tabledir;
-        oldvalue:0; // NOTE: This prevents OS reports: Access is denied.
-        .[coldir;();:;newvalue]]};
+func1Col:{[tabDir;colName;func]
+    if[not colName in allCols tabDir;'.log.error"Column: ",(string colName)," is missing in ",-3!tabDir];
+    oldAttr:-2!oldVal:get colDir:` sv tabDir,colName;
+    newAttr:-2!newVal:func oldVal;
+    if[$[not oldAttr~newAttr;1b;not oldVal~newVal];
+        .log.info"Resaving column: ",(string colName)," (type ",(colType newVal),") in ",-3!tabDir;
+        oldVal:0; // NOTE: This prevents OS reports: Access is denied.
+        .[colDir;();:;newVal]]};
 
-reorder1cols:{[tabledir;neworder]
-    neworder:distinct neworder;
-    missing:not all neworder in ac:allcols tabledir;
-    mismatch:count[ac]<>count neworder;
-    if[max error:missing,mismatch;
+reorder1Cols:{[tabDir;orderedColNames]
+    orderedColNames:distinct orderedColNames;
+    missingCols:not all orderedColNames in colNames:allCols tabDir;
+    mismatchCols:count[colNames]<>count orderedColNames;
+    if[max error:missingCols,mismatchCols;
         '.log.error" AND "sv("Missing columns in new column order";"Mismatch in column counts")where error];
-    .log.info"Reordering columns in `",string tabledir;
-    @[tabledir;`.d;:;neworder]};
+    .log.info"Reordering columns in ",-3!tabDir;
+    @[tabDir;`.d;:;orderedColNames]};
 
-rename1col:{[tabledir;oldname;newname]
-    if[not any found:oldname,newname in ac:allcols tabledir;
-        '.log.error"Columns: ",(string oldname)," AND ",(string newname)," are missing in `",string tabledir];
+rename1Col:{[tabDir;oldName;newName]
+    if[not any found:(oldName,newName)in colNames:allCols tabDir;
+        '.log.error"Columns: ",(string oldName)," AND ",(string newName)," are missing in ",-3!tabDir];
     if[10b~found;
-        .log.info"Renaming column: ",(string oldname)," to ",(string newname)," in `",string tabledir;
-        .os.ren .` sv'tabledir,'(oldname;newname);
-        @[tabledir;`.d;:;.[ac;where ac=oldname;:;newname]]]};
+        .log.info"Renaming column: ",(string oldName)," to ",(string newName)," in ",-3!tabDir;
+        .os.mv joinPath .` sv'tabDir,'(oldName;newName);
+        @[tabDir;`.d;:;.[colNames;where colNames=oldName;:;newName]]]};
 
-rename1table:{[oldname;newname]
-    if[not any found:.util.exists each(oldname;newname);
-        '.log.error"Tables: ",(string oldname)," AND ",(string newname)," are missing"];
+rename1Tab:{[oldName;newName]
+    if[not any found:.util.exists each(oldName;newName);
+        '.log.error"Tables: ",(string oldName)," AND ",(string newName)," are missing"];
     if[10b~found;
-        .log.info"Renaming table: ",(string oldname)," to ",string newname;
-        .os.ren[oldname;newname]]};
+        .log.info"Renaming table: ",(string oldName)," to ",string newName;
+        .os.mv joinPath[oldName;newName]]};
 
-add1table:{[dbdir;tablename;table]
-    .log.info"Adding table: ",string tablename;
-    @[tablename;`;:;.Q.en[dbdir]0#table];};
+add1Tab:{[hdbDir;tabDir;tabSchema]
+    .log.info"Adding table: ",string tabDir;
+    @[tabDir;`;:;.Q.en[hdbDir]0#tabSchema];};
 
 / Main functions
-thisdb:`:.; / If functions are to be run within the database instance then use <thisdb> (`:.) as dbdir
+thisDb:`:.; / If functions are to be run within the database instance then use <thisDb> (`:.) as hdbDir
 
-/ @example - addcol[`:/data/taq;`trade;`noo;0h]
-addcol:{[dbdir;table;colname;defaultvalue]
-    if[invalidcolname colname;'.log.error"Invalid new column name: ",string colname];
-    add1col[;colname;enum[dbdir;defaultvalue]]each allpaths[dbdir;table];};
+/ @example - addCol[`:/data/taq;`trade;`noo;0h]
+addCol:{[hdbDir;tabName;colName;defaultVal]
+    if[invalidName colName;'.log.error"Invalid new column name: ",string colName];
+    add1Col[;colName;enum[hdbDir;defaultVal]]each allPaths[hdbDir;tabName];};
 
-/ @example - castcol[thisdb;`trade;`size;`short]
-castcol:{[dbdir;table;col;newtype] fncol[dbdir;table;col;newtype$];};
+/ @example - castCol[thisDb;`trade;`size;`short]
+castCol:{[hdbDir;tabName;colName;newType] funcCol[hdbDir;tabName;colName;newType$];};
 
-/ @example - clearattr[thisdb;`trade;`sym]
-clearattrcol:{[dbdir;table;col] setattrcol[dbdir;table;col;`];};
+/ @example - clearAttrCol[thisDb;`trade;`sym]
+clearAttrCol:{[hdbDir;tabName;colName] setAttrCol[hdbDir;tabName;colName;`];};
 
-/ @example - copycol[`:/k4/data/taq;`trade;`size;`size2]
-copycol:{[dbdir;table;oldcol;newcol]
-    if[invalidcolname newcol;'.log.error"Invalid new column name: ",string newcol];
-    copy1col[;oldcol;newcol]each allpaths[dbdir;table];};
+/ @example - copyCol[`:/k4/data/taq;`trade;`size;`size2]
+copyCol:{[hdbDir;tabName;oldName;newName]
+    if[invalidName newName;'.log.error"Invalid new column name: ",string newName];
+    copy1Col[;oldName;newName]each allPaths[hdbDir;tabName];};
 
-/ @example - deletecol[`:/k4/data/taq;`trade;`iz]
-deletecol:{[dbdir;table;col] delete1col[;col]each allpaths[dbdir;table];};
+/ @example - deleteCol[`:/k4/data/taq;`trade;`iz]
+deleteCol:{[hdbDir;tabName;colName] delete1Col[;colName]each allPaths[hdbDir;tabName];};
 
-/ @example - findcol[`:/k4/data/taq;`trade;`iz]
-findcol:{[dbdir;table;col] find1col[;col]each allpaths[dbdir;table];};
+/ @example - findCol[`:/k4/data/taq;`trade;`iz]
+findCol:{[hdbDir;tabName;colName] find1Col[;colName]each allPaths[hdbDir;tabName];};
 
-/ @example - fixtable[`:/k4/data/taq;`trade;`:/data/taq/2005.02.19]
-fixtable:{[dbdir;table;goodpartition] fix1table[;goodpartition;allcols goodpartition]each allpaths[dbdir;table]except goodpartition;};
+/ @example - fixTab[`:/k4/data/taq;`trade;2005.02.19]
+fixTab:{[hdbDir;tabName;goodPartition]
+    goodTabDir:.Q.par[hdbDir;goodPartition;tabName];
+    fix1Tab[;goodTabDir;allCols goodTabDir]each allPaths[hdbDir;tabName]except goodTabDir;};
 
-fncol:{[dbdir;table;col;fn] fn1col[;col;enum[dbdir]fn@]each allpaths[dbdir;table];};
+funcCol:{[hdbDir;tabName;colName;func] func1Col[;colName;enum[hdbDir]func@]each allPaths[hdbDir;tabName];};
 
-/ @example - listcols[`:/k4/data/taq;`trade]
-listcols:{[dbdir;table]
-    .log.info"Table ",(string table)," columns: ";
-    allcols first allpaths[dbdir;table]};
+/ @example - listCols[`:/k4/data/taq;`trade]
+listCols:{[hdbDir;tabName]
+    .log.info"Table ",(string tabName)," columns: ";
+    allCols first allPaths[hdbDir;tabName]};
 
-/ @example - renamecol[`:/k4/data/taq;`trade;`woz;`iz]
-renamecol:{[dbdir;table;oldname;newname]
-    if[invalidcolname newname;'.log.error"Invalid new column name: ",string newname];
-    rename1col[;oldname;newname]each allpaths[dbdir;table];};
+/ @example - renameCol[`:/k4/data/taq;`trade;`woz;`iz]
+renameCol:{[hdbDir;tabName;oldName;newName]
+    if[invalidName newName;'.log.error"Invalid new column name: ",string newName];
+    rename1Col[;oldName;newName]each allPaths[hdbDir;tabName];};
 
-/ @example - reordercols[`:/k4/data/taq;`trade;reverse cols trade]
-reordercols:{[dbdir;table;neworder] reorder1cols[;neworder]each allpaths[dbdir;table];};
+/ @example - reorderCols[`:/k4/data/taq;`trade;reverse cols trade]
+reorderCols:{[hdbDir;tabName;orderedColNames] reorder1Cols[;orderedColNames]each allPaths[hdbDir;tabName];};
 
-/ @example - setattrcol[thisdb;`trade;`sym;`g] / `s `p `u
-setattrcol:{[dbdir;table;col;newattr] fncol[dbdir;table;col;newattr#];};
+/ @example - setAttrCol[thisDb;`trade;`sym;`g] / `s `p `u
+setAttrCol:{[hdbDir;tabName;colName;newAttr] funcCol[hdbDir;tabName;colName;newAttr#];};
 
-/ @example - addtable[`:.;`trade;([]price...)]
-addtable:{[dbdir;tablename;table] add1table[dbdir;;table]each allpaths[dbdir;tablename];};
+/ @example - addTab[`:.;`trade;([]price...)]
+addTab:{[hdbDir;tabName;tabSchema]
+    if[98h<>type tabSchema;'.log.error"Table schema should be type 98h"];
+    add1Tab[hdbDir;;0#tabSchema]each allPaths[hdbDir;tabName];};
 
-/ @example - renametable[`:.;`trade;`transactions]
-renametable:{[dbdir;old;new] rename1table'[allpaths[dbdir;old];allpaths[dbdir;new]];};
+/ @example - renameTab[`:.;`trade;`transactions]
+renameTab:{[hdbDir;old;new] rename1Tab'[allPaths[hdbDir;old];allPaths[hdbDir;new]];};
 
 /
 Examples:
 
-addcol[`:.;`trade;`num;10];
-addcol[`:.;`trade;`F;`test];
-delete1col[`:./2000.10.02/trade;`F];
-fixtable[`:.;`trade;`:./2000.10.03/trade];
-reordercols[`:.;`quote;except[2 rotate cols quote;`date]];
-clearattrcol[`:.;`trade;`sym];
-setattrcol[`:.;`trade;`sym;`p];
-castcol[`:.;`trade;`time;`second];
-renamecol[`:.;`trade;`price;`PRICE];
-pxcols:{(y,())renamecol[`:.;x]'z,()];
-`PRICE`size renamecol[`:.;`trade]'`p`s;
+addCol[`:.;`trade;`num;10];
+addCol[`:.;`trade;`F;`test];
+delete1Col[`:./2000.10.02/trade;`F];
+fixTab[`:.;`trade;`:./2000.10.03/trade];
+reorderCols[`:.;`quote;except[2 rotate cols quote;`date]];
+clearAttrCol[`:.;`trade;`sym];
+setAttrCol[`:.;`trade;`sym;`p];
+castCol[`:.;`trade;`time;`second];
+renameCol[`:.;`trade;`price;`PRICE];
+pxcols:{(y,())renameCol[`:.;x]'z,()];
+`PRICE`size renameCol[`:.;`trade]'`p`s;

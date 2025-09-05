@@ -10,7 +10,7 @@
     "/########";
     "";
     ".docs.refs:.docs.libs:()!();";
-    ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    $[null name;notFound[];\n        not cnt:sum found:(k:key .docs.refs)like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where found;\n        (.log.info\"Did you mean: \",-3!k where found;notFound[])];};");
+    ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    found:.util.stdout .docs.libs@;\n    $[null name;notFound[];\n        name in k:key .docs.refs;found name;\n        not cnt:sum similar:k like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where similar;\n        (.log.info\"Did you mean: \",-3!k where similar;notFound[])];};");
 
 .mkdocs.footer:(
     "";

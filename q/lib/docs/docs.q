@@ -7,10 +7,12 @@
 .docs.refs:.docs.libs:()!();
 .docs.docs:{[name]
     notFound:{.log.warn"Docs name not found. Please add to docs.";.log.info"Available docs:",.log.plainText .docs.refs};
+    found:.util.stdout .docs.libs@;
     $[null name;notFound[];
-        not cnt:sum found:(k:key .docs.refs)like"*",string[.Q.id name],"*";notFound[];
-        1=cnt;.util.stdout .docs.libs k first where found;
-        (.log.info"Did you mean: ",-3!k where found;notFound[])];};
+        name in k:key .docs.refs;found name;
+        not cnt:sum similar:k like"*",string[.Q.id name],"*";notFound[];
+        1=cnt;.util.stdout .docs.libs k first where similar;
+        (.log.info"Did you mean: ",-3!k where similar;notFound[])];};
 
 .docs.refs[`attr]:"Attributes";
 .docs.libs[`attr]:(

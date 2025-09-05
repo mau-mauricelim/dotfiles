@@ -8,7 +8,7 @@ anyExists:{any .util.exists each x};
 if[.os.name~`unknown;'"unknown os name"];
 if[not .os.type in`l`m`s`v`w;'"unknown os type"];
 if[not .os.arch in`x86`x86_64;'"unknown os arch"];
-.os.run[;`]each`ver`nproc`termsize;
+.os.run[;`]each`ver`nproc;
 
 // TEST: Create tmp dir
 .util.print pwd:.os.run[`pwd;`];
@@ -82,5 +82,3 @@ st:.z.t;
 .os.run[cmd:`sleep;s:1];
 et:.z.t
 if[s>int:`second$et-st;cmdFail cmd];
-
-.test.passed 0b;

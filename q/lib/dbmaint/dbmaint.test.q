@@ -40,47 +40,47 @@ met:([c:`date`symbolColumn`timespanColumn`listColumn`booleanColumn`guidColumn`by
 testMeta[`tab;met];
 
 .log.info"Table tab columns: ";
-.log.info columns:listcols[thisdb;`tab];
-findcol[thisdb;`tab]each columns;
+.log.info columns:listCols[thisDb;`tab];
+findCol[thisDb;`tab]each columns;
 
-castcol[thisdb;`tab;`shortColumn;`long];
-renamecol[thisdb;`tab;`shortColumn;`longColumn];
+castCol[thisDb;`tab;`shortColumn;`long];
+renameCol[thisDb;`tab;`shortColumn;`longColumn];
 update c:`longColumn,t:"j"from`met where c=`shortColumn;
-copycol[thisdb;`tab;`longColumn;`longColumn2];
+copyCol[thisDb;`tab;`longColumn;`longColumn2];
 `met insert`longColumn2,"j",``;
 
-addcol[thisdb;`tab;`symbolColumn2;`g#n?`MSFT`AMZN`C`MET`JPM`WFC];
+addCol[thisDb;`tab;`symbolColumn2;`g#n?`MSFT`AMZN`C`MET`JPM`WFC];
 met,update a:`g from select from met where c=`symbolColumn;
 `met insert`symbolColumn2,"s",``g;
-addcol[thisdb;`tab;`symbolNestedColumn;enlist`nested`symbols];
+addCol[thisDb;`tab;`symbolNestedColumn;enlist`nested`symbols];
 `met insert`symbolNestedColumn,"S",``;
 
 testMeta[`tab;met];
 
-clearattrcol[thisdb;`tab;`symbolColumn2];
+clearAttrCol[thisDb;`tab;`symbolColumn2];
 update a:` from`met where c=`symbolColumn2;
-deletecol[thisdb;`tab;`longColumn2];
+deleteCol[thisDb;`tab;`longColumn2];
 delete from`met where c=`longColumn2;
 
-fncol[thisdb;`tab;`byteNestedColumn;asc!'[-9]@];
-renamecol[thisdb;`tab;`byteNestedColumn;`frombyteNestedColumn];
+funcCol[thisDb;`tab;`byteNestedColumn;asc!'[-9]@];
+renameCol[thisDb;`tab;`byteNestedColumn;`frombyteNestedColumn];
 update c:`frombyteNestedColumn,t:"j",a:`s from`met where c=`byteNestedColumn;
 
 testMeta[`tab;met];
 
-columns:listcols[thisdb;`tab];
-reordercols[thisdb;`tab;rev:reverse columns];
+columns:listCols[thisDb;`tab];
+reorderCols[thisDb;`tab;rev:reverse columns];
 met:(1#met),reverse 1_met;
 
 testMeta[`tab;met];
 
-setattrcol[thisdb;`tab;`booleanColumn;`g];
+setAttrCol[thisDb;`tab;`booleanColumn;`g];
 update a:`g from`met where c in`booleanColumn;
-setattrcol[thisdb;`tab;`frombyteNestedColumn;`u];
+setAttrCol[thisDb;`tab;`frombyteNestedColumn;`u];
 update a:`u from`met where c in`frombyteNestedColumn;
-rentable[`:.;`tab;`tab2];
+renameTab[`:.;`tab;`tab2];
 
-addtable[thisdb;`trade;([] time:asc n?00:00:00.000000000; sym:`g#n?`ABC`DEF`GHI; side:n?"BS"; qty:n?1000; tid:n?til 4)];
+addTab[thisDb;`trade;([] time:asc n?00:00:00.000000000; sym:`g#n?`ABC`DEF`GHI; side:n?"BS"; qty:n?1000; tid:n?til 4)];
 
 .log.system"l .";
 
@@ -92,4 +92,9 @@ testMeta[`trade;met];
 select from tab2 where date=last date;
 select from trade where date=last date;
 
-.test.passed 0b;
+.log.info"Test passed";
+
+.log.system"cd ..";
+.log.info"Tearing down";
+.log.warn"Force removing directory: ",.Q.s1 dst:`:hdb;
+.util.recurseDel dst;
