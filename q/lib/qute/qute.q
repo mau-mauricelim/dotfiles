@@ -20,25 +20,25 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
 .qute.actions:`beforeany`beforeeach`before`run`true`fail`after`aftereach`afterall;
 
 .qute.findTestFiles:{[path]
-    if[not .util.exists path;.log.error(-3!path),": No such file or directory";:()];
+    if[not .util.exists path;.log.error(.Q.s1 path),": No such file or directory";:()];
     filepath:$[.util.isDir path;.util.recurseDirNoHidden;(),]path;
     filepath where{last[` vs x]like"qute.*.dsv"}each filepath};
 
 .qute.i.loadTestFile:{[path]
-    .log.info"Loading tests from file: ",(-3!path)," to qutd";
+    .log.info"Loading tests from file: ",(.Q.s1 path)," to qutd";
     tests:(.qute.i.definitionTypes;enlist .qute.cfg.delim)0:path;
     / Set defaults
     tests:update lower action,minver|0,repeat|1i,ms|0i,bytes|0,file:path,line:`int$2+i from tests;
     tests:select from tests where minver<=.z.K,action in .qute.actions;
     / Remove previous tests loaded from the same path if any
     `qutd set(delete from qutd where file=path),tests;
-    .log.info"Loaded ",string[cnt:count tests]," tests from file: ",(-3!path)," to qutd";
+    .log.info"Loaded ",string[cnt:count tests]," tests from file: ",(.Q.s1 path)," to qutd";
     cnt};
 
 qult:.qute.loadTests:{[path]
     .log.info"Loading tests to qutd";
     files:raze .qute.findTestFiles each path;
-    if[not count files;:{}.log.warn"No test files found to load: ",-3!path];
+    if[not count files;:{}.log.warn"No test files found to load: ",.Q.s1 path];
     cnt:.qute.i.loadTestFile each files;
     .log.info"Loaded ",string[sum cnt]," tests to qutd";
     / Sort by file, custom action order - preserves run, true fail orders

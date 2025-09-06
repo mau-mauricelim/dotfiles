@@ -133,7 +133,7 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
         .log.error"Library not found: ",sx;
         :if[not null libName;
             if[count similar:exec name from .lib.info where name like("*",string[libName],"*");
-                .log.info"Did you mean: ",-3!similar]]];
+                .log.info"Did you mean: ",.Q.s1 similar]]];
     lib:first lib;
     / Use .lib.requireForce to reload library
     if[not[force]&all lib`loaded;:{}.log.debug"Library is already loaded: ",sx];

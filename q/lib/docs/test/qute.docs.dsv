@@ -1,3 +1,3 @@
-action | minver | code                                                                | repeat | ms | bytes | comment
-before |        | .lib.require`docs                                                   |        |    |       | Initialize library
-true   |        | not any{(-3!x)like"*",(48#"\\",15#"[0-9]"),"*"}each raze .docs.libs |        |    |       | Check for unicodes
+action | minver | code                                                                  | repeat | ms | bytes | comment
+before |        | .lib.require`docs                                                     |        |    |       | Initialize library
+true   |        | not any{.Q.s1[x]like"*",(48#"\\",15#"[0-9]"),"*"}each raze .docs.libs |        |    |       | Check for unicodes

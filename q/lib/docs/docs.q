@@ -12,7 +12,7 @@
         name in k:key .docs.refs;found name;
         not cnt:sum similar:k like"*",string[.Q.id name],"*";notFound[];
         1=cnt;.util.stdout .docs.libs k first where similar;
-        (.log.info"Did you mean: ",-3!k where similar;notFound[])];};
+        (.log.info"Did you mean: ",.Q.s1 k where similar;notFound[])];};
 
 .docs.refs[`attr]:"Attributes";
 .docs.libs[`attr]:(

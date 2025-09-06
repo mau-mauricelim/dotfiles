@@ -6,7 +6,7 @@
 hbu:.util.humanReadableBytesInUnit:{[bytes;unit]
     units:`$b,"KMGTPEZY",'b:"B";
     if[specified:not(::)~unit;
-        if[null units offset:units?unit:upper unit;'"Unit not found in: ",-3!units]];
+        if[null units offset:units?unit:upper unit;'"Unit not found in: ",.Q.s1 units]];
     power:0^floor(binary:1024)xlog bytes,:();
     size:bytes%binary xexp power;
     if[specified;size*:binary xexp power-offset];

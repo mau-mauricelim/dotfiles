@@ -10,7 +10,7 @@
     "/########";
     "";
     ".docs.refs:.docs.libs:()!();";
-    ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    found:.util.stdout .docs.libs@;\n    $[null name;notFound[];\n        name in k:key .docs.refs;found name;\n        not cnt:sum similar:k like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where similar;\n        (.log.info\"Did you mean: \",-3!k where similar;notFound[])];};");
+    ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    found:.util.stdout .docs.libs@;\n    $[null name;notFound[];\n        name in k:key .docs.refs;found name;\n        not cnt:sum similar:k like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where similar;\n        (.log.info\"Did you mean: \",.Q.s1 k where similar;notFound[])];};");
 
 .mkdocs.footer:(
     "";
@@ -39,7 +39,7 @@
 
 .mkdocs.mkhead:{[k;title]
     ("";
-    ".docs.refs[`",k,"]:",(-3!title),";";
+    ".docs.refs[`",k,"]:",(.Q.s1 title),";";
     ".docs.libs[`",k,"]:(")};
 .mkdocs.mkdoc:{[h;path;file]
     content:read0 filePath:.Q.dd[path;file];
@@ -47,7 +47,7 @@
     .mkdocs.chkFmt[filePath;content];
     title:2_first content;
     body:-1_3_content;
-    body:.mkdocs.i.indent,/:(-3!'body),'";";
+    body:.mkdocs.i.indent,/:(.Q.s1@'body),'";";
     body:@[body;-1+count body;{(-1_x),");"}];
     k:string .Q.id first` vs file;
     head:.mkdocs.mkhead[k;title];

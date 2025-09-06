@@ -15,6 +15,7 @@ exists:.util.exists:{not()~key x};
 isDir:.util.isDir:11h~type key@;
 isFile:.util.isFile:{x~key x};
 
+stab:.util.showTab:{([]x)};
 randSeed:.util.randSeed:{system"S ",0N?string[.z.t]except":."};
 exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 
@@ -25,6 +26,7 @@ dir:.util.recurseDirNoHidden:.util.i.recurseDir 0b;
 diR:.util.recurseDir:.util.i.recurseDir 1b;
 
 / rm -rf
+// TODO: Prevent rm -rf of `:. etc
 nuke:.util.recurseDel:hdel each desc .util.recurseDir@; / desc sort
 / Delete object from namespace
 odel:.util.objectDel:{![$[1=count v;`.;` sv -1_v];();0b;(),last v:` vs x]};
