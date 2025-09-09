@@ -46,7 +46,8 @@
 .os.cmd.rmrf.l:"rm -rfv ",;
 .os.cmd.rmrf.w:{"del /f /s /q ",p," 2>nul & rmdir /s /q ",(p:x)," 2>nul & type nul"};
 
-.os.cmd.mv.w:.os.cmd.mv.l:"r ",;
+.os.cmd.mv.l:"mv -v ",;
+.os.cmd.mv.w:"move /y ",;
 
 .os.cmd.cp.l:"cp -v ",;
 .os.cmd.cp.w:"copy /y ",;
