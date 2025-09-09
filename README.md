@@ -20,27 +20,30 @@ $ git restore . # OR git reset --hard
 ```
 
 ### 🐚 Shell packages included
-- sudo
-- zsh
-- ripgrep
-- fd ⚡
-- tar
-- bzip2
-- unzip 🤐
-- rlwrap 🌯
-- bat(cat) 🦇 🐈
-- hyperfine ⏱️
-- zoxide
-- curl 🥌
-- git
-- vim
-- less
-- eza
-- neovim
+- aoc-cli 🎅
 - bash 👊
+- bat(cat) 🦇 🐈
+- bzip2 🤐
+- curl 🥌
+- delta 🌈
+- eza 📜
+- fd 📂
 - fzf 🌸
+- git 🌳
+- hyperfine ⏱️
+- jq { }
 - lazygit 🦥
+- less 📟
+- neovim 📝
+- npm (nvm) 📦
+- ripgrep 🔍
+- rlwrap 🌯
 - ssh 🐚
-- tmux
-- npm (nvm)
+- sudo 🦸🏻‍♂️
+- tar 🗃️
+- tmux🪟
+- unzip 🤐
+- vim 📄
 - yazi 🦆 (file 📁)
+- zoxide 🦘
+- zsh 🐚
