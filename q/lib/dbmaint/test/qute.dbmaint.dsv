@@ -1,25 +1,52 @@
-action | minver | code                 | repeat | ms | bytes | comment
-before |        | .lib.require`dbmaint |        |    |       | Initialize library
-true   |        | 1b                   |        |    |       | TODO
-
-TODO
-.lib.require`dbmaint
-.test.g:{n:1000;t:`sym`time xasc([]time:2023.01.02+n?3D;sym:n?`3;price:n?10000f;size:n?10000);t group`date$t`time}[]
-{[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[.test.tmpHdb:`:tmp/hdb]'[key .test.g;.test.g]
-reload .test.tmpHdb
-addCol[thisDb;`trade;`noo;0h]
-castCol[thisDb;`trade;`size;`short]
-clearAttrCol[thisDb;`trade;`sym]
-copyCol[thisDb;`trade;`size;`size2]
-deleteCol[thisDb;`trade;`size]
-findCol[thisDb;`trade;`iz]
-reload thisDb
-.Q.dd[thisDb;2023.01.03,`trade`]set .Q.en[thisDb]delete size2 from select from trade where date=2023.01.03
-fixTab[thisDb;`trade;2023.01.04]
-funcCol[thisDb;`trade;`price;2*]
-listCols[thisDb;`trade]
-renameCol[thisDb;`trade;`woz;`iz] / fail
-renameCol[thisDb;`trade;`size2;`size]
-reload thisDb
-
-https://github.com/KxSystems/kdb/blob/master/utils/dbmaint.md
+action | minver | code                                                                           | repeat | ms | bytes | comment
+before |        | .lib.require`dbmaint                                                           |        |    |       | Initialize library
+before |        | system"d .test"                                                                |        |    |       | Change to .test namespace
+before |        | n:1000; trade:([]time:2023.01.01+n?3D;sym:n?`3;price:n?10000f;size:n?10000)    |        |    |       | Create trade table
+before |        | trade:`sym`time xasc trade                                                     |        |    |       | Sort trade table
+before |        | g:trade group`date$trade`time                                                  |        |    |       | Group trade table by date
+before |        | d:2023.01.02; t:g d                                                            |        |    |       | Create ref date and table
+before |        | pwd:.util.sysCd""                                                              |        |    |       | Store current working directory
+before |        | hdbDir:`:tmp/hdb                                                               |        |    |       | Setup HDB directory
+before |        | {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g]        |        |    |       | Create HDB
+before |        | m:([c:`date`time`sym`price`size]t:"dpsfj";f:`;a:```p``)                        |        |    |       | Create trade meta
+before |        | system"d ."                                                                    |        |    |       | Change to default namespace
+before |        | reload .test.hdbDir                                                            |        |    |       | Reload HDB
+true   |        | .test.m~meta trade                                                             |        |    |       | Check trade meta
+fail   |        | addCol[thisDb;`trade;`$"!n^@li% n@><";0h]                                      |        |    |       | Invalid new column name
+run    |        | addCol[thisDb;`trade;`noo;0h]                                                  |        |    |       |
+fail   |        | castCol[thisDb;`trade;`size;`fail]                                             |        |    |       | Invalid cast type
+run    |        | castCol[thisDb;`trade;`size;`short]                                            |        |    |       |
+fail   |        | copyCol[thisDb;`trade;`size2;`size]                                            |        |    |       | Column does not exist
+run    |        | copyCol[thisDb;`trade;`size;`size2]                                            |        |    |       |
+run    |        | deleteCol[thisDb;`trade;`size]                                                 |        |    |       |
+run    |        | clearAttrCol[thisDb;`trade;`sym]                                               |        |    |       |
+run    |        | delete from`.test.m where c=`size                                              |        |    |       | Update trade meta changes
+run    |        | update a:` from`.test.m where c=`sym                                           |        |    |       | Update trade meta changes
+run    |        | `.test.m insert(`noo`size2;"hh";``;``)                                         |        |    |       | Update trade meta changes
+true   |        | .test.m~meta trade                                                             |        |    |       | Check trade meta
+run    |        | setAttrCol[thisDb;`trade;`sym;`g]                                              |        |    |       |
+run    |        | update a:`g from`.test.m where c=`sym                                          |        |    |       | Update trade meta changes
+true   |        | .test.m~meta trade                                                             |        |    |       | Check trade meta
+run    |        | .Q.dd[thisDb;.test.d,`trade`]set .Q.en[thisDb]delete size2 from .test.t        |        |    |       | Break HDB table in partition
+run    |        | findCol[thisDb;`trade;`size2]                                                  |        |    |       |
+run    |        | fixTab[thisDb;`trade;2023.01.03]                                               |        |    |       | Fix HDB table based on good partition
+run    |        | listCols[thisDb;`trade]                                                        |        |    |       |
+true   |        | .test.m~meta trade                                                             |        |    |       | Check trade meta
+run    |        | .test.p:select price from trade                                                |        |    |       |
+run    |        | funcCol[thisDb;`trade;`price;2*]                                               |        |    |       |
+true   |        | (2*.test.p)~select price from trade                                            |        |    |       |
+run    |        | renameCol[thisDb;`trade;`size2;`size]                                          |        |    |       |
+run    |        | reload thisDb                                                                  |        |    |       |
+fail   |        | reorderCols[thisDb;`trade;exec c from .test.m]                                 |        |    |       | Wrong columns
+run    |        | reorderCols[thisDb;`trade;.test.c:reverse cols[trade]except`date]              |        |    |       |
+run    |        | reload thisDb                                                                  |        |    |       |
+true   |        | .test.c~cols[trade]except`date                                                 |        |    |       |
+run    |        | addTab[thisDb;`trade1;.Q.en[thisDb]([]time:0#0Nt;sym:0#`;price:0#0n;size:0#0)] |        |    |       |
+run    |        | reload thisDb                                                                  |        |    |       |
+true   |        | `trade1 in tables`                                                             |        |    |       |
+run    |        | renameTab[thisDb;`trade1;`trade2]                                              |        |    |       |
+run    |        | reload thisDb                                                                  |        |    |       |
+true   |        | `trade2 in tables`                                                             |        |    |       |
+after  |        | .util.sysCd .test.pwd                                                          |        |    |       | Change to previous working directory
+after  |        | .util.recurseDel .util.dirname .test.hdbDir                                    |        |    |       | Delete HDB
+after  |        | delete from`.test                                                              |        |    |       | Cleanup .test namespace

@@ -48,7 +48,7 @@ reload:.dbm.reload:{[hdbDir] .util.sysLoad .util.strPath hdbDir};
     $[found;
         [lvl:`info;st:"Found";  msg:" of type [",(.dbm.colType get` sv tabDir,colName),"]"];
         [lvl:`warn;st:"Missing";msg:""]];
-    .log.[lvl]st," column: [",(string colName),"]",msg," in [",(.Q.s1 tabDir),"]";};
+    .log[lvl]st," column: [",(string colName),"]",msg," in [",(.Q.s1 tabDir),"]";};
 
 .dbm.fix1Tab:{[tabDir;goodTabDir;goodColNames]
     missingColNames:goodColNames except colNames:.dbm.allCols tabDir;
@@ -56,6 +56,7 @@ reload:.dbm.reload:{[hdbDir] .util.sysLoad .util.strPath hdbDir};
     if[not colNames~goodColNames;
         .log.info"Fixing table: [",(.Q.s1 tabDir),"]";
         {.dbm.add1Col[x;z;0#get y,z]}[tabDir;goodTabDir]each missingColNames;
+        // WARN: Fix tables will delete extra columns
         .dbm.delete1Col[tabDir]each extraColNames;
         .dbm.reorder1Cols[tabDir;goodColNames]]};
 
@@ -69,11 +70,14 @@ reload:.dbm.reload:{[hdbDir] .util.sysLoad .util.strPath hdbDir};
         .[colDir;();:;newVal]]};
 
 .dbm.reorder1Cols:{[tabDir;orderedColNames]
+    // WARN: Reordering columns will remove existing duplicates
+    colNames:distinct .dbm.allCols tabDir;
     orderedColNames:distinct orderedColNames;
-    missingCols:not all orderedColNames in colNames:.dbm.allCols tabDir;
-    mismatchCols:count[colNames]<>count orderedColNames;
-    if[max error:missingCols,mismatchCols;
-        '.log.error" AND "sv("Missing columns in new column order";"Mismatch in column counts")where error];
+    missingColNames:colNames except orderedColNames;
+    extraColNames:orderedColNames except colNames;
+    if[max error:0<count each(missingColNames;extraColNames);
+        msg:("Missing columns: [",(.Q.s1 missingColNames),"]";"Extra columns: [",(.Q.s1 extraColNames),"]");
+        '.log.error(" AND "sv msg where error)," in new column order"];
     .log.info"Reordering columns in [",(.Q.s1 tabDir),"]";
     @[tabDir;`.d;:;orderedColNames]};
 
@@ -126,7 +130,7 @@ findCol:.dbm.findCol:{[hdbDir;tabName;colName] .dbm.find1Col[;colName]each .dbm.
 / @example - fixTab[`:/k4/data/taq;`trade;2005.02.19]
 fixTab:.dbm.fixTab:{[hdbDir;tabName;goodPartition]
     goodTabDir:.Q.par[hdbDir;goodPartition;tabName];
-    .dbm.fix1Tab[;goodTabDir;.dbm.allCols goodTabDir]each .dbm.allPaths[hdbDir;tabName]except goodTabDir;};
+    .dbm.fix1Tab[;goodTabDir;distinct .dbm.allCols goodTabDir]each .dbm.allPaths[hdbDir;tabName]except goodTabDir;};
 
 funcCol:.dbm.funcCol:{[hdbDir;tabName;colName;func] .dbm.func1Col[;colName;.dbm.enum[hdbDir]func@]each .dbm.allPaths[hdbDir;tabName];};
 
