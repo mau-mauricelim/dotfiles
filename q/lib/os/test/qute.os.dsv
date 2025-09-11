@@ -1,0 +1,73 @@
+action | minver | code                                                                                      | repeat | ms | bytes | comment
+before |        | .lib.require`os                                                                           |        |    |       | Initialize library
+before |        | system"d .test"                                                                           |        |    |       | Change to .test namespace
+before |        | n:3; tmp:`:tmp                                                                            |        |    |       | Setup test variables
+before |        | notAnyExist:{not any .util.exists each x}                                                 |        |    |       | Setup test functions
+before |        | allExist:{all .util.exists each x}                                                        |        |    |       | Setup test functions
+before |        | cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which  |        |    |       | Setup test variables
+before |        | cmd,:`where`pg`sigint`sigterm`sigkill`sleep                                               |        |    |       | Setup test variables
+true   |        | all(k:key`_.os.cmd)in cmd                                                                 |        |    |       | Test existence of all available commands
+true   |        | .os.name<>`unknown                                                                        |        |    |       | Test .os.name
+true   |        | .os.type in`l`m`s`v`w                                                                     |        |    |       | Test .os.type
+true   |        | .os.arch in`x86`x86_64                                                                    |        |    |       | Test .os.arch
+before |        | pwd:.os.pwd`                                                                              |        |    |       | Setup test variables
+run    |        | n sublist .os.env`                                                                        |        |    |       | Test .os.env
+run    |        | n sublist .os.ver`                                                                        |        |    |       | Test .os.ver
+run    |        | n sublist .os.nproc`                                                                      |        |    |       | Test .os.nproc
+true   |        | pwd~.os.cd`                                                                               |        |    |       | Test .os.cd
+run    |        | .os.rmrf tmp                                                                              |        |    |       | Test .os.rmrf
+run    |        | .os.cd tmp                                                                                |        |    |       | Creates the directory if it does not exist
+before |        | joinStr:" "sv                                                                             |        |    |       | Setup test functions
+before |        | d:("dir1";"dir2";"\"dir3 with space\"";"dir4/nested";"\"dir5 nested/deeper/with space\"") |        |    |       | Setup test variables
+before |        | splitStrDirs:.util.strPath each d                                                         |        |    |       | Setup test variables
+before |        | joinedStrDirs:joinStr splitStrDirs                                                        |        |    |       | Setup test variables
+run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       | Test .os.mkdir
+run    |        | .os.ls`                                                                                   |        |    |       | Test .os.ls
+before |        | splitStrDirsNoQuote:splitStrDirs except\:"\""                                             |        |    |       | Setup test variables
+before |        | symDirs:.q.Hsym splitStrDirsNoQuote                                                       |        |    |       | Setup test variables
+true   |        | allExist symDirs                                                                          |        |    |       |
+before |        | quoteIfSpace:{$[" "in x;"\"",x,"\"";x]}                                                   |        |    |       | Setup test functions
+before |        | findDirs:raze[.util.dirname\'[splitStrDirsNoQuote]]except enlist""                        |        |    |       | Setup test variables
+before |        | indvJoinedStrDirs:joinStr quoteIfSpace each findDirs                                      |        |    |       | Setup test variables
+run    |        | .os.ls indvJoinedStrDirs                                                                  |        |    |       |
+run    |        | .os.rmdir indvJoinedStrDirs                                                               |        |    |       | Test .os.rmdir
+true   |        | notAnyExist symDirs                                                                       |        |    |       |
+run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
+before |        | rootJoinedStrDirs:joinStr{quoteIfSpace first"/"vs x}each splitStrDirsNoQuote              |        |    |       | Setup test variables
+run    |        | .os.rmrf rootJoinedStrDirs                                                                |        |    |       |
+true   |        | notAnyExist symDirs                                                                       |        |    |       |
+run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
+before |        | destDir:"dir6"                                                                            |        |    |       | Setup test variables
+run    |        | .os.mkdir destDir                                                                         |        |    |       |
+before |        | newRootJoinedStrDirs:joinStr(rootJoinedStrDirs;destDir)                                   |        |    |       | Setup test variables
+run    |        | .os.cpr newRootJoinedStrDirs                                                              |        |    |       | Test .os.cpr
+run    |        | .os.cd destDir                                                                            |        |    |       |
+true   |        | allExist symDirs                                                                          |        |    |       |
+run    |        | .os.cd".."                                                                                |        |    |       |
+run    |        | .os.rmrf newRootJoinedStrDirs                                                             |        |    |       |
+before |        | splitStrFiles:.util.strPath each("file1";"\"file2 with space\"")                          |        |    |       | Setup test variables
+before |        | joinedStrFiles:joinStr splitStrFiles                                                      |        |    |       | Setup test variables
+before |        | strFile:first splitStrFiles                                                               |        |    |       | Setup test variables
+run    |        | .os.touch strFile                                                                         |        |    |       | Test .os.touch
+run    |        | .os.cp joinedStrFiles                                                                     |        |    |       | Test .os.cp
+before |        | splitStrFilesNoQuote:splitStrFiles except\:"\""                                           |        |    |       | Setup test variables
+before |        | symFiles:.q.Hsym splitStrFilesNoQuote                                                     |        |    |       | Setup test variables
+true   |        | allExist symFiles                                                                         |        |    |       |
+run    |        | .os.rm strFile                                                                            |        |    |       | Test .os.rm
+true   |        | all@[.util.exists each symFiles;0;not]                                                    |        |    |       |
+run    |        | .os.mv joinStr reverse splitStrFiles                                                      |        |    |       | Test .os.mv
+run    |        | .os.ln joinedStrFiles                                                                     |        |    |       | Test .os.ln
+true   |        | allExist symFiles                                                                         |        |    |       |
+before |        | textFile:`:test.txt; text:{100?.Q.an}each til 100                                         |        |    |       | Setup test variables
+run    |        | textFile 0:text                                                                           |        |    |       |
+true   |        | text~.os.cat textFile                                                                     |        |    |       | Test .os.cat
+before |        | search:`q                                                                                 |        |    |       | Setup test variables
+run    |        | .os.where search                                                                          |        |    |       | Test .os.where
+run    |        | n sublist .os.pg search                                                                   |        |    |       | Test .os.pg
+run    |        | st:.z.t                                                                                   |        |    |       |
+run    |        | .os.sleep second:1                                                                        |        |    |       | Test .os.sleep
+true   |        | second<=`second$.z.t-st                                                                   |        |    |       |
+after  |        | .os.cd pwd                                                                                |        |    |       |
+after  |        | .os.rmrf tmp                                                                              |        |    |       |
+after  |        | system"d ."                                                                               |        |    |       | Change to default namespace
+after  |        | delete from`.test                                                                         |        |    |       | Cleanup .test namespace

@@ -3,12 +3,12 @@ before |        | .lib.require`util           |        |    |       | Initialize
 before |        | .util.randSeed[];system"S"  |        |    |       | Set random seed
 before |        | .lib.require`qnix           |        |    |       | Initialize library
 before |        | system"d .test"             |        |    |       | Change to .test namespace
-before |        | n2:2*n:.head.n:rand 10000   |        |    |       | Setup test variable
+before |        | n2:2*n:.head.n:rand 10000   |        |    |       | Setup test variables
 run    |        | res:.head.head til n2       |        |    |       |
 true   |        | .head.n~count res           |        |    |       |
 true   |        | res~.head.head[ 2*n2]res    |        |    |       |
 true   |        | res~.head.head[-2*n2]res    |        |    |       |
-before |        | nn05:neg n05:n div 2;       |        |    |       | Setup test variable
+before |        | nn05:neg n05:n div 2;       |        |    |       | Setup test variables
 run    |        | resN05: .head.head[ n05]res |        |    |       |
 run    |        | resNn05:.head.head[nn05]res |        |    |       |
 true   |        | ( n05#res)~ resN05          |        |    |       |

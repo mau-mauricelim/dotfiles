@@ -3,7 +3,7 @@ before |        | .lib.require`bytes                                            
 true   |        | "1023 B"~first .util.humanReadableBytes 1023                                         |        |    |       |
 true   |        | "0.9990234 KB"~first .util.humanReadableBytesInUnit[1023;`kb]                        |        |    |       |
 before |        | system"d .test"                                                                      |        |    |       | Change to .test namespace
-before |        | bytes:(1024;2.5*1024 xexp 3;3.75*1024 xexp 4)                                        |        |    |       | Setup test variable
+before |        | bytes:(1024;2.5*1024 xexp 3;3.75*1024 xexp 4)                                        |        |    |       | Setup test variables
 true   |        | ("1 KB";"2.5 GB";"3.75 TB")~.util.humanReadableBytes[bytes]                          |        |    |       |
 true   |        | ("0.0009765625 MB";"2560 MB";"3932160 MB")~.util.humanReadableBytesInUnit[bytes;`MB] |        |    |       |
 after  |        | system"d ."                                                                          |        |    |       | Change to default namespace

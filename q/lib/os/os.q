@@ -2,6 +2,7 @@
 /# OS #
 /######
 // INFO: Inspired by https://github.com/BuaBook/kdb-common/blob/master/src/os.q
+// NOTE: Windows commands: https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/
 // NOTE: The following windows commands do not have a verbose option: mkdir, rmdir
 // WARN: Path with spaces need to be quoted
 
@@ -60,15 +61,20 @@
 //       mklink requires elevated permission
 .os.cmd.ln.w:"mklink ",;
 
+.os.cmd.head.l:"head ",;
 .os.cmd.tail.l:"tail ",;
-.os.cmd.tail.w:"type ",;
+
+.os.cmd.cat.l:"cat ",;
+.os.cmd.cat.w:"type ",;
 
 .os.cmd.touch.l:"touch ",;
 // NOTE: This command can only create one file at a time
 .os.cmd.touch.w:"copy nul ",;
 
 .os.cmd.which.l:"which ",;
-.os.cmd.which.w:"where ",;
+
+.os.cmd.where.l:"whereis ",;
+.os.cmd.where.w:"where ",;
 
 .os.cmd.pg.l:"ps -ef | grep ",;
 .os.cmd.pg.w:"tasklist /FO CSV /NH | findstr ",;
@@ -88,6 +94,6 @@
 .os.cmd.sleep.w:{"ping 127.0.0.1 -n ",(string 1+"J"$x)," >nul"};
 
 / Set .os.cmd.cmdName to .os.cmdName for .os.type
-/ @global `.os.pwd`.os.env`.os.ver`.os.nproc`.os.cd`.os.ls`.os.mkdir`.os.rmdir`.os.rm`.os.rmrf`.os.mv`.os.cp
-/         `.os.cpr`.os.ln`.os.tail`.os.touch`.os.which`.os.pg`.os.sigint`.os.sigterm`.os.sigkill`.os.sleep
+// NOTE: To generate a list of @global: (` sv,[`.os]@)@'key`_.os.cmd
+/ @global `.os.pwd`.os.env`.os.ver`.os.nproc`.os.cd`.os.ls`.os.mkdir`.os.rmdir`.os.rm`.os.rmrf`.os.mv`.os.cp`.os.cpr`.os.ln`.os.head`.os.tail`.os.cat`.os.touch`.os.which`.os.where`.os.pg`.os.sigint`.os.sigterm`.os.sigkill`.os.sleep
 {{(` sv`.os,x)set .os.run x}each cmds:key(`_.os.cmd)[;.os.type];}[];
