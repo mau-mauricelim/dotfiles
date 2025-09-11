@@ -84,6 +84,7 @@ vim.keymap.set('n', '<Leader>ld', "mz<cmd>%!awk '\\!a[$0]++'<CR>`z", { desc = 'R
 vim.keymap.set('v', '<Leader>ld', "mz:!awk '\\!a[$0]++'<CR>`z", { desc = 'Remove [D]uplicate lines in visual selection', silent = true })
 vim.keymap.set('n', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
 vim.keymap.set('v', '<Leader>lx', '<cmd>w | e ++ff=dos | set ff=unix | w<CR>', { desc = 'Convert file format to Uni[X]', silent = true })
+vim.keymap.set('n', '<Leader>le', ':g/^$/d<CR>', { desc = 'Remove [L]ines [E]mpty in file', silent = true })
 -- Json Line Operations
 vim.keymap.set('n', '<Leader>jq', ':%!jq<CR>', { desc = 'Pretty print json', silent = true })
 vim.keymap.set('v', '<Leader>jq', ':!jq<CR>',  { desc = 'Pretty print json', silent = true })
