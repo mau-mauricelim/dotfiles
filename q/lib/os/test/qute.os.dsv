@@ -6,6 +6,7 @@ before |        | notAnyExist:{not any .util.exists each x}                     
 before |        | allExist:{all .util.exists each x}                                                        |        |    |       | Setup test functions
 before |        | cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which  |        |    |       | Setup test variables
 before |        | cmd,:`where`pg`sigint`sigterm`sigkill`sleep                                               |        |    |       | Setup test variables
+before |        | w:.util.isWin[]                                                                           |        |    |       | Setup test variables
 true   |        | all(k:key`_.os.cmd)in cmd                                                                 |        |    |       | Test existence of all available commands
 true   |        | .os.name<>`unknown                                                                        |        |    |       | Test .os.name
 true   |        | .os.type in`l`m`s`v`w                                                                     |        |    |       | Test .os.type
@@ -33,14 +34,16 @@ run    |        | .os.ls indvJoinedStrDirs                                      
 run    |        | .os.rmdir indvJoinedStrDirs                                                               |        |    |       | Test .os.rmdir
 true   |        | notAnyExist symDirs                                                                       |        |    |       |
 run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
-before |        | rootJoinedStrDirs:joinStr{quoteIfSpace first"/"vs x}each splitStrDirsNoQuote              |        |    |       | Setup test variables
+before |        | rootSplitStrDirs:{quoteIfSpace first"/"vs x}each splitStrDirsNoQuote                      |        |    |       | Setup test variables
+before |        | rootJoinedStrDirs:joinStr rootSplitStrDirs                                                |        |    |       | Setup test variables
 run    |        | .os.rmrf rootJoinedStrDirs                                                                |        |    |       |
 true   |        | notAnyExist symDirs                                                                       |        |    |       |
 run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
 before |        | destDir:"dir6"                                                                            |        |    |       | Setup test variables
 run    |        | .os.mkdir destDir                                                                         |        |    |       |
 before |        | newRootJoinedStrDirs:joinStr(rootJoinedStrDirs;destDir)                                   |        |    |       | Setup test variables
-run    |        | .os.cpr newRootJoinedStrDirs                                                              |        |    |       | Test .os.cpr
+run    |        | if[not w;.os.cpr newRootJoinedStrDirs]                                                    |        |    |       | Test .os.cpr
+run    |        | if[w;{.os.cpr joinStr(x;y)}[;destDir]'[rootSplitStrDirs]]                                 |        |    |       | Test .os.cpr
 run    |        | .os.cd destDir                                                                            |        |    |       |
 true   |        | allExist symDirs                                                                          |        |    |       |
 run    |        | .os.cd".."                                                                                |        |    |       |
@@ -56,7 +59,8 @@ true   |        | allExist symFiles                                             
 run    |        | .os.rm strFile                                                                            |        |    |       | Test .os.rm
 true   |        | all@[.util.exists each symFiles;0;not]                                                    |        |    |       |
 run    |        | .os.mv joinStr reverse splitStrFiles                                                      |        |    |       | Test .os.mv
-run    |        | .os.ln joinedStrFiles                                                                     |        |    |       | Test .os.ln
+before |        | lnJoinedStrFiles:joinStr$[w;reverse;]splitStrFiles                                        |        |    |       |
+run    |        | .os.ln lnJoinedStrFiles                                                                   |        |    |       | Test .os.ln
 true   |        | allExist symFiles                                                                         |        |    |       |
 before |        | textFile:`:test.txt; text:{100?.Q.an}each til 100                                         |        |    |       | Setup test variables
 run    |        | textFile 0:text                                                                           |        |    |       |

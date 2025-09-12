@@ -1,0 +1,11 @@
+action | minver | code                                                  | repeat | ms | bytes    | comment
+before |        | .lib.require`cache                                    |        |    |          | Initialize library
+before |        | system"d .test"                                       |        |    |          | Change to .test namespace
+before |        | f:`.test.f                                            |        |    |          | Setup test variables
+before |        | t:(f;2;3)                                             |        |    |          | Setup test variables
+run    |        | .cache.cacheFn[`.test.f;{[x;y] y*x xexp til 1000000}] |        |    |          | Cache expensive function
+run    |        | r1:value t                                            |        | 80 | 30000000 | Run function
+run    |        | r2:value t                                            |        | 1  | 1500     | Run function
+true   |        | r1~r2                                                 |        | 1  | 1500     | Check result matches
+after  |        | system"d ."                                           |        |    |          | Change to default namespace
+after  |        | delete from`.test                                     |        |    |          | Cleanup .test namespace

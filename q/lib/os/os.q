@@ -54,11 +54,10 @@
 .os.cmd.cp.w:"copy /y ",;
 
 .os.cmd.cpr.l:"cp -rv ",;
+// WARN: Windows xcopy only allows 1 <source>
 .os.cmd.cpr.w:{"xcopy /e /s /i /h /k /y /f ",p," 2>nul || copy /y ",(p:x)," 2>nul & type nul"};
 
 .os.cmd.ln.l:"ln -sfv ",;
-// NOTE: mklink <link> and <target> is opposite to that of ln
-//       mklink requires elevated permission
 .os.cmd.ln.w:"mklink ",;
 
 .os.cmd.head.l:"head ",;
@@ -68,7 +67,7 @@
 .os.cmd.cat.w:"type ",;
 
 .os.cmd.touch.l:"touch ",;
-// NOTE: This command can only create one file at a time
+// WARN: Windows copy nul can only create one file at a time
 .os.cmd.touch.w:"copy nul ",;
 
 .os.cmd.which.l:"which ",;
