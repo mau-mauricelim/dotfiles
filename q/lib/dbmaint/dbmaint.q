@@ -19,7 +19,7 @@ colType:.dbm.colType:{
         n;x;
         not type raze x;();x];
     " "sv .Q.s1 each(n;c)};
-reload:.dbm.reload:{[hdbDir] .util.sysLoad .util.strPath hdbDir};
+reload:.dbm.reload:.util.sysLoad .util.strPath@;
 
 / Helper functions
 .dbm.add1Col:{[tabDir;colName;defaultVal]

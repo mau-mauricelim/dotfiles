@@ -14,3 +14,7 @@ query:.browse.query:{.browse.browse .browse.engine,x};
 kdocs:.browse.kdocs:{.browse.browse .browse.engine,"site:",.browse.codeKx,"+",x};
 / https://code.kx.com/q?q=search query
 qdocs:.browse.qdocs:{.browse.browse .browse.codeKx,"/q?q=",x};
+
+.browse.winCmds:"https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/";
+/ https://learn.microsoft.com/en-us/windows-server/administration/windows-commands/<cmd>
+wdocs:.browse.wdocs:{.browse.browse .browse.winCmds,x};

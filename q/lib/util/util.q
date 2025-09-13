@@ -6,6 +6,7 @@
 .util.isWsl:{@[{system x;1b};"uname -a|grep -i wsl";0b]&.z.o like"l*"};
 
 P:.util.print:0N!;
+shuffle:.util.shuffle:0N?;
 // INFO: https://code.kx.com/q/basics/handles/#connection-handles
 O:.util.stdout:{-1 x;};
 /E:.util.stderr:{-2 x;};
@@ -16,6 +17,8 @@ isDir:.util.isDir:11h~type key@;
 isFile:.util.isFile:{x~key x};
 
 stab:.util.showTab:{([]x)};
+.util.addQuotes:{q,x,q:"\""};
+.util.removeQuotes:{x except"\""};
 randSeed:.util.randSeed:{system"S ",0N?string[.z.t]except":."};
 exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 

@@ -14,7 +14,6 @@
 .os.strPath.l:.util.strPath;
 .os.strPath.w:.util.strPathWin;
 
-.os.getCmd:{`cmd xkey update cmd:key c from`_'value c:`_.os.cmd};
 .os.run:{[cmd;x]
     if[(::)~c:.os.cmd cmd;'cmd];
     if[(::)~c@:.os.type;'cmdType];
