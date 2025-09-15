@@ -156,7 +156,7 @@ addTab:.dbm.addTab:{[hdbDir;tabName;tabSchema]
     .dbm.add1Tab[hdbDir;;0#tabSchema]each .dbm.allPaths[hdbDir;tabName];};
 
 / @example - renameTab[`:.;`trade;`transactions]
-renameTab:.dbm.renameTab:{[hdbDir;old;new] .dbm.rename1Tab'[.dbm.allPaths[hdbDir;old];.dbm.allPaths[hdbDir;new]];};
+renameTab:.dbm.renameTab:{[hdbDir;oldName;newName] .dbm.rename1Tab'[.dbm.allPaths[hdbDir;oldName];.dbm.allPaths[hdbDir;newName]];};
 
 /
 Examples:
