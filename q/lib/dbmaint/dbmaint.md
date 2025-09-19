@@ -1,38 +1,35 @@
-# dbmaint _(Database maintenance)_
+# 🛠️ dbmaint _(Database maintenance)_
 TODO
 
 Utility functions [dbmaint.q](dbmaint.q) for **kdb+ partitioned database tables maintenance**
 
-Not for:
+**NOT FOR**:
 - Splayed tables which are not partitioned
 - Tables stored as single files
 - In-memory tables
 
-Disclaimer: test the effect of these utility functions on a sample database first before attempting it in production
-- E.g. [sample TAQ database](https://github.com/KxSystems/kdb/blob/master/tq.q)
+> [!NOTE]
+> Some functions noted below may not support nested columns or supports only certain nested types
 
-Some functions noted below may not support nested columns or supports only certain nested types
+> [!TIP]
+> Changes made to an existing database needs to be reloaded (`\l .`) for it to take effect
+> - Additionally, table schemas needs to be modified on a tick database
 
-Changes made to an existing database needs to be reloaded (`\l .`) for it to take effect
-- Additionally, table schemas needs to be modified on a tick database
+> [!CAUTION]
+> Test the effect of these utility functions on a [sample database](https://github.com/KxSystems/kdb-taq/tree/master) first before attempting it in production
 
-In the following:
-- `hdbDir`: a file symbol for the database folder
-- `tabName`: the symbol naming a table
-- `colName`: the symbol name of a column
-
-**Examples:**
-
-The examples in this document use a `trade` dir generated with the following sample data.
+## Usage examples
+### Sample database
+Generate sample database:
 ```q
 n:1000;
-trade:`sym`time xasc([]time:2023.01.01+n?3D;sym:n?`3;price:n?10000f;size:n?10000);
+trade:`sym`time xasc([]sym:n?`3;time:2023.01.01+n?3D;price:n?10000f;size:n?10000);
 g:trade group`date$trade`time;
 hdbDir:`:tmp/hdb;
 {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g];
 ```
 
-_on disk_
+Directory:
 ```sh
 tmp/hdb
 ├── 2023.01.01
@@ -56,30 +53,30 @@ tmp/hdb
 └── sym
 ```
 
-_meta_
+meta:
 ```q
 c    | t f a
 -----| -----
 date | d
-time | p
 sym  | s   p
+time | p
 price| f
 size | j
 ```
 
-## addCol
-`addCol[hdbDir;tabName;colName;defaultVal]`
-
-Adds new column (`colName`) to existing table (`tabName`) with default value (`defaultvalue`) in each row
-
-**Example:**
+### `addCol`
+Add a new column (`colName`)
+with the default value (`defaultVal`)
+to each row of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
 ```q
+/ @usage
+addCol[hdbDir;tabName;colName;defaultVal]
+/ @example
 addCol[`:tmp/hdb;`trade;`noo;0h]
 ```
 
-**Changes:**
-
-_on disk_
+Directory:
 ```sh
 tmp/hdb
 ├── 2023.01.01
@@ -89,46 +86,60 @@ tmp/hdb
 │       ├── size
 │       ├── sym
 │       └── time
+├── 2023.01.02
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
 └── sym
 ```
 
-_meta_
+meta:
 ```q
 c    | t f a
 -----| -----
 date | d
 sym  | s   p
-time | t
+time | p
 price| f
 size | j
 noo  | h
 ```
 
-## castCol
-
-`castCol[hdbDir;tabName;colName;newType]`
-
-Cast the values in the column `colName` to the `newType` and save.
-`newType` can be specified in short or long form, e.g. `"f"` or `` `float`` for a cast to float.
-This can be used to cast nested types as well, but to cast a nested character column to symbol use `funcCol` instead.
-
-**Example:**
+### `castCol`
+Cast the values of the existing column (`colName`)
+with the new type (`newType`)
+to the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+- `newType` can be specified in short or long form, e.g. `"f"` or `` `float`` for a cast to float
+> [!NOTE]
+> To cast nested type columns, use `funcCol` instead, e.g. cast a nested character column to symbol
 ```q
+castCol[hdbDir;tabName;colName;newType]
 castCol[`:tmp/hdb;`trade;`size;`short]
 ```
-
-**Changes:**
-
-_meta_
+meta:
 ```q
 c    | t f a
 -----| -----
 date | d
 sym  | s   p
-time | t
+time | p
 price| f
 size | h
+noo  | h
 ```
+
+TODO: Continue from here
 
 ## clearAttrCol
 
