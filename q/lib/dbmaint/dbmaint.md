@@ -1,6 +1,4 @@
 # 🛠️ dbmaint _(Database maintenance)_
-TODO
-
 Utility functions [dbmaint.q](dbmaint.q) for **kdb+ partitioned database tables maintenance**
 
 **NOT FOR**:
@@ -28,8 +26,8 @@ g:trade group`date$trade`time;
 hdbDir:`:tmp/hdb;
 {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g];
 ```
-
-Directory:
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
@@ -52,8 +50,7 @@ tmp/hdb
 │       └── time
 └── sym
 ```
-
-meta:
+*meta:*
 ```q
 c    | t f a
 -----| -----
@@ -75,8 +72,8 @@ addCol[hdbDir;tabName;colName;defaultVal]
 / @example
 addCol[`:tmp/hdb;`trade;`noo;0h]
 ```
-
-Directory:
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
@@ -102,8 +99,7 @@ tmp/hdb
 │       └── time
 └── sym
 ```
-
-meta:
+*meta:*
 ```q
 c    | t f a
 -----| -----
@@ -124,10 +120,13 @@ on the hdb directory (`hdbDir`)
 > [!NOTE]
 > To cast nested type columns, use `funcCol` instead, e.g. cast a nested character column to symbol
 ```q
+/ @usage
 castCol[hdbDir;tabName;colName;newType]
+/ @example
 castCol[`:tmp/hdb;`trade;`size;`short]
 ```
-meta:
+#### Changes:
+*meta:*
 ```q
 c    | t f a
 -----| -----
@@ -139,54 +138,65 @@ size | h
 noo  | h
 ```
 
-TODO: Continue from here
-
-## clearAttrCol
-
-`clearAttrCol[hdbDir;tabName;colName]`
-
-Remove any attributes from column `colName`.
-
-**Example:**
+### `clearAttrCol`
+Clear the attributes of the existing column (`colName`)
+from the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
 ```q
+/ @usage
+clearAttrCol[hdbDir;tabName;colName]
+/ @example
 clearAttrCol[`:tmp/hdb;`trade;`sym]
 ```
-
-**Changes:**
-
-_meta_
-
+#### Changes:
+*meta:*
 ```q
 c    | t f a
 -----| -----
 date | d
 sym  | s
-time | t
+time | p
 price| f
-size | j
+size | h
+noo  | h
 ```
 
-## copyCol
-
-`copyCol[hdbDir;tabName;oldName;newName]`
-
-Copy the values from column `oldName` into a new column named `newName`, undefined in the table `tabName`.
-
-TODO
-This does not support nested columns.
-
-**Example:**
+### `copyCol`
+Copy the values of the existing column (`oldName`)
+to the new column (`newName`)
+of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+> [!WARNING]
+> TODO: Does not support nested columns currently
 ```q
+/ @usage
+copyCol[hdbDir;tabName;oldName;newName]
+/ @example
 copyCol[`:tmp/hdb;`trade;`size;`size2]
 ```
-
-**Changes:**
-
-_on disk_
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
 │   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── trade
+│       ├── noo
 │       ├── price
 │       ├── size
 │       ├── size2
@@ -194,272 +204,370 @@ tmp/hdb
 │       └── time
 └── sym
 ```
-
-_meta_
+*meta:*
 ```q
-meta
 c    | t f a
 -----| -----
 date | d
-sym  | s   p
-time | t
+sym  | s
+time | p
 price| f
-size | j
-size2| j
+size | h
+noo  | h
+size2| h
 ```
 
-## deleteCol
-
-`deleteCol[hdbDir;tabName;colName]`
-
-Delete column `colName` from table `tabName`.
-
-TODO
-This doesn't delete the `colName#` files for nested columns (the files containing the actual values) - you will need to delete these manually.
-
-**Example:**.
+### `deleteCol`
+Delete the existing column (`colName`)
+from the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+> [!WARNING]
+> TODO: Does not support nested columns currently
+> - Manually delete the `colName#` files for nested columns (the files containing the actual values)
 ```q
+/ @usage
+deleteCol[hdbDir;tabName;colName]
+/ @example
 deleteCol[`:tmp/hdb;`trade;`size]
 ```
-
-**Changes:**
-
-_on disk_
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
 │   └── trade
+│       ├── noo
 │       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+└── sym
+```
+*meta:*
+```q
+c    | t f a
+-----| -----
+date | d
+sym  | s
+time | p
+price| f
+noo  | h
+size2| h
+```
+
+### Broken HDB
+> [!TIP]
+> - `findCol` can be used to inspect a broken HDB
+> - `fixTab` can be used to fix a broken HDB
+
+Simulate broken HDB:
+```q
+.dbm.rename1Col[`:tmp/hdb/2023.01.02/trade;`size2;`size]
+```
+#### Changes:
+*Directory:*
+```sh
+tmp/hdb
+├── 2023.01.01
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
 │       ├── sym
 │       └── time
 └── sym
 ```
 
-_meta_
+### `findCol`
+Find and print the existing column (`colName`) with its type in each partition directory
+of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+> [!TIP]
+> Prints warning message if the column is not found in any partition directory
 ```q
-c    | t f a
------| -----
-date | d
-sym  | s   p
-time | t
-price| f
+/ @usage
+findCol[hdbDir;tabName;colName]
+/ @example
+findCol[`:tmp/hdb;`trade;`size2]
+```
+***Output:***
+```q
+2025.09.20D08:44:33.715587773 [INFO]: Found column: [size2] of type [5h "h"] in [`:tmp/hdb/2023.01.01/trade]
+2025.09.20D08:44:33.715682103 [WARN]: Missing column: [size2] in [`:tmp/hdb/2023.01.02/trade]
+2025.09.20D08:44:33.716709532 [INFO]: Found column: [size2] of type [5h "h"] in [`:tmp/hdb/2023.01.03/trade]
 ```
 
-
-## findCol
-
-`findCol[hdbDir;tabName;colName]`
-
-TODO
-Print a list of the partition directories where column `colName` exists and its type in each,
-and a `*NOT*FOUND*` message for partition directories where column `colName` is missing.
-
-**Example:**
+### `fixTab`
+Fix the existing table (`tabName`)
+based on a reference good parition (`goodPartition`)
+on the hdb directory (`hdbDir`)
+> [!NOTE]
+> Add missing, delete extra and reorder columns on all partitions of existing table
+> - Does not add missing table to partitions, use `.Q.chk` for that
 ```q
-findCol[`:tmp/hdb;`trade;`iz]
-```
-
-**Output:**
-```sh
-2023.02.17 10:23:09 column iz *NOT*FOUND* in `:tmp/hdb/2023.01.01/trade
-```
-
-## fixTab
-
-`fixTab[hdbDir;tabName;goodPartition]`
-
-Given the location of a good partition `goodPartition`:
-- Adds missing
-- Deletes extra
-- Reorder
-columns to to all partitions of `tabName`
-
-TODO
-Also this does not add tables to partitions in which they are missing, use [`.Q.chk`](https://code.kx.com/q/ref/dotq/#qchk-fill-hdb) for that.
-
-**Example:**
-```q
-`:tmp/hdb/2023.01.02/trade/ set .Q.en[`:tmp/hdb] delete size from trade;
+/ @usage
+fixTab[hdbDir;tabName;goodPartition]
+/ @example
 fixTab[`:tmp/hdb;`trade;2023.01.01]
 ```
-
-**Changes:**
-
-_on disk_
+***Output:***
+```q
+2025.09.20D08:52:21.002862728 [INFO]: Fixing table: [`:tmp/hdb/2023.01.02/trade]
+2025.09.20D08:52:21.003922109 [INFO]: Adding column: [size2] of type: [5h "h"] to: [`:tmp/hdb/2023.01.02/trade]
+2025.09.20D08:52:21.004681858 [INFO]: Deleting column: [size] in: [`:tmp/hdb/2023.01.02/trade]
+2025.09.20D08:52:21.004968595 [INFO]: Reordering columns in [`:tmp/hdb/2023.01.02/trade]
+```
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
 │   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── trade
+│       ├── noo
+│       ├── price
+│       ├── size2
+│       ├── sym
+│       └── time
+└── sym
+```
+
+### `funcCol`
+Apply the function (`func`)
+to the values of the existing column (`colName`)
+of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+```q
+/ @usage
+funcCol[hdbDir;tabName;colName;func]
+/ @example
+funcCol[`:tmp/hdb;`trade;`price;2*]
+```
+#### Changes:
+*Before:*
+```q
+q)select price from trade
+price
+--------
+3747.242
+4802.34
+8547.059
+9053.591
+4328.193
+..
+```
+*After:*
+```q
+q)select price from trade
+price
+--------
+7494.484
+9604.679
+17094.12
+18107.18
+8656.387
+..
+```
+
+### `listCols`
+List the columns **from the first partition** of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+```q
+/ @usage
+listCols[hdbDir;tabName]
+/ @example
+listCols[`:tmp/hdb;`trade]
+```
+***Output:***
+```q
+2025.09.20D09:06:55.678017279 [INFO]: Table [trade] columns:
+`sym`time`price`noo`size2
+```
+
+## renameCol
+Rename the existing column (`oldName`)
+to the new column (`newName`)
+of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+> [!WARNING]
+> TODO: Does not support nested columns currently
+```q
+/ @usage
+renameCol[hdbDir;tabName;oldName;newName]
+/ @example
+renameCol[`:tmp/hdb;`trade;`size2;`size]
+```
+#### Changes:
+*Directory:*
+```sh
+tmp/hdb
+├── 2023.01.01
+│   └── trade
+│       ├── noo
 │       ├── price
 │       ├── size
 │       ├── sym
 │       └── time
 ├── 2023.01.02
 │   └── trade
+│       ├── noo
 │       ├── price
 │       ├── size
 │       ├── sym
 │       └── time
-└── sym
-```
-
-## funcCol
-
-`funcCol[hdbDir;tabName;colName;func]`
-
-Apply a function to the list of values in `colName` and save the results as its values.
-
-**Example:**
-```q
-funcCol[`:tmp/hdb;`trade;`price;2*]
-```
-
-**Changes:**
-
-_before_
-```q
-q)select price from trade
-price
---------
-4812.041
-1399.557
-9491.982
-5034.046
-4882.605
-...
-```
-
-_after_
-```q
-q)select price from trade
-price
---------
-9624.081
-2799.113
-18983.96
-10068.09
-9765.209
-...
-```
-
-## listCols
-
-`listCols[hdbDir;tabName]`
-
-List the columns of `tabName` (relies on the first partition).
-
-**Example:**
-```q
-listCols[`:tmp/hdb;`trade]
-```
-
-**Output:**
-```q
-`sym`time`price`size
-```
-
-## renameCol
-
-`renameCol[hdbDir;tabName;oldName;newName]`
-
-TODO
-Rename column `oldName` to `newName`, which must be undefined in the table. This does not support nested columns.
-
-**Example:**
-```q
-renameCol[`:tmp/hdb;`trade;`woz;`iz]
-```
-
-**Changes:**
-
-_on disk_
-```sh
-tmp/hdb
-├── 2023.01.01
+├── 2023.01.03
 │   └── trade
+│       ├── noo
 │       ├── price
 │       ├── size
 │       ├── sym
 │       └── time
 └── sym
 ```
-
-_meta_
+*meta:*
 ```q
 c    | t f a
 -----| -----
 date | d
-sym  | s   p
-time | t
+sym  | s
+time | p
 price| f
-size | j
+noo  | h
+size | h
 ```
 
-## reorderCols
-
-`reorderCols[hdbDir;tabName;orderedColNames]`
-
-Reorder the columns of `tabName`. `orderedColNames` is a full list of the column names as they appear in the updated table.
-
-**Example:**
+### `reorderCols`
+Reorder the existing table (`tabName`)
+to the new order of existing column names (`orderedColNames`)
+on the hdb directory (`hdbDir`)
 ```q
-reorderCols[`:tmp/hdb;`trade;reverse cols trade]
+/ @usage
+reorderCols[hdbDir;tabName;orderedColNames]
+/ @example
+reorderCols[`:tmp/hdb;`trade;reverse`sym`time`price`noo`size]
 ```
-**Changes:**
-
-_meta_
+#### Changes:
+*meta:*
 ```q
 c    | t f a
 -----| -----
 date | d
-size | j
+size | h
+noo  | h
 price| f
-sym  | s   p
-time | t
+time | p
+sym  | s
 ```
 
-## setAttrCol
-
-`setAttrCol[hdbDir;tabName;colName;newAttr]`
-
-Apply an attribute to `colName`. The data in the column must be valid for that attribute. No sorting occurs.
-
-**Example:**
+### `setAttrCol`
+Apply a new attribute (`newAttr`)
+to the existing column (`colName`)
+of the existing table (`tabName`)
+on the hdb directory (`hdbDir`)
+> [!NOTE]
+> The values in the column must be valid to apply the new attribute
+> - Does not sort
 ```q
+/ @usage
+setAttrCol[hdbDir;tabName;colName;newAttr]
+/ @example
 setAttrCol[`:tmp/hdb;`trade;`sym;`g]
 ```
-
-**Changes:**
-
-_meta_
+#### Changes:
+*meta:*
 ```q
 c    | t f a
 -----| -----
 date | d
-sym  | s   g
-time | t
+size | h
+noo  | h
 price| f
-size | j
+time | p
+sym  | s   g
 ```
 
-## addTab
-
-`addTab[hdbDir;tabName;tabSchema]`
-
-Add a table called `tabName` with an empty table with the same schema as `tabSchema` created in each partition of the new table.
-
-**Example:**
+### `addTab`
+Add a new table (`tabName`)
+with the schema (`tabSchema`)
+on the hdb directory (`hdbDir`)
 ```q
-addTab[`:tmp/hdb;`trade1;.Q.en[`:tmp/hdb]([]time:0#0Nt;sym:0#`;price:0#0n;size:0#0)]
+/ @usage
+addTab[hdbDir;tabName;tabSchema]
+/ @example
+addTab[`:tmp/hdb;`trade1;([]time:0#0Nt;sym:0#`;price:0#0n;size:0#0)]
 ```
-
-**Changes:**
-
-_on disk_
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
 │   ├── trade
+│   │   ├── noo
+│   │   ├── price
+│   │   ├── size
+│   │   ├── sym
+│   │   └── time
+│   └── trade1
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   ├── trade
+│   │   ├── noo
+│   │   ├── price
+│   │   ├── size
+│   │   ├── sym
+│   │   └── time
+│   └── trade1
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   ├── trade
+│   │   ├── noo
 │   │   ├── price
 │   │   ├── size
 │   │   ├── sym
@@ -472,24 +580,52 @@ tmp/hdb
 └── sym
 ```
 
-## renameTab
-
-`renameTab[hdbDir;oldName;newName]`
-
-Rename table `oldName` to `newName`.
-
-**Example:**
+### `renameTab`
+Rename the existing table (`oldName`)
+to the new table (`newName`)
+on the hdb directory (`hdbDir`)
 ```q
-renameTab[`:tmp/hdb;`trade;`transactions]
+/ @usage
+renameTab[hdbDir;oldName;newName]
+/ @example
+renameTab[`:tmp/hdb;`trade1;`trade2]
 ```
-
-**Changes:**
-
-_on disk_
+#### Changes:
+*Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
-│   └── transactions
+│   ├── trade
+│   │   ├── noo
+│   │   ├── price
+│   │   ├── size
+│   │   ├── sym
+│   │   └── time
+│   └── trade2
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   ├── trade
+│   │   ├── noo
+│   │   ├── price
+│   │   ├── size
+│   │   ├── sym
+│   │   └── time
+│   └── trade2
+│       ├── price
+│       ├── size
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   ├── trade
+│   │   ├── noo
+│   │   ├── price
+│   │   ├── size
+│   │   ├── sym
+│   │   └── time
+│   └── trade2
 │       ├── price
 │       ├── size
 │       ├── sym

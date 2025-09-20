@@ -116,11 +116,13 @@ castCol:.dbm.castCol:{[hdbDir;tabName;colName;newType]
 / @example - clearAttrCol[thisDb;`trade;`sym]
 clearAttrCol:.dbm.clearAttrCol:{[hdbDir;tabName;colName] .dbm.setAttrCol[hdbDir;tabName;colName;`];};
 
+// TODO: Does not support nested columns currently
 / @example - copyCol[`:/k4/data/taq;`trade;`size;`size2]
 copyCol:.dbm.copyCol:{[hdbDir;tabName;oldName;newName]
     if[.dbm.invalidName newName;'.log.error"Invalid new column name: [",(string newName),"]"];
     .dbm.copy1Col[;oldName;newName]each .dbm.allPaths[hdbDir;tabName];};
 
+// TODO: Does not support nested columns currently
 / @example - deleteCol[`:/k4/data/taq;`trade;`iz]
 deleteCol:.dbm.deleteCol:{[hdbDir;tabName;colName] .dbm.delete1Col[;colName]each .dbm.allPaths[hdbDir;tabName];};
 
@@ -139,6 +141,7 @@ listCols:.dbm.listCols:{[hdbDir;tabName]
     .log.info"Table [",(string tabName),"] columns: ";
     .dbm.allCols first .dbm.allPaths[hdbDir;tabName]};
 
+// TODO: Does not support nested columns currently
 / @example - renameCol[`:/k4/data/taq;`trade;`woz;`iz]
 renameCol:.dbm.renameCol:{[hdbDir;tabName;oldName;newName]
     if[.dbm.invalidName newName;'.log.error"Invalid new column name: [",(string newName),"]"];
