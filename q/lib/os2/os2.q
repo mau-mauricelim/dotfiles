@@ -13,18 +13,17 @@
 .os.strPath.w:.util.strPathWin;
 
 .os.run:{[cmd;x]
-    if[(::)~c:.os.cmd cmd;'cmd];
-    if[(::)~c@:.os.type;'cmdType];
-    .log.system c .os.strPath[.os.type]x};
+    if[(::)~f:.os.cmd cmd;'cmd];
+    if[(::)~f@:.os.type;'cmdType];
+    .log.system f};
 
 .os.mkCmd:{[minArgs;maxArgs;transform;cmd;args]
     / Ensure args is a list of strings
     if[10h~abs type args;args:enlist args];
     if[not count[args]within minArgs,maxArgs;'.log.error"Invalid number of arguments"];
     args:(.os.strPath[.os.type]each args)except enlist"";
-    args:(.util.addQuotes .util.removeQuotes@)each args;
-    .log.system cmd" "sv transform args;
-    };
+    args:({$[" "in x;.util.addQuotes;]x}.util.removeQuotes@)each args;
+    cmd" "sv transform args};
 
 .os.cmd.pwd.w:.os.cmd.pwd.l:.os.mkCmd[0;0W;(::);{"cd"}];
 
