@@ -15,9 +15,15 @@
 .os.run:{[cmd;x]
     if[(::)~f:.os.cmd cmd;'cmd];
     if[(::)~f@:.os.type;'cmdType];
-    .log.system f};
+    .log.system f x};
 
+// TEST:
+/ args:`
+/ args:"single arg"
+/ args:("first arg";"second arg")
+/ args:""
 .os.mkCmd:{[minArgs;maxArgs;transform;cmd;args]
+    args,:();
     / Ensure args is a list of strings
     if[10h~abs type args;args:enlist args];
     if[not count[args]within minArgs,maxArgs;'.log.error"Invalid number of arguments"];
@@ -36,7 +42,7 @@
 .os.cmd.nproc.l:.os.mkCmd[0;0W;(::);{"nproc"}];
 .os.cmd.nproc.w:.os.mkCmd[0;0W;(::);{"echo %NUMBER_OF_PROCESSORS%"}];
 
-.os.cmd.cd.w:.os.cmd.cd.l:.os.mkCmd[0;1;(::);"cd ",];
+.os.cmd.cd.w:.os.cmd.cd.l:.os.mkCmd[0;1;(::);"cd ",.util.removeQuotes@];
 
 .os.cmd.ls.l:.os.mkCmd[0;0W;(::);"ls ",];
 .os.cmd.ls.w:.os.mkCmd[0;0W;(::);"dir ",];
