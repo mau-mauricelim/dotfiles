@@ -42,7 +42,7 @@
 .os.cmd.nproc.l:.os.mkCmd[0;0W;(::);{"nproc"}];
 .os.cmd.nproc.w:.os.mkCmd[0;0W;(::);{"echo %NUMBER_OF_PROCESSORS%"}];
 
-.os.cmd.cd.w:.os.cmd.cd.l:.os.mkCmd[0;1;(::);"cd ",.util.removeQuotes@];
+.os.cmd.cd.w:.os.cmd.cd.l:.os.mkCmd[0;1;.util.removeQuotes';"cd ",];
 
 .os.cmd.ls.l:.os.mkCmd[0;0W;(::);"ls ",];
 .os.cmd.ls.w:.os.mkCmd[0;0W;(::);"dir ",];
