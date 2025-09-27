@@ -1,6 +1,5 @@
 .lib.require`os2
 system"d .test"
-n:3; tmp:`:tmp
 notAnyExist:{not any .util.exists each x}
 allExist:{all .util.exists each x}
 cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which
@@ -11,28 +10,24 @@ all(k:key`_.os.cmd)in cmd
 .os.type in`l`m`s`v`w
 .os.arch in`x86`x86_64
 pwd:.os.pwd`
+n:3
 n sublist .os.env`
 n sublist .os.ver`
 n sublist .os.nproc`
 pwd~.os.cd`
-.os.rmrf tmp
+.os.rmrf tmp:"tmp"
 .os.cd tmp
+/.os.ls dir:"dir not exist"
+.os.cd dir:"dir not exist"
+.os.cd".."
+.os.rmrf dir
+.os.mkdir dirs:("dir1";"dir2";"dir3 with space";"dir4/nested";"dir5 nested/deeper/with space")
+allExist .q.Hsym dirs
+.os.ls("*";"*/*";"*/*/*")
+.os.rmdir indvDirs:raze -1_'{"/"sv -1_"/"vs x}\'[dirs]
+notAnyExist .q.Hsym indvDirs
+
 /
-joinStr:" "sv
-d:("dir1";"dir2";"\"dir3 with space\"";"dir4/nested";"\"dir5 nested/deeper/with space\"")
-splitStrDirs:.util.strPath each d
-joinedStrDirs:joinStr splitStrDirs
-.os.mkdir joinedStrDirs
-.os.ls`
-splitStrDirsNoQuote:splitStrDirs except\:"\""
-symDirs:.q.Hsym splitStrDirsNoQuote
-allExist symDirs
-quoteIfSpace:{$[" "in x;"\"",x,"\"";x]}
-findDirs:raze[.util.dirname\'[splitStrDirsNoQuote]]except enlist""
-indvJoinedStrDirs:joinStr quoteIfSpace each findDirs
-.os.ls indvJoinedStrDirs
-.os.rmdir indvJoinedStrDirs
-notAnyExist symDirs
 .os.mkdir joinedStrDirs
 rootSplitStrDirs:{quoteIfSpace first"/"vs x}each splitStrDirsNoQuote
 rootJoinedStrDirs:joinStr rootSplitStrDirs
