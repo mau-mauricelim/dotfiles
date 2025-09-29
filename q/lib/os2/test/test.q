@@ -4,7 +4,7 @@ notAnyExist:{not any .util.exists each x}
 allExist:{all .util.exists each x}
 cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which
 cmd,:`where`pg`sigint`sigterm`sigkill`sleep
-w:.util.isWin[]
+/w:.util.isWin[]
 all(k:key`_.os.cmd)in cmd
 .os.name<>`unknown
 .os.type in`l`m`s`v`w
@@ -15,7 +15,7 @@ n sublist .os.env`
 n sublist .os.ver`
 n sublist .os.nproc`
 pwd~.os.cd`
-.os.rmrf tmp:"tmp"
+.os.rmrf tmp:"tmp" / "tmp" is equivalent to `tmp and `:tmp
 .os.cd tmp
 /.os.ls dir:"dir not exist"
 .os.cd dir:"dir not exist"
@@ -25,7 +25,17 @@ pwd~.os.cd`
 allExist .q.Hsym dirs
 .os.ls("*";"*/*";"*/*/*")
 .os.rmdir indvDirs:raze -1_'{"/"sv -1_"/"vs x}\'[dirs]
+
+/.os.mkdir dirs:("dir1";"dir2";"dir3 with space";"dir4/nested";"dir5 nested/deeper/with space")
+/.os.touch each files:("file1";"file2";"file3 with space";"dir4/nested/file4";"dir5 nested/deeper/with space/file5")
+
 notAnyExist .q.Hsym indvDirs
+.os.mkdir dirs:101+til 10 / Can also create directories with number (list)
+allExist .q.Hsym string dirs
+.os.rmdir dirs
+.os.mkdir dirs:10?`8 / Can also create directories with symbol (list)
+allExist .q.Hsym string dirs
+.os.rmdir dirs
 
 /
 .os.mkdir joinedStrDirs
