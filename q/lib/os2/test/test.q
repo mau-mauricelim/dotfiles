@@ -15,27 +15,39 @@ n sublist .os.env`
 n sublist .os.ver`
 n sublist .os.nproc`
 pwd~.os.cd`
-.os.rmrf tmp:"tmp" / "tmp" is equivalent to `tmp and `:tmp
+.os.rmrf tmp:"tmp"
 .os.cd tmp
-/.os.ls dir:"dir not exist"
+/.os.ls dir:"dir not exist" / fail
 .os.cd dir:"dir not exist"
 .os.cd".."
+.os.ls dir
 .os.rmrf dir
 .os.mkdir dirs:("dir1";"dir2";"dir3 with space";"dir4/nested";"dir5 nested/deeper/with space")
 allExist .q.Hsym dirs
-.os.ls("*";"*/*";"*/*/*")
+.tree.tree`:.
 .os.rmdir indvDirs:raze -1_'{"/"sv -1_"/"vs x}\'[dirs]
-
-/.os.mkdir dirs:("dir1";"dir2";"dir3 with space";"dir4/nested";"dir5 nested/deeper/with space")
-/.os.touch each files:("file1";"file2";"file3 with space";"dir4/nested/file4";"dir5 nested/deeper/with space/file5")
-
 notAnyExist .q.Hsym indvDirs
-.os.mkdir dirs:101+til 10 / Can also create directories with number (list)
-allExist .q.Hsym string dirs
-.os.rmdir dirs
-.os.mkdir dirs:10?`8 / Can also create directories with symbol (list)
-allExist .q.Hsym string dirs
-.os.rmdir dirs
+
+.os.mkdir dirs
+.os.touch files:("file1";"file2";"file3 with space";"dir4/nested/file4";"dir5 nested/deeper/with space/file5")
+.tree.tree`:.
+allExist .q.Hsym combined:dirs,files
+.os.rmrf root:{first"/"vs x}each combined
+notAnyExist .q.Hsym combined:dirs,files
+
+.os.mkdir nums:101+til 10
+allExist .q.Hsym nums:string nums
+.os.rmdir nums
+.os.mkdir syms:10?`8
+allExist .q.Hsym string syms
+.os.rmdir syms
+
+.os.touch files:(prefix:"file"),/:nums
+.os.mkdir dir:"dir"
+.os.cp files,enlist dir
+.os.cp(prefix,"*";dir) / regex strings
+(`$files)~key .q.Hsym dir
+/.os.cp files / fail
 
 /
 .os.mkdir joinedStrDirs
