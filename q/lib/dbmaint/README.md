@@ -26,7 +26,6 @@ g:trade group`date$trade`time;
 hdbDir:`:tmp/hdb;
 {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g];
 ```
-#### Changes:
 *Directory:*
 ```sh
 tmp/hdb

@@ -44,10 +44,10 @@ allExist .q.Hsym string syms
 
 .os.touch files:(prefix:"file"),/:nums
 .os.mkdir dir:"dir"
+/.os.cp files / fail
 .os.cp files,enlist dir
 .os.cp(prefix,"*";dir) / regex strings
 (`$files)~key .q.Hsym dir
-/.os.cp files / fail
 
 /
 .os.mkdir joinedStrDirs

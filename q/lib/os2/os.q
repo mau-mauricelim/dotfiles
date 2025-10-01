@@ -4,8 +4,6 @@
 // INFO: Inspired by https://github.com/BuaBook/kdb-common/blob/master/src/os.q
 // NOTE: The following windows commands do not have a verbose option: mkdir, rmdir
 
-// NOTE: The cmd args works with most kdb types that can be converted to a string path
-
 .os.name:$[.z.o~`l64arm;`linuxArm;.z.o like"l*";`linux;.z.o like"m*";`macOS;.z.o like"s*";`solaris;.z.o like"v*";`solarisIntel;.z.o like"w*";`windows;`unknown];
 .os.type:`$first string .z.o;
 .os.bits:"I"$string[.z.o]1 2;
@@ -19,15 +17,19 @@
     if[(::)~f@:.os.type;'cmdType];
     f x};
 
-/ @param args - supports most kdb type that can be converted to a string (path) - example string/symbol/number/mixed (list)
-/               "example", `example and `:example are equivalent
-/               some cmd works with regex strings as well - example .os.cp("SOURCE_*";"DIRECTORY")
+// INFO: @param args
+/ Most of these functions can take argument of an atom or a (mixed) list.
+/ - It supports most data types that can be converted to a string (path)
+/   - Example: string/symbol/number/mixed (list)
+/   - `"100"`, `` `100``, `` `:100`` and `100` are equivalent
+/ - Some functions support regex strings (dependent on OS!)
+/   - Example: `.os.cp("SOURCE_*";"DIRECTORY")`
 .os.i.run:{[minArgs;maxArgs;run;cmd;transform;args]
     args,:();
     / Ensure args is a list of strings
     if[10h~abs type args;args:enlist args];
-    if[not count[args]within minArgs,maxArgs;'.log.error"Invalid number of arguments"];
     args:(.os.strPath[.os.type]each args)except enlist"";
+    if[not count[args]within minArgs,maxArgs;'.log.error"Invalid number of arguments"];
     args:({$[" "in x;.util.addQuotes;]x}.util.removeQuotes@)each args;
     / Defaults
     if[`~transform;transform:" "sv];
@@ -51,33 +53,35 @@
 .os.cmd.ls.l:.os.i.run[0;0W;`;"ls ",;`];
 .os.cmd.ls.w:.os.i.run[0;0W;`;"dir ",;`];
 
-.os.cmd.mkdir.l:.os.i.run[0;0W;`;"mkdir -pv ",;`];
-.os.cmd.mkdir.w:.os.i.run[0;0W;`;"mkdir ",;`];
+.os.cmd.mkdir.l:.os.i.run[1;0W;`;"mkdir -pv ",;`];
+.os.cmd.mkdir.w:.os.i.run[1;0W;`;"mkdir ",;`];
 
-.os.cmd.rmdir.l:.os.i.run[0;0W;`;"rmdir -v ",;`];
-.os.cmd.rmdir.w:.os.i.run[0;0W;`;"rmdir ",;`];
+.os.cmd.rmdir.l:.os.i.run[1;0W;`;"rmdir -v ",;`];
+.os.cmd.rmdir.w:.os.i.run[1;0W;`;"rmdir ",;`];
 
-.os.cmd.rm.l:.os.i.run[0;0W;`;"rm -v ",;`];
-.os.cmd.rm.w:.os.i.run[0;0W;`;"del /s ",;`];
+.os.cmd.rm.l:.os.i.run[1;0W;`;"rm -v ",;`];
+.os.cmd.rm.w:.os.i.run[1;0W;`;"del /s ",;`];
 
-.os.cmd.rmrf.l:.os.i.run[0;0W;`;"rm -rfv ",;`];
-.os.cmd.rmrf.w:.os.i.run[0;0W;`;{"del /f /s /q ",p," 2>nul & rmdir /s /q ",(p:x)," 2>nul & type nul"};`];
+.os.cmd.rmrf.l:.os.i.run[1;0W;`;"rm -rfv ",;`];
+.os.cmd.rmrf.w:.os.i.run[1;0W;`;{"del /f /s /q ",p," 2>nul & rmdir /s /q ",(p:x)," 2>nul & type nul"};`];
 
-.os.cmd.mv.l:.os.i.run[2;0W;`;"mv -v ",;`];
-.os.cmd.mv.w:.os.i.run[2;2;`;"move /y ",;`];
-
-/ Copy SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY
-.os.cmd.cp.l:.os.i.run[2;0W;`;"cp -v ",;`];
-.os.cmd.cp.w:.os.i.run[2;0W;.log.system@';"copy /y ",/:;{[args]
+/ Transfer SOURCE to DEST, or multiple SOURCE(s) to DIRECTORY
+.os.i.transfer:{[args]
     tgt:last args;
     if[2<count args;if[not .util.isDir .q.Hsym tgt;'.log.error"target '",tgt,"': Not a directory"]];
-    {x," ",y}[;tgt]'[-1_args]}];
+    {x," ",y}[;tgt]'[-1_args]};
+
+.os.cmd.mv.l:.os.i.run[2;0W;`;"mv -v ",;`];
+.os.cmd.mv.w:.os.i.run[2;0W;.log.system@';"move /y ",;.os.i.transfer];
+
+.os.cmd.cp.l:.os.i.run[2;0W;`;"cp -v ",;`];
+.os.cmd.cp.w:.os.i.run[2;0W;.log.system@';"copy /y ",/:;.os.i.transfer];
 
 .os.cmd.cpr.l:.os.i.run[2;0W;`;"cp -rv ",;`];
 .os.cmd.cpr.w:.os.i.run[2;2;`;{"xcopy /e /s /i /h /k /y /f ",p," 2>nul || copy /y ",(p:x)," 2>nul & type nul"};`];
 
 .os.cmd.ln.l:.os.i.run[2;2;`;"ln -sfv ",;`];
-.os.cmd.ln.w:.os.i.run[2;2;" "sv reverse@;"mklink ",;`];
+.os.cmd.ln.w:.os.i.run[2;2;`;"mklink ",;" "sv reverse@];
 
 .os.cmd.head.l:.os.i.run[1;0W;`;"head ",;`];
 
