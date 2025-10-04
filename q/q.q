@@ -35,15 +35,21 @@ npw:.util.normPathWin:.util.i.normPath[ssr[;"\\\\";"\\"]over ssr[;"/";"\\"]@];
 sp:.util.strPath:.util.i.strPath .util.normPath@;
 / String path windows
 spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
+
+/ @param dir - boolean - return directory or file
 / @param filePath - sym/string
-/ @return directory path of the same input type
-.util.dirname:{[filePath]
+/ @return directory/file path of the same input type
+.util.i.pathname:{[dir;filePath]
     filePathStr:.util.i.strPath filePath;
     found:(pathSep:"/\\")in filePathStr;
     pathSep:$[all found;[filePathStr:.util.normPath filePathStr;"/"];
         any found;first pathSep where found;"/"];
-    dirname:pathSep sv -1_pathSep vs filePathStr;
-    $[.util.isStr filePath;;.q.Hsym]dirname};
+    pathVec:pathSep vs filePathStr;
+    pathName:$[dir;pathSep sv -1_;last]pathVec;
+    $[.util.isStr filePath;;.q.Hsym]pathName};
+
+.util.dirname:.util.i.pathname 1b;
+.util.filename:.util.i.pathname 0b;
 
 /###########
 /# Logging #

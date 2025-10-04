@@ -1,4 +1,6 @@
 filepath  | object
 ../../q.q | .log.system
+../../q.q | .util.addQuotes
+../../q.q | .util.removeQuotes
 ../../q.q | .util.strPath
 ../../q.q | .util.strPathWin

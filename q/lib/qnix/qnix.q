@@ -46,3 +46,6 @@ ls2:.ls.lsReturnDict:{(!). flip
         entries:$[.util.exists dir;`#key dir;`$.error.fileNotFound];
         (dir;entries)
         }peach distinct(),x};
+
+/ @return - sym - filepath
+touch:{hclose hopen x:.q.Hsym .util.strPath x;x}';

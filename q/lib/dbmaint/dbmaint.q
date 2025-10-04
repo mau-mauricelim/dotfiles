@@ -2,7 +2,6 @@
 / kdb+ partitioned database maintenance
 
 .lib.require`os;
-.dbm.joinPath:{" "sv .os.strPath[.os.type]@'(x;y)};
 
 / General utils
 invalidName:.dbm.invalidName:{(x in`i,.Q.res,key`.q)or x<>.Q.id x};
@@ -33,7 +32,7 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
 .dbm.copy1Col:{[tabDir;oldName;newName]
     if[(found:oldName in colNames)and not newName in colNames:.dbm.allCols tabDir;
         .log.info"Copying column: [",(string oldName),"] to [",(string newName),"] in: [",(.Q.s1 tabDir),"]";
-        .os.cp .dbm.joinPath .` sv'tabDir,'(oldName;newName);
+        .os.cp` sv'tabDir,'(oldName;newName);
         @[tabDir;`.d;,;newName]];
     if[not found;'.log.error"Column: [",(string oldName),"] is missing in: [",(.Q.s1 tabDir),"]"]};
 
@@ -86,7 +85,7 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
         '.log.error"Columns: [",(string oldName),"] AND [",(string newName),"] are missing in: [",(.Q.s1 tabDir),"]"];
     if[10b~found;
         .log.info"Renaming column: [",(string oldName),"] to [",(string newName),"] in: [",(.Q.s1 tabDir),"]";
-        .os.mv .dbm.joinPath .` sv'tabDir,'(oldName;newName);
+        .os.mv` sv'tabDir,'(oldName;newName);
         @[tabDir;`.d;:;.[colNames;where colNames=oldName;:;newName]]]};
 
 .dbm.rename1Tab:{[oldName;newName]
@@ -94,7 +93,7 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
         '.log.error"Tables: [",(string oldName),"] AND [",(string newName),"] are missing"];
     if[10b~found;
         .log.info"Renaming table: [",(string oldName),"] to [",(string newName),"]";
-        .os.mv .dbm.joinPath[oldName;newName]]};
+        .os.mv oldName,newName]};
 
 .dbm.add1Tab:{[hdbDir;tabDir;tabSchema]
     .log.info"Adding table: [",(.Q.s1 tabDir),"]";

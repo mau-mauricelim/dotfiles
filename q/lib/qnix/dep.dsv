@@ -1,5 +1,6 @@
 filepath       | object
 ../../q.q      | .error.fileNotFound
+../../q.q      | .q.Hsym
 ../../q.q      | .util.ensureStr
 ../util/util.q | .util.exists
 ../util/util.q | .util.strPath

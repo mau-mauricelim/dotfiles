@@ -18,12 +18,23 @@
 | Others           | `unknown      |             |          |          |          |
 
 ## Usage examples
-> [!NOTE]
-> The functions output are dependent on the OS
 
-## Functions with No Arguments
+> [!TIP]
+> Most of these functions can take argument of an atom or a (mixed) list.
+> - It supports most data types that can be converted to a string (path)
+>   - Example: string/symbol/number/mixed (list)
+>   - `"100"`, `` `100``, `` `:100`` and `100` are equivalent
+> - Some functions support regex strings (dependent on OS!)
+>   - Example: `.os.cp("file*";"dir")`
+
+> [!NOTE]
+> - Some functions are only available in specific OS
+>   - Example: `.os.head`
+> - Same functions may produce different output depending on OS
+> - **`bounds`** specifies the min and max number of input arguments allowed
 
 ### `.os.pwd` - print name of current/working directory
+
 ```q
 q).os.pwd`
 2025.09.30D03:01:20.886129147 [SYSTEM]: cd
@@ -31,6 +42,7 @@ q).os.pwd`
 ```
 
 ### `.os.env` - list environment variables
+
 ```q
 q).os.env`
 2025.09.30D03:03:57.288851032 [SYSTEM]: env
@@ -42,6 +54,7 @@ q).os.env`
 ```
 
 ### `.os.ver` - list the operating system identification data
+
 ```q
 q).os.ver`
 2025.09.30D03:06:59.042926183 [SYSTEM]: cat /etc/os-release
@@ -54,21 +67,15 @@ q).os.ver`
 ```
 
 ### `.os.nproc` - print the number of processing units available
+
 ```q
 q).os.nproc`
 2025.09.30D03:08:56.385040919 [SYSTEM]: nproc
 "16"
 ```
 
-## Functions with A Single Argument
-Most of these functions can take argument of an atom or a (mixed) list.
-- It supports most data types that can be converted to a string (path)
-  - Example: string/symbol/number/mixed (list)
-  - `"100"`, `` `100``, `` `:100`` and `100` are equivalent
-- Some functions support regex strings (dependent on OS!)
-  - Example: `.os.cp("SOURCE_*";"DIRECTORY")`
-
 ### `.os.cd` - change the working directory
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
@@ -110,6 +117,7 @@ q).os.pwd`
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
@@ -120,7 +128,7 @@ drwxr-sr-x - dir3
 ```
 
 ### `.os.ls` - list directory contents
-Support regex strings
+
 ```q
 q).os.ls`
 2025.09.30D05:13:43.591538595 [SYSTEM]: ls
@@ -152,6 +160,7 @@ q).os.ls"*"
 ```
 
 ### `.os.mkdir` - make directories
+
 ```q
 q).os.mkdir("dir4 with space/nested dir1";"dir5")
 2025.09.30D05:26:38.120886709 [SYSTEM]: mkdir -pv "dir4 with space/nested dir1" dir5
@@ -161,6 +170,7 @@ q).os.mkdir("dir4 with space/nested dir1";"dir5")
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x - /home/maurice/tmp
@@ -175,6 +185,7 @@ drwxr-sr-x - ├── dir5
 ```
 
 ### `.os.rmdir` - remove empty directories
+
 ```q
 q).os.rmdir"dir4 with space"
 2025.09.30D05:32:17.970882993 [SYSTEM]: rmdir -v "dir4 with space"
@@ -196,6 +207,7 @@ q).os.rmdir"dir*"
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 .rw-r--r-- 0 file1
@@ -203,6 +215,7 @@ q).os.rmdir"dir*"
 ```
 
 ### `.os.rm` - remove files
+
 *Directory:*
 ```sh
 drwxr-sr-x - /home/maurice/tmp
@@ -229,12 +242,14 @@ q).os.rm"file*"
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
 ```
 
 ### `.os.rmrf` - force remove files or directories recursively
+
 *Directory:*
 ```sh
 drwxr-sr-x - /home/maurice/tmp
@@ -258,12 +273,14 @@ q).os.rmrf("dir1 with space";`dir2;`file1)
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x - /home/maurice/tmp
 ```
 
 ### `.os.mv` - move (rename) files
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
@@ -272,42 +289,41 @@ drwxr-sr-x - dir2
 .rw-r--r-- 0 file2
 .rw-r--r-- 0 file3
 .rw-r--r-- 0 file4
-.rw-r--r-- 0 file5
 ```
 
 Move files to directory:
 ```q
-q).os.mv`file1`file2`file3`dir1
-2025.09.30D09:35:31.776592877 [SYSTEM]: mv -v file1 file2 file3 dir1
+q).os.mv`file1`file2`dir1
+2025.10.03D06:07:02.241786505 [SYSTEM]: mv -v file1 file2 dir1
 "renamed 'file1' -> 'dir1/file1'"
 "renamed 'file2' -> 'dir1/file2'"
-"renamed 'file3' -> 'dir1/file3'"
 q).os.mv("file*";`dir1)
-2025.09.30D09:36:01.050930753 [SYSTEM]: mv -v file* dir1
+2025.10.03D06:07:15.991636333 [SYSTEM]: mv -v file* dir1
+"renamed 'file3' -> 'dir1/file3'"
 "renamed 'file4' -> 'dir1/file4'"
-"renamed 'file5' -> 'dir1/file5'"
 ```
 
 Move (rename) file:
 ```q
-q)`:file6 set test:([]a:til 10;b:10?`5)
+q)`:file6 set tab:([]a:til 10;b:10?`5)
 `:file6
-q).os.mv`file6`file7
-2025.09.30D09:37:30.023087547 [SYSTEM]: mv -v file6 file7
-"renamed 'file6' -> 'file7'"
-q)test~get`:file7
+q).os.mv`file6`file5
+2025.10.03D06:08:19.439414894 [SYSTEM]: mv -v file6 file5
+"renamed 'file6' -> 'file5'"
+q)tab~get`:file5
 1b
 ```
 
 Move files (and directories) to directory:
 ```q
-q).os.mv`dir1`file7`dir2
-2025.09.30D09:47:01.327539686 [SYSTEM]: mv -v dir1 file7 dir2
+q).os.mv`dir1`file5`dir2
+2025.10.03D06:09:14.719811114 [SYSTEM]: mv -v dir1 file5 dir2
 "renamed 'dir1' -> 'dir2/dir1'"
-"renamed 'file7' -> 'dir2/file7'"
+"renamed 'file5' -> 'dir2/file5'"
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x   - /home/maurice/tmp
@@ -316,114 +332,90 @@ drwxr-sr-x   -     ├── dir1
 .rw-r--r--   0     │   ├── file1
 .rw-r--r--   0     │   ├── file2
 .rw-r--r--   0     │   ├── file3
-.rw-r--r--   0     │   ├── file4
-.rw-r--r--   0     │   └── file5
-.rw-r--r-- 173     └── file7
+.rw-r--r--   0     │   └── file4
+.rw-r--r-- 173     └── file5
 ```
 
 ### `.os.cp` - copy files and directories
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
 drwxr-sr-x - dir2
 .rw-r--r-- 0 file1
 .rw-r--r-- 0 file2
-.rw-r--r-- 0 file3
-.rw-r--r-- 0 file4
-.rw-r--r-- 0 file5
 ```
 
 Copy files to directory:
 ```q
-q).os.cp`file1`file2`file3`dir1
-2025.09.30D09:52:05.388116319 [SYSTEM]: cp -v file1 file2 file3 dir1
+q).os.cp`file1`file2`dir1
+2025.10.03D06:13:53.915499198 [SYSTEM]: cp -v file1 file2 dir1
 "'file1' -> 'dir1/file1'"
 "'file2' -> 'dir1/file2'"
-"'file3' -> 'dir1/file3'"
-q).os.cp("file*";`dir2)
-2025.09.30D09:52:13.727766383 [SYSTEM]: cp -v file* dir2
-"'file1' -> 'dir2/file1'"
-"'file2' -> 'dir2/file2'"
-"'file3' -> 'dir2/file3'"
-"'file4' -> 'dir2/file4'"
-"'file5' -> 'dir2/file5'"
+q).os.cp("file*";`dir1)
+2025.10.03D06:14:10.759069563 [SYSTEM]: cp -v file* dir1
+"'file1' -> 'dir1/file1'"
+"'file2' -> 'dir1/file2'"
 ```
 
 Copy file:
 ```q
-q)`:file6 set test:([]a:til 10;b:10?`5)
-`:file6
-q).os.cp`file6`file7
-2025.09.30D09:53:57.896250672 [SYSTEM]: cp -v file6 file7
-"'file6' -> 'file7'"
-q)test~get`:file7
+q)`:file2 set tab:([]a:til 10;b:10?`5)
+`:file2
+q).os.cp`file2`file3
+2025.10.03D06:15:14.395722919 [SYSTEM]: cp -v file2 file3
+"'file3' -> 'file3'"
+q)tab~get`:file3
 1b
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x   - /home/maurice/tmp
 drwxr-sr-x   - ├── dir1
 .rw-r--r--   0 │   ├── file1
-.rw-r--r--   0 │   ├── file2
-.rw-r--r--   0 │   └── file3
+.rw-r--r--   0 │   └── file2
 drwxr-sr-x   - ├── dir2
-.rw-r--r--   0 │   ├── file1
-.rw-r--r--   0 │   ├── file2
-.rw-r--r--   0 │   ├── file3
-.rw-r--r--   0 │   ├── file4
-.rw-r--r--   0 │   └── file5
 .rw-r--r--   0 ├── file1
-.rw-r--r--   0 ├── file2
-.rw-r--r--   0 ├── file3
-.rw-r--r--   0 ├── file4
-.rw-r--r--   0 ├── file5
-.rw-r--r-- 173 ├── file6
-.rw-r--r-- 173 └── file7
+.rw-r--r-- 173 ├── file2
+.rw-r--r-- 173 └── file3
 ```
 
 ### `.os.cpr` - copy files and directories recursively
+
 Copy files (and directories) to directory:
 ```q
-q).os.cpr`dir1`file7`dir2
-2025.09.30D09:59:16.957703114 [SYSTEM]: cp -rv dir1 file7 dir2
-"'dir1' -> 'dir2/dir1'"
+q).os.cpr`dir1`file1`file2`dir2
+2025.10.03D06:23:51.257974808 [SYSTEM]: cp -rv dir1 file1 file2 dir2
 "'dir1/file1' -> 'dir2/dir1/file1'"
 "'dir1/file2' -> 'dir2/dir1/file2'"
-"'dir1/file3' -> 'dir2/dir1/file3'"
-"'file7' -> 'dir2/file7'"
+"'file1' -> 'dir2/file1'"
+"'file2' -> 'dir2/file2'"
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x   - /home/maurice/tmp
 drwxr-sr-x   - ├── dir1
 .rw-r--r--   0 │   ├── file1
-.rw-r--r--   0 │   ├── file2
-.rw-r--r--   0 │   └── file3
+.rw-r--r--   0 │   └── file2
 drwxr-sr-x   - ├── dir2
 drwxr-sr-x   - │   ├── dir1
 .rw-r--r--   0 │   │   ├── file1
-.rw-r--r--   0 │   │   ├── file2
-.rw-r--r--   0 │   │   └── file3
+.rw-r--r--   0 │   │   └── file2
 .rw-r--r--   0 │   ├── file1
-.rw-r--r--   0 │   ├── file2
-.rw-r--r--   0 │   ├── file3
-.rw-r--r--   0 │   ├── file4
-.rw-r--r--   0 │   ├── file5
-.rw-r--r-- 173 │   └── file7
+.rw-r--r-- 173 │   └── file2
 .rw-r--r--   0 ├── file1
-.rw-r--r--   0 ├── file2
-.rw-r--r--   0 ├── file3
-.rw-r--r--   0 ├── file4
-.rw-r--r--   0 ├── file5
-.rw-r--r-- 173 ├── file6
-.rw-r--r-- 173 └── file7
+.rw-r--r-- 173 ├── file2
+.rw-r--r-- 173 └── file3
 ```
 
 ### `.os.ln` - make links between files
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
@@ -440,12 +432,37 @@ q).os.ln`dir1`dir2
 ```
 
 #### Changes
+
 *Directory:*
 ```sh
 drwxr-sr-x - dir1
 lrwxrwxrwx - dir2 -> dir1
 .rw-r--r-- 0 file1
 lrwxrwxrwx - file2 -> file1
+```
+
+### `.os.cat` - concatenate files and read text
+
+```q
+q)`:file1 0:text:"\n"vs .Q.s([]a:til 10;b:10?`5)
+`:file1
+q)show res:.os.cat`file1
+2025.10.03D07:13:54.415971322 [SYSTEM]: cat file1
+"a b    "
+"-------"
+"0 enfeb"
+"1 plhoj"
+"2 nnilj"
+..
+q)text~res
+1b
+```
+
+### `.os.touch` - create empty file
+
+```q
+q).os.touch`file1`file2
+2025.10.03D07:33:53.119985188 [SYSTEM]: touch file1 file2
 ```
 
 ### TODO: Custom Functions

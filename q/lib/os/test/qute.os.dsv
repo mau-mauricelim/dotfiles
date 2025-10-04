@@ -1,77 +1,94 @@
-action | minver | code                                                                                      | repeat | ms | bytes | comment
-before |        | .lib.require`os                                                                           |        |    |       | Initialize library
-before |        | system"d .test"                                                                           |        |    |       | Change to .test namespace
-before |        | n:3; tmp:`:tmp                                                                            |        |    |       | Setup test variables
-before |        | notAnyExist:{not any .util.exists each x}                                                 |        |    |       | Setup test functions
-before |        | allExist:{all .util.exists each x}                                                        |        |    |       | Setup test functions
-before |        | cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which  |        |    |       | Setup test variables
-before |        | cmd,:`where`pg`sigint`sigterm`sigkill`sleep                                               |        |    |       | Setup test variables
-before |        | w:.util.isWin[]                                                                           |        |    |       | Setup test variables
-true   |        | all(k:key`_.os.cmd)in cmd                                                                 |        |    |       | Test existence of all available commands
-true   |        | .os.name<>`unknown                                                                        |        |    |       | Test .os.name
-true   |        | .os.type in`l`m`s`v`w                                                                     |        |    |       | Test .os.type
-true   |        | .os.arch in`x86`x86_64                                                                    |        |    |       | Test .os.arch
-before |        | pwd:.os.pwd`                                                                              |        |    |       | Setup test variables
-run    |        | n sublist .os.env`                                                                        |        |    |       | Test .os.env
-run    |        | n sublist .os.ver`                                                                        |        |    |       | Test .os.ver
-run    |        | n sublist .os.nproc`                                                                      |        |    |       | Test .os.nproc
-true   |        | pwd~.os.cd`                                                                               |        |    |       | Test .os.cd
-run    |        | .os.rmrf tmp                                                                              |        |    |       | Test .os.rmrf
-run    |        | .os.cd tmp                                                                                |        |    |       | Creates the directory if it does not exist
-before |        | joinStr:" "sv                                                                             |        |    |       | Setup test functions
-before |        | d:("dir1";"dir2";"\"dir3 with space\"";"dir4/nested";"\"dir5 nested/deeper/with space\"") |        |    |       | Setup test variables
-before |        | splitStrDirs:.util.strPath each d                                                         |        |    |       | Setup test variables
-before |        | joinedStrDirs:joinStr splitStrDirs                                                        |        |    |       | Setup test variables
-run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       | Test .os.mkdir
-run    |        | .os.ls`                                                                                   |        |    |       | Test .os.ls
-before |        | splitStrDirsNoQuote:splitStrDirs except\:"\""                                             |        |    |       | Setup test variables
-before |        | symDirs:.q.Hsym splitStrDirsNoQuote                                                       |        |    |       | Setup test variables
-true   |        | allExist symDirs                                                                          |        |    |       |
-before |        | quoteIfSpace:{$[" "in x;"\"",x,"\"";x]}                                                   |        |    |       | Setup test functions
-before |        | findDirs:raze[.util.dirname\'[splitStrDirsNoQuote]]except enlist""                        |        |    |       | Setup test variables
-before |        | indvJoinedStrDirs:joinStr quoteIfSpace each findDirs                                      |        |    |       | Setup test variables
-run    |        | .os.ls indvJoinedStrDirs                                                                  |        |    |       |
-run    |        | .os.rmdir indvJoinedStrDirs                                                               |        |    |       | Test .os.rmdir
-true   |        | notAnyExist symDirs                                                                       |        |    |       |
-run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
-before |        | rootSplitStrDirs:{quoteIfSpace first"/"vs x}each splitStrDirsNoQuote                      |        |    |       | Setup test variables
-before |        | rootJoinedStrDirs:joinStr rootSplitStrDirs                                                |        |    |       | Setup test variables
-run    |        | .os.rmrf rootJoinedStrDirs                                                                |        |    |       |
-true   |        | notAnyExist symDirs                                                                       |        |    |       |
-run    |        | .os.mkdir joinedStrDirs                                                                   |        |    |       |
-before |        | destDir:"dir6"                                                                            |        |    |       | Setup test variables
-run    |        | .os.mkdir destDir                                                                         |        |    |       |
-before |        | newRootJoinedStrDirs:joinStr(rootJoinedStrDirs;destDir)                                   |        |    |       | Setup test variables
-run    |        | if[not w;.os.cpr newRootJoinedStrDirs]                                                    |        |    |       | Test .os.cpr
-run    |        | if[w;{.os.cpr joinStr(x;y)}[;destDir]'[rootSplitStrDirs]]                                 |        |    |       | Test .os.cpr
-run    |        | .os.cd destDir                                                                            |        |    |       |
-true   |        | allExist symDirs                                                                          |        |    |       |
-run    |        | .os.cd".."                                                                                |        |    |       |
-run    |        | .os.rmrf newRootJoinedStrDirs                                                             |        |    |       |
-before |        | splitStrFiles:.util.strPath each("file1";"\"file2 with space\"")                          |        |    |       | Setup test variables
-before |        | joinedStrFiles:joinStr splitStrFiles                                                      |        |    |       | Setup test variables
-before |        | strFile:first splitStrFiles                                                               |        |    |       | Setup test variables
-run    |        | .os.touch strFile                                                                         |        |    |       | Test .os.touch
-run    |        | .os.cp joinedStrFiles                                                                     |        |    |       | Test .os.cp
-before |        | splitStrFilesNoQuote:splitStrFiles except\:"\""                                           |        |    |       | Setup test variables
-before |        | symFiles:.q.Hsym splitStrFilesNoQuote                                                     |        |    |       | Setup test variables
-true   |        | allExist symFiles                                                                         |        |    |       |
-run    |        | .os.rm strFile                                                                            |        |    |       | Test .os.rm
-true   |        | all@[.util.exists each symFiles;0;not]                                                    |        |    |       |
-run    |        | .os.mv joinStr reverse splitStrFiles                                                      |        |    |       | Test .os.mv
-before |        | lnJoinedStrFiles:joinStr$[w;reverse;]splitStrFiles                                        |        |    |       |
-run    |        | .os.ln lnJoinedStrFiles                                                                   |        |    |       | Test .os.ln
-true   |        | allExist symFiles                                                                         |        |    |       |
-before |        | textFile:`:test.txt; text:{100?.Q.an}each til 100                                         |        |    |       | Setup test variables
-run    |        | textFile 0:text                                                                           |        |    |       |
-true   |        | text~.os.cat textFile                                                                     |        |    |       | Test .os.cat
-before |        | search:`q                                                                                 |        |    |       | Setup test variables
-run    |        | .os.where search                                                                          |        |    |       | Test .os.where
-run    |        | n sublist .os.pg search                                                                   |        |    |       | Test .os.pg
-run    |        | st:.z.t                                                                                   |        |    |       |
-run    |        | .os.sleep second:1                                                                        |        |    |       | Test .os.sleep
-true   |        | second<=`second$.z.t-st                                                                   |        |    |       |
-after  |        | .os.cd pwd                                                                                |        |    |       |
-after  |        | .os.rmrf tmp                                                                              |        |    |       |
-after  |        | system"d ."                                                                               |        |    |       | Change to default namespace
-after  |        | delete from`.test                                                                         |        |    |       | Cleanup .test namespace
+action | minver | code                                                                                     | repeat | ms | bytes | comment
+before |        | .lib.require`os                                                                          |        |    |       | Initialize library
+before |        | system"d .test"                                                                          |        |    |       | Change to .test namespace
+empty  |        |                                                                                          |        |    |       |
+before |        | allExist:{all .util.exists each .q.Hsym x}                                               |        |    |       | Setup test functions
+before |        | isEmptyDir:{(11h~type c)&not count c:key`:.}                                             |        |    |       | Setup test functions
+before |        | notAnyExist:{not any .util.exists each .q.Hsym x}                                        |        |    |       | Setup test functions
+empty  |        |                                                                                          |        |    |       |
+before |        | cmd: `pwd`env`ver`nproc`cd`ls`mkdir`rmdir`rm`rmrf`mv`cp`cpr`ln`head`tail`cat`touch`which |        |    |       | Setup test variables
+before |        | cmd,:`where`pg`sigint`sigterm`sigkill`sleep                                              |        |    |       | Setup test variables
+true   |        | all(k:key`_.os.cmd)in cmd                                                                |        |    |       | Test existence of all available commands
+empty  |        |                                                                                          |        |    |       |
+true   |        | .os.name<>`unknown                                                                       |        |    |       | Test .os.name
+true   |        | .os.type in`l`m`s`v`w                                                                    |        |    |       | Test .os.type
+true   |        | .os.arch in`x86`x86_64                                                                   |        |    |       | Test .os.arch
+empty  |        |                                                                                          |        |    |       |
+before |        | head:3 sublist                                                                           |        |    |       | Setup test functions
+run    |        | head .os.env`                                                                            |        |    |       | Test .os.env
+run    |        | head .os.ver`                                                                            |        |    |       | Test .os.ver
+run    |        | head .os.nproc`                                                                          |        |    |       | Test .os.nproc
+before |        | pwd:.os.pwd`                                                                             |        |    |       | Test .os.pwd
+true   |        | pwd~.os.cd`                                                                              |        |    |       | Test .os.cd
+empty  |        |                                                                                          |        |    |       |
+before |        | .util.recurseDel tmp:`:tmp                                                               |        |    |       | Remove any existing tmp directory
+run    |        | .os.cd tmp                                                                               |        |    |       | Create a new tmp directory
+fail   |        | .os.ls dir:"cd creates directory if it does not exist"                                   |        |    |       |
+true   |        | isEmptyDir[]                                                                             |        |    |       |
+run    |        | .os.cd dir                                                                               |        |    |       | cd creates directory if it does not exist
+run    |        | .os.cd`:..                                                                               |        |    |       |
+true   |        | allExist dir                                                                             |        |    |       |
+run    |        | .os.ls dir                                                                               |        |    |       |
+run    |        | .os.rmdir dir                                                                            |        |    |       |
+true   |        | isEmptyDir[]&notAnyExist dir                                                             |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.mkdir dir:("dir1";"dir2 with space";"dir3";"dir4 with space/nested dir1";"dir5")     |        |    |       | Test .os.mkdir
+run    |        | indvDir:raze -1_'{"/"sv -1_"/"vs x}\'[dir]                                               |        |    |       | rmdir works on each individual empty directories
+true   |        | allExist indvDir                                                                         |        |    |       |
+run    |        | .tree.tree`:.                                                                            |        |    |       |
+run    |        | .os.rmdir indvDir                                                                        |        |    |       | Test .os.rmdir
+true   |        | isEmptyDir[]&notAnyExist indvDir                                                         |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.mkdir dir:("dir1 with space/nested dir1";"dir2")                                     |        |    |       |
+run    |        | file:("dir1 with space/nested dir1/nested file2";"dir1 with space/nested file1";"file1") |        |    |       |
+run    |        | .os.touch file                                                                           |        |    |       | Test .os.touch
+run    |        | .tree.tree`:.                                                                            |        |    |       |
+true   |        | allExist dirFile:dir,file                                                                |        |    |       |
+run    |        | .os.rmrf root:distinct{first"/"vs x}each dirFile                                         |        |    |       | Test .os.rmrf from each root directories/files
+true   |        | isEmptyDir[]&notAnyExist dirFile                                                         |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.mkdir num:101+til 10                                                                 |        |    |       | Test number arguments
+run    |        | .os.ls num                                                                               |        |    |       |
+true   |        | allExist string num                                                                      |        |    |       |
+run    |        | .os.rmdir num                                                                            |        |    |       |
+true   |        | isEmptyDir[]&notAnyExist dir                                                             |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.touch sym:10?`8                                                                      |        |    |       | Test symbol arguments
+true   |        | allExist string sym                                                                      |        |    |       |
+run    |        | .os.rm sym                                                                               |        |    |       | Test .os.rm
+true   |        | isEmptyDir[]&notAnyExist sym                                                             |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.mkdir dir                                                                            |        |    |       |
+run    |        | .os.touch file                                                                           |        |    |       |
+run    |        | .tree.tree`:.                                                                            |        |    |       |
+true   |        | allExist dirFile                                                                         |        |    |       |
+run    |        | .os.cp file,enlist dir2:last dir                                                         |        |    |       | Test .os.cp
+true   |        | allExist dir2File:{x"/",last"/"vs y}[dir2]each file                                      |        |    |       |
+run    |        | .tree.tree`:.                                                                            |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.rmrf dir2,"/*"                                                                       |        |    |       | Test regex
+true   |        | (`$())~key .q.Hsym dir2                                                                  |        |    |       |
+run    |        | .os.cpr(first"/"vs first dir;last file;dir2)                                             |        |    |       | Test .os.cpr
+run    |        | .tree.tree`:.                                                                            |        |    |       |
+run    |        | .os.cd dir2                                                                              |        |    |       |
+true   |        | allExist dirFile except enlist dir2                                                      |        |    |       |
+run    |        | .os.cd`:..                                                                               |        |    |       |
+run    |        | .os.rmrf root                                                                            |        |    |       |
+true   |        | isEmptyDir[]&notAnyExist dirFile                                                         |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | `:file1 0:text:"\n"vs .Q.s([]a:til 10;b:10?`5)                                           |        |    |       | Setup test variables
+run    |        | .os.ln file:`file1`file2                                                                 |        |    |       | Test .os.ln
+true   |        | text~.os.cat`file2                                                                       |        |    |       | Test .os.cat
+run    |        | .os.rm file                                                                              |        |    |       |
+true   |        | isEmptyDir[]&notAnyExist file                                                            |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+run    |        | .os.where q:`q                                                                           |        |    |       | Test .os.where
+run    |        | head .os.pg q                                                                            |        |    |       | Test .os.pg
+empty  |        |                                                                                          |        |    |       |
+run    |        | st:.z.t;.os.sleep sec:1                                                                  |        |    |       | Test .os.sleep
+true   |        | sec<=`second$.z.t-st                                                                     |        |    |       |
+empty  |        |                                                                                          |        |    |       |
+after  |        | .os.cd`:..                                                                               |        |    |       |
+after  |        | .util.recurseDel tmp                                                                     |        |    |       | Remove any existing tmp directory
+after  |        | system"d ."                                                                              |        |    |       | Change to default namespace
+after  |        | delete from`.test                                                                        |        |    |       | Cleanup .test namespace
