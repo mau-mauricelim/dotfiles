@@ -25,9 +25,8 @@
 / - Some functions support regex strings (dependent on OS!)
 /   - Example: `.os.cp("SOURCE_*";"DIRECTORY")`
 .os.i.run:{[bounds;run;cmd;transform;args]
-    args,:();
     / Ensure args is a list of strings
-    if[10h~abs type args;args:enlist args];
+    if[10h~abs type args,:();args:enlist args];
     args:(.os.strPath[.os.type]each args)except enlist"";
     if[not count[args]within bounds;'.log.error"Invalid number of arguments"];
     args:({$[" "in x;.util.addQuotes;]x}.util.removeQuotes@)each args;

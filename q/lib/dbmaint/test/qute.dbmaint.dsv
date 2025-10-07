@@ -1,24 +1,41 @@
 action | minver | code                                                                           | repeat | ms | bytes | comment
 before |        | .lib.require`dbmaint                                                           |        |    |       | Initialize library
 before |        | system"d .test"                                                                |        |    |       | Change to .test namespace
-before |        | n:1000; trade:([]time:2023.01.01+n?3D;sym:n?`3;price:n?10000f;size:n?10000)    |        |    |       | Create trade table
+before |        | n:1000; trade:([]sym:n?`3;time:2023.01.01+n?3D;price:n?10000f;size:n?10000)    |        |    |       | Create trade table
 before |        | trade:`sym`time xasc trade                                                     |        |    |       | Sort trade table
 before |        | g:trade group`date$trade`time                                                  |        |    |       | Group trade table by date
-before |        | d:2023.01.02; t:g d                                                            |        |    |       | Create ref date and table
+before |        | d:2023.01.02; t:g d                                                            |        |    |       | Create ref date and trade table
+before |        | nn:10; randPrice:{{rand[nn]?10000f}each til n}                                 |        |    |       | Create quote table
+before |        | quote:([]sym:n?`3;time:2023.01.01+n?3D;bid:randPrice[];ask:randPrice[])        |        |    |       | Sort quote table
+before |        | quote:`sym`time xasc quote                                                     |        |    |       | Group quote table by date
+before |        | gq:quote group`date$quote`time                                                 |        |    |       | Create ref quote table
+before |        | q:g d
 before |        | pwd:.util.sysCd""                                                              |        |    |       | Store current working directory
 before |        | hdbDir:`:tmp/hdb                                                               |        |    |       | Setup HDB directory
 before |        | .util.recurseDel .util.dirname hdbDir                                          |        |    |       | Delete HDB
-before |        | {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g]        |        |    |       | Create HDB
-before |        | m:([c:`date`time`sym`price`size]t:"dpsfj";f:`;a:```p``)                        |        |    |       | Create trade meta
+before |        | {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g]        |        |    |       | Create HDB with trade table
+before |        | m:([c:`date`sym`time`price`size]t:"dspfj";f:`;a:``p```)                        |        |    |       | Create trade meta
+before |        | {[d;p;t].Q.dd[d;p,`quote`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key gq;gq]      |        |    |       | Create HDB with quote table
+before |        | mq:([c:`date`sym`time`bid`ask]t:"dspFF";f:`;a:``p```)                          |        |    |       | Create quote meta
 before |        | system"d ."                                                                    |        |    |       | Change to default namespace
 before |        | reload .test.hdbDir                                                            |        |    |       | Reload HDB
-true   |        | .test.m~meta trade                                                             |        |    |       | Check trade meta
+true   |        | .test.m ~meta trade                                                            |        |    |       | Check trade meta
+true   |        | .test.mq~meta quote                                                            |        |    |       | Check quote meta
 fail   |        | addCol[thisDb;`trade;`$"!n^@li% n@><";0h]                                      |        |    |       | Invalid new column name
 run    |        | addCol[thisDb;`trade;`noo;0h]                                                  |        |    |       |
 fail   |        | castCol[thisDb;`trade;`size;`fail]                                             |        |    |       | Invalid cast type
 run    |        | castCol[thisDb;`trade;`size;`short]                                            |        |    |       |
 fail   |        | copyCol[thisDb;`trade;`size2;`size]                                            |        |    |       | Column does not exist
 run    |        | copyCol[thisDb;`trade;`size;`size2]                                            |        |    |       |
+run    |        | copyCol[thisDb;`quote;`ask;`ask2]                                              |        |    |       | Copy nested column
+run    |        | `.test.mq insert`ask2,"F",``                                                   |        |    |       |
+true   |        | .test.mq~meta quote                                                            |        |    |       | Check quote meta
+run    |        | deleteCol[thisDb;`quote;`ask]                                                  |        |    |       | Delete nested column
+run    |        | delete from`.test.mq where c=`ask                                              |        |    |       |
+true   |        | .test.mq~meta quote                                                            |        |    |       | Check quote meta
+run    |        | renameCol[thisDb;`quote;`ask2;`ask]                                            |        |    |       | Rename nested column
+run    |        | update c:`ask from`.test.mq where c=`ask2                                      |        |    |       |
+true   |        | .test.mq~meta quote                                                            |        |    |       | Check quote meta
 run    |        | deleteCol[thisDb;`trade;`size]                                                 |        |    |       |
 run    |        | clearAttrCol[thisDb;`trade;`sym]                                               |        |    |       |
 run    |        | delete from`.test.m where c=`size                                              |        |    |       | Update trade meta changes

@@ -3,17 +3,17 @@ before |        | .lib.require`util           |        |    |       | Initialize
 before |        | .util.randSeed[];system"S"  |        |    |       | Set random seed
 before |        | .lib.require`qnix           |        |    |       | Initialize library
 before |        | system"d .test"             |        |    |       | Change to .test namespace
-before |        | n2:2*n:.head.n:rand 10000   |        |    |       | Setup test variables
-run    |        | res:.head.head til n2       |        |    |       |
-true   |        | .head.n~count res           |        |    |       |
-true   |        | res~.head.head[ 2*n2]res    |        |    |       |
-true   |        | res~.head.head[-2*n2]res    |        |    |       |
+before |        | n2:2*n:.qnix.i.n:rand 10000 |        |    |       | Setup test variables
+run    |        | res:.qnix.head til n2       |        |    |       |
+true   |        | .qnix.i.n~count res         |        |    |       |
+true   |        | res~.qnix.head[ 2*n2]res    |        |    |       |
+true   |        | res~.qnix.head[-2*n2]res    |        |    |       |
 before |        | nn05:neg n05:n div 2;       |        |    |       | Setup test variables
-run    |        | resN05: .head.head[ n05]res |        |    |       |
-run    |        | resNn05:.head.head[nn05]res |        |    |       |
+run    |        | resN05: .qnix.head[ n05]res |        |    |       |
+run    |        | resNn05:.qnix.head[nn05]res |        |    |       |
 true   |        | ( n05#res)~ resN05          |        |    |       |
 true   |        | (nn05#res)~resNn05          |        |    |       |
-true   |        | resN05~.head.tail[nn05]res  |        |    |       |
-true   |        | resNn05~.head.tail[ n05]res |        |    |       |
+true   |        | resN05~.qnix.tail[nn05]res  |        |    |       |
+true   |        | resNn05~.qnix.tail[ n05]res |        |    |       |
 after  |        | system"d ."                 |        |    |       | Change to default namespace
 after  |        | delete from`.test           |        |    |       | Cleanup .test namespace

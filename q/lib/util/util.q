@@ -29,7 +29,6 @@ dir:.util.recurseDirNoHidden:.util.i.recurseDir 0b;
 diR:.util.recurseDir:.util.i.recurseDir 1b;
 
 / rm -rf
-// TODO: Prevent rm -rf of `:. etc
 nuke:.util.recurseDel:hdel each desc .util.recurseDir@; / desc sort
 / Delete object from namespace
 odel:.util.objectDel:{![$[1=count v;`.;` sv -1_v];();0b;(),last v:` vs x]};

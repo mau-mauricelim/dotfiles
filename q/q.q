@@ -36,7 +36,7 @@ sp:.util.strPath:.util.i.strPath .util.normPath@;
 / String path windows
 spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
 
-/ @param dir - boolean - return directory or file
+/ @param dir - boolean - 1b to return directory, else file
 / @param filePath - sym/string
 / @return directory/file path of the same input type
 .util.i.pathname:{[dir;filePath]
@@ -94,7 +94,7 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
 .util.banner:{[msg] (cover;side," ",msg," ",side;cover:(4+count msg)#side:"#")};
 .log.banner:{[msg] .log.info each e,.util.banner[msg],e:enlist"";};
 
-.error.fileNotFound:"ERROR: No such file or directory";
+.log.errorNotFound:{.log.error(.Q.s1 x),": No such file or directory";}
 
 /#############
 /# Libraries #

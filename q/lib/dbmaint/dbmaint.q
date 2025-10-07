@@ -6,6 +6,7 @@
 / General utils
 invalidName:.dbm.invalidName:{(x in`i,.Q.res,key`.q)or x<>.Q.id x};
 allCols:.dbm.allCols:{[tabDir] get tabDir,`.d};
+nestedColName:.dbm.nestedColName:{`$string[x],"#"};
 allPaths:.dbm.allPaths:{[hdbDir;tabName]
     files:key hdbDir;
     if[any files like"par.txt";:raze .dbm.allPaths[;tabName]each hsym each`$read0` sv hdbDir,`par.txt];
@@ -32,7 +33,9 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
 .dbm.copy1Col:{[tabDir;oldName;newName]
     if[(found:oldName in colNames)and not newName in colNames:.dbm.allCols tabDir;
         .log.info"Copying column: [",(string oldName),"] to [",(string newName),"] in: [",(.Q.s1 tabDir),"]";
-        .os.cp` sv'tabDir,'(oldName;newName);
+        .os.cp` sv'tabDir,'name:(oldName;newName);
+        / If nested column exists
+        if[first[name:.dbm.nestedColName each name]in key tabDir;.os.cp` sv'tabDir,'name];
         @[tabDir;`.d;,;newName]];
     if[not found;'.log.error"Column: [",(string oldName),"] is missing in: [",(.Q.s1 tabDir),"]"]};
 
@@ -40,6 +43,8 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
     if[colName in colNames:.dbm.allCols tabDir;
         .log.info"Deleting column: [",(string colName),"] in: [",(.Q.s1 tabDir),"]";
         hdel[` sv tabDir,colName];
+        / If nested column exists
+        @[hdel;` sv tabDir,.dbm.nestedColName colName;{}];
         @[tabDir;`.d;:;colNames except colName]]};
 
 .dbm.find1Col:{[tabDir;colName]
@@ -85,7 +90,9 @@ reload:.dbm.reload:.util.sysLoad .util.strPath@;
         '.log.error"Columns: [",(string oldName),"] AND [",(string newName),"] are missing in: [",(.Q.s1 tabDir),"]"];
     if[10b~found;
         .log.info"Renaming column: [",(string oldName),"] to [",(string newName),"] in: [",(.Q.s1 tabDir),"]";
-        .os.mv` sv'tabDir,'(oldName;newName);
+        .os.mv` sv'tabDir,'name:(oldName;newName);
+        / If nested column exists
+        if[first[name:.dbm.nestedColName each name]in key tabDir;.os.mv` sv'tabDir,'name];
         @[tabDir;`.d;:;.[colNames;where colNames=oldName;:;newName]]]};
 
 .dbm.rename1Tab:{[oldName;newName]
@@ -115,13 +122,11 @@ castCol:.dbm.castCol:{[hdbDir;tabName;colName;newType]
 / @example - clearAttrCol[thisDb;`trade;`sym]
 clearAttrCol:.dbm.clearAttrCol:{[hdbDir;tabName;colName] .dbm.setAttrCol[hdbDir;tabName;colName;`];};
 
-// TODO: Does not support nested columns currently
 / @example - copyCol[`:/k4/data/taq;`trade;`size;`size2]
 copyCol:.dbm.copyCol:{[hdbDir;tabName;oldName;newName]
     if[.dbm.invalidName newName;'.log.error"Invalid new column name: [",(string newName),"]"];
     .dbm.copy1Col[;oldName;newName]each .dbm.allPaths[hdbDir;tabName];};
 
-// TODO: Does not support nested columns currently
 / @example - deleteCol[`:/k4/data/taq;`trade;`iz]
 deleteCol:.dbm.deleteCol:{[hdbDir;tabName;colName] .dbm.delete1Col[;colName]each .dbm.allPaths[hdbDir;tabName];};
 
@@ -140,7 +145,6 @@ listCols:.dbm.listCols:{[hdbDir;tabName]
     .log.info"Table [",(string tabName),"] columns: ";
     .dbm.allCols first .dbm.allPaths[hdbDir;tabName]};
 
-// TODO: Does not support nested columns currently
 / @example - renameCol[`:/k4/data/taq;`trade;`woz;`iz]
 renameCol:.dbm.renameCol:{[hdbDir;tabName;oldName;newName]
     if[.dbm.invalidName newName;'.log.error"Invalid new column name: [",(string newName),"]"];

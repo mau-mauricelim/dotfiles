@@ -1,4 +1,5 @@
 # 🛠️ dbmaint _(Database maintenance)_
+
 Utility functions [dbmaint.q](dbmaint.q) for **kdb+ partitioned database tables maintenance**
 
 **NOT FOR**:
@@ -17,31 +18,62 @@ Utility functions [dbmaint.q](dbmaint.q) for **kdb+ partitioned database tables 
 > Test the effect of these utility functions on a [sample database](https://github.com/KxSystems/kdb-taq/tree/master) first before attempting it in production
 
 ## Usage examples
+
 ### Sample database
+
 Generate sample database:
 ```q
 n:1000;
 trade:`sym`time xasc([]sym:n?`3;time:2023.01.01+n?3D;price:n?10000f;size:n?10000);
-g:trade group`date$trade`time;
+
+nn:10; randPrice:{{rand[nn]?10000f}each til n};
+quote:`sym`time xasc([]sym:n?`3;time:2023.01.01+n?3D;bid:randPrice[];ask:randPrice[]);
+
 hdbDir:`:tmp/hdb;
+g:trade group`date$trade`time;
 {[d;p;t].Q.dd[d;p,`trade`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key g;g];
+
+gq:quote group`date$quote`time
+{[d;p;t].Q.dd[d;p,`quote`]set .Q.en[d;@[t;`sym;`p#]]}[hdbDir]'[key gq;gq];
 ```
+
 *Directory:*
 ```sh
 tmp/hdb
 ├── 2023.01.01
+│   ├── quote
+│   │   ├── ask
+│   │   ├── ask#
+│   │   ├── bid
+│   │   ├── bid#
+│   │   ├── sym
+│   │   └── time
 │   └── trade
 │       ├── price
 │       ├── size
 │       ├── sym
 │       └── time
 ├── 2023.01.02
+│   ├── quote
+│   │   ├── ask
+│   │   ├── ask#
+│   │   ├── bid
+│   │   ├── bid#
+│   │   ├── sym
+│   │   └── time
 │   └── trade
 │       ├── price
 │       ├── size
 │       ├── sym
 │       └── time
 ├── 2023.01.03
+│   ├── quote
+│   │   ├── ask
+│   │   ├── ask#
+│   │   ├── bid
+│   │   ├── bid#
+│   │   ├── sym
+│   │   └── time
 │   └── trade
 │       ├── price
 │       ├── size
@@ -49,8 +81,10 @@ tmp/hdb
 │       └── time
 └── sym
 ```
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -58,9 +92,18 @@ sym  | s   p
 time | p
 price| f
 size | j
+q)meta quote
+c   | t f a
+----| -----
+date| d
+sym | s   p
+time| p
+bid | F
+ask | F
 ```
 
 ### `addCol`
+
 Add a new column (`colName`)
 with the default value (`defaultVal`)
 to each row of the existing table (`tabName`)
@@ -71,7 +114,9 @@ addCol[hdbDir;tabName;colName;defaultVal]
 / @example
 addCol[`:tmp/hdb;`trade;`noo;0h]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -98,8 +143,10 @@ tmp/hdb
 │       └── time
 └── sym
 ```
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -111,6 +158,7 @@ noo  | h
 ```
 
 ### `castCol`
+
 Cast the values of the existing column (`colName`)
 with the new type (`newType`)
 to the existing table (`tabName`)
@@ -124,9 +172,12 @@ castCol[hdbDir;tabName;colName;newType]
 / @example
 castCol[`:tmp/hdb;`trade;`size;`short]
 ```
+
 #### Changes:
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -138,6 +189,7 @@ noo  | h
 ```
 
 ### `clearAttrCol`
+
 Clear the attributes of the existing column (`colName`)
 from the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
@@ -147,9 +199,12 @@ clearAttrCol[hdbDir;tabName;colName]
 / @example
 clearAttrCol[`:tmp/hdb;`trade;`sym]
 ```
+
 #### Changes:
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -161,19 +216,20 @@ noo  | h
 ```
 
 ### `copyCol`
+
 Copy the values of the existing column (`oldName`)
 to the new column (`newName`)
 of the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
-> [!WARNING]
-> TODO: Does not support nested columns currently
 ```q
 / @usage
 copyCol[hdbDir;tabName;oldName;newName]
 / @example
 copyCol[`:tmp/hdb;`trade;`size;`size2]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -203,8 +259,10 @@ tmp/hdb
 │       └── time
 └── sym
 ```
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -216,20 +274,90 @@ noo  | h
 size2| h
 ```
 
+Support nested columns
+```
+/ @example
+copyCol[`:tmp/hdb;`quote;`ask;`ask2]
+```
+
+***Output:***
+```q
+2025.10.06D08:55:27.857405761 [INFO]: Copying column: [ask] to [ask2] in: [`:tmp/hdb/2023.01.01/quote]
+2025.10.06D08:55:27.857551188 [SYSTEM]: cp -v tmp/hdb/2023.01.01/quote/ask tmp/hdb/2023.01.01/quote/ask2
+2025.10.06D08:55:27.860657851 [SYSTEM]: cp -v tmp/hdb/2023.01.01/quote/ask# tmp/hdb/2023.01.01/quote/ask2#
+2025.10.06D08:55:27.864759419 [INFO]: Copying column: [ask] to [ask2] in: [`:tmp/hdb/2023.01.02/quote]
+2025.10.06D08:55:27.864914034 [SYSTEM]: cp -v tmp/hdb/2023.01.02/quote/ask tmp/hdb/2023.01.02/quote/ask2
+2025.10.06D08:55:27.868825839 [SYSTEM]: cp -v tmp/hdb/2023.01.02/quote/ask# tmp/hdb/2023.01.02/quote/ask2#
+2025.10.06D08:55:27.872228032 [INFO]: Copying column: [ask] to [ask2] in: [`:tmp/hdb/2023.01.03/quote]
+2025.10.06D08:55:27.872320528 [SYSTEM]: cp -v tmp/hdb/2023.01.03/quote/ask tmp/hdb/2023.01.03/quote/ask2
+2025.10.06D08:55:27.874434282 [SYSTEM]: cp -v tmp/hdb/2023.01.03/quote/ask# tmp/hdb/2023.01.03/quote/ask2#
+```
+
+#### Changes:
+
+*Directory:*
+```sh
+tmp/hdb
+├── 2023.01.01
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+└── sym
+```
+
+*meta:*
+```q
+q)meta quote
+c   | t f a
+----| -----
+date| d
+sym | s   p
+time| p
+bid | F
+ask | F
+ask2| F
+```
+
 ### `deleteCol`
+
 Delete the existing column (`colName`)
 from the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
-> [!WARNING]
-> TODO: Does not support nested columns currently
-> - Manually delete the `colName#` files for nested columns (the files containing the actual values)
 ```q
 / @usage
 deleteCol[hdbDir;tabName;colName]
 / @example
 deleteCol[`:tmp/hdb;`trade;`size]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -256,8 +384,10 @@ tmp/hdb
 │       └── time
 └── sym
 ```
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -268,7 +398,58 @@ noo  | h
 size2| h
 ```
 
+Support nested columns
+```
+/ @example
+deleteCol[`:tmp/hdb;`quote;`ask]
+```
+
+#### Changes:
+
+*Directory:*
+```sh
+tmp/hdb
+├── 2023.01.01
+│   └── quote
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── quote
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── quote
+│       ├── ask2
+│       ├── ask2#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+└── sym
+```
+
+*meta:*
+```q
+q)meta quote
+c   | t f a
+----| -----
+date| d
+sym | s   p
+time| p
+bid | F
+ask2| F
+```
+
 ### Broken HDB
+
 > [!TIP]
 > - `findCol` can be used to inspect a broken HDB
 > - `fixTab` can be used to fix a broken HDB
@@ -278,6 +459,7 @@ Simulate broken HDB:
 .dbm.rename1Col[`:tmp/hdb/2023.01.02/trade;`size2;`size]
 ```
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -306,6 +488,7 @@ tmp/hdb
 ```
 
 ### `findCol`
+
 Find and print the existing column (`colName`) with its type in each partition directory
 of the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
@@ -317,6 +500,7 @@ findCol[hdbDir;tabName;colName]
 / @example
 findCol[`:tmp/hdb;`trade;`size2]
 ```
+
 ***Output:***
 ```q
 2025.09.20D08:44:33.715587773 [INFO]: Found column: [size2] of type [5h "h"] in [`:tmp/hdb/2023.01.01/trade]
@@ -337,6 +521,7 @@ fixTab[hdbDir;tabName;goodPartition]
 / @example
 fixTab[`:tmp/hdb;`trade;2023.01.01]
 ```
+
 ***Output:***
 ```q
 2025.09.20D08:52:21.002862728 [INFO]: Fixing table: [`:tmp/hdb/2023.01.02/trade]
@@ -344,7 +529,9 @@ fixTab[`:tmp/hdb;`trade;2023.01.01]
 2025.09.20D08:52:21.004681858 [INFO]: Deleting column: [size] in: [`:tmp/hdb/2023.01.02/trade]
 2025.09.20D08:52:21.004968595 [INFO]: Reordering columns in [`:tmp/hdb/2023.01.02/trade]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -384,6 +571,7 @@ funcCol[hdbDir;tabName;colName;func]
 funcCol[`:tmp/hdb;`trade;`price;2*]
 ```
 #### Changes:
+
 *Before:*
 ```q
 q)select price from trade
@@ -396,6 +584,7 @@ price
 4328.193
 ..
 ```
+
 *After:*
 ```q
 q)select price from trade
@@ -410,6 +599,7 @@ price
 ```
 
 ### `listCols`
+
 List the columns **from the first partition** of the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
 ```q
@@ -418,6 +608,7 @@ listCols[hdbDir;tabName]
 / @example
 listCols[`:tmp/hdb;`trade]
 ```
+
 ***Output:***
 ```q
 2025.09.20D09:06:55.678017279 [INFO]: Table [trade] columns:
@@ -425,19 +616,20 @@ listCols[`:tmp/hdb;`trade]
 ```
 
 ## renameCol
+
 Rename the existing column (`oldName`)
 to the new column (`newName`)
 of the existing table (`tabName`)
 on the hdb directory (`hdbDir`)
-> [!WARNING]
-> TODO: Does not support nested columns currently
 ```q
 / @usage
 renameCol[hdbDir;tabName;oldName;newName]
 / @example
 renameCol[`:tmp/hdb;`trade;`size2;`size]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -464,8 +656,10 @@ tmp/hdb
 │       └── time
 └── sym
 ```
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -476,7 +670,71 @@ noo  | h
 size | h
 ```
 
+Support nested columns
+```q
+/ @example
+renameCol[`:tmp/hdb;`quote;`ask2;`ask]
+```
+
+***Output:***
+```q
+2025.10.06D09:05:47.384808001 [INFO]: Renaming column: [ask2] to [ask] in: [`:tmp/hdb/2023.01.01/quote]
+2025.10.06D09:05:47.384942117 [SYSTEM]: mv -v tmp/hdb/2023.01.01/quote/ask2 tmp/hdb/2023.01.01/quote/ask
+2025.10.06D09:05:47.388097728 [SYSTEM]: mv -v tmp/hdb/2023.01.01/quote/ask2# tmp/hdb/2023.01.01/quote/ask#
+2025.10.06D09:05:47.391237328 [INFO]: Renaming column: [ask2] to [ask] in: [`:tmp/hdb/2023.01.02/quote]
+2025.10.06D09:05:47.391388156 [SYSTEM]: mv -v tmp/hdb/2023.01.02/quote/ask2 tmp/hdb/2023.01.02/quote/ask
+2025.10.06D09:05:47.394214369 [SYSTEM]: mv -v tmp/hdb/2023.01.02/quote/ask2# tmp/hdb/2023.01.02/quote/ask#
+2025.10.06D09:05:47.397441416 [INFO]: Renaming column: [ask2] to [ask] in: [`:tmp/hdb/2023.01.03/quote]
+2025.10.06D09:05:47.397511550 [SYSTEM]: mv -v tmp/hdb/2023.01.03/quote/ask2 tmp/hdb/2023.01.03/quote/ask
+2025.10.06D09:05:47.399772349 [SYSTEM]: mv -v tmp/hdb/2023.01.03/quote/ask2# tmp/hdb/2023.01.03/quote/ask#
+```
+
+#### Changes:
+
+*Directory:*
+```sh
+tmp/hdb
+├── 2023.01.01
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.02
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+├── 2023.01.03
+│   └── quote
+│       ├── ask
+│       ├── ask#
+│       ├── bid
+│       ├── bid#
+│       ├── sym
+│       └── time
+└── sym
+```
+
+*meta:*
+```q
+q)meta quote
+c   | t f a
+----| -----
+date| d
+sym | s   p
+time| p
+bid | F
+ask | F
+```
+
 ### `reorderCols`
+
 Reorder the existing table (`tabName`)
 to the new order of existing column names (`orderedColNames`)
 on the hdb directory (`hdbDir`)
@@ -486,9 +744,12 @@ reorderCols[hdbDir;tabName;orderedColNames]
 / @example
 reorderCols[`:tmp/hdb;`trade;reverse`sym`time`price`noo`size]
 ```
+
 #### Changes:
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -500,6 +761,7 @@ sym  | s
 ```
 
 ### `setAttrCol`
+
 Apply a new attribute (`newAttr`)
 to the existing column (`colName`)
 of the existing table (`tabName`)
@@ -513,9 +775,12 @@ setAttrCol[hdbDir;tabName;colName;newAttr]
 / @example
 setAttrCol[`:tmp/hdb;`trade;`sym;`g]
 ```
+
 #### Changes:
+
 *meta:*
 ```q
+q)meta trade
 c    | t f a
 -----| -----
 date | d
@@ -527,6 +792,7 @@ sym  | s   g
 ```
 
 ### `addTab`
+
 Add a new table (`tabName`)
 with the schema (`tabSchema`)
 on the hdb directory (`hdbDir`)
@@ -536,7 +802,9 @@ addTab[hdbDir;tabName;tabSchema]
 / @example
 addTab[`:tmp/hdb;`trade1;([]time:0#0Nt;sym:0#`;price:0#0n;size:0#0)]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb
@@ -589,7 +857,9 @@ renameTab[hdbDir;oldName;newName]
 / @example
 renameTab[`:tmp/hdb;`trade1;`trade2]
 ```
+
 #### Changes:
+
 *Directory:*
 ```sh
 tmp/hdb

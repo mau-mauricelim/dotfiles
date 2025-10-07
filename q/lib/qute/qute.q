@@ -20,7 +20,7 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
 .qute.actions:`beforeany`beforeeach`before`run`true`fail`after`aftereach`afterall;
 
 .qute.findTestFiles:{[path]
-    if[not .util.exists path;.log.error(.Q.s1 path),": No such file or directory";:()];
+    if[not .util.exists path;.log.errorNotFound path;:()];
     filepath:$[.util.isDir path;.util.recurseDirNoHidden;(),]path;
     filepath where{last[` vs x]like"qute.*.dsv"}each filepath};
 

@@ -1,8 +1,7 @@
 / List contents of directories/namespaces in a tree-like format
 .tree.i.tree:{[path;maxDepth;dirFirst;showHidden]
-    strPath:.util.strPath path;
-    if[not .util.exists path;:{} -2(strPath,": ",.error.fileNotFound;"")];
-    -1 strPath;
+    if[not .util.exists path;:.log.errorNotFound path];
+    -1 .util.strPath path;
     colors:@[value;".colors.enabled[]";0b];
     params:`path`prefix`maxDepth`dirFirst`showHidden`showColors!(path;"";maxDepth;dirFirst;showHidden;colors);
     cnt:1b,.tree.i.branch params;

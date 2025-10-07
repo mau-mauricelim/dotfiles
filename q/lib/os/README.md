@@ -465,4 +465,15 @@ q).os.touch`file1`file2
 2025.10.03D07:33:53.119985188 [SYSTEM]: touch file1 file2
 ```
 
-### TODO: Custom Functions
+### Custom Functions
+
+To create custom functions:
+1. Add the new function definition into (os.q)[./os.q] using the following template:
+```q
+.os.cmd.<cmdName>.<.os.type>:.os.i.run[<bounds>;<run>;<cmd>;<transform>];
+```
+2. Function usage:
+```q
+.os.<cmdName>[<args>]
+.os.run[<cmdName>;<args>]
+```
