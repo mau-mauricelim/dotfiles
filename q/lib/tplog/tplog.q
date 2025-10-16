@@ -3,21 +3,35 @@
 /################
 // TODO: https://code.kx.com/q/kb/logging/#replay-from-corrupt-logs
 //       https://github.com/simongarland/tickrecover/blob/master/recover.q
+//       https://github.com/DataIntellectTech/TorQ/blob/master/code/common/tplogutils.q
 
-// TODO: Add a bkp option and check if linux
-truncate:.tplog.truncate:{[tplog] if[7h~type chunk:-11!(-2;tplog);.log.system"truncate ",.util.strPath[tplog]," --size=",string last chunk]};
+.tplog.replay:-11!;
+.tplog.verify:{.tplog.replay -2,x};
 
-// TODO: In progress
-recover:{[tplog]
-    if[1=count chunks:-11!(-2;tplog);:{}.log.info"TP Log is not corrupted"];
-    h:hopen(l:`$string[tplog],".recovered")set();
-    chunks:first chunks;
-    reset:$[.util.exists`.z.ps;[`oldPs set .z.ps;{.z.ps:oldPs}];{system"x .z.ps"}];
-    .z.ps:{x enlist y}h;
-    @[-11!;(chunks;tplog);{}];
-    reset[];
-    hclose h};
+.tplog.i.truncatedName:{.util.strPath[x],".truncated"};
 
+/ Truncate corrupt TP Log using generic unix system tool
+.tplog.os.truncate:{[tplog;bkp]
+    if[1=count valid:.tplog.verify tplog;:{}.log.info"TP Log is not corrupted"];
+    length:string last valid;
+    tplogStr:.util.strPath tplog;
+    .log.system$[bkp;
+        "head -c ",length," ",tplogStr," > ",.tplog.i.truncatedName tplogStr;
+        "truncate ",tplogStr," --size=",length]};
+
+/ Truncate corrupt TP Log
+truncate:.tplog.truncate:{[tplog]
+    if[1=count valid:.tplog.verify tplog;:{}.log.info"TP Log is not corrupted"];
+    h:hopen(l:`$.tplog.i.truncatedName tplog)set();
+    chunks:first valid;
+    resetPs:$[.util.exists`.z.ps;[`oldPs set .z.ps;{.z.ps:oldPs}];{system"x .z.ps"}];
+    .z.ps:{[h;m]h enlist m}h;
+    @[.tplog.replay;(chunks;tplog);{}];
+    resetPs[];
+    hclose h;
+    l};
+
+/
 / Replay tplog from n-th index
 / @param tplog - same params as -11!
 replay:.tplog.replay:{[index;tplog]
