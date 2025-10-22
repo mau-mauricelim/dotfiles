@@ -209,10 +209,17 @@ vim.keymap.set('n', 'gct', 'OTODO: <Esc>gccA', { desc = 'TODO Comment insert abo
 vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<CR><c-f><left>]], { desc = 'Edit [M]acros' })
 
 local M = require('config.functions')
+
 -- Send lines to adjacent tmux pane
-vim.keymap.set({'n', 'v'}, '<Leader>tl', function ()
+vim.keymap.set('n', '<Leader>tl', function ()
   vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
   vim.cmd.normal "g@l"
+end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
+
+vim.keymap.set('v', '<Leader>tl', function()
+  -- Save selection to register before calling function
+  vim.cmd('normal! "vy')
+  _G.sendLinesToTmuxPane('visual')
 end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
 
 -- Open git blame commit URL
