@@ -222,6 +222,13 @@ vim.keymap.set('v', '<Leader>tl', function()
   _G.sendLinesToTmuxPane('visual')
 end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
 
+-- Send lines to adjacent tmux pane as one-line
+vim.keymap.set('v', '<Leader>to', function()
+  -- Save selection to register before calling function
+  vim.cmd('normal! "vy')
+  _G.sendLinesToTmuxPane('visual', 'one-line')
+end, { desc = 'Send lines to adjacent tmux pane as one-line', noremap = true, silent = true })
+
 -- Open git blame commit URL
 vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Git Commit URL' })
 vim.keymap.set('n', vim.g.option_toggle_prefix .. 'f', M.gitBlameOpenCommitFileURL, { desc = 'Open Git Commit File URL' })
