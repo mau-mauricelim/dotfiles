@@ -143,24 +143,36 @@ function M.altFileOrOldFile()
 end
 
 -- Send lines to adjacent tmux pane
-function _G.sendLinesToTmuxPane()
-  -- Determine the current mode
-  local mode = vim.fn.mode()
+function _G.sendLinesToTmuxPane(mode, output)
   local text
-  if mode == 'V' or mode == 'v' or mode == '' then
-    -- Visual mode: get the selected text
-    -- Save the current visual selection
-    vim.cmd('normal! "vy')
+  if mode == 'visual' then
     text = vim.fn.getreg('v')
-  elseif mode == 'n' then
-    -- Normal mode: get the current line
-    text = vim.fn.getline('.')
   else
-    return nil
+    text = vim.fn.getline('.')
   end
-  -- HACK: Add white space before '-*' and after ';'
-  text = text:gsub('^%s*%-', ' -')
-  text = text:gsub(';$', '; ')
+
+  local lines = {}
+  local comment_pattern = vim.bo.commentstring:gsub('%%s.*', ''):gsub('%p', '%%%1')
+  for line in text:gmatch("[^\n]+") do
+    -- Skip comment line if output is one-line
+    if output == 'one-line' then
+      if line:match('^%s*' .. comment_pattern) then
+        goto continue
+      end
+    end
+    -- HACK: Add white space before '-*' and after ';'
+    line = line:gsub('^%s*%-', ' -')
+    line = line:gsub(';$', '; ')
+    table.insert(lines, line)
+    ::continue::
+  end
+
+  if output == 'one-line' then
+    text = table.concat(lines)
+  else
+    text = table.concat(lines, '\n')
+  end
+
   -- Escape special characters and send to tmux
   local escaped_text = text:gsub('(["$`\\])', '\\%1')
   vim.fn.system('tmux send-keys -t .+ "' .. escaped_text .. '" Enter')
