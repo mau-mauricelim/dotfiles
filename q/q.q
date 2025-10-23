@@ -176,7 +176,7 @@ reqf:.lib.requireForce:.lib.i.require 1b;
     .lib.require`aoc`bits`cache`maths`uri`misc;
     .log.debug"Finished loading optional libraries";
     .log.resume[];
-    .log.info"QINIT SUCCEED. Startup time: ",string(.lib.et:.z.p)-.lib.st;;
+    .log.info"QINIT SUCCEED. Startup time: ",string(.lib.et:.z.p)-.lib.st;
     };
 
 / Error trap QINIT
