@@ -172,6 +172,8 @@ return {
       -- - sd'   - [S]urround [D]elete [']quotes
       -- - sr)'  - [S]urround [R]eplace [)] [']
       require('mini.surround').setup()
+      -- NOTE: Disable the feature in fc6fbc3
+      vim.keymap.del({ 'n', 'x' }, 's')
 
       -- Hightlight trailing whitespace
       require('mini.trailspace').setup()
