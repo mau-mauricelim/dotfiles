@@ -1,0 +1,25 @@
+action | minver | code                                                              | repeat | ms | bytes | comment
+before |        | .lib.require`tplog                                                |        |    |       | Initialize library
+before |        | upd:insert                                                        |        |    |       | Setup upd
+before |        | system"d .test"                                                   |        |    |       | Change to .test namespace
+before |        | .util.recurseDel tmp:`:tmp                                        |        |    |       | Remove any existing tmp directory
+before |        | resetTable:{`t set([]a:();b:();c:())}                             |        |    |       |
+before |        | pwd:.util.sysCd""                                                 |        |    |       | Store current working directory
+before |        | r:20;n:2;N:5                                                      |        |    |       | Store current working directory
+run    |        | .os.cd tmp                                                        |        |    |       | Create a new tmp directory
+run    |        | (l:`:tplog)set()                                                  |        |    |       | Create an empty tplog
+run    |        | h:hopen l                                                         |        |    |       | Open handle to tplog
+run    |        | {x enlist(`upd;`t;(`a;1f;y))}[h]each 1+til r                      |        |    |       | Create a mock tplog
+run    |        | system"d ."                                                       |        |    |       | Change to default namespace
+run    |        | .test.resetTable[]                                                |        |    |       | Reset table
+true   |        | .test.N~.tplog.replayFromOffset . .test`n`N`l                     |        |    |       |
+true   |        | .test.N~count .test.C:exec c from t                               |        |    |       |
+true   |        | (0 1+.test`n`N)~(first;last)@\:.test.C                            |        |    |       |
+run    |        | .test.resetTable[]                                                |        |    |       | Reset table
+run    |        | .test.n:18                                                        |        |    |       |
+true   |        | (.test.N:1+.test.r-.test.n)~.tplog.replayFromOffset . .test`n`N`l |        |    |       |
+true   |        | .test.N~count .test.C:exec c from t                               |        |    |       |
+true   |        | (.test`n`r)~(first;last)@\:.test.C                                |        |    |       |
+after  |        | .util.sysCd .test.pwd                                             |        |    |       | Change to previous working directory
+after  |        | .util.recurseDel .test.tmp                                        |        |    |       | Remove any existing tmp directory
+after  |        | delete from`.test                                                 |        |    |       | Cleanup .test namespace

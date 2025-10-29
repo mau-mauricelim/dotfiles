@@ -26,22 +26,22 @@ truncate:.tplog.truncate:{[tplog]
     chunks:first valid;
     resetPs:$[.util.exists`.z.ps;[`oldPs set .z.ps;{.z.ps:oldPs}];{system"x .z.ps"}];
     .z.ps:{[h;m]h enlist m}h;
-    @[.tplog.replay;(chunks;tplog);{}];
+    @[.tplog.replay;(chunks;tplog);{.log.error"Error replaying tplog: ",x}];
     resetPs[];
     hclose h;
     l};
 
-/
-/ Replay tplog from n-th index
-/ @param tplog - same params as -11!
-replay:.tplog.replay:{[index;tplog]
-    index|:.u.i:0;
-    oldUpd:upd;
-    if[index<>.u.i;
-        `upd set{[tab;data;index;oldUpd]
-            if[index~.u.i;`upd set oldUpd];
-            .u.i+:1}[;;index-1;oldUpd];
-        ];
-    res:-11!tplog;
-    `upd set oldUpd;
-    res};
+/ Replay number of chunks of TP Log from offset chunk
+/ @return - number of chunks executed
+replayFromOffset:.tplog.replayFromOffset:{[offset;num;tplog]
+    if[any 0>offset,num;{}.log.error"Number of chunks and offset chunk must be a non-negative number"];
+    offset|:.u.i:0;
+    num|:.u.n:0;
+    `oldUpd set upd;
+    `upd set{[tab;data;bounds]
+        if[.u.i within bounds;oldUpd[tab;data];.u.n+:1];
+        .u.i+:1}[;;-1+offset+0,num-1];
+    resetUpd:{`upd set oldUpd};
+    res:@[.tplog.replay;tplog;{.log.error"Error replaying tplog: ",x}];
+    resetUpd[];
+    .u.n};
