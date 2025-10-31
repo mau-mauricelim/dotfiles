@@ -1,6 +1,7 @@
-filepath  | object
-../../q.q | .log.error
-../../q.q | .log.info
-../../q.q | .log.system
-../../q.q | .util.strPath
+filepath       | object
+../../q.q      | .q.Hsym
+../../q.q      | .log.error
+../../q.q      | .log.info
+../../q.q      | .log.system
+../../q.q      | .util.strPath
 ../util/util.q | .util.exists
