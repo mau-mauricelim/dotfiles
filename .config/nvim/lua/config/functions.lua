@@ -124,21 +124,21 @@ function M.gitBlameOpenCommitFileURL()
 end
 
 -- alternate-file or last edited file
--- `CTRL-^` for alternate-file
--- `'0` for last edited file
--- BUG: sometimes does not work when opening last edited file
 function M.altFileOrOldFile()
   local status_ok, _ = pcall(vim.cmd, 'e#')
   if not status_ok then
-    vim.cmd([[norm '0]])
-    local current_buf_name = vim.api.nvim_buf_get_name(0)
-    vim.cmd('bp')
-    local prev_current_buf_name = vim.api.nvim_buf_get_name(0)
-    if prev_current_buf_name == '' then
-      vim.cmd('bd')
-    elseif current_buf_name == prev_current_buf_name then
-      vim.cmd('e#<2')
+    -- No alternate file, try oldfiles
+    local oldfiles = vim.v.oldfiles
+    local current_file = vim.api.nvim_buf_get_name(0)
+    -- Find first oldfile that's not the current file
+    for _, old_file in ipairs(oldfiles) do
+      if old_file ~= current_file and vim.fn.filereadable(old_file) == 1 then
+        vim.cmd('edit ' .. vim.fn.fnameescape(old_file))
+        return
+      end
     end
+    -- If no oldfile found, just notify
+    vim.notify('No previous file to open', vim.log.levels.INFO)
   end
 end
 
