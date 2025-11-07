@@ -1,12 +1,15 @@
 // INFO: https://code.kx.com/q/basics/funsql/#the-solution
+
+/ Replace k representation with equivalent q keyword
+/ @example - .parse.funcK[~:] returns "~~not~~"
+funcK:.parse.funcK:{
+    kreplace:{[x] $[`=qval:.q?x;x;"~~",string[qval],"~~"]};
+    $[0=t:type x;.z.s each x;t<100h;x;kreplace x]
+    };
+
 / Better `parse` function
 .parse.parse:{
     system"c 30 200";
-    / Replace k representation with equivalent q keyword
-    funcK:{
-        kreplace:{[x] $[`=qval:.q?x;x;"~~",string[qval],"~~"]};
-        $[0=t:type x;.z.s each x;t<100h;x;kreplace x]
-        };
     / Replace eg ,`FD`ABC`DEF with "enlist`FD`ABC`DEF"
     funcEn:{
         ereplace:{"~~enlist",(.Q.s1 first x),"~~"};
@@ -14,7 +17,7 @@
         $[ereptest x;ereplace x;0=type x;.z.s each x;x]
         };
     tidy:{ssr/[;("\"~~";"~~\"");("";"")] $[","=first x;1_x;x]};
-    basic:tidy .Q.s1 funcK funcEn ::;
+    basic:tidy .Q.s1 .parse.funcK funcEn ::;
     / Where clause needs to be a list of Where clauses,
     / so if only one Where clause, need to enlist.
     stringify:{[x;basic] $[(0=type x) and 1=count x;"enlist ";""],basic x}[;basic];

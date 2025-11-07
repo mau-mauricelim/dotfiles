@@ -1,11 +1,13 @@
 /################
 /# TP Log utils #
 /################
-// TODO: https://code.kx.com/q/kb/logging/#replay-from-corrupt-logs
-//       https://github.com/simongarland/tickrecover/blob/master/recover.q
 
 .tplog.replay:-11!;
-.tplog.verify:{.tplog.replay -2,x};
+.tplog.goodTil:{.tplog.replay -2,x};
+.tplog.goodItems:{first .tplog.goodTil x};
+.tplog.goodCount:{last .tplog.goodTil x};
+.tplog.valid:{(hcount x)=.tplog.goodCount x};
+.tplog.replayGood:{.tplog.replay(.tplog.goodItems x;x)};
 
 .tplog.i.truncatedName:{.util.strPath[x],".truncated"};
 
@@ -13,7 +15,7 @@
 / @param tplog - sym - corrupt TP Log file path
 / @param bkp - boolean - 1b to backup, 0b to overwrite
 osTruncate:.tplog.os.truncate:{[tplog;bkp]
-    if[1=count valid:.tplog.verify tplog;:{}.log.info"TP Log is not corrupted"];
+    if[1=count valid:.tplog.goodTil tplog;:{}.log.info"TP Log is not corrupted"];
     length:string last valid;
     tplogStr:.util.strPath tplog;
     .log.system$[bkp;
@@ -23,7 +25,7 @@ osTruncate:.tplog.os.truncate:{[tplog;bkp]
 / Truncate corrupt TP Log
 / @param tplog - sym - corrupt TP Log file path
 truncate:.tplog.truncate:{[tplog]
-    if[1=count valid:.tplog.verify tplog;:{}.log.info"TP Log is not corrupted"];
+    if[1=count valid:.tplog.goodTil tplog;:{}.log.info"TP Log is not corrupted"];
     h:hopen(l:`$.tplog.i.truncatedName tplog)set();
     chunks:first valid;
     resetPs:$[.util.exists`.z.ps;[`oldPs set .z.ps;{.z.ps:oldPs}];{system"x .z.ps"}];
@@ -54,20 +56,16 @@ replayFromOffset:.tplog.replayFromOffset:{[offset;num;tplog]
 // INFO: https://github.com/DataIntellectTech/TorQ/blob/master/code/common/tplogutils.q
 // WARN: Logic may break if (`upd;...) is in the messages
 
-/ Header to build deserializable message
-.tplog.i.header:8#-8!(`upd;`table;());
-/ Firt part of TP update (upd) messages
-.tplog.i.updMsg:`char$10#8_-8!(`upd;`table;());
-/ Default size (10MB) of chunk to read
-.tplog.i.chunk:10*1024*1024;
-/ Prevent single read from exceeding max chunk size
-.tplog.i.maxChunk:8*.tplog.i.chunk;
+.tplog.i.header:8#-8!(`upd;`table;());          / Header to build deserializable message
+.tplog.i.updMsg:`char$10#8_-8!(`upd;`table;()); / Firt part of TP update (upd) messages
+.tplog.i.chunk:10*1024*1024;                    / Default size (10MB) of chunk to read
+.tplog.i.maxChunk:8*.tplog.i.chunk;             / Prevent single read from exceeding max chunk size
 
 / Fix corrupt TP Log with bad messages in the middle
 / @param tplog - sym - corrupt TP Log file path
 .tplog.fix:{[tplog]
-    if[1=count valid:.tplog.verify tplog;:{}.log.info"TP Log is not corrupted"];
-    h:hopen(l:.q.Hsym .util.strPath[tplog],".fixed")set();
+    if[1=count valid:.tplog.goodTil tplog;:{}.log.info"TP Log is not corrupted"];
+    h:hopen(l:.q.Hsym .util.strPath[tplog],".good")set();
     .log.info"Fixing TP Log in chunks";
     .tplog.i.fix[tplog;h]over`start`size!0,.tplog.i.chunk;
     .log.info"Fixed TP Log";

@@ -1,0 +1,4 @@
+action | minver | code                                                         | repeat | ms | bytes | comment
+before |        | .lib.require`fzf                                             |        |    |       | Initialize library
+true   |        | all -11=type each .fzf.fzfObject`                            |        |    |       |
+true   |        | `.fzf.getObjectName in .fzf.getObjectName .fzf.getObjectName |        |    |       |
