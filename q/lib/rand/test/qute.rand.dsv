@@ -1,0 +1,15 @@
+action | minver | code                                                                                                   | repeat | ms | bytes | comment
+before |        | .lib.require`rand                                                                                      |        |    |       | Initialize library
+before |        | system"d .test"                                                                                        |        |    |       | Change to .test namespace
+before |        | tSym:`$'tStr:distinct raze(lower;upper)@\:.Q.t                                                         |        |    |       | Setup test variables
+true   |        | not count schema:.rand.schema[tSym;tStr]                                                               |        |    |       |
+true   |        | ?[tStr in .Q.A;" ";tStr]~exec t from meta schema                                                       |        |    |       |
+true   |        | 1~count schema:.rand.schemaForce[tSym;tStr]                                                            |        |    |       |
+true   |        | tStr~exec t from meta schema                                                                           |        |    |       |
+true   |        | n~count table:.rand.table[tSym;tStr;n:10]                                                              |        |    |       |
+true   |        | tStr~exec t from meta table                                                                            |        |    |       |
+before |        | func:{.Q.dd[`.rand]`$$["c"~x;"char";ssr/[.Q.s1 x$();("`";"$()");("";"")]]}each distinct .Q.t except" " |        |    |       |
+true   |        | all .util.exists each func                                                                             |        |    |       |
+true   |        | (neg(1+til 19h)except 3)~{`long$type get[x][]}each func                                                |        |    |       |
+after  |        | system"d ."                                                                                            |        |    |       | Change to default namespace
+after  |        | delete from`.test                                                                                      |        |    |       | Cleanup .test namespace
