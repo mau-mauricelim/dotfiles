@@ -2,11 +2,15 @@ action | minver | code                                                          
 before |        | .lib.require`rand                                                                                      |        |    |       | Initialize library
 before |        | system"d .test"                                                                                        |        |    |       | Change to .test namespace
 before |        | tSym:`$'tStr:distinct raze(lower;upper)@\:.Q.t                                                         |        |    |       | Setup test variables
+before |        | tSym1:last tSym; tStr1:last tStr                                                                       |        |    |       | Setup test variables
 true   |        | not count schema:.rand.schema[tSym;tStr]                                                               |        |    |       |
+run    |        | .rand.schema[tSym1;tStr1]                                                                              |        |    |       |
 true   |        | ?[tStr in .Q.A;" ";tStr]~exec t from meta schema                                                       |        |    |       |
 true   |        | 1~count schema:.rand.schemaForce[tSym;tStr]                                                            |        |    |       |
+run    |        | .rand.schemaForce[tSym1;tStr1]                                                                         |        |    |       |
 true   |        | tStr~exec t from meta schema                                                                           |        |    |       |
 true   |        | n~count table:.rand.table[tSym;tStr;n:10]                                                              |        |    |       |
+run    |        | .rand.table[tSym1;tStr1;n]                                                                             |        |    |       |
 true   |        | tStr~exec t from meta table                                                                            |        |    |       |
 before |        | func:{.Q.dd[`.rand]`$$["c"~x;"char";ssr/[.Q.s1 x$();("`";"$()");("";"")]]}each distinct .Q.t except" " |        |    |       |
 true   |        | all .util.exists each func                                                                             |        |    |       |

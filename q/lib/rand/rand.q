@@ -11,20 +11,22 @@
 / @param colNames - sym (list)
 / @param typeLetters - string (list)
 / @param n - number of rows
-/ @example - .rand.table[`time`sym`price`size;"psfj";5]
-/            .rand.table[`time`sym`bid`ask;"psFF";5]
+/ @example - .rand.table[`date`sym`price;"dsE";3]
 .rand.table:{[colNames;typeLetters;n]
+    colNames,:();
     typeLetters,:();
     if[not all(lowLetters:lower typeLetters)in .Q.t;'.log.error"Column type letters allowed: ",.Q.s1 distinct .Q.t];
     defaults:{[n;letter;lowLetter]
         $[letter in .Q.A;(1+n?.rand.maxListCount);n]?\:.rand.typeDefaults lowLetter
         }[0|n]'[typeLetters;lowLetters];
-    flip(colNames,())!defaults};
+    flip colNames!defaults};
 
-/ @example - .rand.schema[`time`sym`price`size;"psfj"]
+/ @example - .rand.schema[`date`sym`price;"dse"]
 .rand.schema:.rand.table[;;0];
-/ @example - .rand.schemaForce[`time`sym`bid`ask;"psFF"]
+/ @example - .rand.schemaForce[`date`sym`price;"dsE"]
 .rand.schemaForce:{[colNames;typeLetters]
+    colNames,:();
+    typeLetters,:();
     schema:.rand.table[colNames;typeLetters;force:any uppLetters:typeLetters in .Q.A];
     if[force;schema:flip@[schema@-1;colNames where uppLetters|null typeLetters;enlist]];
     schema};
