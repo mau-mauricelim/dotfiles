@@ -4,9 +4,9 @@
 
 / Override defaults
 /.cal.todaysIndicator:"><";
-/.cal.dayName:`S`Mo`Tu`Wed`Thur`Fr`Sa;
-/.cal.mthName:`Jan`Feb`Mar`Apr`May`Jun`Jul`Aug`Sep`Oct`Nov`Dec;
-/.cal.mthCols:5;
+/.cal.dayName:`Sun`Moon`Mars`Mercury`Jupiter`Venus`Saturn;
+/.cal.mthName:`Ianuarius`Februarius`Martius`Aprilis`Maius`Iunius`Quintilis`Sextilis`September`October`November`December;
+/.cal.mthCols:2;
 /.cal.mthColsPad:5;
 
 .cal.setDefault:{[name;default;typ;cnt]

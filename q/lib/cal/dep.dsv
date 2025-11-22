@@ -1,5 +1,5 @@
 filepath       | object
+../../q.q      | .log.debug
 ../../q.q      | .log.error
-../../q.q      | .log.info
 ../util/util.q | .util.exists
 ../util/util.q | .util.stdout

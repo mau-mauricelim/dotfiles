@@ -1,3 +1,7 @@
+/########
+/# Tree #
+/########
+
 / List contents of directories/namespaces in a tree-like format
 .tree.i.tree:{[path;maxDepth;dirFirst;showHidden]
     if[not .util.exists path;:.log.errorNotFound path];

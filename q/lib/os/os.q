@@ -1,6 +1,7 @@
 /######
 /# OS #
 /######
+
 // INFO: Inspired by https://github.com/BuaBook/kdb-common/blob/master/src/os.q
 // NOTE: The following windows commands do not have a verbose option: mkdir, rmdir
 

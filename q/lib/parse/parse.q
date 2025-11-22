@@ -1,3 +1,7 @@
+/#########
+/# Parse #
+/#########
+
 // INFO: https://code.kx.com/q/basics/funsql/#the-solution
 
 / Replace k representation with equivalent q keyword

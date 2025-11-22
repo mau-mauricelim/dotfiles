@@ -4,19 +4,7 @@
 
 ### `.cal.print`
 
-Print calendars. The current date will also be indicated by `.cal.todaysIndicator` in the calendar (if it exist).
-
-> [!NOTE]
-> Default values can be adjusted by modifying the following variables
-
-Example:
-```q
-.cal.todaysIndicator:"><";
-.cal.dayName:`S`Mo`Tu`Wed`Thur`Fr`Sa;
-.cal.mthName:`Jan`Feb`Mar`Apr`May`Jun`Jul`Aug`Sep`Oct`Nov`Dec;
-.cal.mthCols:5;
-.cal.mthColsPad:5;
-```
+Print calendars. The current date (if it exist) will also be indicated by `.cal.todaysIndicator` in the calendar.
 
 #### Print the current year calendar
 
@@ -72,6 +60,11 @@ Su  Mo  Tu  We  Th  Fr  Sa
 
 #### Print N month(s) calendar spanning the current month
 
+> [!NOTE]
+> If the calendar months contains spans more than the current year
+> - Each calendar month will be printed with the year
+> - The calendar year title will not be printed
+
 ```q
 q).cal.cal`3
                                          2025
@@ -84,14 +77,7 @@ Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  
 19  20  21  22  23  24  25    16  17  18 [19] 20  21  22    21  22  23  24  25  26  27
 26  27  28  29  30  31        23  24  25  26  27  28  29    28  29  30  31       1   2
          1   2   3   4   5    30                             3   4   5   6   7   8   9
-```
 
-> [!NOTE]
-> If the calendar months contains spans more than the current year
-> - Each calendar month will be printed with the year
-> - The calendar year title will not be printed
-
-```q
 q).cal.cal`6
        August 2025                  September 2025                 October 2025                 November 2025
 Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  Fr  Sa
@@ -124,4 +110,82 @@ Su  Mo  Tu  We  Th  Fr  Sa    Su  Mo  Tu  We  Th  Fr  Sa
 16  17  18  19  20  21  22    19  20  21  22  23  24  25
 23  24  25  26  27  28  29    26  27  28  29  30  31
 30  31                                 1   2   3   4   5
+```
+
+#### Print calendar with custom values
+
+Default values can be adjusted by modifying the following variables
+
+Example:
+```q
+/ Override defaults
+.cal.todaysIndicator:"><";
+.cal.dayName:`Sun`Moon`Mars`Mercury`Jupiter`Venus`Saturn;
+.cal.mthName:`Ianuarius`Februarius`Martius`Aprilis`Maius`Iunius`Quintilis`Sextilis`September`October`November`December;
+.cal.mthCols:2;
+.cal.mthColsPad:5;
+```
+
+```
+q)cal`y
+                                                2025
+
+                   Ianuarius                                            Februarius                    <--- Custom month names
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn <--- Custom day   names
+                       1        2      3       4                                                    1
+  5     6     7        8        9     10      11       2     3     4        5        6      7       8
+ 12    13    14       15       16     17      18       9    10    11       12       13     14      15
+ 19    20    21       22       23     24      25      16    17    18       19       20     21      22
+ 26    27    28       29       30     31              23    24    25       26       27     28
+              1        2        3      4       5                                            1       2
+
+                    Martius                                              Aprilis
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn
+                                               1                   1        2        3      4       5
+  2     3     4        5        6      7       8       6     7     8        9       10     11      12
+  9    10    11       12       13     14      15      13    14    15       16       17     18      19
+ 16    17    18       19       20     21      22      20    21    22       23       24     25      26
+ 23    24    25       26       27     28      29      27    28    29       30                       1
+ 30    31                                              2     3     4        5        6      7       8
+
+                     Maius                                                Iunius
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn
+                                1      2       3       1     2     3        4        5      6       7
+  4     5     6        7        8      9      10       8     9    10       11       12     13      14
+ 11    12    13       14       15     16      17      15    16    17       18       19     20      21
+ 18    19    20       21       22     23      24      22    23    24       25       26     27      28
+ 25    26    27       28       29     30      31      29    30     1        2        3      4       5
+                                1      2       3       6     7     8        9       10     11      12
+
+                   Quintilis                                             Sextilis
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn
+              1        2        3      4       5                                            1       2
+  6     7     8        9       10     11      12       3     4     5        6        7      8       9
+ 13    14    15       16       17     18      19      10    11    12       13       14     15      16
+ 20    21    22       23       24     25      26      17    18    19       20       21     22      23
+ 27    28    29       30       31                     24    25    26       27       28     29      30
+  1     2     3        4        5      6       7      31                                            1
+
+                   September                                             October
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn
+        1     2        3        4      5       6                            1        2      3       4
+  7     8     9       10       11     12      13       5     6     7        8        9     10      11
+ 14    15    16       17       18     19      20      12    13    14       15       16     17      18
+ 21    22    23       24       25     26      27      19    20    21       22       23     24      25
+ 28    29    30                 1      2       3      26    27    28       29       30     31
+  4     5     6        7        8      9      10                   1        2        3      4       5
+
+                    November                                             December
+Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn     Sun  Moon  Mars  Mercury  Jupiter  Venus  Saturn
+                                               1             1     2        3        4      5       6
+  2     3     4        5        6      7       8       7     8     9       10       11     12      13
+  9    10    11       12       13     14      15      14    15    16       17       18     19      20
+ 16    17    18       19       20    >21<     22      21    22    23       24       25     26      27
+ 23    24    25       26       27     28      29      28    29    30       31               1       2
+ 30                                                    3     4     5        6        7      8       9
+
+                                     ^  ^ <--- Custom today's indicator
+
+|----------------------------------------------|     |----------------------------------------------| <--- 2 columns of calendar months
+                                                ^^^^^                                                 <--- 5 spaces of padding between calendar months
 ```

@@ -1,8 +1,8 @@
-// NOTE: This q script was generated using mkdocs.q
-
 /########
 /# Docs #
 /########
+
+// NOTE: This q script was generated using mkdocs.q
 
 .docs.refs:.docs.libs:()!();
 .docs.docs:{[name]

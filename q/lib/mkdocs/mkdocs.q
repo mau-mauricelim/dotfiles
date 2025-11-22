@@ -1,13 +1,17 @@
+/#############
+/# Make docs #
+/#############
+
 // INFO: Inspired by https://github.com/KxSystems/help
 / Make docs q script from ./docs/*.md files
 
 .mkdocs.indent:4;
 .mkdocs.header:(
-    "// NOTE: This q script was generated using mkdocs.q";
-    "";
     "/########";
     "/# Docs #";
     "/########";
+    "";
+    "// NOTE: This q script was generated using mkdocs.q";
     "";
     ".docs.refs:.docs.libs:()!();";
     ".docs.docs:{[name]\n    notFound:{.log.warn\"Docs name not found. Please add to docs.\";.log.info\"Available docs:\",.log.plainText .docs.refs};\n    found:.util.stdout .docs.libs@;\n    $[null name;notFound[];\n        name in k:key .docs.refs;found name;\n        not cnt:sum similar:k like\"*\",string[.Q.id name],\"*\";notFound[];\n        1=cnt;.util.stdout .docs.libs k first where similar;\n        (.log.info\"Did you mean: \",.Q.s1 k where similar;notFound[])];};");
@@ -89,8 +93,8 @@ mkdocs:.mkdocs.mkdocs:{
     };
 
 / If file is ran as a script
-/ q mkdocs.q docs ../docs/docs.q
 if[.util.isStartupFile{};
-    if[2>count .Q.x;exit -2"Usage: q ",(string .z.f)," DOCSPATH SAVEFILE"];
-    .mkdocs.i.mkdocs . .Q.x 0 1;
+    $[2>count .Q.x;
+        .log.info each("Usage: q ",f," DOCSPATH SAVEFILE";"Example: q ",(f:string .z.f)," docs ../docs/docs.q");
+        .mkdocs.i.mkdocs . .Q.x 0 1];
     exit 0];
