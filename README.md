@@ -26,11 +26,13 @@ $ git restore . # OR git reset --hard
 - bzip2 🤐
 - curl 🥌
 - delta 🌈
+- exiftool 🔨
 - eza 📜
 - fd 📂
 - fzf 🌸
 - git 🌳
 - hyperfine ⏱️
+- jdupes 👥
 - jq { }
 - lazygit 🦥
 - less 📟

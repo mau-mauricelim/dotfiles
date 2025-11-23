@@ -71,6 +71,14 @@ common_root_install() {
     # Install zoxide from source
     curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
         sudo bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
+    # Install jdupes from source
+    JDUPES_URL=https://codeberg.org/jbruchon/jdupes
+    JDUPES_VERSION=$(curl -sSfL "$JDUPES_URL/releases/latest" | grep -oP '(?<=href="/jbruchon/jdupes/src/tag/v).+(?=" rel)')
+    [ -n "$JDUPES_VERSION" ] && \
+        curl -sSfL "$JDUPES_URL/releases/download/v$JDUPES_VERSION/jdupes-$JDUPES_VERSION-linux-x86_64.pkg.tar.xz" |\
+            unxz | tar xf - "jdupes-$JDUPES_VERSION-linux-x86_64/jdupes" --strip-components=1 && \
+        curl -sSfL "$JDUPES_URL/archive/v$JDUPES_VERSION.tar.gz" | tar xz jdupes/jdupes.1 --strip-components=1 && \
+        sudo install jdupes /usr/local/bin && sudo mv jdupes.1 /usr/local/share/man/man1 && rm jdupes
 }
 
 common_user_install() {
@@ -192,7 +200,7 @@ alpine_install() {
     # ncurses installs tput for fzf-git (fzf-tmux)
     # gcompat is for q
     sudo apk -q --no-progress --no-cache add \
-        tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim \
+        tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim exiftool \
         mandoc man-pages less docs \
         zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow ncurses gcompat
     # Common root installs
@@ -210,7 +218,7 @@ ubuntu_install() {
     # build-essential installs a C compiler for nvim-treesitter
     sudo apt-get -qq update >/dev/null 2>&1 && \
         sudo apt-get -qq install -y --no-install-recommends \
-            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip >/dev/null
+            zsh tar bzip2 unzip rlwrap curl ca-certificates git vim man less stow openssh-server tmux file build-essential xclip exiftool >/dev/null
     # Common root installs
     common_root_install
     # Install GNU binaries from source

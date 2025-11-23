@@ -79,3 +79,11 @@ latestAndInstalledVersion yazi \
 latestAndInstalledVersion jq \
     "$(latestRelease jqlang/jq)" \
     "$(jq --version)"
+
+latestAndInstalledVersion exiftool \
+    "$(latestTag exiftool/exiftool)" \
+    "$(exiftool -ver)"
+
+latestAndInstalledVersion jdupes \
+    "$(curl -sL https://codeberg.org/jbruchon/jdupes/releases/latest|grep tagName|head -1|grep -oP '(?<=: ").+(?=")')" \
+    "$(jdupes -v | head -1)"
