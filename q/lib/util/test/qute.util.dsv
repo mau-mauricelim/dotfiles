@@ -1,13 +1,18 @@
-action | minver | code                                                       | repeat | ms | bytes | comment
-before |        | .lib.require`util                                          |        |    |       | Initialize library
-true   |        | 101000b~.util.pad[ 6;101b]                                 |        |    |       |
-true   |        | 000101b~.util.pad[-6;101b]                                 |        |    |       |
-true   |        | 1 2 3 0N 0N 0N~.util.pad[ 6;1 2 3]                         |        |    |       |
-true   |        | 0N 0N 0N 1 2 3~.util.pad[-6;1 2 3]                         |        |    |       |
-true   |        | 0 1 2 3 4 5~.util.pad[6;til 10]                            |        |    |       |
-before |        | system"d .test"                                            |        |    |       | Change to .test namespace
-true   |        | 98h~type tab:asc .util.showTab -100?100                    |        |    |       |
-true   |        | tab~asc .util.shuffle tab                                  |        |    |       |
-true   |        | s~.util.addQuotes .util.removeQuotes s:"\" hello world \"" |        |    |       |
-after  |        | system"d ."                                                |        |    |       | Change to default namespace
-after  |        | delete from`.test                                          |        |    |       | Cleanup .test namespace
+action | minver | code                                                                       | repeat | ms | bytes | comment
+before |        | .lib.require`util                                                          |        |    |       | Initialize library
+true   |        | 101000b~.util.pad[ 6;101b]                                                 |        |    |       |
+true   |        | 000101b~.util.pad[-6;101b]                                                 |        |    |       |
+true   |        | 1 2 3 0N 0N 0N~.util.pad[ 6;1 2 3]                                         |        |    |       |
+true   |        | 0N 0N 0N 1 2 3~.util.pad[-6;1 2 3]                                         |        |    |       |
+true   |        | 0 1 2 3 4 5~.util.pad[6;til 10]                                            |        |    |       |
+before |        | system"d .test"                                                            |        |    |       | Change to .test namespace
+true   |        | 98h~type tab:asc .util.showTab -100?100                                    |        |    |       |
+true   |        | tab~asc .util.shuffle tab                                                  |        |    |       |
+true   |        | s~.util.addQuotes .util.removeQuotes s:"\" hello world \""                 |        |    |       |
+true   |        | "1023 B"~first .util.humanBytes 1023                                       |        |    |       |
+true   |        | "0.9990234 KB"~first .util.humanBytesUnit[1023;`kb]                        |        |    |       |
+before |        | bytes:(1024;2.5*1024 xexp 3;3.75*1024 xexp 4)                              |        |    |       | Setup test variables
+true   |        | ("1 KB";"2.5 GB";"3.75 TB")~.util.humanBytes[bytes]                        |        |    |       |
+true   |        | ("0.0009765625 MB";"2560 MB";"3932160 MB")~.util.humanBytesUnit[bytes;`MB] |        |    |       |
+after  |        | system"d ."                                                                |        |    |       | Change to default namespace
+after  |        | delete from`.test                                                          |        |    |       | Cleanup .test namespace

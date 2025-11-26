@@ -35,6 +35,17 @@ odel:.util.objectDel:{![$[1=count v;`.;` sv -1_v];();0b;(),last v:` vs x]};
 / Delete all objects from namespace. Namespaces cannot be deleted once it is created.
 odels:.util.namespaceDel:{![x;();0b;`symbol$()]};
 
+/ Human-readable bytes in specified unit
+hbu:.util.humanBytesUnit:{[bytes;unit]
+    units:`$b,"KMGTPEZY",'b:"B";
+    if[specified:not(::)~unit;
+        if[null units offset:units?unit:upper unit;'"Unit not found in: ",.Q.s1 units]];
+    power:0^floor(binary:1024)xlog bytes,:();
+    size:bytes%binary xexp power;
+    if[specified;size*:binary xexp power-offset];
+    $[specified;,\:[;string unit];,'[;string units power]]string[size],'" "};
+hb:.util.humanBytes:.util.humanBytesUnit[;(::)];
+
 // INFO: https://code.kx.com/q/ref/value/#lambda
 / Valence (rank) of a function
 valence:.util.valence:{if[100h<>type x;'function]; count value[x]1};

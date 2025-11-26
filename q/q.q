@@ -171,7 +171,7 @@ reqf:.lib.requireForce:.lib.i.require 1b;
     .lib.require`dotx`util;
     .log.debug"Finished loading required libraries";
     .log.debug"Loading optional libraries";
-    .lib.require`colors`term`parse`docs`tree`fzf`bytes`browse`qnix;
+    .lib.require`colors`term`parse`docs`tree`fzf`browse`qnix;
     .lib.require`os`tplog;
     .lib.require`aoc`bits`cache`maths`cal`uri`misc;
     .log.debug"Finished loading optional libraries";
