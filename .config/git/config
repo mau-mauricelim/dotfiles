@@ -81,6 +81,9 @@
 [pull]
     rebase = interactive # git pull --rebase=i
 
+[rebase]
+    autostash = true
+
 [push]
     default = current
     autosetupremote = true
