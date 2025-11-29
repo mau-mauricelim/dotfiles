@@ -39,12 +39,27 @@ odels:.util.namespaceDel:{![x;();0b;`symbol$()]};
 hbu:.util.humanBytesUnit:{[bytes;unit]
     units:`$b,"KMGTPEZY",'b:"B";
     if[specified:not(::)~unit;
-        if[null units offset:units?unit:upper unit;'"Unit not found in: ",.Q.s1 units]];
+        if[null units offset:units?unit:upper unit;:{}.log.error"Unit not found in: ",.Q.s1 units]];
     power:0^floor(binary:1024)xlog bytes,:();
     size:bytes%binary xexp power;
     if[specified;size*:binary xexp power-offset];
     $[specified;,\:[;string unit];,'[;string units power]]string[size],'" "};
 hb:.util.humanBytes:.util.humanBytesUnit[;(::)];
+
+// TODO: Add docs
+.util.i.bytesHuman:{[big;humanBytes]
+    if[any 2<count each parts:(except[;enlist""]vs[" "]@)each string(),`$humanBytes;:{}.log.error"Invalid format"];
+    units:`$b,"KMGTPEZY",'b:"B";
+    if[any 8<power:units?`B^`$parts[;1];:{}.log.error"Unit not found in: ",.Q.s1 units];
+    num:parts[;0];
+    $[big;
+        [.lib.require`maths;
+            if[any null"F"$num;:{}.log.error"Invalid number"];
+            {.maths.bigPrdFast enlist[x],string y#1024}'[num;power]];
+        [system"P 0";
+            ("F"$num)*1024 xexp power]]};
+bh:.util.bytesHuman:.util.i.bytesHuman 0b;
+bbh:.util.bigBytesHuman:.util.i.bytesHuman 1b;
 
 // INFO: https://code.kx.com/q/ref/value/#lambda
 / Valence (rank) of a function

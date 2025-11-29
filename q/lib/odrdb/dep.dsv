@@ -1,0 +1,4 @@
+filepath  | object
+../../q.q | .log.info
+../../q.q | .log.system
+../../q.q | .util.exists
