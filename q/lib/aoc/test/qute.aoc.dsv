@@ -12,9 +12,9 @@ true   |        | all 4=(count value@)@'.aoc[`orthogonal`diagonal]cross 0.5 2   
 true   |        | `type`domain~@[.aoc.manhatten;;{`$x}]@'(0.5;-2)                                                  |        |    |       | Function only allows positive whole number
 true   |        | (-2 0;-1 1;0 2;1 1;2 0;1 -1;0 -2;-1 -1)~.aoc.manhatten 2                                         |        |    |       |
 true   |        | (4*til 10)~(count .aoc.manhatten@)@'til 10                                                       |        |    |       | Result count is input multiplied by 4
-true   |        | (11b;111b;(),1b;111b)~.aoc.splitBy[110111010111b;0b]                                             |        |    |       |
-true   |        | ((),0b;(),0b;(),0b)  ~.aoc.splitBy[110111010111b;1b]                                             |        |    |       | Result strips out empty values after splits
-true   |        | ("split";"by";"space")~.aoc.splitBy["  split  by  space  ";" "]                                  |        |    |       | Result strips out empty values after splits
-true   |        | (`cei`mio`mio;`mio`cei`cei;(),`mio)~.aoc.splitBy[`cei`mio`mio`mga`mio`cei`cei`mga`mga`mio;`mga]  |        |    |       |
-true   |        | (enlist@'("split mixed list";`mio`cei))~.aoc.splitBy[("split mixed list";1 2;`mio`cei);1 2]      |        |    |       | Function works with mixed list as well
-true   |        | (enlist@'("split ";"by";"empty line"))~.aoc.splitByEmptyStr("split ";"";"";"by";"";"empty line") |        |    |       | Function works with mixed list as well
+true   |        | (11b;111b;(),1b;111b)~.aoc.splitBy[110111010111b;0b]                                             | 100000 |    |       |
+true   |        | ((),0b;(),0b;(),0b)  ~.aoc.splitBy[110111010111b;1b]                                             | 100000 |    |       | Result strips out empty values after splits
+true   |        | ("split";"by";"space")~.aoc.splitBy["  split  by  space  ";" "]                                  | 100000 |    |       | Result strips out empty values after splits
+true   |        | (`cei`mio`mio;`mio`cei`cei;(),`mio)~.aoc.splitBy[`cei`mio`mio`mga`mio`cei`cei`mga`mga`mio;`mga]  | 100000 |    |       |
+true   |        | (enlist@'("split mixed list";`mio`cei))~.aoc.splitBy[("split mixed list";1 2;`mio`cei);1 2]      | 100000 |    |       | Function works with mixed list as well
+true   |        | (enlist@'("split ";"by";"empty line"))~.aoc.splitByEmptyStr("split ";"";"";"by";"";"empty line") | 100000 |    |       | Function works with mixed list as well

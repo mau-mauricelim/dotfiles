@@ -21,7 +21,7 @@ diagn:.aoc.diagonal:{[n] d where n<>abs sum flip d:.aoc.chebyshev n};
 manht:.aoc.manhatten:{[n] raze flip .aoc.orthogonal[n]-/:(til n)*\:.aoc.diagonal 1};
 
 / Split a list (of any type) into sublists
-splitBy:.aoc.splitBy:{[list;split] list@/:{x+til y-x}.'flip group[deltas not(list~\:split),1b]1 -1};
+splitBy:.aoc.splitBy:{[list;split] get(list group@[sums differ excl;where excl:split~/:list;:;0N])_0N};
 / Split a list of strings into sublists on empty lines
 / @param x - list of strings
 splitByEmptyStr:.aoc.splitByEmptyStr:.aoc.splitBy[;""];
