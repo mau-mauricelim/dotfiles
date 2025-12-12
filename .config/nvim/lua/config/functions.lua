@@ -173,6 +173,9 @@ function _G.sendLinesToTmuxPane(mode, output)
     text = table.concat(lines, '\n')
   end
 
+  -- Send Escape first to exit any mode, then clear line with Ctrl-C
+  vim.fn.system('tmux send-keys -t .+ Escape C-c')
+
   -- Escape special characters and send to tmux
   local escaped_text = text:gsub('(["$`\\])', '\\%1')
   vim.fn.system('tmux send-keys -t .+ "' .. escaped_text .. '" Enter')
