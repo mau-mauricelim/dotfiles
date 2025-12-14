@@ -1,0 +1,10 @@
+component,version,url_template
+installer,latest,https://portal.dl.kx.com/assets/raw/kdb-x/install_kdb/VERSION/install_kdb.EXT
+kdb,latest,https://portal.dl.kx.com/assets/raw/kdb-x/kdb-x/VERSION/PREFIX.zip
+ai,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/ai/VERSION/PREFIX-ai.zip
+kurl,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/kurl/VERSION/PREFIX-kurl.zip
+objstor,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/objstor/VERSION/PREFIX-objstor.zip
+pq,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/pq/VERSION/pq.zip
+rest,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/rest-server/VERSION/rest.q_
+postgres,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/postgres/VERSION/PREFIX-postgres.zip
+dashboards,latest,https://portal.dl.kx.com/assets/raw/kdb-x/dash/VERSION/KXDashboards.zip

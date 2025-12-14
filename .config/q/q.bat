@@ -52,6 +52,9 @@ goto :loop
 :done
 
 :run_q
-set QLIC=%q_home%
 set QHOME=%q_home%\%QVER%
-%QHOME%\w64\q %args%
+IF exist "%QHOME%\w64" (
+    %QHOME%\w64\q %args%
+) ELSE (
+    %QHOME%\w32\q %args%
+)

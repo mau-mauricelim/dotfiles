@@ -2,52 +2,78 @@
 ## Windows
 Download (and unzip) the kdb+ binaries into `C:\q` (`/mnt/c/q`)
 
+> [!NOTE]
+> Non KDB-X versions uses the same license key file (KDB PLUS TRIAL)
+> KDB-X uses a different license key file (COMMUNITY)
+
 The directory should look like:
 ```sh
-📁 /mnt/c/q
-├── 📁 4.0
-│   ├── 📁 l32
-│   │   └── 🚀 q
-│   ├── 📁 l64
-│   │   └── 🚀 q
-│   ├── 📁 l64arm
-│   │   └── 🚀 q
-│   ├── 📁 l64nosse
-│   │   └── 🚀 q
-│   ├── 📁 m32
-│   │   └── 🚀 q
-│   ├── 📁 m64
-│   │   └── 🚀 q
-│   ├── 📁 v32
-│   │   └── 🚀 q
-│   ├── 📁 v64
-│   │   └── 🚀 q
-│   ├── 📁 w32
-│   │   └── 🚀 q.exe
-│   ├── 📁 w64
-│   │   └── 🚀 q.exe
-│   ├── 🗓️ 2025.02.18
-│   ├── 📄 q.k
-│   └── 📝 README.txt
-├── 📁 4.1
-│   ├── 📁 l64
-│   │   └── 🚀 q
-│   ├── 📁 l64arm
-│   │   └── 🚀 q
-│   ├── 📁 l64nosse
-│   │   └── 🚀 q
-│   ├── 📁 m64
-│   │   └── 🚀 q
-│   ├── 📁 w32
-│   │   └── 🚀 q.exe
-│   ├── 📁 w64
-│   │   └── 🚀 q.exe
-│   ├── 🗓️ 2025.04.28
-│   ├── 📄 q.k
-│   └── 📝 README.txt
-├── 🔑 kc.lic
-├── 🚀 q.bat
-└── ✨ q.q
+/mnt/c/q
+├── 4.0
+│   ├── l32
+│   │   └── q
+│   ├── l64
+│   │   └── q
+│   ├── l64arm
+│   │   └── q
+│   ├── l64nosse
+│   │   └── q
+│   ├── m32
+│   │   └── q
+│   ├── m64
+│   │   └── q
+│   ├── v32
+│   │   └── q
+│   ├── v64
+│   │   └── q
+│   ├── w32
+│   │   └── q.exe
+│   ├── w64
+│   │   └── q.exe
+│   ├── 2025.02.18
+│   ├── kc.lic
+│   ├── 'KDB PLUS TRIAL license'
+│   ├── q.k
+│   └── README.txt
+├── 4.1
+│   ├── l32
+│   │   └── q
+│   ├── l64
+│   │   └── q
+│   ├── l64arm
+│   │   └── q
+│   ├── l64nosse
+│   │   └── q
+│   ├── m64
+│   │   └── q
+│   ├── w32
+│   │   └── q.exe
+│   ├── w64
+│   │   └── q.exe
+│   ├── 2025.11.25
+│   ├── kc.lic
+│   ├── 'KDB PLUS TRIAL license'
+│   ├── q.k
+│   └── README.txt
+└── x
+    ├── l32
+    │   └── q
+    ├── l64
+    │   └── q
+    ├── l64arm
+    │   └── q
+    ├── l64nosse
+    │   └── q
+    ├── m64
+    │   └── q
+    ├── w32
+    │   └── q.exe
+    ├── w64
+    │   └── q.exe
+    ├── 2025.11.17
+    ├── 'COMMUNITY license'
+    ├── kc.lic
+    └── README.txt
 ```
 
 ### Running multiple versions of kdb+ using [q.bat](./q.bat)
