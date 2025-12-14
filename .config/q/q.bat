@@ -53,4 +53,8 @@ goto :loop
 
 :run_q
 set QHOME=%q_home%\%QVER%
-%QHOME%\w64\q %args%
+IF exist "%QHOME%\w64" (
+    %QHOME%\w64\q %args%
+) ELSE (
+    %QHOME%\w32\q %args%
+)
