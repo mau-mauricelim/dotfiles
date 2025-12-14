@@ -52,6 +52,5 @@ goto :loop
 :done
 
 :run_q
-set QLIC=%q_home%
 set QHOME=%q_home%\%QVER%
 %QHOME%\w64\q %args%

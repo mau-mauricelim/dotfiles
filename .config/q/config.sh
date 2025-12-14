@@ -13,11 +13,9 @@ main() {
     local ONE_TIME_SETUP=true
 
     local DEFAULT_Q_VER=4.1
+    # local DEFAULT_Q_VER=x
     WIN_Q_HOME=/mnt/c/q
     LIN_Q_HOME=$HOME/q
-    local LICENSE_FILE=kc.lic
-    local WIN_Q_LIC="$WIN_Q_HOME/$LICENSE_FILE"
-    local LIN_Q_LIC="$LIN_Q_HOME/$LICENSE_FILE"
     local INIT_FILE=q.q
     local LIN_Q_INIT="$LIN_Q_HOME/$INIT_FILE"
     local BIT=64
@@ -30,7 +28,6 @@ main() {
     if isWsl; then wsl_kdb_setup; fi
 
     [ -d "$LIN_Q_HOME" ] &&\
-        export QLIC="$LIN_Q_HOME" &&\
         export LIN_Q_HOME || exit
 
     [ -d "$HOME/qoolbox" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
@@ -48,7 +45,6 @@ main() {
 
 broken_symlink() { [ ! -L "$1" ] || [ ! -e "$1" ]; }
 first_setup() { echo "🚀 Setting up kdb+ binaries for the first time"; mkdir -pv "$LIN_Q_HOME"; }
-license_setup() { echo "🔑 Setting up kdb+ license"; cp "$WIN_Q_LIC" "$LIN_Q_LIC"; }
 get_q_ver_path() {
     if command -v fd >/dev/null; then
         fd -L --glob "{q,q.exe}" --exact-depth 3 --type f "$1" | $GREP "$2/q"
@@ -94,12 +90,6 @@ wsl_kdb_setup() {
         elif [[ "$ONE_TIME_SETUP" == "true" ]]; then return
         fi
 
-        if [ -f "$WIN_Q_LIC" ]; then
-            if [ ! -f "$LIN_Q_LIC" ];                then license_setup
-            elif ! cmp -s "$WIN_Q_LIC" "$LIN_Q_LIC"; then license_setup
-            fi
-        fi
-
         local win_q_ver_avail q_ver_installed
         for win_q_ver_path in $(get_q_ver_path "$WIN_Q_HOME" "$LIN_OS"); do
             win_q_ver_avail=$(get_q_ver "$win_q_ver_path")
@@ -126,7 +116,7 @@ wsl_kdb_setup() {
 
 main
 
-unset -f main broken_symlink first_setup license_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
+unset -f main broken_symlink first_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
 
 run_q() {
     export QHOME="$LIN_Q_HOME/$1"
