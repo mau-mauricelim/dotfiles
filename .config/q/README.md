@@ -32,6 +32,7 @@ The directory should look like:
 │   │   └── q.exe
 │   ├── 2025.02.18
 │   ├── kc.lic
+│   ├── 'KDB PLUS TRIAL license'
 │   ├── q.k
 │   └── README.txt
 ├── 4.1
@@ -49,8 +50,9 @@ The directory should look like:
 │   │   └── q.exe
 │   ├── w64
 │   │   └── q.exe
-│   ├── 2025.07.09
+│   ├── 2025.11.25
 │   ├── kc.lic
+│   ├── 'KDB PLUS TRIAL license'
 │   ├── q.k
 │   └── README.txt
 └── x
@@ -69,6 +71,7 @@ The directory should look like:
     ├── w64
     │   └── q.exe
     ├── 2025.11.17
+    ├── 'COMMUNITY license'
     ├── kc.lic
     └── README.txt
 ```
