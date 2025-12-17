@@ -177,3 +177,6 @@ for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do
         fi
     fi
 done
+
+# SSL certificate authority (CA) certificates
+[ -f "/etc/ssl/cert.pem" ] && export SSL_CA_CERT_FILE="/etc/ssl/cert.pem"
