@@ -3,8 +3,12 @@
 /#######
 
 .uri.chr:.Q.an,.Q.sc," ";
-/ URI-encoding has reserved and unreserved characters set
-/ But in this encoding map all characters are used
-.uri.map:"%",'.Q.hex 16 vs'.uri.chr!`int$.uri.chr;
-.uri.enc:{raze((d!d:distinct x),y)x}[;.uri.map];
-.uri.dec:{1_(value[y]!key y)"%",'"%"vs x}[;.uri.map];
+/ URI-safe - String: characters that do not need to be escaped in URIs
+.uri.sc:.h.sc;
+/ URI escape - URI-unsafe characters replaced with safe equivalents
+.uri.enc:.h.hu;
+/ URI unescape - %xx hex sequences replaced with character equivalents
+.uri.dec:.h.uh;
+/ URI map - returns a mapping from characters to %xx escape sequences except for the chars in x, which get mapped to themselves
+/ @example - (.uri.map"custom safe characters @_~")"unsafe characters will be replaced with safe equivalents"
+.uri.map:.h.hug;

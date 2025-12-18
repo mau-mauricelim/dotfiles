@@ -25,3 +25,23 @@ splitBy:.aoc.splitBy:{[list;split] get(list group@[sums differ excl;where excl:s
 / Split a list of strings into sublists on empty lines
 / @param x - list of strings
 splitByEmptyStr:.aoc.splitByEmptyStr:.aoc.splitBy[;""];
+
+/ Download aoc calendar
+/ @example - .aoc.cal[2025;`:README.md]
+.aoc.cal:{[year;out]
+    if[""~cookie:getenv`ADVENT_OF_CODE_SESSION;:{}.log.error"ADVENT_OF_CODE_SESSION environment variable not set"];
+    html:.log.system"curl -sSL https://adventofcode.com/",string[year]," --cookie session=",cookie;
+    if[any html like\:"*/auth/login\"*";:{}.log.error"ADVENT_OF_CODE_SESSION environment invalid or expired"];
+    title:html first where html like"*<h1 class=\"title-global\">*";
+    title:@[;1;raze 1_"</span>"vs] -1_"</h1>"vs title;
+    calendar:first(where max html like/:("<pre class=\"calendar *";"<\/pre>"))_html;
+    cal:title,enlist[""],calendar;
+    cal:{
+        if[all null x;:x];
+        vv:vs["<"]each vs[">"]x;
+        / Remove span style lines, e.g. <span style="color:#0f0;animation-delay:-17.143s;">^</span>
+        raze vv[;0]where not prev vv[;1]like\:"span style=*"
+        }each cal;
+    entity:`lt`gt`amp`nbsp`quot`apos!"<>& \"'";
+    cal:ssr/[;"&",'(string key entity),'";";value entity]each cal;
+    out 0:rtrim code,cal,code:enlist"```"};
