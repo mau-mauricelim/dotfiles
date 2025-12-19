@@ -74,6 +74,9 @@
     cfgl = config --list --show-origin --local
     cfgg = config --list --show-origin --global
     edit = !git config --file $XDG_CONFIG_HOME/git/config --edit
+    # Random commit message generator
+    # yolo = !git commit -m \"$(curl -s https://whatthecommit.com/index.txt)\"
+    yolo = !curl -s -w '\n' https://whatthecommit.com/index.txt
 
 [init]
     defaultBranch = main
