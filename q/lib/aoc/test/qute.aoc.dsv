@@ -18,3 +18,12 @@ true   |        | ("split";"by";"space")~.aoc.splitBy["  split  by  space  ";" "
 true   |        | (`cei`mio`mio;`mio`cei`cei;(),`mio)~.aoc.splitBy[`cei`mio`mio`mga`mio`cei`cei`mga`mga`mio;`mga]  | 100000 |    |       |
 true   |        | (enlist@'("split mixed list";`mio`cei))~.aoc.splitBy[("split mixed list";1 2;`mio`cei);1 2]      | 100000 |    |       | Function works with mixed list as well
 true   |        | (enlist@'("split ";"by";"empty line"))~.aoc.splitByEmptyStr("split ";"";"";"by";"";"empty line") | 100000 |    |       | Function works with mixed list as well
+before |        | .test.grid:(1 2 3 4;5 6 7 8;9 10 11 12;13 14 15 16)                                              |        |    |       | Setup test variables
+true   |        | (6 8 10 12;15 18 21 24;27 30 33 36;22 24 26 28)~.aoc.sum3v .test.grid                            |        |    |       |
+true   |        | (14 24 30 22;33 54 63 45;57 90 99 69;46 72 78 54)~.aoc.sum9 .test.grid                           |        |    |       |
+true   |        | (13 22 27 18;28 48 56 37;48 80 88 57;33 58 63 38)~.aoc.sum8 .test.grid                           |        |    |       |
+true   |        | (8 12 16 15;21 30 35 31;37 50 55 47;36 52 56 43)~.aoc.sum5 .test.grid                            |        |    |       |
+true   |        | (7 10 13 11;16 24 28 23;28 40 44 35;23 38 41 27)~.aoc.sum4 .test.grid                            |        |    |       |
+true   |        | (7 14 17 11;17 30 35 22;29 50 55 34;23 34 37 27)~.aoc.sum5d .test.grid                           |        |    |       |
+true   |        | (6 12 14 7;12 24 28 14;20 40 44 22;10 20 22 11)~.aoc.sum4d .test.grid                            |        |    |       |
+after  |        | delete from`.test                                                                                |        |    |       | Cleanup .test namespace

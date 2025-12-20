@@ -11,6 +11,9 @@ shuffle:.util.shuffle:0N?;
 O:.util.stdout:{-1 x;};
 /E:.util.stderr:{-2 x;};
 
+/ Reload q script
+reload:.util.reload:{.util.sysLoad string .z.f};
+
 // NOTE:`not .util.isFile x` is not equivalent to `.util.isDir x`!
 exists:.util.exists:{not()~key x};
 isDir:.util.isDir:11h~type key@;

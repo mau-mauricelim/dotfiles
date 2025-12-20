@@ -26,6 +26,26 @@ splitBy:.aoc.splitBy:{[list;split] get(list group@[sums differ excl;where excl:s
 / @param x - list of strings
 splitByEmptyStr:.aoc.splitByEmptyStr:.aoc.splitBy[;""];
 
+/ Boundary fill
+/ @param x - boolean grid (boundary 1b)
+// WARN: Boundary has to be fully closed, including diagonals
+bfill:.aoc.bfill:{x|min@[;1;flip]{1=mod[;2]sums@'x&1 rotate x}each(x;flip x)};
+
+/ Neighbour sum 3 verticals - sum of verticals+middle
+sum3v:.aoc.sum3v:{1_3 msum x,0*1#x};
+/ Neighbour sum 9 - sum of adjacents+middle: sum 3 rows and transpose 2 times
+sum9:.aoc.sum9:{2(flip .aoc.sum3v@)/x};
+/ Neighbour sum 8 - sum 9-self
+sum8:.aoc.sum8:{.aoc.sum9[x]-x};
+/ Neighbour sum 5 - sum of orthogonals+middle: verticals+horizontals-middle(counted 2 times)
+sum5:.aoc.sum5:{sum[@[;1;flip].aoc.sum3v each(x;flip x)]-x};
+/ Neighbour sum 4 - sum 5-self
+sum4:.aoc.sum4:{.aoc.sum5[x]-x};
+/ Neighbour sum 5 diagonals
+sum5d:.aoc.sum5d:{.aoc.sum9[x]-.aoc.sum4 x};
+/ Neighbour sum 4 diagonals
+sum4d:.aoc.sum4d:{.aoc.sum9[x]-.aoc.sum5 x};
+
 / Download aoc calendar
 / @example - .aoc.cal[2025;`:README.md;1b]
 .aoc.cal:{[year;out;personal]
