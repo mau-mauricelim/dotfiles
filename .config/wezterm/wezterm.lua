@@ -7,7 +7,7 @@ local config = wezterm.config_builder()
 
 -- This is where you actually apply your config choices
 config.font = wezterm.font({
-  family = 'JetBrains Mono',
+  family = 'JetBrainsMono NF Medium',
   -- Disable ligatures in most fonts
   harfbuzz_features = { 'calt=0', 'clig=0', 'liga=0' },
 })
