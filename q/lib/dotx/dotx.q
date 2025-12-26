@@ -10,6 +10,9 @@
     n:til[20]_3; c:"*bgxhijefcspmdznuvt"; sz:0N 1 16 1 2 4 8 4 8 1 0N 8 4 4 8 8 4 4 4);
 / .Q.w in human-readable bytes
 .Q.wh:{`$.util.humanBytes .Q.w[]};
+/ Decodes (and pad to length of multiple 4) base 64 data
+/ @example - 10h$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
+.Q.atobp:{[b64] .Q.atob b64,(mul-count[b64]mod mul:4)#"="};
 
 /######
 /# .q #

@@ -1,0 +1,4 @@
+filepath       | object
+../aoc/aoc.q   | .aoc.diagonal
+../dotx/dotx.q | .Q.atobp
+../util/util.q | .util.draw
