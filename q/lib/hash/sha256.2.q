@@ -59,11 +59,31 @@
             W[i]:.sha256.addMod32(W i-16;.sha256.sigma0 W i-15;W i-7;.sha256.sigma1 W i-2);
             i+:1];
         / Compression loop
-        ((a;b;c;d;e;f;g;h;i);W):{((a;b;c;d;e;f;g;h;i);W):x;
-            T1:.sha256.addMod32(h;.sha256.Sigma1 e;.sha.Ch[e;f;g];.sha256.K i;W i);
+
+        / / v1
+        / ((a;b;c;d;e;f;g;h;i);W):{((a;b;c;d;e;f;g;h;i);W):x;
+        /     T1:.sha256.addMod32(h;.sha256.Sigma1 e;.sha.Ch[e;f;g];.sha256.K i;W i);
+        /     T2:.sha256.addMod32(.sha256.Sigma0 a;.sha.Maj[a;b;c]);
+        /     ((.sha256.addMod32(T1;T2);a;b;c;.sha256.addMod32(d;T1);e;f;g;i+1);W)
+        /     }/[.sha256.messageSize;(H,0;W)];
+
+        / / v2
+        / (a;b;c;d;e;f;g;h):{
+        /     (a;b;c;d;e;f;g;h):x;
+        /     (ki;wi):y;
+        /     T1:.sha256.addMod32(h;.sha256.Sigma1 e;.sha.Ch[e;f;g];ki;wi);
+        /     T2:.sha256.addMod32(.sha256.Sigma0 a;.sha.Maj[a;b;c]);
+        /     (.sha256.addMod32(T1;T2);a;b;c;.sha256.addMod32(d;T1);e;f;g)
+        /     }/[H;flip(.sha256.K;W)@\:til .sha256.messageSize];
+
+        / v3
+        ((a;b;c;d;e;f;g;h);W):{
+            ((a;b;c;d;e;f;g;h);W):x;
+            T1:.sha256.addMod32(h;.sha256.Sigma1 e;.sha.Ch[e;f;g];.sha256.K y;W y);
             T2:.sha256.addMod32(.sha256.Sigma0 a;.sha.Maj[a;b;c]);
-            ((.sha256.addMod32(T1;T2);a;b;c;.sha256.addMod32(d;T1);e;f;g;i+1);W)
-            }/[.sha256.messageSize;(H,0;W)];
+            ((.sha256.addMod32(T1;T2);a;b;c;.sha256.addMod32(d;T1);e;f;g);W)
+            }/[(H;W);til .sha256.messageSize];
+
         / Update hash values
         H:.sha256.addMod32 each flip((a;b;c;d;e;f;g;h);H);
         j+:1];
@@ -73,4 +93,3 @@
 // TEST:
 show"Testing sha256.2"
 \ts:100 r:"098FC40C1BD1142A0ADC3613E087E5D31C0E890D83F3501558E3FF3C4BEA50D4"~.Q.sha256"Lorem Ipsum is simply dummy text of the printing and typesetting industry"
-r
