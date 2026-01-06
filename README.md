@@ -32,7 +32,7 @@ $ git restore . # OR git reset --hard
 - fd 📂
 - fzf 🌸
 - git 🌳
-- hyperfine ⏱️
+- hyperfine ⏳
 - jdupes 👥
 - jq { }
 - lazygit 🦥
@@ -42,8 +42,8 @@ $ git restore . # OR git reset --hard
 - ripgrep 🔍
 - rlwrap 🌯
 - ssh 🐚
-- sudo 🦸🏻‍♂️
-- tar 🗃️
+- sudo 😎
+- tar 📼
 - tmux 🪟
 - unzip 🤐
 - vim 📄
