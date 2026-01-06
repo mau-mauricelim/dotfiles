@@ -62,8 +62,8 @@ addToPathFront /opt/nvim-linux-x86_64/bin
 # Set PATH so it includes user's git-scripts if it exists
 addToPath "$XDG_CONFIG_HOME/git/git-scripts"
 
-# Source the shell dotfiles
-for file in $(find -L $XDG_CONFIG_HOME/{alias,q} -type f -name '*.sh'); do
+# Source the dotfiles config.sh
+for file in $(find -L "$XDG_CONFIG_HOME"/{alias,q} -maxdepth 1 -type f -name 'config.sh'); do
     sourceFile "$file"
 done
 unset file
