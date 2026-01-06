@@ -80,6 +80,8 @@ common_root_install() {
             unxz | tar xf - "jdupes-$JDUPES_VERSION-linux-x86_64/jdupes" --strip-components=1 && \
         curl -sSfL "$JDUPES_URL/archive/v$JDUPES_VERSION.tar.gz" | tar xz jdupes/jdupes.1 --strip-components=1 && \
         sudo install jdupes /usr/local/bin && sudo mv jdupes.1 /usr/local/share/man/man1 && rm jdupes
+    # Required for running portable binaries on certain Linux distributions
+    [ -f "/lib/ld-linux-x86-64.so.2" ] || sudo ln -s /lib64/ld-linux-x86-64.so.2 /lib/ld-linux-x86-64.so.2
 }
 
 common_user_install() {
