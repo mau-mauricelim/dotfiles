@@ -72,6 +72,10 @@ common_root_install() {
     # Install zoxide from source
     curl -sSfL https://raw.githubusercontent.com/ajeetdsouza/zoxide/main/install.sh |\
         sudo bash -s -- --bin-dir /usr/local/bin --man-dir /usr/local/share/man >/dev/null
+    # Install copyparty from source - requires python3
+    [ -n "$COPYPARTY_VERSION" ] && \
+        curl -sSfLo copyparty "$COPYPARTY_URL/copyparty-sfx.py" && \
+        sudo install copyparty /usr/local/bin && rm copyparty
     # Install jdupes from source
     JDUPES_URL=https://codeberg.org/jbruchon/jdupes
     JDUPES_VERSION=$(curl -sSfL "$JDUPES_URL/releases/latest" | grep -oP '(?<=href="/jbruchon/jdupes/src/tag/v).+(?=" rel)')
@@ -189,12 +193,6 @@ install_yazi() {
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
 }
 
-install_copyparty() {
-    [ -n "$COPYPARTY_VERSION" ] && \
-        curl -sSfLo copyparty "$COPYPARTY_URL/copyparty-sfx.py" && \
-        sudo install copyparty /usr/local/bin && rm copyparty
-}
-
 # Alpine uses MUSL binaries
 alpine_install() {
     # Install required packages
@@ -207,10 +205,11 @@ alpine_install() {
     # shadow is for chsh and usermod
     # ncurses installs tput for fzf-git (fzf-tmux)
     # gcompat is for q
+    # python3 is for copyparty
     sudo apk -q --no-progress --no-cache add \
         tar bzip2 rlwrap curl git vim stow openssh tmux grep neovim exiftool \
         mandoc man-pages less docs \
-        zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow ncurses gcompat
+        zsh coreutils procps build-base xclip util-linux-misc nodejs npm shadow ncurses gcompat python3
     # Common root installs
     common_root_install
     # Install MUSL binaries from source

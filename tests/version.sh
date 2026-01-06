@@ -86,7 +86,7 @@ latestAndInstalledVersion exiftool \
 
 latestAndInstalledVersion copyparty \
     "$(latestTag 9001/copyparty)" \
-    "$(copyparty --version 2>/dev/null)"
+    "$(copyparty --version 2> >(grep -v "\[SFX\]" >&2))"
 
 latestAndInstalledVersion jdupes \
     "$(curl -sL https://codeberg.org/jbruchon/jdupes/releases/latest|grep tagName|head -1|grep -oP '(?<=: ").+(?=")')" \
