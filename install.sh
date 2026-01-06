@@ -135,8 +135,7 @@ common_user_install() {
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run Lazy install, clean and update non-interactively from command line inside tmux
-        tmux new -d "nvim --headless '+Lazy! sync' +qa && echo 'nvim sync lazy from the cmdline in tmux complete' |& tee /tmp/tmux.log"
-        timeout 60s bash -c -- 'while true; do if grep -q "nvim sync lazy from the cmdline in tmux complete" /tmp/tmux.log >/dev/null 2>&1; then rm /tmp/tmux.log; break; fi; done'
+        tmux new -d "timeout 60 nvim --headless '+Lazy! sync' +qa; timeout 60 nvim --headless '+MasonToolsInstallSync' +qa; timeout 60 nvim --headless '+TSUpdate' +qa"
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
