@@ -34,6 +34,7 @@ set_all_url_and_version() {
     set_url_and_version "jqlang/jq"
     set_url_and_version "sxyazi/yazi"
     set_url_and_version "neovim/neovim"
+    set_url_and_version "9001/copyparty"
     set_url_and_version "dandavison/delta"
     set_url_and_version "BurntSushi/ripgrep"
     set_url_and_version "scarvalhojr/aoc-cli"
@@ -185,6 +186,12 @@ install_yazi() {
         curl -sSfLo yazi.zip "$YAZI_URL/yazi-x86_64-unknown-linux-$1.zip" && \
         unzip -qj yazi.zip "yazi-x86_64-unknown-linux-$1/yazi" && \
         sudo install yazi /usr/local/bin && rm yazi yazi.zip
+}
+
+install_copyparty() {
+    [ -n "$COPYPARTY_VERSION" ] && \
+        curl -sSfLo copyparty "$COPYPARTY_URL/copyparty-sfx.py" && \
+        sudo install copyparty /usr/local/bin && rm copyparty
 }
 
 # Alpine uses MUSL binaries

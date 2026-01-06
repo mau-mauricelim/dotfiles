@@ -24,6 +24,7 @@ $ git restore . # OR git reset --hard
 - bash 👊
 - bat(cat) 🦇 🐈
 - bzip2 🤐
+- copyparty 💾🎉
 - curl 🥌
 - delta 🌈
 - exiftool 🔨
@@ -43,7 +44,7 @@ $ git restore . # OR git reset --hard
 - ssh 🐚
 - sudo 🦸🏻‍♂️
 - tar 🗃️
-- tmux🪟
+- tmux 🪟
 - unzip 🤐
 - vim 📄
 - yazi 🦆 (file 📁)

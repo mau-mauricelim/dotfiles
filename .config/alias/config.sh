@@ -37,6 +37,9 @@ if command -v lazygit &> /dev/null; then alias lg="lazygit"; fi
 # dos2unix convert or translate the ^M characters
 if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 
+# TODO: Add copyparty default config and run party with default config
+if command -v copyparty &> /dev/null; then alias party="copyparty"; fi
+
 alias ....="cd ../../.."
 alias ...="cd ../.."
 alias cdl="cd -"

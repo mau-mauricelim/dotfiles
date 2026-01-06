@@ -3,7 +3,7 @@ goto comment
 Running multiple versions of kdb+
 
 Place this script in a directory (recommended: C:\q)
-And add this directory to PATH (echo %PATH% | find /i "C:\q" > nul || set PATH=%PATH%;"C:\q")
+And add this directory to PATH
 
 Usage:
 q

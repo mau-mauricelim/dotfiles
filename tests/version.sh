@@ -84,6 +84,10 @@ latestAndInstalledVersion exiftool \
     "$(latestTag exiftool/exiftool)" \
     "$(exiftool -ver)"
 
+latestAndInstalledVersion copyparty \
+    "$(latestTag 9001/copyparty)" \
+    "$(copyparty --version 2>/dev/null)"
+
 latestAndInstalledVersion jdupes \
     "$(curl -sL https://codeberg.org/jbruchon/jdupes/releases/latest|grep tagName|head -1|grep -oP '(?<=: ").+(?=")')" \
     "$(jdupes -v | head -1)"
