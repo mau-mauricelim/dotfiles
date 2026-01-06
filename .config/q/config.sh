@@ -3,7 +3,7 @@ main() {
     # NOTE: If `ONE_TIME_SETUP` is set to true
     #       kdb+ binaries will only be installed the first time if:
     #           1. Directory "$LIN_Q_HOME" does not exist OR
-    #           2. Directory "$LIN_Q_HOME" does not contain any directories (kdb+ binaries)
+    #           2. Directory "$LIN_Q_HOME" does not contain any kdb+ binaries (x or [3-4].[0-9]) directories
     #       To always check for updated license file or kdb+ binaries, unset `ONE_TIME_SETUP` (or set it to anything other than true)
     #       However, this will slow down the startup shell significantly.
     #       Personal startup times:
@@ -30,6 +30,7 @@ main() {
     [ -d "$LIN_Q_HOME" ] &&\
         export LIN_Q_HOME || exit
 
+    [ ! -d "$HOME/qoolbox" ] && echo "[TIP]: Clone qoolbox (cool q toolbox) to home directory"
     [ -d "$HOME/qoolbox" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
         echo "🔗 Symlinking q.q to qoolbox" &&\
         ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q"
@@ -85,8 +86,8 @@ wsl_kdb_setup() {
 
     # Check if kdb+ binaries exist
     if [ -d "$WIN_Q_HOME" ]; then
-        if [ ! -d "$LIN_Q_HOME" ];                                              then first_setup
-        elif ! find "$LIN_Q_HOME" -mindepth 1 -maxdepth 1 -type d | $GREP -q .; then first_setup
+        if [ ! -d "$LIN_Q_HOME" ];                                                                                     then first_setup
+        elif ! find "$LIN_Q_HOME" -mindepth 1 -maxdepth 1 -type d \( -name "x" -o -name "[3-4].[0-9]" \) | $GREP -q .; then first_setup
         elif [[ "$ONE_TIME_SETUP" == "true" ]]; then return
         fi
 
