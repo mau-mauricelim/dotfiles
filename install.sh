@@ -145,17 +145,10 @@ common_user_install() {
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run Lazy install, clean and update non-interactively from command line inside tmux
         tmux new -d -s nvim-install \; \
-            send-keys "timeout 60 nvim --headless '+Lazy! sync' +qa 2>&1 | tee /tmp/lazy.log" C-m \; \
-            send-keys "timeout 60 nvim --headless '+MasonToolsInstallSync' +qa 2>&1 | tee /tmp/mason.log" C-m \; \
-            send-keys "timeout 60 nvim --headless '+TSUpdate' +qa 2>&1 | tee /tmp/ts.log" C-m \; \
-            send-keys "exit" C-m && \
+            send-keys "nvim --headless -c 'sleep 180' -c 'qa' 2>&1 | tee /tmp/nvim.log; exit" C-m && \
             while tmux has-session -t nvim-install 2>/dev/null; do sleep 2; done
-        echo_with_date "Lazy Sync output:"
-        cat /tmp/lazy.log
-        echo_with_date "Mason Tools Install Sync output:"
-        cat /tmp/mason.log
-        echo_with_date "Treesitter Update output:"
-        cat /tmp/treesitter.log
+        echo_with_date "Tmux nvim install output:"
+        cat /tmp/nvim.log
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
