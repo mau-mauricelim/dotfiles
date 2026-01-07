@@ -3,6 +3,8 @@
 INSTALL_TYPE="${1:-min}"         # Defaults to minimal install
 INSTALL_TYPE="${INSTALL_TYPE,,}" # Lowercase
 
+echo_with_date() { echo "$(date) [INFO]: $1"; }
+
 main() {
     source /etc/os-release
     case $ID in
@@ -10,14 +12,15 @@ main() {
             run_install $ID
             ;;
         *)
-            echo "$ID is not supported"
+            echo_with_date "$ID is not supported"
             ;;
     esac
 }
 
-run_install() { echo "Running $1 installer"; cd "$HOME" || exit 1; "${1}_install"; }
+run_install() { echo_with_date "Running $1 installer"; cd "$HOME" || exit 1; "${1}_install"; }
 
 set_url_and_version() {
+    echo_with_date "Setting URL and VERSION for $1"
     repo_name=$(echo "$1" | cut -d"/" -f2)
     repo_name=${repo_name^^} # Uppercase
     repo_name=${repo_name//-/_} # Convert `-` to `_`
@@ -46,6 +49,7 @@ set_all_url_and_version() {
 }
 
 common_root_install() {
+    echo_with_date "Running common root install"
     # Manual install of man pages for release binaries
     sudo mkdir -p /usr/local/share/man/man1
     # Set release url and version
@@ -89,6 +93,7 @@ common_root_install() {
 }
 
 common_user_install() {
+    echo_with_date "Running common user install"
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim"
     # Clone the dotfiles
