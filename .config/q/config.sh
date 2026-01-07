@@ -30,7 +30,7 @@ main() {
     [ -d "$LIN_Q_HOME" ] &&\
         export LIN_Q_HOME || exit
 
-    [ ! -d "$HOME/qoolbox" ] && echo "[TIP]: Clone qoolbox (cool q toolbox) to home directory"
+    [ ! -d "$HOME/qoolbox" ] && echo "💡 Clone qoolbox (cool q toolbox) to home directory"
     [ -d "$HOME/qoolbox" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
         echo "🔗 Symlinking q.q to qoolbox" &&\
         ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q"
