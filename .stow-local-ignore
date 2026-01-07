@@ -29,6 +29,7 @@ docs
 /q
 src
 tests
+windows
 ^/Dockerfile.*
 install.sh
 .*.md
