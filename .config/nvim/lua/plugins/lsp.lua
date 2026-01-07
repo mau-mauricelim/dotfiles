@@ -162,13 +162,18 @@ return { -- LSP Configuration & Plugins
     --
     -- You can add other tools here that you want Mason to install
     -- for you, so that they are available from within Neovim.
-    local ensure_installed = vim.tbl_keys(servers or {})
+
+    -- BUG: Extract server names but exclude lua_ls (lua-language-server is manually installed below)
+    local ensure_installed = vim.tbl_filter(function(server)
+        return server ~= 'lua_ls'
+    end, vim.tbl_keys(servers or {}))
+
     vim.list_extend(ensure_installed, {
-      -- you can turn off/on auto_update per tool
-      { 'bash-language-server', auto_update = true },
-      'shfmt',
-      'shellcheck',
-      'stylua', -- Used to format lua code
+        -- you can turn off/on auto_update per tool
+        { 'bash-language-server', auto_update = true },
+        'shfmt',
+        'shellcheck',
+        'stylua', -- Used to format lua code
     })
     require('mason-tool-installer').setup({ ensure_installed = ensure_installed })
 
@@ -176,10 +181,13 @@ return { -- LSP Configuration & Plugins
     -- Install specific version via registry
     local registry = require('mason-registry')
     local pkg_name = 'lua-language-server'
-    if not registry.is_installed(pkg_name) then
-      local pkg = registry.get_package(pkg_name)
-      pkg:install({ version = '3.15.0' })
-    end
+    -- Refresh registry before install
+    registry.refresh(function()
+      if not registry.is_installed(pkg_name) then
+        local pkg = registry.get_package(pkg_name)
+        pkg:install({ version = '3.15.0' })
+      end
+    end)
 
     require('mason-lspconfig').setup({
       ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
