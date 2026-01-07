@@ -143,14 +143,11 @@ common_user_install() {
     if [ "$INSTALL_TYPE" = "full" ]; then
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
-        # TODO: Is there a better way to do this?
         # Run nvim headless install inside tmux
-        # Strip ANSI escapes
-        tmux new -d -s nvim-install "nvim --headless -c 'sleep 300 | qa' 2>&1 | sed -r 's/\x1B\[[0-9;]*[mK]//g' | tee /tmp/nvim.log; exit"
-        while tmux has-session -t nvim-install 2>/dev/null; do sleep 2; done
-        echo_with_date "Tmux nvim install output:"
-        # TODO: Add grep -v && remove log file
-        cat /tmp/nvim.log
+        tmux new -d "\
+            timeout 300 nvim --headless '+Lazy! sync'            +qa;\
+            timeout 300 nvim --headless '+MasonToolsInstallSync' +qa;\
+            timeout 300 nvim --headless '+TSUpdate'              +qa"
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
