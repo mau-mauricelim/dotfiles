@@ -168,10 +168,18 @@ return { -- LSP Configuration & Plugins
       { 'bash-language-server', auto_update = true },
       'shfmt',
       'shellcheck',
-      'lua-language-server',
       'stylua', -- Used to format lua code
     })
     require('mason-tool-installer').setup({ ensure_installed = ensure_installed })
+
+    -- BUG: lua-language-server does not have linux-x64-musl.tar.gz above 3.15.0
+    -- Install specific version via registry
+    local registry = require('mason-registry')
+    local pkg_name = 'lua-language-server'
+    if not registry.is_installed(pkg_name) then
+      local pkg = registry.get_package(pkg_name)
+      pkg:install({ version = '3.15.0' })
+    end
 
     require('mason-lspconfig').setup({
       ensure_installed = {}, -- explicitly set to an empty table (Kickstart populates installs via mason-tool-installer)
