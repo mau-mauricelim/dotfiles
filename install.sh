@@ -144,10 +144,10 @@ common_user_install() {
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run Lazy install, clean and update non-interactively from command line inside tmux
-        tmux new -d -s nvim-install \; \
-            send-keys "nvim --headless -c 'sleep 180' -c 'qa' 2>&1 | tee /tmp/nvim.log; exit" C-m && \
-            while tmux has-session -t nvim-install 2>/dev/null; do sleep 2; done
+        tmux new -d -s nvim-install "timeout 300 nvim --headless 2>&1 --cmd 'set t_Co=0' | tee /tmp/nvim.log; exit"
+        while tmux has-session -t nvim-install 2>/dev/null; do sleep 2; done
         echo_with_date "Tmux nvim install output:"
+        # TODO: Add grep -v && remove log file
         cat /tmp/nvim.log
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
