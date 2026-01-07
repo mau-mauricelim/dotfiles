@@ -143,8 +143,10 @@ common_user_install() {
     if [ "$INSTALL_TYPE" = "full" ]; then
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
-        # Run Lazy install, clean and update non-interactively from command line inside tmux
-        tmux new -d -s nvim-install "timeout 300 nvim --headless 2>&1 --cmd 'set t_Co=0' | tee /tmp/nvim.log; exit"
+        # TODO: Is there a better way to do this?
+        # Run nvim headless install inside tmux
+        # Strip ANSI escapes
+        tmux new -d -s nvim-install "nvim --headless -c 'sleep 300 | qa' 2>&1 | sed -r 's/\x1B\[[0-9;]*[mK]//g' | tee /tmp/nvim.log; exit"
         while tmux has-session -t nvim-install 2>/dev/null; do sleep 2; done
         echo_with_date "Tmux nvim install output:"
         # TODO: Add grep -v && remove log file
