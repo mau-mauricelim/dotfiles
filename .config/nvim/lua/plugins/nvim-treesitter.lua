@@ -1,5 +1,8 @@
 return { -- Highlight, edit, and navigate code
   'nvim-treesitter/nvim-treesitter',
+  -- BUG: Breaking change in https://github.com/nvim-treesitter/nvim-treesitter/issues/4767
+  branch = 'master',
+  lazy = false,
   build = ':TSUpdate',
   config = function()
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
