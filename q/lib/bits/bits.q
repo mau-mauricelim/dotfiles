@@ -24,14 +24,35 @@ textToBitsFlat:.bits.textToBitsFlat:.bits.byteToBitsFlat;
 / Number to hexadecimal
 / @example - .bits.numToHex 10 12 19 1 28 100
 numToHex:.bits.numToHex:flip .Q.hex 16 vs(),;
+/ Hexadecimal to number
 / @example - .bits.hexToNum("0A";"0C";"13";"01";"1C";"64")
 /            .bits.hexToNum"0A0C13011C64"
 hexToNum:.bits.hexToNum:16 sv'.Q.hex?string upper(),`$;
 
-// TODO: Hex to base64
-/ hex <-> bytes <-> base64
-hexToB64Byte:.bits.hexToB64Byte:{(neg sum"="=x)_raze 5_'0x0 vs'64 sv'0N 4#.Q.b6?x};
-hexToB64:.bits.hexToB64:raze string .bits.hexToB64Byte@;
+/ Text to hexadecimal with delimiter string
+.bits.i.textToHex:{[d;x] d sv .Q.hex flip 16 vs"i"$x};
+/ Text to hexadecimal with no delimiter string
+/ @example - .bits.textToHex"Hello, World!"
+textToHex:.bits.textToHex:.bits.i.textToHex"";
+/ Hexadecimal to text
+/ @example - .bits.hexToText("48";"65";"6C";"6C";"6F";"2C";"20";"57";"6F";"72";"6C";"64";"21")
+/            .bits.hexToText"48656C6C6F2C20576F726C6421"
+hexToText:.bits.hexToText:"c"$.bits.hexToNum 2 cut raze@;
+
+/ Byte to hexadecimal
+/ @example - .bits.byteToHex 0x48656C6C6F2C20576F726C6421
+byteToHex:.bits.byteToHex:upper raze string@;
+/ Hexadecimal to byte
+/ @example - .bits.hexToByte"48656C6C6F2C20576F726C6421"
+hexToByte:.bits.hexToByte:get"0x",;
+
+/ Hexadecimal to base64
+/ @example - .bits.hexToB64("48";"65";"6C";"6C";"6F";"2C";"20";"57";"6F";"72";"6C";"64";"21")
+/            .bits.hexToB64"48656C6C6F2C20576F726C6421"
+hexToB64:.bits.hexToB64:.Q.btoa .bits.hexToText@;
+/ Base64 to hexadecimal
+/            .bits.b64ToHex"SGVsbG8sIFdvcmxkIQ=="
+b64ToHex:.bits.b64ToHex:.bits.byteToHex .Q.atobp@;
 
 / Bits/binary (boolean) to number
 / @example - .bits.bitsToNum 10100b

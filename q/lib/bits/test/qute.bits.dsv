@@ -1,21 +1,27 @@
-action | minver | code                                                                              | repeat | ms | bytes | comment
-before |        | .lib.require`bits                                                                 |        |    |       | Initialize library
-true   |        | {x~.bits.bitsToNum .bits.numToBits x}20                                           |        |    |       |
-true   |        | 64~count .bits.numToBits64 20                                                     |        |    |       |
-true   |        | 32~count .bits.numToBits32 20                                                     |        |    |       |
-true   |        | 16~count .bits.numToBits16 20                                                     |        |    |       |
-true   |        | (01101000b;01100101b;01101100b;01101100b;01101111b)~.bits.byteToBits 0x68656c6c6f |        |    |       |
-true   |        | .bits.textToBits["hello"]~.bits.byteToBits 0x68656c6c6f                           |        |    |       |
-true   |        | ("0A";"0C";"13";"01";"1C";"64")~.bits.numToHex 10 12 19 1 28 100                  |        |    |       |
-true   |        | 10 12 19 1 28 100~.bits.hexToNum lower("0A";"0C";"13";"01";"1C";"64")             |        |    |       |
-true   |        | enlist[11046974725220]~.bits.hexToNum"0A0C13011C64"                               |        |    |       |
-true   |        | 20~.bits.bitsToNum 10100b                                                         |        |    |       |
-true   |        | 20~.bits.bitsToNum 1 0 1 0 0                                                      |        |    |       |
-true   |        | 40~.bits.bitsToNum .bits.bitsLeftShift[1;10100b]                                  |        |    |       |
-true   |        | 10~.bits.bitsToNum .bits.bitsRightShift[1;1 0 1 0 0]                              |        |    |       |
-true   |        | 512~.bits.numLeftShift[1;256]                                                     |        |    |       |
-true   |        | 128~.bits.numRightShift[1;256]                                                    |        |    |       |
-true   |        | 127~.bits.bitsToNum .bits.bitsOr(1111011b;0101101b;0 0 0 0 1 1 0)                 |        |    |       |
-true   |        | 80~.bits.bitsToNum .bits.bitsXor(1111011b;0101101b;0 0 0 0 1 1 0)                 |        |    |       |
-true   |        | 127~.bits.numBitsOr 123 45 6                                                      |        |    |       |
-true   |        | 80~.bits.numBitsXor 123 45 6                                                      |        |    |       |
+action | minver | code                                                                                    | repeat | ms | bytes | comment
+before |        | .lib.require`bits                                                                       |        |    |       | Initialize library
+true   |        | {x~.bits.bitsToNum .bits.numToBits x}20                                                 |        |    |       |
+true   |        | 64~count .bits.numToBits64 20                                                           |        |    |       |
+true   |        | 32~count .bits.numToBits32 20                                                           |        |    |       |
+true   |        | 16~count .bits.numToBits16 20                                                           |        |    |       |
+true   |        | (01101000b;01100101b;01101100b;01101100b;01101111b)~.bits.byteToBits 0x68656c6c6f       |        |    |       |
+true   |        | .bits.textToBits["hello"]~.bits.byteToBits 0x68656c6c6f                                 |        |    |       |
+true   |        | ("0A";"0C";"13";"01";"1C";"64")~.bits.numToHex 10 12 19 1 28 100                        |        |    |       |
+true   |        | 10 12 19 1 28 100~.bits.hexToNum lower("0A";"0C";"13";"01";"1C";"64")                   |        |    |       |
+true   |        | enlist[11046974725220]~.bits.hexToNum"0A0C13011C64"                                     |        |    |       |
+true   |        | "48656C6C6F2C20576F726C6421"~.bits.textToHex"Hello, World!"                             |        |    |       |
+true   |        | {all"Hello, World!"~/:.bits.hexToText@'(x;2 cut x)}"48656C6C6F2C20576F726C6421"         |        |    |       |
+true   |        | "48656C6C6F2C20576F726C6421"~.bits.byteToHex 0x48656c6c6f2c20576f726c6421               |        |    |       |
+true   |        | 0x48656c6c6f2c20576f726c6421~.bits.hexToByte"48656C6C6F2C20576F726C6421"                |        |    |       |
+true   |        | {all"SGVsbG8sIFdvcmxkIQ=="~/:.bits.hexToB64@'(x;2 cut x)}"48656C6C6F2C20576F726C6421"   |        |    |       |
+true   |        | {all"48656C6C6F2C20576F726C6421"~/:.bits.b64ToHex@'x,/:til[5]#'"="}"SGVsbG8sIFdvcmxkIQ" |        |    |       |
+true   |        | 20~.bits.bitsToNum 10100b                                                               |        |    |       |
+true   |        | 20~.bits.bitsToNum 1 0 1 0 0                                                            |        |    |       |
+true   |        | 40~.bits.bitsToNum .bits.bitsLeftShift[1;10100b]                                        |        |    |       |
+true   |        | 10~.bits.bitsToNum .bits.bitsRightShift[1;1 0 1 0 0]                                    |        |    |       |
+true   |        | 512~.bits.numLeftShift[1;256]                                                           |        |    |       |
+true   |        | 128~.bits.numRightShift[1;256]                                                          |        |    |       |
+true   |        | 127~.bits.bitsToNum .bits.bitsOr(1111011b;0101101b;0 0 0 0 1 1 0)                       |        |    |       |
+true   |        | 80~.bits.bitsToNum .bits.bitsXor(1111011b;0101101b;0 0 0 0 1 1 0)                       |        |    |       |
+true   |        | 127~.bits.numBitsOr 123 45 6                                                            |        |    |       |
+true   |        | 80~.bits.numBitsXor 123 45 6                                                            |        |    |       |

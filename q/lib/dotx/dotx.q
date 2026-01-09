@@ -11,8 +11,8 @@
 / .Q.w in human-readable bytes
 .Q.wh:{`$.util.humanBytes .Q.w[]};
 / Decodes (and pad to length of multiple 4) base 64 data
-/ @example - 10h$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
-.Q.atobp:{[b64] .Q.atob b64,(mul-count[b64]mod mul:4)#"="};
+/ @example - "c"$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
+.Q.atobp:{[b64] b64:b64 except"="; .Q.atob b64,$[rem:count[b64]mod mul:4;(mul-rem)#"=";""]};
 
 /######
 /# .q #

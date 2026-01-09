@@ -1,4 +1,4 @@
-action | minver | code                                             | repeat | ms | bytes | comment
-before |        | .lib.require`dotx                                |        |    |       | Initialize library
-true   |        | (~). .Q.addr each .z.h,.z.ip                     |        |    |       | Check that IP address variable is valid
-true   |        | "Hello, World!"~10h$.Q.atobp"SGVsbG8sIFdvcmxkIQ" |        |    |       |
+action | minver | code                                                                     | repeat | ms | bytes | comment
+before |        | .lib.require`dotx                                                        |        |    |       | Initialize library
+true   |        | (~). .Q.addr each .z.h,.z.ip                                             |        |    |       | Check that IP address variable is valid
+true   |        | {all"Hello, World!"~/:"c"$.Q.atobp@'x,/:til[5]#'"="}"SGVsbG8sIFdvcmxkIQ" |        |    |       |
