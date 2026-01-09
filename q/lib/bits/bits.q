@@ -26,7 +26,12 @@ textToBitsFlat:.bits.textToBitsFlat:.bits.byteToBitsFlat;
 numToHex:.bits.numToHex:flip .Q.hex 16 vs(),;
 / @example - .bits.hexToNum("0A";"0C";"13";"01";"1C";"64")
 /            .bits.hexToNum"0A0C13011C64"
-hexToNum:.bits.hexToNum:16 sv'.Q.hex?string(),`$;
+hexToNum:.bits.hexToNum:16 sv'.Q.hex?string upper(),`$;
+
+// TODO: Hex to base64
+/ hex <-> bytes <-> base64
+hexToB64Byte:.bits.hexToB64Byte:{(neg sum"="=x)_raze 5_'0x0 vs'64 sv'0N 4#.Q.b6?x};
+hexToB64:.bits.hexToB64:raze string .bits.hexToB64Byte@;
 
 / Bits/binary (boolean) to number
 / @example - .bits.bitsToNum 10100b

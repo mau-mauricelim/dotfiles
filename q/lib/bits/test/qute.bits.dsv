@@ -7,7 +7,7 @@ true   |        | 16~count .bits.numToBits16 20                                 
 true   |        | (01101000b;01100101b;01101100b;01101100b;01101111b)~.bits.byteToBits 0x68656c6c6f |        |    |       |
 true   |        | .bits.textToBits["hello"]~.bits.byteToBits 0x68656c6c6f                           |        |    |       |
 true   |        | ("0A";"0C";"13";"01";"1C";"64")~.bits.numToHex 10 12 19 1 28 100                  |        |    |       |
-true   |        | 10 12 19 1 28 100~.bits.hexToNum("0A";"0C";"13";"01";"1C";"64")                   |        |    |       |
+true   |        | 10 12 19 1 28 100~.bits.hexToNum lower("0A";"0C";"13";"01";"1C";"64")             |        |    |       |
 true   |        | enlist[11046974725220]~.bits.hexToNum"0A0C13011C64"                               |        |    |       |
 true   |        | 20~.bits.bitsToNum 10100b                                                         |        |    |       |
 true   |        | 20~.bits.bitsToNum 1 0 1 0 0                                                      |        |    |       |
