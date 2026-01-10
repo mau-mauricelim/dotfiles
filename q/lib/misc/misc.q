@@ -19,4 +19,4 @@ fcys:.fcy.specialCharFrecency:desc .Q.sc#.fcy.charFrecency@;
 
 // INFO: https://docs.github.com/en/get-started/writing-on-github/getting-started-with-writing-and-formatting-on-github/basic-writing-and-formatting-syntax#section-links
 / @param x - string
-ghSecLink:.gh.sectionLink:{ssr[;" ";"-"]ssr[;"  ";" "]/[lower trim x]except .Q.sc except"-"};
+ghSecLink:.gh.sectionLink:{ssr[;" ";"-"]ssr[;"  ";" "]/[floor trim x]except .Q.sc except"-"};

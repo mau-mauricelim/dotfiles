@@ -29,7 +29,7 @@ qutr:.Q.ff[qutd;([]msx:`int$();bytesx:`long$();okms:`boolean$();okbytes:`boolean
     .log.info"Loading tests from file: ",(.Q.s1 path)," to qutd";
     tests:(.qute.i.definitionTypes;enlist .qute.cfg.delim)0:path;
     / Set defaults
-    tests:update lower action,minver|0,repeat|1i,ms|0i,bytes|0,file:path,line:`int$2+i from tests;
+    tests:update floor action,minver|0,repeat|1i,ms|0i,bytes|0,file:path,line:`int$2+i from tests;
     tests:select from tests where minver<=.z.K,action in .qute.actions;
     / Remove previous tests loaded from the same path if any
     `qutd set(delete from qutd where file=path),tests;

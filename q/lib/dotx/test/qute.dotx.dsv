@@ -1,4 +1,8 @@
-action | minver | code                                                                     | repeat | ms | bytes | comment
-before |        | .lib.require`dotx                                                        |        |    |       | Initialize library
-true   |        | (~). .Q.addr each .z.h,.z.ip                                             |        |    |       | Check that IP address variable is valid
-true   |        | {all"Hello, World!"~/:"c"$.Q.atobp@'x,/:til[5]#'"="}"SGVsbG8sIFdvcmxkIQ" |        |    |       |
+action | minver | code                                                                             | repeat | ms | bytes | comment
+before |        | .lib.require`dotx                                                                |        |    |       | Initialize library
+true   |        | (~). .Q.addr each .z.h,.z.ip                                                     |        |    |       | Check that IP address variable is valid
+true   |        | {all"Hello, World!"~/:"c"$.Q.atobp@'x,/:til[5]#'"="}"SGVsbG8sIFdvcmxkIQ"         |        |    |       |
+true   |        | all 20~'.q.roundm[4]'[18 18.5]                                                   |        |    |       |
+true   |        | " Hello, --- World! "~.q.trimX["-";"--- Hello, --- World! ---"]                  |        |    |       |
+true   |        | 8 8 8 8 8 8 1 9 5 4 6 6 1 8~.q.rtrimX[5;8 8 8 8 8 8 1 9 5 4 6 6 1 8 5 5 5 5 5 5] |        |    |       |
+true   |        | 0x1234~.q.ltrimX[0x0;0x00001234]                                                 |        |    |       |

@@ -1,1 +1,3 @@
-filepath | object
+filepath       | object
+../dotx/dotx.q | .q.ltrimX
+../dotx/dotx.q | .q.rtrimX

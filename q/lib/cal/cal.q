@@ -55,7 +55,7 @@ cal:.cal.cal:{[date]
     error:{.log.error"Illegal argument";};
     / Symbol atom
     if[-11h~typ:type date;
-        if[(date:lower date)in`year`yr`yy`y;:.cal.print[.cal.getMonths .z.d;0b]];
+        if[(date:floor date)in`year`yr`yy`y;:.cal.print[.cal.getMonths .z.d;0b]];
         if[date in`month`mth`mm`m`day`dd`d`;:.cal.print[.z.d;1b]];
         if[not null span:"H"$string date;:.cal.print[months;1<count distinct`year$months:(`month$.z.d)+(til span)-span div 2]];
         :error[]];

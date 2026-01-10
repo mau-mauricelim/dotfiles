@@ -21,7 +21,7 @@ tail:.qnix.tail:.qnix.i.head 0b;
     pat:.util.ensureStr pat;
     allLower:all pat in .Q.a;
     if[not"*"in pat;pat:"*",pat,"*"];
-    inp where($[smart&allLower;lower;]inp)like pat};
+    inp where($[smart&allLower;floor;]inp)like pat};
 / Case sensitive search
 grep:.qnix.grep:.qnix.i.grep 0b;
 / Smart-case: if pattern is all lower case, search is case insensitive
@@ -29,7 +29,7 @@ greps:.qnix.greps:.qnix.i.grep 1b;
 / Exact word match
 grepw:.qnix.grepw:{[pat;inp]
     pat:.util.ensureStr pat;
-    inp where{[pat;line]any pat~/:" "vs?[lower[line]in .Q.a;line;" "]}[pat]each inp};
+    inp where{[pat;line]any pat~/:" "vs?[floor[line]in .Q.a;line;" "]}[pat]each inp};
 
 / List directory contents
 / @return - dict

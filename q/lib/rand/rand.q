@@ -15,7 +15,7 @@
 .rand.table:{[colNames;typeLetters;n]
     colNames,:();
     typeLetters,:();
-    if[not all(lowLetters:lower typeLetters)in .Q.t;'.log.error"Column type letters allowed: ",.Q.s1 distinct .Q.t];
+    if[not all(lowLetters:floor typeLetters)in .Q.t;'.log.error"Column type letters allowed: ",.Q.s1 distinct .Q.t];
     defaults:{[n;letter;lowLetter]
         $[letter in .Q.A;(1+n?.rand.maxListCount);n]?\:.rand.typeDefaults lowLetter
         }[0|n]'[typeLetters;lowLetters];

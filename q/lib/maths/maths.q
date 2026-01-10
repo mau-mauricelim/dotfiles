@@ -23,13 +23,12 @@
         funcPrd partialPrd[d1;d2]
         }[funcPrd]/[digits];
 
-    trimZero:{[left;numStr] "0"^$[left;ltrim;rtrim]?["0"=numStr;" ";numStr]};
-    / Always trim left
-    numStr:trimZero[1b;raze string digitsPrd];
+    / Left trim zero
+    numStr:.q.ltrimX["0";raze string digitsPrd];
     if[not decimals;:numStr];
     / Make decimals
     numStr:(nd _numStr),".",(nd:neg decimals)#numStr;
-    trimZero[0b;numStr]
+    .q.rtrimX["0";numStr]
     };
 bprd:.maths.bigPrdFast:.maths.i.bigPrd[;1b];
 .maths.bigPrdMem:.maths.i.bigPrd[;0b];

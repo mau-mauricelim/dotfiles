@@ -17,9 +17,9 @@ fzf:.fzf.fzfObject:{[pat]
         obj@:where{@[{get x;1b};x;0b]}each obj;
         .fzf.cache:obj!string .Q.id each obj];
     pat:string .Q.id each .util.exceptNulls(),pat;
-    allLower:all raze[pat] in .Q.a;
+    allLower:all raze[pat]in .Q.a;
     pat:{"*",x,"*"}each pat;
-    where{all y like/:x}[pat]each$[allLower;lower;].fzf.cache};
+    where{all y like/:x}[pat]each$[allLower;floor;].fzf.cache};
 / @return - table of objects and its values
 fzfv:.fzf.fzfObjectVal:{[pat]([]obj;val:get each obj:.fzf.fzfObject pat)};
 / @return - table of objects and its approximate memory usage

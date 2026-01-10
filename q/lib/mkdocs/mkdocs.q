@@ -67,7 +67,7 @@
 
     if[not .util.exists docsPath;:{}.log.error"DOCSPATH not found: ",docsPathStr];
     docsFile:key[docsPath]except`template.md;
-    docsFile@:where lower[docsFile]like"*.md";
+    docsFile@:where floor[docsFile]like"*.md";
     if[not count docsFile;:{}.log.error"No markdown files found in DOCSPATH"];
 
     @[hdel;.mkdocs.saveFile:saveFile;{}];

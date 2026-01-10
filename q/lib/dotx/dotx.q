@@ -12,15 +12,30 @@
 .Q.wh:{`$.util.humanBytes .Q.w[]};
 / Decodes (and pad to length of multiple 4) base 64 data
 / @example - "c"$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
-.Q.atobp:{[b64] b64:b64 except"="; .Q.atob b64,$[rem:count[b64]mod mul:4;(mul-rem)#"=";""]};
+.Q.atobp:{.Q.atob"="^.q.roundm[4;count x]$x:.q.rtrimX["=";x]};
 
 /######
 /# .q #
 /######
 
+// INFO: https://code.kx.com/phrases/
+// NOTE: Syntax `x function y` can be used if the function is defined in the root namespace
+
 .q.xor:<>;
 .q.rename:xcol;
 .q.reorder:xcols;
+
+/ Round y to nearest multiple of x
+/ @example - 4 roundm 18
+.q.roundm:{x*floor 0.5+y%x};
+
+/ Remove leading or trailing X from a list
+/ @example - "-" trimX "--- Hello, --- World! ---"
+.q.trimX:{.q.ltrimX[x].q.rtrimX[x]y};
+/ @example - "-" ltrimX "--- Hello, --- World! ---"
+.q.ltrimX:{((x=y)?0b)_y};
+/ @example - "-" rtrimX "--- Hello, --- World! ---"
+.q.rtrimX:{(neg(x=reverse y)?0b)_y};
 
 /######
 /# .z #
