@@ -2,7 +2,7 @@
 /# .Q #
 /######
 
-.Q.hex:.Q.n,6#.Q.A;
+.Q.hex:.Q.n,6#.Q.a;
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*()_-+={[}]|\\:;\"'<,>.?/";
 / Datatypes
@@ -11,8 +11,11 @@
 / .Q.w in human-readable bytes
 .Q.wh:{`$.util.humanBytes .Q.w[]};
 / Decodes (and pad to length of multiple 4) base 64 data
-/ @example - "c"$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
-.Q.atobp:{.Q.atob"="^.q.roundm[4;count x]$x:.q.rtrimX["=";x]};
+/ @example - `char$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
+.Q.atobp:{
+    / Pad to length of multiple 4
+    x:"="^.q.roundm[4;count x]$x:(x?"=")#x;
+    `byte$(neg sum"="=x)_raze 256 vs'64 sv'0N 4#.Q.b6?x};
 
 /######
 /# .q #

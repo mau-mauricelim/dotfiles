@@ -1,4 +1,6 @@
-filepath       | object
-../dotx/dotx.q | .Q.atobp
-../dotx/dotx.q | .Q.hex
-../dotx/dotx.q | .q.xor
+filepath         | object
+../codec/codec.q | .codec.binToDec
+../codec/codec.q | .codec.decToBin
+../dotx/dotx.q   | .Q.atobp
+../dotx/dotx.q   | .Q.hex
+../dotx/dotx.q   | .q.xor

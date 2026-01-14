@@ -175,7 +175,7 @@ reqf:.lib.requireForce:.lib.i.require 1b;
     .log.debug"Loading optional libraries";
     .lib.require`colors`term`parse`docs`tree`fzf`browse`qnix;
     .lib.require`os`tplog;
-    .lib.require`aoc`bits`cache`maths`cal`uri`misc;
+    .lib.require`aoc`bits`codec`cache`maths`cal`uri`misc;
     .log.debug"Finished loading optional libraries";
     .log.resume[];
     .log.info"QINIT SUCCEED. Startup time: ",string(.lib.et:.z.p)-.lib.st;

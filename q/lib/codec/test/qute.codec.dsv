@@ -1,0 +1,43 @@
+action | minver | code                                                                                                     | repeat | ms | bytes | comment
+before |        | .lib.require`codec                                                                                       |        |    |       | Initialize library
+true   |        | 1 2 3~.codec.decToDigit 123                                                                              |        |    |       |
+true   |        | (0 0 0 1;0 2 3 4;4 5 6 7)~flip .codec.decToDigit 1 234 4567                                              |        |    |       |
+true   |        | 123~.codec.digitToDec 0 1 2 3                                                                            |        |    |       |
+true   |        | 0000000001111011b~.test.bin16:.codec.decToBin 123h                                                       |        |    |       |
+true   |        | 00000000000000000000000001111011b~.test.bin32:.codec.decToBin 123i                                       |        |    |       |
+true   |        | 0000000000000000000000000000000000000000000000000000000001111011b~.test.bin64:.codec.decToBin 123j       |        |    |       |
+true   |        | {(all 16=count each x)&(~). x}(.codec.decToBin16 123;.test.bin16)                                        |        |    |       |
+true   |        | {(all 32=count each x)&(~). x}(.codec.decToBin32 123;.test.bin32)                                        |        |    |       |
+true   |        | {(all 64=count each x)&(~). x}(.codec.decToBin64 123;.test.bin64)                                        |        |    |       |
+fail   |        | .codec.decToBin16 123456                                                                                 |        |    |       |
+fail   |        | .codec.decToBin32 9999999999                                                                             |        |    |       |
+true   |        | (enlist 1b;1010b;1100100b)~.codec.decToBinB2 each 1 10 100                                               |        |    |       |
+true   |        | all 123=.codec.binToDec each(1 1 1 1 0 1 1;00000000000000000000000001111011b;1111011b)                   |        |    |       |
+true   |        | "68656c6c6f20776f726c64"~raze .codec.byteToHex 0x68656c6c6f20776f726c64                                  |        |    |       |
+true   |        | 0x68656c6c6f20776f726c64~.codec.hexToByte each 2 cut"68656c6c6f20776f726c64"                             |        |    |       |
+true   |        | "12d687"~.codec.decToHex 1234567                                                                         |        |    |       |
+true   |        | 1234567~.codec.hexToDec"12d687"                                                                          |        |    |       |
+true   |        | ("007b";"11d7")~flip .codec.decToHex 123 4567                                                            |        |    |       |
+true   |        | 123 4567~.codec.hexToDec flip("007b";"11d7")                                                             |        |    |       |
+true   |        | 1234567~.codec.byteToDec 0x12d687                                                                        |        |    |       |
+true   |        | (0x7b;0x11d7)~.codec.decToByte each 123 4567                                                             |        |    |       |
+true   |        | {(0x000000000000007b~x)&8=count x}.codec.decToByte8 123                                                  |        |    |       |
+true   |        | {(0x0000007b~x)&4=count x}.codec.decToByte4 123                                                          |        |    |       |
+true   |        | {(0x07b~x)&2=count x}.codec.decToByte2 123                                                               |        |    |       |
+fail   |        | .codec.decToByte4 9999999999                                                                             |        |    |       |
+fail   |        | .codec.decToByte2 1234567                                                                                |        |    |       |
+before |        | .test.test:(1 1 1 1 0 1 1;00000000000000000000000001111011b;1111011b)                                    |        |    |       | Setup test variables
+true   |        | all"7b"~/:.codec.binToHex each .test.test                                                                |        |    |       |
+true   |        | (3#0x7b)~.codec.binToByte each .test.test                                                                |        |    |       |
+true   |        | "hello"~.codec.binToText each(1 1 0 1 0 0 0h;1 1 0 0 1 0 1i;1 1 0 1 1 0 0j;01101100b;1101111b)           |        |    |       |
+true   |        | (1111011b;111101110010b)~.codec.hexToBin each("7b";"f72")                                                |        |    |       |
+true   |        | {(0000000000000000000000000000000000000000000000000000111101110010b~x)&64~count x}.codec.hexToBin64"f72" |        |    |       |
+true   |        | {(00000000000000000000111101110010b~x)&32~count x}.codec.hexToBin32"f72"                                 |        |    |       |
+true   |        | {(0000111101110010b~x)&16~count x}.codec.hexToBin16"f72"                                                 |        |    |       |
+fail   |        | .codec.hexToBin32"76f726c64"                                                                             |        |    |       |
+fail   |        | .codec.hexToBin16"26c64"                                                                                 |        |    |       |
+true   |        | {(x~.codec.textToDec y)&y~.codec.decToText x}[104 101 108 108 111;"hello"]                               |        |    |       |
+true   |        | {(x~.codec.textToByte y)&y~.codec.byteToText x}[0x68656c6c6f;"hello"]                                    |        |    |       |
+true   |        | {(x~raze .codec.textToHex y)&y~.codec.hexToText x}["68656c6c6f";"hello"]                                 |        |    |       |
+true   |        | {(x~.codec.b64ToHex y)&y~.codec.hexToB64 x}["68656c6c6f";"aGVsbG8="]                                     |        |    |       |
+after  |        | delete from`.test                                                                                        |        |    |       | Cleanup .test namespace

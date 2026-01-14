@@ -22,6 +22,7 @@ isFile:.util.isFile:{x~key x};
 stab:.util.showTab:{([]x)};
 .util.addQuotes:{q,x,q:"\""};
 .util.removeQuotes:{x except"\""};
+match:.util.match:{1=count distinct x};
 randSeed:.util.randSeed:{system"S ",0N?string[.z.t]except":."};
 exceptNulls:.util.exceptNulls:{$[0>type x;'list;x where not null x]};
 

@@ -1,25 +1,26 @@
-/##############################
-/# SHA-2: SHA-224 and SHA-256 #
-/##############################
+/#######################################
+/# SHA-2 (32-bit): SHA-224 and SHA-256 #
+/#######################################
 
-/ SHA-2 Properties
-.sha2.messageSize:64;
-.sha2.blockSize:512;
-.sha2.wordSize:32;
-.sha2.preprocess:.sha.preprocess . .sha2`messageSize`blockSize`wordSize;
+/ SHA Properties
+.sha2.32bit.messageSize:64;
+.sha2.32bit.blockSize:512;
+.sha2.32bit.wordSize:32;
+.sha2.32bit.preprocess:.sha.preprocess . .sha2.32bit`messageSize`blockSize`wordSize;
 
 / 3.2 Operations on Words
-.sha2.addMod32:.sha.addMod2w .sha2.wordSize;
+.sha2.32bit.addMod32:.sha.addMod2w .sha2.32bit.wordSize;
 
 / 4.1.2 SHA-224 and SHA-256 Functions
-.sha2.Sigma0:.sha.SigmaN -2 -13 -22;
-.sha2.Sigma1:.sha.SigmaN -6 -11 -25;
-.sha2.sigma0:.sha.sigmaN -7 -18 3;
-.sha2.sigma1:.sha.sigmaN -17 -19 10;
+.sha2.32bit.Sigma0:.sha.SigmaN -2 -13 -22;
+.sha2.32bit.Sigma1:.sha.SigmaN -6 -11 -25;
+.sha2.32bit.sigma0:.sha.sigmaN -7 -18 3;
+.sha2.32bit.sigma1:.sha.sigmaN -17 -19 10;
 
 / 4.2.2 SHA-224 and SHA-256 Constants
-/ Constants (first 32 bits of the fractional parts of the cube roots of first 64 prime numbers)
-.sha2.K:(
+/ Constants (first 32 bits of the fractional parts of the cube roots of the first 64 prime numbers)
+/ @example - flip .codec.decToBin32(2 xexp 32)*mod[;1]{x xexp 1%3}.maths.primes 311
+.sha2.32bit.K:(
     01000010100010100010111110011000b;01110001001101110100010010010001b;10110101110000001111101111001111b;11101001101101011101101110100101b;
     00111001010101101100001001011011b;01011001111100010001000111110001b;10010010001111111000001010100100b;10101011000111000101111011010101b;
     11011000000001111010101010011000b;00010010100000110101101100000001b;00100100001100011000010110111110b;01010101000011000111110111000011b;
@@ -39,46 +40,45 @@
 
 / Initial Hash Value
 / 5.3.2 SHA-224
-/ First 32 bits of the fractional parts of the square roots of second 8 prime numbers
-/ @example - (raze .bits.byteToBits@)@'(0xc1059ed8;0x367cd507;0x3070dd17;0xf70e5939;0xffc00b31;0x68581511;0x64f98fa7;0xbefa4fa4)
+/ @example - (raze .codec.byteToBin@)@'(0xc1059ed8;0x367cd507;0x3070dd17;0xf70e5939;0xffc00b31;0x68581511;0x64f98fa7;0xbefa4fa4)
 .sha224.H:(
     11000001000001011001111011011000b;00110110011111001101010100000111b;00110000011100001101110100010111b;11110111000011100101100100111001b;
     11111111110000000000101100110001b;01101000010110000001010100010001b;01100100111110011000111110100111b;10111110111110100100111110100100b);
 / 5.3.3 SHA-256
 / First 32 bits of the fractional parts of the square roots of first 8 prime numbers
-/ @example - .bits.numToBits32 each(2 xexp 32)*mod[;1]sqrt .maths.primes 19
+/ @example - flip .codec.decToBin32(2 xexp 32)*mod[;1]sqrt .maths.primes 19
 .sha256.H:(
     01101010000010011110011001100111b;10111011011001111010111010000101b;00111100011011101111001101110010b;10100101010011111111010100111010b;
     01010001000011100101001001111111b;10011011000001010110100010001100b;00011111100000111101100110101011b;01011011111000001100110100011001b);
 
 // NOTE: No performance benefit converting to an accumulator
-.sha2.hash:{[ns;J;x]
-    bits:.sha2.preprocess x;
+.sha2.32bit.hash:{[ns;J;x]
+    bits:.sha2.32bit.preprocess x;
     / 5.2 Parsing the Message
-    blocks:.sha2.blockSize cut bits;
+    blocks:.sha2.32bit.blockSize cut bits;
     H:ns`H;
     / Process each block
     j:0;
     do[count blocks;
         / Message schedule
-        W,:(.sha2.messageSize-count W:.sha2.wordSize cut blocks j)#enlist .sha2.wordSize#0b;
+        W,:(count[.sha2.32bit.K]-count W:.sha2.32bit.wordSize cut blocks j)#enlist .sha2.32bit.wordSize#0b;
         / Extend the first 16 words into the remaining words
         do[count[W]-i:16;
-            W[i]:.sha2.addMod32(W i-16;.sha2.sigma0 W i-15;W i-7;.sha2.sigma1 W i-2);
+            W[i]:.sha2.32bit.addMod32(W i-16;.sha2.32bit.sigma0 W i-15;W i-7;.sha2.32bit.sigma1 W i-2);
             i+:1];
         / Compression loop
         (a;b;c;d;e;f;g;h;i):H,0;
-        do[.sha2.messageSize;
-            T1:.sha2.addMod32(h;.sha2.Sigma1 e;.sha.Ch[e;f;g];.sha2.K i;W i);
-            T2:.sha2.addMod32(.sha2.Sigma0 a;.sha.Maj[a;b;c]);
-            (h;g;f;e;d;c;b;a):(g;f;e;.sha2.addMod32(d;T1);c;b;a;.sha2.addMod32(T1;T2));
+        do[count .sha2.32bit.K;
+            T1:.sha2.32bit.addMod32(h;.sha2.32bit.Sigma1 e;.sha.Ch[e;f;g];.sha2.32bit.K i;W i);
+            T2:.sha2.32bit.addMod32(.sha2.32bit.Sigma0 a;.sha.Maj[a;b;c]);
+            (h;g;f;e;d;c;b;a):(g;f;e;.sha2.32bit.addMod32(d;T1);c;b;a;.sha2.32bit.addMod32(T1;T2));
             i+:1];
         / Update hash values
-        H:.sha2.addMod32 each flip((a;b;c;d;e;f;g;h);H);
+        H:.sha2.32bit.addMod32 each flip((a;b;c;d;e;f;g;h);H);
         j+:1];
     / Concatenation of the hash values
-    raze .bits.numToHex .bits.bitsToNum each J#H
+    raze flip .codec.decToHex .codec.binToDec each J#H
     };
 
-.Q.sha256:.sha256.sha256:.sha2.hash[`.sha256;8];
-.Q.sha224:.sha224.sha224:.sha2.hash[`.sha224;7];
+.Q.sha256:.sha256.sha256:.sha2.32bit.hash[`.sha256;8];
+.Q.sha224:.sha224.sha224:.sha2.32bit.hash[`.sha224;7];
