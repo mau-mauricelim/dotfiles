@@ -36,6 +36,10 @@ main() {
         echo "🔗 Symlinking q.q to $Q_REPO" &&\
         ln -sf "$HOME/$Q_REPO/q.q" "$LIN_Q_HOME/q.q"
 
+    [ -f "$HOME/$Q_REPO/lib/rlwrap/rlwrap_completion" ] && broken_symlink "$LIN_Q_HOME/rlwrap_completion" &&\
+        echo "🔗 Symlinking rlwrap_completion to $Q_REPO" &&\
+        ln -sf "$HOME/$Q_REPO/lib/rlwrap/rlwrap_completion" "$LIN_Q_HOME/rlwrap_completion"
+
     [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
 
     local q_ver_installed
@@ -131,7 +135,11 @@ run_q() {
     export PATH
     # shellcheck disable=SC2124
     QCMD="q ${@:2}"
-    if command -v rlwrap >/dev/null; then QCMD="rlwrap -r "$QCMD; fi
+    if command -v rlwrap >/dev/null; then
+        RLWRAP="rlwrap -r";
+        if [ -f "$LIN_Q_HOME/rlwrap_completion" ]; then RLWRAP+=" -f $LIN_Q_HOME/rlwrap_completion"; fi
+        QCMD="$RLWRAP $QCMD"
+    fi
     eval "$QCMD"
 }
 
