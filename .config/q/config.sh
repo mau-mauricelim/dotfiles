@@ -23,6 +23,7 @@ main() {
     LIN_OS=l$BIT
     local GREP=grep
     command -v rg >/dev/null && local GREP=rg
+    local Q_REPO=qoolbox
 
     # Check if WSL
     if isWsl; then wsl_kdb_setup; fi
@@ -30,10 +31,10 @@ main() {
     [ -d "$LIN_Q_HOME" ] &&\
         export LIN_Q_HOME || exit
 
-    [ ! -d "$HOME/qoolbox" ] && echo "💡 Clone qoolbox (cool q toolbox) to home directory"
-    [ -d "$HOME/qoolbox" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
-        echo "🔗 Symlinking q.q to qoolbox" &&\
-        ln -sf "$HOME/qoolbox/q.q" "$LIN_Q_HOME/q.q"
+    [ ! -d "$HOME/$Q_REPO" ] && echo "💡 Clone $Q_REPO (cool q toolbox) to home directory"
+    [ -d "$HOME/$Q_REPO" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
+        echo "🔗 Symlinking q.q to $Q_REPO" &&\
+        ln -sf "$HOME/$Q_REPO/q.q" "$LIN_Q_HOME/q.q"
 
     [ -f "$LIN_Q_INIT" ] && export QINIT="$LIN_Q_INIT"
 
