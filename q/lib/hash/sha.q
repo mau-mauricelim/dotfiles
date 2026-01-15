@@ -5,7 +5,8 @@
 // INFO: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 
 / 3.2 Operations on Words
-.sha.addMod2w:{.codec.decToBinX[x]mod[;2 xexp x].codec.binToDec sum y};
+/ Handles integer overflow
+.sha.addMod2w:{.codec.decToBinX[x].codec.byteToDec reverse neg[8-x div 8]_-8#-8!.codec.binToDec sum y};
 
 / 4.1 Functions
 .sha.Ch:{.q.xor[x&y;z&not x]};

@@ -12,11 +12,12 @@
 / Variable-length
 / Based on decimal type
 .codec.decToBin:0b vs;
+// WARN: Works slightly different for negative numbers
 / Based on lowest number of bits required
 .codec.decToBinB2:1=2 vs;
-/ Fixed-length
+/ Fixed-length - handles negative numbers
 .codec.decToBin64:.codec.decToBin`long$;
-.codec.decToBinX:{$[x<c:count b:.codec.decToBinB2 floor y;'string[c]," bits required";((x-c)#0b),b]};
+.codec.decToBinX:{$[x<c:count b:.codec.decToBinB2 floor y;'string[c]," bits required";((x-c)#y<0),b]};
 .codec.decToBin32:{.codec.decToBinX[32]x};
 .codec.decToBin16:{.codec.decToBinX[16]x};
 
@@ -48,6 +49,7 @@
 .codec.hexToBin64:{.codec.decToBin64 .codec.hexToDec x};
 .codec.hexToBin32:{.codec.decToBin32 .codec.hexToDec x};
 .codec.hexToBin16:{.codec.decToBin16 .codec.hexToDec x};
+.codec.hexToBinX:{.codec.decToBinX[x].codec.hexToDec y};
 
 // Binary to/from Byte (Hexadecimal) &
 // Binary to/from Text

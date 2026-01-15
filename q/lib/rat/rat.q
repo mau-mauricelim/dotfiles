@@ -5,7 +5,7 @@
 // INFO: https://github.com/openssh/openssh-portable/blob/master/sshkey.c
 / Draw an ASCII-Art representing the fingerprint
 / @param x - base64 encoded string (fingerprint)
-/ @example - .rat.rat"W+IHldo11bZivgTiGw3cdGQPpR81TpRd7DdrRW3Ub20"
+/ @example - .rat.rat"yqx3EES2ZTrsDOIpsv7GlgcwDOmBGERuHGLAc+oijrg"
 rat:.rat.rat:{
     byte:.Q.atobp x;
     binary:(reverse 2 cut vs[0b]@)@'byte;

@@ -15,7 +15,7 @@
 .Q.atobp:{
     / Pad to length of multiple 4
     x:"="^.q.roundm[4;count x]$x:(x?"=")#x;
-    `byte$(neg sum"="=x)_raze 256 vs'64 sv'0N 4#.Q.b6?x};
+    `byte$(neg sum"="=x)_raze flip 256 vs 64 sv'0N 4#.Q.b6?x};
 
 /######
 /# .q #

@@ -1,6 +1,8 @@
 action | minver | code                                                                                                     | repeat | ms | bytes | comment
 before |        | .lib.require`hash                                                                                        |        |    |       | Initialize library
 before |        | .test.text:"Lorem Ipsum is simply dummy text of the printing and typesetting industry"                   |        |    |       | Setup test variables
+true   |        | 0x89333a2e9bfa0464c32a8934ae3e2a91~md5 floor .Q.sha512 .test.text                                        |        |    |       |
+true   |        | 0xfc9f186867c7731633e99fa99bcb4070~md5 floor .Q.sha384 .test.text                                        |        |    |       |
 true   |        | (~). floor each("098fc40c1bd1142a0adc3613e087e5d31c0e890d83f3501558e3ff3c4bea50d4";.Q.sha256 .test.text) |        |    |       |
 true   |        | (~). floor each("4327af160278b28ef9f0398e5a1468ff4f6d1b1a4485034ca4dc3535";.Q.sha224 .test.text)         |        |    |       |
 after  |        | delete from`.test                                                                                        |        |    |       | Cleanup .test namespace
