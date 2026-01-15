@@ -10,6 +10,7 @@ q
 q <version>
 q 4.0
 q 4.1
+q x
 :comment
 
 :: Script starts here
@@ -25,8 +26,9 @@ IF "%~1"=="" (
     goto :run_q
 )
 
-:: First argument is a version number
-echo %1| findstr /r "^[0-9]\.[0-9]$" >nul
+:: First argument is x OR a version number
+:: findstr treats space-separated regexes as OR
+echo %1| findstr /r "^x$ ^[0-9]\.[0-9]$" >nul
 IF %errorlevel%==0 (
     :: Check if the q version exists
     IF exist "%q_home%\%1" (
