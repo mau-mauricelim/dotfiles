@@ -3,10 +3,11 @@
 /#########################
 
 // INFO: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
+// INFO: https://www.rfc-editor.org/rfc/rfc6234
 
 / 3.2 Operations on Words
 / Handles integer overflow
-.sha.addMod2w:{.codec.decToBinX[x].codec.byteToDec reverse neg[8-x div 8]_-8#-8!.codec.binToDec sum y};
+.sha.addMod2w:{[bit;binary] .codec.decToBinX[bit].codec.byteToDec reverse neg[8-bit div 8]_-8#-8!.codec.binToDec sum binary};
 
 / 4.1 Functions
 .sha.Ch:{.q.xor[x&y;z&not x]};

@@ -1,7 +1,6 @@
 action | minver | code                        | repeat | ms | bytes | comment
-before |        | .lib.require`util           |        |    |       | Initialize library
-before |        | .util.randSeed[];system"S"  |        |    |       | Set random seed
 before |        | .lib.require`qnix           |        |    |       | Initialize library
+before |        | .util.randSeed[];system"S"  |        |    |       | Set random seed
 before |        | system"d .test"             |        |    |       | Change to .test namespace
 before |        | n2:2*n:.qnix.i.n:rand 10000 |        |    |       | Setup test variables
 run    |        | res:.qnix.head til n2       |        |    |       |

@@ -1,1 +1,7 @@
-filepath | object
+filepath         | object
+../codec/codec.q | .codec.binToDec
+../codec/codec.q | .codec.byteToBin
+../codec/codec.q | .codec.byteToDec
+../codec/codec.q | .codec.decToBinX
+../codec/codec.q | .codec.decToHex
+../dotx/dotx.q   | .q.xor

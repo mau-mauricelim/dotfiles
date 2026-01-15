@@ -35,6 +35,7 @@ empty  |        |                                                               
 run    |        | .os.mkdir dir:("dir1";"dir2 with space";"dir3";"dir4 with space/nested dir1";"dir5")     |        |    |       | Test .os.mkdir
 run    |        | indvDir:raze -1_'{"/"sv -1_"/"vs x}\'[dir]                                               |        |    |       | rmdir works on each individual empty directories
 true   |        | allExist indvDir                                                                         |        |    |       |
+before |        | .lib.require`tree                                                                        |        |    |       | Initialize library
 run    |        | .tree.tree`:.                                                                            |        |    |       |
 run    |        | .os.rmdir indvDir                                                                        |        |    |       | Test .os.rmdir
 true   |        | isEmptyDir[]&notAnyExist indvDir                                                         |        |    |       |

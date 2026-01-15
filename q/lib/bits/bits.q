@@ -2,6 +2,8 @@
 /# Bitwise operation #
 /#####################
 
+.lib.require`codec
+
 / Bits right shift
 / @example - .bits.bitsRightShift[1;10100b]
 / bitsRightShift:.bits.bitsRightShift:xprev; / Slower

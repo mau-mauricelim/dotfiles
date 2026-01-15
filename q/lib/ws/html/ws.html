@@ -1,0 +1,63 @@
+<!-- INFO: https://github.com/KxSystems/cookbook/blob/master/ws.htm -->
+<html>
+    <body>
+        <title>websocket</title>
+
+        <form action="">
+            <input type="text" id="websocket" placeholder="ws://localhost:5000" value="ws://localhost:5000"/>
+            <input type="button" value="Connect" onclick="connect()"/>
+            <input type="button" value="Disconnect" onclick="ws.close()"/>
+            <br><br>
+            Status: <input type="button" id="state" value="Disconnected" style="color:red;"/>
+            <br><br>
+            Single-line query: <input type="submit" value="Send" onclick="return slSend();"/>
+            <br>
+            q) <input type="text" id="slInput" size="205"/>
+        </form>
+        Multi-line query: <input type="submit" value="Send" onclick="return mlSend();"/>
+        <br>
+        <textarea id="mlInput" rows="10" cols="200" placeholder="Input"></textarea>
+        <br><br>
+        Result:
+        <input type="button" value="Clear result" onclick="ws.clear()"/>
+        <br>
+        <textarea id="output" rows="25" cols="200" placeholder="Output" readonly></textarea>
+
+        <script>
+        var ws;
+        var output = document.getElementById("output");
+        var state = document.getElementById("state");
+        function connect() {
+            if ("WebSocket" in window) {
+                var l = window.location;
+                ws = new WebSocket( document.getElementById("websocket").value );
+                state.value = "Connecting ..."; state.style = "color:blue;";
+                ws.onopen = function (e) { state.value = "Connected"; state.style = "color:green;"; };
+                ws.onclose = function (e) { state.value = "Disconnected"; state.style = "color:red;"; };
+                ws.onmessage = function (e) { output.value += e.data; };
+                ws.onerror = function (e) { output.value += e.data; };
+            } else alert("WebSockets not supported on your browser.");
+        }
+        function slSend() {
+            query = document.getElementById("slInput").value;
+            if (query) { send(query); };
+            return false;
+        }
+        function mlSend() {
+            query = document.getElementById("mlInput").value;
+            if (query) { send(query); };
+            return false;
+        }
+        function send(query) {
+            ws.send(query);
+            output.value += "q)" + query + "\n";
+            return false;
+        }
+        function clear() {
+            output.value = "";
+            return false;
+        }
+        </script>
+
+    </body>
+</html>

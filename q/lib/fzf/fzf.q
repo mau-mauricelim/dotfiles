@@ -2,6 +2,15 @@
 /# Fuzzy finder #
 /################
 
+/ Recursive namespace listing
+/ @param ns - sym (list)
+/ @return - sym list
+.fzf.recurseNs:{[ns]
+    obj:raze .util.recurseDir each(),ns;
+    obj@:where{@[.util.exists;x;0b]}each obj;
+    obj@:where -11h=type each obj;
+    obj where{@[{get x;1b};x;0b]}each obj};
+
 / Fuzzy search namespace objects
 / Smart-case: if pattern is all lower case, search is case insensitive
 / @global `.fzf.cache - dict cache
@@ -11,10 +20,7 @@
 / @return - sym list
 fzf:.fzf.fzfObject:{[pat]
     if[(any null pat)|not .util.exists`.fzf.cache;
-        obj:raze .util.recurseDir each``.;
-        obj@:where{@[.util.exists;x;0b]}each obj;
-        obj@:where -11h=type each obj;
-        obj@:where{@[{get x;1b};x;0b]}each obj;
+        obj:.fzf.recurseNs``.;
         .fzf.cache:obj!string .Q.id each obj];
     pat:string .Q.id each .util.exceptNulls(),pat;
     allLower:all raze[pat]in .Q.a;
