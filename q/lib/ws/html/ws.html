@@ -1,63 +1,938 @@
-<!-- INFO: https://github.com/KxSystems/cookbook/blob/master/ws.htm -->
+<!--
+Vibe Code with Claude Sonnect 4.5 & ChatGPT
+TODO:
+- true multiline q input preservation
+- q syntax highlighting
+- bracket matching
+- history ↑ ↓
+- Ctrl+L clear console (like real q)
+- reconnect / heartbeat handling
+- error handling
+-->
+
+<!DOCTYPE html>
 <html>
-    <body>
-        <title>websocket</title>
+<head>
+<title>kdb+ WebSocket REPL</title>
+<style>
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
-        <form action="">
-            <input type="text" id="websocket" placeholder="ws://localhost:5000" value="ws://localhost:5000"/>
-            <input type="button" value="Connect" onclick="connect()"/>
-            <input type="button" value="Disconnect" onclick="ws.close()"/>
-            <br><br>
-            Status: <input type="button" id="state" value="Disconnected" style="color:red;"/>
-            <br><br>
-            Single-line query: <input type="submit" value="Send" onclick="return slSend();"/>
-            <br>
-            q) <input type="text" id="slInput" size="205"/>
-        </form>
-        Multi-line query: <input type="submit" value="Send" onclick="return mlSend();"/>
-        <br>
-        <textarea id="mlInput" rows="10" cols="200" placeholder="Input"></textarea>
-        <br><br>
-        Result:
-        <input type="button" value="Clear result" onclick="ws.clear()"/>
-        <br>
-        <textarea id="output" rows="25" cols="200" placeholder="Output" readonly></textarea>
+body {
+  font-family: 'JetBrains Mono', monospace;
+  height: 100vh;
+  display: flex;
+  flex-direction: column;
+  transition: background-color 0.2s, color 0.2s;
+}
 
-        <script>
-        var ws;
-        var output = document.getElementById("output");
-        var state = document.getElementById("state");
-        function connect() {
-            if ("WebSocket" in window) {
-                var l = window.location;
-                ws = new WebSocket( document.getElementById("websocket").value );
-                state.value = "Connecting ..."; state.style = "color:blue;";
-                ws.onopen = function (e) { state.value = "Connected"; state.style = "color:green;"; };
-                ws.onclose = function (e) { state.value = "Disconnected"; state.style = "color:red;"; };
-                ws.onmessage = function (e) { output.value += e.data; };
-                ws.onerror = function (e) { output.value += e.data; };
-            } else alert("WebSockets not supported on your browser.");
-        }
-        function slSend() {
-            query = document.getElementById("slInput").value;
-            if (query) { send(query); };
-            return false;
-        }
-        function mlSend() {
-            query = document.getElementById("mlInput").value;
-            if (query) { send(query); };
-            return false;
-        }
-        function send(query) {
-            ws.send(query);
-            output.value += "q)" + query + "\n";
-            return false;
-        }
-        function clear() {
-            output.value = "";
-            return false;
-        }
-        </script>
+body.dark {
+  background: #111827;
+  color: #f3f4f6;
+}
 
-    </body>
+body.light {
+  background: #ffffff;
+  color: #1f2937;
+}
+
+.header {
+  border-bottom: 1px solid;
+  padding: 12px 16px;
+  display: flex;
+  align-items: center;
+  gap: 16px;
+}
+
+.dark .header {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.light .header {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.header h1 {
+  font-size: 18px;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+}
+
+.terminal-icon {
+  width: 20px;
+  height: 20px;
+  color: #60a5fa;
+}
+
+.header-controls {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.server-controls {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.hidden {
+  display: none;
+}
+
+.status.clickable {
+  cursor: pointer;
+}
+
+.header-right {
+  margin-left: auto;
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.status {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+}
+
+.status-icon {
+  width: 16px;
+  height: 16px;
+}
+
+.status.connected { color: #34d399; }
+.status.disconnected { color: #ef4444; }
+
+.toggle {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 14px;
+  cursor: pointer;
+}
+
+.dark .toggle { color: #d1d5db; }
+.light .toggle { color: #4b5563; }
+
+.toggle input {
+  width: 16px;
+  height: 16px;
+  cursor: pointer;
+}
+
+.btn {
+  border: none;
+  padding: 6px 16px;
+  border-radius: 4px;
+  font-size: 14px;
+  font-weight: 500;
+  cursor: pointer;
+  transition: background-color 0.2s;
+}
+
+.btn-primary {
+  background: #3b82f6;
+  color: white;
+}
+
+.btn-primary:hover {
+  background: #2563eb;
+}
+
+.btn-secondary {
+  color: white;
+}
+
+.dark .btn-secondary {
+  background: #374151;
+}
+
+.light .btn-secondary {
+  background: #e5e7eb;
+  color: #1f2937;
+}
+
+.dark .btn-secondary:hover {
+  background: #4b5563;
+}
+
+.light .btn-secondary:hover {
+  background: #d1d5db;
+}
+
+.btn:disabled {
+  opacity: 0.5;
+  cursor: not-allowed;
+}
+
+.btn-green {
+  background: #10b981;
+  color: white;
+}
+
+.btn-green:hover {
+  background: #059669;
+}
+
+.btn-red {
+  background: #ef4444;
+  color: white;
+}
+
+.btn-red:hover {
+  background: #dc2626;
+}
+
+.server-input {
+  padding: 6px 12px;
+  border: 1px solid;
+  border-radius: 4px;
+  font-size: 14px;
+  width: 200px;
+}
+
+.dark .server-input {
+  background: #111827;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+
+.light .server-input {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+
+.server-input:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.main-container {
+  flex: 1;
+  display: flex;
+  overflow: hidden;
+}
+
+.content-area {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  overflow: hidden;
+}
+
+.input-section {
+  border-bottom: 1px solid;
+  padding: 16px;
+}
+
+.dark .input-section {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.light .input-section {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.input-row {
+  display: flex;
+  gap: 8px;
+  align-items: start;
+}
+
+.input-prompt {
+  color: #34d399;
+  font-family: 'JetBrains Mono', monospace;
+  margin-top: 8px;
+  font-size: 14px;
+}
+
+.input-field {
+  flex: 1;
+  border: 1px solid;
+  border-radius: 4px;
+  padding: 8px 12px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  resize: vertical;
+}
+
+.dark .input-field {
+  background: #111827;
+  border-color: #374151;
+  color: #f3f4f6;
+}
+
+.light .input-field {
+  background: #ffffff;
+  border-color: #d1d5db;
+  color: #1f2937;
+}
+
+.input-field:focus {
+  outline: none;
+  border-color: #3b82f6;
+}
+
+.input-field:disabled {
+  opacity: 0.5;
+}
+
+.live-output-container {
+  margin-top: 12px;
+  padding: 12px;
+  border: 1px solid;
+  border-radius: 4px;
+  display: none;
+}
+
+.dark .live-output-container {
+  background: #111827;
+  border-color: #374151;
+}
+
+.light .live-output-container {
+  background: #f3f4f6;
+  border-color: #d1d5db;
+}
+
+.live-output-container.show {
+  display: block;
+}
+
+.live-output-label {
+  font-size: 12px;
+  margin-bottom: 4px;
+}
+
+.dark .live-output-label { color: #6b7280; }
+.light .live-output-label { color: #6b7280; }
+
+.live-output {
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+  color: #60a5fa;
+  white-space: pre-wrap;
+}
+
+.input-help {
+  margin-top: 8px;
+  font-size: 12px;
+}
+
+.dark .input-help { color: #6b7280; }
+.light .input-help { color: #6b7280; }
+
+.input-help code {
+  padding: 2px 6px;
+  border-radius: 3px;
+}
+
+.dark .input-help code {
+  background: #111827;
+  color: #9ca3af;
+}
+
+.light .input-help code {
+  background: #f3f4f6;
+  color: #6b7280;
+}
+
+.output-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dark .output-header {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.light .output-header {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.output-area {
+  flex: 1;
+  overflow-y: auto;
+  padding: 16px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 14px;
+}
+
+.output-line {
+  margin-bottom: 8px;
+}
+
+.output-input {
+  display: flex;
+  gap: 8px;
+}
+
+.output-prompt {
+  color: #34d399;
+}
+
+.output-text {
+  white-space: pre-wrap;
+}
+
+.dark .output-text { color: #f3f4f6; }
+.light .output-text { color: #1f2937; }
+
+.output-result {
+  padding-left: 24px;
+  color: #60a5fa;
+  white-space: pre-wrap;
+}
+
+.output-info {
+  padding-left: 24px;
+  font-size: 12px;
+  font-style: italic;
+}
+
+.dark .output-info { color: #6b7280; }
+.light .output-info { color: #9ca3af; }
+
+.sidebar {
+  width: 350px;
+  border-left: 1px solid;
+  display: flex;
+  flex-direction: column;
+  transition: margin-right 0.3s;
+}
+
+.dark .sidebar {
+  background: #1f2937;
+  border-color: #374151;
+}
+
+.light .sidebar {
+  background: #f9fafb;
+  border-color: #e5e7eb;
+}
+
+.sidebar.collapsed {
+  margin-right: -350px;
+}
+
+.sidebar-header {
+  padding: 12px 16px;
+  border-bottom: 1px solid;
+  font-weight: 600;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+}
+
+.dark .sidebar-header {
+  border-color: #374151;
+}
+
+.light .sidebar-header {
+  border-color: #e5e7eb;
+}
+
+.sidebar-content {
+  flex: 1;
+  overflow-y: auto;
+  padding: 12px;
+  font-size: 13px;
+}
+
+.log-entry {
+  margin-bottom: 8px;
+  padding: 8px;
+  border-radius: 4px;
+  font-family: 'JetBrains Mono', monospace;
+  font-size: 12px;
+}
+
+.dark .log-entry {
+  background: #111827;
+}
+
+.light .log-entry {
+  background: #f3f4f6;
+}
+
+.log-timestamp {
+  font-size: 11px;
+  margin-bottom: 4px;
+}
+
+.dark .log-timestamp { color: #6b7280; }
+.light .log-timestamp { color: #9ca3af; }
+
+.log-message.error { color: #ef4444; }
+.log-message.success { color: #34d399; }
+.dark .log-message.info { color: #d1d5db; }
+.light .log-message.info { color: #4b5563; }
+
+.icon-btn {
+  background: transparent;
+  border: none;
+  padding: 8px;
+  cursor: pointer;
+  border-radius: 4px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+.dark .icon-btn {
+  color: #d1d5db;
+}
+
+.light .icon-btn {
+  color: #4b5563;
+}
+
+.dark .icon-btn:hover {
+  background: #374151;
+}
+
+.light .icon-btn:hover {
+  background: #e5e7eb;
+}
+
+.icon-btn svg {
+  width: 18px;
+  height: 18px;
+}
+
+.theme-switch {
+  position: relative;
+  width: 52px;
+  height: 26px;
+}
+
+.theme-switch input {
+  display: none;
+}
+
+.slider {
+  position: absolute;
+  inset: 0;
+  background: #0f172a;
+  border-radius: 999px;
+  transition: 0.3s;
+}
+
+.slider::before {
+  content: "🌙";
+  position: absolute;
+  height: 22px;
+  width: 22px;
+  left: 2px;
+  top: 2px;
+  background: #38bdf8;
+  border-radius: 50%;
+  display: grid;
+  place-items: center;
+  transition: 0.3s;
+}
+
+.theme-switch input:checked + .slider {
+  background: #fde68a;
+}
+
+.theme-switch input:checked + .slider::before {
+  transform: translateX(26px);
+  content: "☀️";
+  background: #facc15;
+}
+</style>
+</head>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+<body class="dark">
+
+<div class="header">
+  <h1>
+    <svg class="terminal-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+      <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 9l3 3-3 3m5 0h3M5 20h14a2 2 0 002-2V6a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+    </svg>
+    kdb+/q REPL
+  </h1>
+
+  <div class="header-controls">
+    <div class="status disconnected clickable" id="status" onclick="toggleServerControls()">
+      <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <circle cx="12" cy="12" r="5"/>
+      </svg>
+      <span id="statusText">Disconnected</span>
+    </div>
+
+    <div id="serverControls" class="server-controls">
+      <input type="text" class="server-input" id="serverUrl" value="ws://localhost:5000">
+      <button class="btn btn-green" id="connectBtn" onclick="toggleConnection()">Connect</button>
+    </div>
+  </div>
+
+  <div class="header-right">
+    <label class="toggle">
+      <input type="checkbox" id="liveMode" onchange="toggleLiveMode()">
+      <span>Live</span>
+    </label>
+
+    <label class="toggle">
+      <input type="checkbox" id="showInfo" onchange="toggleShowInfo()">
+      <span>Info</span>
+    </label>
+
+    <label class="toggle">
+      <input type="checkbox" id="multilineMode" onchange="toggleMultilineMode()">
+      <span>Multiline</span>
+    </label>
+
+    <label class="theme-switch">
+      <input type="checkbox" id="lightMode" onchange="toggleLightMode()">
+      <span class="slider"></span>
+    </label>
+
+    <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">
+      <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+        <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z M9 4v16"/>
+      </svg>
+    </button>
+  </div>
+</div>
+
+<div class="main-container">
+  <div class="content-area">
+    <div class="input-section">
+      <div class="input-row">
+        <span class="input-prompt">q)</span>
+        <textarea class="input-field" id="input" rows="1" placeholder="Enter q expression (press Enter to execute)"
+                  oninput="handleInput()" onkeydown="handleKeyDown(event)" disabled></textarea>
+        <button class="btn btn-primary" id="runBtn" onclick="executeCode()" disabled>Run</button>
+        <button class="btn btn-secondary" onclick="clearInput()">Clear</button>
+      </div>
+
+      <div class="live-output-container" id="liveContainer">
+        <div class="live-output-label">Live Output:</div>
+        <div class="live-output" id="liveOutput">Evaluating...</div>
+      </div>
+
+      <div class="input-help" id="helpText">
+        Enter server URL and click Connect
+      </div>
+    </div>
+
+    <div class="output-header">
+      <span>Console</span>
+      <button class="icon-btn" onclick="clearOutput()" title="Clear output">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7 m5 4v6m4-6v6 M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3 M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+    <div class="output-area" id="output"></div>
+  </div>
+
+  <div class="sidebar" id="sidebar">
+    <div class="sidebar-header">
+      Connection Logs
+      <button class="icon-btn" onclick="clearLogs()">
+        <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+          <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
+        </svg>
+      </button>
+    </div>
+    <div class="sidebar-content" id="logs"></div>
+  </div>
+</div>
+
+<script>
+var ws;
+var outputEl = document.getElementById("output");
+var inputEl = document.getElementById("input");
+var liveOutputEl = document.getElementById("liveOutput");
+var liveContainer = document.getElementById("liveContainer");
+var statusEl = document.getElementById("status");
+var statusText = document.getElementById("statusText");
+var connectBtn = document.getElementById("connectBtn");
+var runBtn = document.getElementById("runBtn");
+var serverUrlInput = document.getElementById("serverUrl");
+var helpText = document.getElementById("helpText");
+var logsEl = document.getElementById("logs");
+var sidebar = document.getElementById("sidebar");
+var isLiveMode = false;
+var showInfo = false;
+var multilineMode = false;
+var debounceTimer = null;
+var isConnected = false;
+var lastSendTime = null;
+
+function toggleSidebar() {
+  sidebar.classList.toggle("collapsed");
+}
+
+function toggleLightMode() {
+  var isLight = document.getElementById("lightMode").checked;
+  document.body.className = isLight ? "light" : "dark";
+}
+
+function toggleMultilineMode() {
+  multilineMode = document.getElementById("multilineMode").checked;
+  if (multilineMode) {
+    inputEl.rows = 5;
+    helpText.innerHTML = 'Multiline mode enabled • Press Ctrl+Enter to execute';
+  } else {
+    inputEl.rows = 1;
+    updateHelpText();
+  }
+}
+
+function toggleShowInfo() {
+  showInfo = document.getElementById("showInfo").checked;
+}
+
+function addLog(type, message) {
+  var entry = document.createElement("div");
+  entry.className = "log-entry";
+
+  var timestamp = new Date().toISOString().replace('T', 'D').replace('Z', '');
+
+  entry.innerHTML =
+    '<div class="log-timestamp">' + timestamp + '</div>' +
+    '<div class="log-message ' + type + '">' + escapeHtml(message) + '</div>';
+
+  logsEl.appendChild(entry);
+  logsEl.scrollTop = logsEl.scrollHeight;
+}
+
+function clearLogs() {
+  logsEl.innerHTML = '';
+}
+
+function toggleConnection() {
+  if (isConnected) {
+    disconnect();
+  } else {
+    connect();
+  }
+}
+
+function connect() {
+  if ("WebSocket" in window) {
+    var wsUrl = serverUrlInput.value;
+
+    addLog("info", "Connecting to " + wsUrl + "...");
+    ws = new WebSocket(wsUrl);
+
+    ws.onopen = function(e) {
+      addLog("success", "Connected to kdb+ server at " + wsUrl);
+      updateStatus(true);
+    };
+
+    ws.onclose = function(e) {
+      addLog("info", "Disconnected from server");
+      updateStatus(false);
+    };
+
+    ws.onmessage = function(e) {
+      var result = e.data;
+      var roundtrip = lastSendTime ? Date.now() - lastSendTime : null;
+
+      if (isLiveMode && document.activeElement === inputEl && inputEl.value.replace(/\s+$/, "")) {
+        liveOutputEl.textContent = result;
+      } else {
+        addOutput("result", result, roundtrip);
+      }
+      lastSendTime = null;
+    };
+
+    ws.onerror = function(e) {
+      addLog("error", "WebSocket error - check if kdb+ server is running");
+      updateStatus(false);
+    };
+  } else {
+    alert("WebSockets not supported on your browser.");
+  }
+}
+
+function disconnect() {
+  if (ws) {
+    ws.close();
+  }
+}
+
+function updateStatus(connected) {
+  isConnected = connected;
+
+  // const serverControls = document.getElementById("serverControls");
+
+  if (connected) {
+    statusText.textContent = "Connected";
+    statusEl.className = "status connected clickable";
+    connectBtn.textContent = "Disconnect";
+    connectBtn.classList.replace("btn-green", "btn-red");
+
+    inputEl.disabled = false;
+    runBtn.disabled = false;
+
+    // TODO: Text color should be greyed out
+    serverUrl.disabled = true;
+    // serverControls.classList.add("hidden");
+  } else {
+    statusText.textContent = "Disconnected";
+    statusEl.className = "status disconnected clickable";
+    connectBtn.textContent = "Connect";
+    connectBtn.classList.replace("btn-red", "btn-green");
+
+    inputEl.disabled = true;
+    runBtn.disabled = true;
+
+    serverUrl.disabled = false;
+    // serverControls.classList.remove("hidden");
+  }
+}
+
+function updateHelpText() {
+  if (!isConnected) return;
+
+  if (isLiveMode) {
+    helpText.textContent = "Live mode enabled • Code evaluates as you type";
+  } else if (multilineMode) {
+    helpText.innerHTML = 'Multiline mode enabled • Press Ctrl+Enter to execute';
+  } else {
+    helpText.innerHTML = 'Press Enter to execute • Examples: <code>2+2</code>, <code>til 10</code>, <code>1 2 3 + 4 5 6</code>';
+  }
+}
+
+function addOutput(type, content, roundtrip) {
+  var line = document.createElement("div");
+  line.className = "output-line";
+
+  if (type === "input") {
+    line.innerHTML = '<div class="output-input"><span class="output-prompt">q)</span><span class="output-text">' + escapeHtml(content) + '</span></div>';
+  } else if (type === "result") {
+    line.innerHTML = '<div class="output-result">' + escapeHtml(content) + '</div>';
+
+    if (showInfo && roundtrip !== null) {
+      var timestamp = new Date().toISOString().replace('T', 'D').replace('Z', '');
+      var roundtripNs = roundtrip * 1000000;
+      var info = document.createElement("div");
+      info.className = "output-info";
+      info.textContent = "(" + timestamp + ", roundtrip: " + roundtrip + "ms / " + roundtripNs + "ns)";
+      line.appendChild(info);
+    }
+  }
+
+  outputEl.appendChild(line);
+  outputEl.scrollTop = outputEl.scrollHeight;
+}
+
+function clearInput() {
+  inputEl.value = "";
+  liveOutputEl.textContent = "";
+}
+
+function clearOutput() {
+  outputEl.innerHTML = '';
+}
+
+function escapeHtml(text) {
+  var div = document.createElement('div');
+  div.textContent = text;
+  return div.innerHTML;
+}
+
+function executeCode() {
+  var code = inputEl.value.replace(/\s+$/, "");
+  if (!code) return;
+
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    addLog("error", "Not connected to server");
+    return;
+  }
+
+  addOutput("input", code);
+  lastSendTime = Date.now();
+  ws.send(code);
+  inputEl.value = "";
+  liveOutputEl.textContent = "Evaluating...";
+}
+
+function handleKeyDown(event) {
+  if (multilineMode) {
+    if (event.ctrlKey && event.key === "Enter") {
+      event.preventDefault();
+      executeCode();
+    }
+  } else {
+    if (event.key === "Enter" && !event.shiftKey) {
+      event.preventDefault();
+      executeCode();
+    }
+  }
+  // Ctrl+l clear console
+  if (event.ctrlKey && event.key.toLowerCase() === "l") {
+    event.preventDefault();
+    clearOutput();
+  }
+}
+
+function toggleLiveMode() {
+  isLiveMode = document.getElementById("liveMode").checked;
+  if (isLiveMode && inputEl.value.replace(/\s+$/, "")) {
+    liveContainer.classList.add("show");
+  } else {
+    liveContainer.classList.remove("show");
+  }
+  updateHelpText();
+}
+
+function handleInput() {
+  if (!isLiveMode) return;
+
+  var code = inputEl.value.replace(/\s+$/, "");
+
+  if (!code) {
+    liveContainer.classList.remove("show");
+    return;
+  }
+
+  liveContainer.classList.add("show");
+
+  if (!ws || ws.readyState !== WebSocket.OPEN) {
+    liveOutputEl.textContent = "Not connected";
+    return;
+  }
+
+  clearTimeout(debounceTimer);
+  debounceTimer = setTimeout(function() {
+    lastSendTime = Date.now();
+    ws.send(code);
+  }, 300);
+}
+
+function toggleServerControls() {
+  document.getElementById("serverControls")
+    .classList.toggle("hidden");
+}
+</script>
+
+</body>
 </html>
