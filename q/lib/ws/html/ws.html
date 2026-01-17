@@ -1,13 +1,9 @@
 <!--
 Vibe Code with Claude Sonnect 4.5 & ChatGPT
 TODO:
-- true multiline q input preservation
 - q syntax highlighting
-- bracket matching
-- history ↑ ↓
-- Ctrl+L clear console (like real q)
-- reconnect / heartbeat handling
 - error handling
+- favicon
 -->
 
 <!DOCTYPE html>
@@ -403,6 +399,10 @@ body.light {
   white-space: pre-wrap;
 }
 
+.output-result.error {
+  color: #ef4444;
+}
+
 .output-info {
   padding-left: 24px;
   font-size: 12px;
@@ -665,6 +665,9 @@ body.light {
 
 <script>
 var ws;
+var cmdHistory = [];
+var historyIndex = -1;
+var draftInput = "";
 var outputEl = document.getElementById("output");
 var inputEl = document.getElementById("input");
 var liveOutputEl = document.getElementById("liveOutput");
@@ -780,8 +783,8 @@ function disconnect() {
 
 function updateStatus(connected) {
   isConnected = connected;
-
-  // const serverControls = document.getElementById("serverControls");
+  serverUrl.disabled = connected;
+  serverUrl.style.opacity = connected ? "0.5" : "1";
 
   if (connected) {
     statusText.textContent = "Connected";
@@ -791,10 +794,6 @@ function updateStatus(connected) {
 
     inputEl.disabled = false;
     runBtn.disabled = false;
-
-    // TODO: Text color should be greyed out
-    serverUrl.disabled = true;
-    // serverControls.classList.add("hidden");
   } else {
     statusText.textContent = "Disconnected";
     statusEl.className = "status disconnected clickable";
@@ -803,9 +802,6 @@ function updateStatus(connected) {
 
     inputEl.disabled = true;
     runBtn.disabled = true;
-
-    serverUrl.disabled = false;
-    // serverControls.classList.remove("hidden");
   }
 }
 
@@ -826,9 +822,12 @@ function addOutput(type, content, roundtrip) {
   line.className = "output-line";
 
   if (type === "input") {
-    line.innerHTML = '<div class="output-input"><span class="output-prompt">q)</span><span class="output-text">' + escapeHtml(content) + '</span></div>';
+    line.innerHTML = '<div class="output-input"><span class="output-prompt">q)</span><span class="output-text">' + highlightQ(content) + '</span></div>';
   } else if (type === "result") {
-    line.innerHTML = '<div class="output-result">' + escapeHtml(content) + '</div>';
+    const isError = content.startsWith("'");
+    const cls = isError ? "output-result error" : "output-result";
+
+    line.innerHTML = '<div class="' + cls + '">' + (isError ? escapeHtml(content) : highlightQ(content)) + '</div>';
 
     if (showInfo && roundtrip !== null) {
       var timestamp = new Date().toISOString().replace('T', 'D').replace('Z', '');
@@ -863,6 +862,9 @@ function executeCode() {
   var code = inputEl.value.replace(/\s+$/, "");
   if (!code) return;
 
+  cmdHistory.push(code);
+  historyIndex = cmdHistory.length;
+
   if (!ws || ws.readyState !== WebSocket.OPEN) {
     addLog("error", "Not connected to server");
     return;
@@ -880,17 +882,52 @@ function handleKeyDown(event) {
     if (event.ctrlKey && event.key === "Enter") {
       event.preventDefault();
       executeCode();
+    } else if (event.key === "Tab") {
+      event.preventDefault();
+      const start = inputEl.selectionStart;
+      const end = inputEl.selectionEnd;
+      const value = inputEl.value;
+      inputEl.value = value.slice(0, start) + "  " + value.slice(end);
+      inputEl.selectionStart = inputEl.selectionEnd = start + 2;
     }
   } else {
     if (event.key === "Enter" && !event.shiftKey) {
       event.preventDefault();
       executeCode();
+    } else if (event.key === "ArrowUp") {
+      historyUp(event);
+    } else if (event.key === "ArrowDown") {
+      historyDown(event);
     }
   }
   // Ctrl+l clear console
-  if (event.ctrlKey && event.key.toLowerCase() === "l") {
+  if (event.ctrlKey && event.key === "l") {
     event.preventDefault();
     clearOutput();
+  }
+}
+
+function historyUp(event) {
+  event.preventDefault();
+  // Save latest draft input
+  if (historyIndex === cmdHistory.length) {
+    draftInput = inputEl.value;
+  }
+  if (historyIndex > 0) {
+    historyIndex--;
+    inputEl.value = cmdHistory[historyIndex];
+  }
+}
+
+function historyDown(event) {
+  event.preventDefault();
+  if (historyIndex < cmdHistory.length - 1) {
+    historyIndex++;
+    inputEl.value = cmdHistory[historyIndex];
+  } else {
+    historyIndex = cmdHistory.length;
+    // Restore latest draft input
+    inputEl.value = draftInput;
   }
 }
 
@@ -932,6 +969,26 @@ function toggleServerControls() {
   document.getElementById("serverControls")
     .classList.toggle("hidden");
 }
+
+// TODO: Update these
+function highlightQ(code) {
+  let s = escapeHtml(code);
+  // Strings first (protect content)
+  s = s.replace( /"([^"\\]|\\.)*"/g, '<span style="color:#97ca72">$&</span>');
+  // FIXME: `123 still not working - only ` is correct #4dbdcb and 123 is #d99a5e
+  // Symbols ( `abc, `from, `hello.world )
+  s = s.replace( /`[A-Za-z0-9._]+/g, '<span style="color:#4dbdcb">$&</span>');
+  // Internal namespaces (.z.w .Q.s)
+  s = s.replace( /\.(z|Q)\.[A-Za-z0-9._]+/g, '<span style="color:#ebc275">$&</span>');
+  // General namespaces (.foo.bar.baz)
+  s = s.replace( /\.(?!z\.|Q\.)[A-Za-z][A-Za-z0-9_]*(\.[A-Za-z][A-Za-z0-9_]*)+/g, '<span style="color:#5ab0f6">$&</span>');
+  // Numbers
+  s = s.replace( /\b\d+(\.\d+)?\b/g, '<span style="color:#d99a5e">$&</span>');
+  // Keywords (word-boundary safe)
+  s = s.replace( /\b(select|from|where|by|update|delete|insert|exec|if|do)\b/g, '<span style="color:#ca72e4">$&</span>');
+  return s;
+}
+
 </script>
 
 </body>
