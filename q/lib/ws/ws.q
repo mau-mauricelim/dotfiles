@@ -1,8 +1,6 @@
+/.log.lvl:`DEBUG;
 .z.ws:{
-    .log.info x;
-    neg[.z.w]@[.Q.s value@;x;{"'",x,"\n"}];
-
-    / .log.info -9!x;
-    / .log.info -8!value -9!x;
-    / neg[.z.w] -8!value -9!x;
+    .log.debug x;
+    / neg[.z.w]@[.Q.s value@;x;{"'",x,"\n"}];
+    neg[.z.w] -8!@[.Q.s value@;x;{"'",x,"\n"}];
     };
