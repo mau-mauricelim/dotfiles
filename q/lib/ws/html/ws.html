@@ -2,7 +2,6 @@
 Vibe Code with Claude Sonnect 4.5 & ChatGPT
 TODO:
 - Update the Disconnected, Live, Info symbols ...
-- History search highlight possible? Fuzzy search mode with Ctrl+r toggle?
 -->
 
 <!DOCTYPE html>
@@ -301,6 +300,15 @@ body.light { background: #ffffff; color: #1f2937; }
 .history-item.selected { background: #334155; }
 .light .history-item.selected { background: #e5e7eb; }
 
+.history-hint {
+  font-size: 11px;
+  color: #9ca3af;
+  margin-bottom: 6px;
+  user-select: none;
+}
+
+.fuzzy-match { color: #38bdf8; font-weight: 600; }
+
 .log-entry {
   margin-bottom: 8px;
   padding: 8px;
@@ -337,7 +345,7 @@ body.light { background: #ffffff; color: #1f2937; }
       </h1>
 
       <div class="header-controls">
-        <div class="status disconnected clickable" id="status" onclick="toggleServerControls()">
+        <div class="status disconnected clickable" id="status">
           <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <circle cx="12" cy="12" r="5"/>
           </svg>
@@ -346,32 +354,32 @@ body.light { background: #ffffff; color: #1f2937; }
 
         <div id="serverControls" class="server-controls">
           <input type="text" class="server-input" id="serverUrl" value="ws://localhost:5000">
-          <button class="btn btn-green" id="connectBtn" onclick="toggleConnection()">Connect</button>
+          <button class="btn btn-green" id="connectBtn">Connect</button>
         </div>
       </div>
 
       <div class="header-right">
         <label class="toggle">
-          <input type="checkbox" id="liveMode" onchange="toggleLiveMode()">
+          <input type="checkbox" id="liveMode">
           <span>Live</span>
         </label>
 
         <label class="toggle">
-          <input type="checkbox" id="showInfo" onchange="toggleShowInfo()">
+          <input type="checkbox" id="showInfo">
           <span>Info</span>
         </label>
 
         <label class="toggle">
-          <input type="checkbox" id="multilineMode" onchange="toggleMultilineMode()">
+          <input type="checkbox" id="multilineMode">
           <span>Multi-line</span>
         </label>
 
         <label class="theme-switch">
-          <input type="checkbox" id="lightMode" onchange="toggleLightMode()">
+          <input type="checkbox" id="lightMode">
           <span class="slider"></span>
         </label>
 
-        <button class="icon-btn" onclick="toggleSidebar()" title="Toggle sidebar">
+        <button class="icon-btn" id="toggleSidebarBtn" title="Toggle sidebar">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z M9 4v16"/>
           </svg>
@@ -384,10 +392,9 @@ body.light { background: #ffffff; color: #1f2937; }
         <div class="input-section">
           <div class="input-row">
             <span class="input-prompt">q)</span>
-            <textarea class="input-field" id="input" rows="1" placeholder="Enter q expression (press Enter to execute)"
-              oninput="handleInput()" onkeydown="handleKeyDown(event)" disabled></textarea>
-            <button class="btn btn-primary" id="runBtn" onclick="executeCode()" disabled>Run</button>
-            <button class="btn btn-secondary" onclick="clearInput()">Clear</button>
+            <textarea class="input-field" id="input" rows="1" placeholder="Enter q expression (press Enter to execute)" disabled></textarea>
+            <button class="btn btn-primary" id="runBtn" disabled>Run</button>
+            <button class="btn btn-secondary" id="clearInputBtn">Clear</button>
           </div>
 
           <div class="live-output-container" id="liveContainer">
@@ -402,7 +409,7 @@ body.light { background: #ffffff; color: #1f2937; }
 
         <div class="output-header">
           <span>Console</span>
-          <button class="icon-btn" onclick="clearOutput()" title="Clear output">
+          <button class="icon-btn" id="clearOutputBtn" title="Clear output">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7 m5 4v6m4-6v6 M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3 M4 7h16"/>
             </svg>
@@ -414,7 +421,7 @@ body.light { background: #ffffff; color: #1f2937; }
       <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
           Connection Logs
-          <button class="icon-btn" onclick="clearLogs()">
+          <button class="icon-btn" id="clearLogsBtn">
             <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862a2 2 0 01-1.995-1.858L5 7m5 4v6m4-6v6m1-10V4a1 1 0 00-1-1h-4a1 1 0 00-1 1v3M4 7h16"/>
             </svg>
@@ -426,6 +433,7 @@ body.light { background: #ffffff; color: #1f2937; }
 
     <!-- History Search Popup -->
     <div id="historyPopup" class="history-popup hidden">
+      <div id="historyHint" class="history-hint"></div>
       <input id="historySearch" placeholder="Reverse Search ..." />
       <div id="historyResults"></div>
     </div>
@@ -433,36 +441,99 @@ body.light { background: #ffffff; color: #1f2937; }
     <script src="c.js"></script>
     <script>
 
-var ws;
-var cmdHistory = [];
-var historyIndex = -1;
-var historySelectionIndex = -1;
-var draftInput = "";
-var outputEl = document.getElementById("output");
-var inputEl = document.getElementById("input");
-var historyPopup   = document.getElementById("historyPopup");
-var historySearch  = document.getElementById("historySearch");
-var historyResults = document.getElementById("historyResults");
-var liveOutputEl = document.getElementById("liveOutput");
-var liveContainer = document.getElementById("liveContainer");
-var statusEl = document.getElementById("status");
-var statusText = document.getElementById("statusText");
-var connectBtn = document.getElementById("connectBtn");
-var runBtn = document.getElementById("runBtn");
-var serverUrlInput = document.getElementById("serverUrl");
-var helpText = document.getElementById("helpText");
-var logsEl = document.getElementById("logs");
-var sidebar = document.getElementById("sidebar");
-var isLiveMode = false;
-var showInfo = false;
-var multilineMode = false;
-var debounceTimer = null;
-var isConnected = false;
-var lastSendTime = null;
+// ================================
+// Runtime State
+// ================================
+let ws = null;
+let isConnected = false;
+let isLiveMode = false;
+let showInfo = false;
+let multilineMode = false;
 
+let historyIndex = -1;
+let historySelectionIndex = -1;
+let draftInput = "";
+let lastSendTime = null;
+let debounceTimer = null;
+let historyFuzzyMode = true;
+
+const cmdHistory = [];
+const LIVE_DEBOUNCE_MS = 300;
+
+// ================================
+// Cached DOM Elements
+// ================================
+const outputEl = document.getElementById("output");
+const inputEl = document.getElementById("input");
+const runBtn = document.getElementById("runBtn");
+const helpText = document.getElementById("helpText");
+
+const historyPopup = document.getElementById("historyPopup");
+const historySearch = document.getElementById("historySearch");
+const historyResults = document.getElementById("historyResults");
+
+const liveContainer = document.getElementById("liveContainer");
+const liveOutputEl = document.getElementById("liveOutput");
+
+const statusEl = document.getElementById("status");
+const statusText = document.getElementById("statusText");
+const connectBtn = document.getElementById("connectBtn");
+const serverUrlInput = document.getElementById("serverUrl");
+
+const sidebar = document.getElementById("sidebar");
+const logsEl = document.getElementById("logs");
+
+// ================================
+// Event Bindings
+// ================================
+statusEl.addEventListener("click", toggleServerControls);
+connectBtn.addEventListener("click", toggleConnection);
+
+document.getElementById("liveMode").addEventListener("change", toggleLiveMode);
+document.getElementById("showInfo").addEventListener("change", toggleShowInfo);
+document.getElementById("multilineMode").addEventListener("change", toggleMultilineMode);
+document.getElementById("lightMode").addEventListener("change", toggleLightMode);
+document.getElementById("toggleSidebarBtn").addEventListener("click", toggleSidebar);
+
+inputEl.addEventListener("input", handleInput);
+inputEl.addEventListener("keydown", handleKeyDown);
+runBtn.addEventListener("click", executeCode);
+
+document.getElementById("clearInputBtn").addEventListener("click", clearInput);
+document.getElementById("clearOutputBtn").addEventListener("click", clearOutput);
+document.getElementById("clearLogsBtn").addEventListener("click", clearLogs);
+
+// ================================
+// UI Toggle & Mode Handlers
+// (theme, sidebar, live, multiline, info)
+// ================================
+function toggleLiveMode() {
+  isLiveMode = document.getElementById("liveMode").checked;
+  applyLiveUI();
+  updateHelpText();
+}
+
+function toggleMultilineMode() {
+  multilineMode = document.getElementById("multilineMode").checked;
+  applyMultilineUI();
+  updateHelpText();
+}
+
+function toggleLightMode() {
+  var isLight = document.getElementById("lightMode").checked;
+  document.body.className = isLight ? "light" : "dark";
+}
+
+function toggleShowInfo() { showInfo = document.getElementById("showInfo").checked; }
+function toggleSidebar() { sidebar.classList.toggle("collapsed"); }
+
+// ================================
+// Command History & Reverse Search
+// ================================
 function openHistoryPopup() {
   historyPopup.classList.remove("hidden");
   historySearch.value = historyResults.innerHTML = "";
+  updateHistoryHint();
   historySearch.focus();
   renderHistory("");
 }
@@ -476,26 +547,134 @@ function renderHistory(filter) {
   historyResults.innerHTML = "";
   historySelectionIndex = -1;
 
-  cmdHistory.slice().reverse().forEach((cmd, idx) => {
-    if (!cmd.includes(filter)) return;
+  if (!filter) {
+    cmdHistory.slice().reverse().forEach(cmd => {
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.textContent = cmd;
+      div.addEventListener("click", () => {
+        inputEl.value = cmd;
+        closeHistoryPopup();
+      });
+      historyResults.appendChild(div);
+    });
+    return;
+  }
 
-    var div = document.createElement("div");
+  if (!historyFuzzyMode) {
+    cmdHistory.slice().reverse().forEach(cmd => {
+      if (!cmd.includes(filter)) return;
+      const div = document.createElement("div");
+      div.className = "history-item";
+      div.innerHTML = escapeHtml(cmd).replace(
+        filter,
+        `<span class="fuzzy-match">${escapeHtml(filter)}</span>`
+      );
+      div.addEventListener("click", () => {
+        inputEl.value = cmd;
+        closeHistoryPopup();
+      });
+      historyResults.appendChild(div);
+    });
+    return;
+  }
+
+  // fuzzy mode
+  const scored = cmdHistory
+    .map(cmd => ({ cmd, score: fuzzyScore(filter, cmd) }))
+    .filter(x => x.score >= 0)
+    .sort((a, b) => b.score - a.score)
+    .slice(0, 20);
+
+  for (const { cmd } of scored) {
+    const div = document.createElement("div");
     div.className = "history-item";
-    div.textContent = cmd;
-
-    div.onclick = () => {
+    div.innerHTML = highlightFuzzyMatch(filter, cmd);
+    div.addEventListener("click", () => {
       inputEl.value = cmd;
       closeHistoryPopup();
-    };
-
+    });
     historyResults.appendChild(div);
-  });
+  }
 }
 
-historySearch.addEventListener("input", function () {
-  renderHistory(historySearch.value);
-});
+function updateHistoryHint() {
+  const hint = document.getElementById("historyHint");
+  hint.textContent = "Fuzzy-mode " + (historyFuzzyMode ? "en" : "dis") + "abled (Press Ctrl+r to toggle)";
+}
 
+function fuzzyScore(query, text) {
+  let score = 0;
+  let ti = 0;
+  let streak = 0;
+
+  for (let qi = 0; qi < query.length; qi++) {
+    const qc = query[qi].toLowerCase();
+    let found = false;
+
+    while (ti < text.length) {
+      if (text[ti].toLowerCase() === qc) {
+        found = true;
+        streak++;
+        score += 10 + streak * 5;
+        ti++;
+        break;
+      } else {
+        streak = 0;
+        ti++;
+      }
+    }
+    if (!found) return -1;
+  }
+
+  score += Math.max(0, 30 - ti);
+  score -= text.length * 0.1;
+  return score;
+}
+
+function highlightFuzzyMatch(query, text) {
+  let qi = 0;
+  let out = "";
+
+  for (let i = 0; i < text.length; i++) {
+    if (
+      qi < query.length &&
+      text[i].toLowerCase() === query[qi].toLowerCase()
+    ) {
+      out += `<span class="fuzzy-match">${escapeHtml(text[i])}</span>`;
+      qi++;
+    } else {
+      out += escapeHtml(text[i]);
+    }
+  }
+  return out;
+}
+
+function historyUp(event) {
+  event.preventDefault();
+  // Save latest draft input
+  if (historyIndex === cmdHistory.length) {
+    draftInput = inputEl.value;
+  }
+  if (historyIndex > 0) {
+    historyIndex--;
+    inputEl.value = cmdHistory[historyIndex];
+  }
+}
+
+function historyDown(event) {
+  event.preventDefault();
+  if (historyIndex < cmdHistory.length - 1) {
+    historyIndex++;
+    inputEl.value = cmdHistory[historyIndex];
+  } else {
+    historyIndex = cmdHistory.length;
+    // Restore latest draft input
+    inputEl.value = draftInput;
+  }
+}
+
+historySearch.addEventListener("input", function () { renderHistory(historySearch.value); });
 historySearch.addEventListener("keydown", function (e) {
   const items = historyResults.children;
 
@@ -515,7 +694,18 @@ historySearch.addEventListener("keydown", function (e) {
 
   if (e.key === "ArrowDown" || e.key === "ArrowUp") {
     e.preventDefault();
-    historySelectionIndex = (historySelectionIndex + (e.key === "ArrowDown" ? 1 : -1) + items.length) % items.length;
+
+    if (historySelectionIndex === -1) {
+      historySelectionIndex = e.key === "ArrowUp" ? items.length - 1 : 0;
+    } else {
+      historySelectionIndex += e.key === "ArrowDown" ? 1 : -1;
+      if (historySelectionIndex < 0) {
+        historySelectionIndex = items.length - 1;
+      } else if (historySelectionIndex >= items.length) {
+        historySelectionIndex = 0;
+      }
+    }
+
     // Update highlight
     Array.from(items).forEach((el, i) =>
       el.classList.toggle("selected", i === historySelectionIndex)
@@ -524,62 +714,31 @@ historySearch.addEventListener("keydown", function (e) {
 });
 
 document.addEventListener("keydown", function (e) {
-  // Ctrl+R / Cmd+R → reverse search
-  if ((e.ctrlKey || e.metaKey) && e.key.toLowerCase() === "r") {
+  // Ctrl+R / Cmd+R
+  if ((e.ctrlKey || e.metaKey) && e.key === "r") {
     e.preventDefault();
-    if (isConnected) {
-      // Toggle popup
-      if (historyPopup.classList.contains("hidden")) {
-        openHistoryPopup();
-      } else {
-        closeHistoryPopup();
-      }
+
+    if (!isConnected) return false;
+
+    if (historyPopup.classList.contains("hidden")) {
+      openHistoryPopup();
+    } else {
+      // toggle fuzzy / plain mode
+      historyFuzzyMode = !historyFuzzyMode;
+      updateHistoryHint();
+      renderHistory(historySearch.value);
     }
     return false;
   }
 });
 
-document.addEventListener("mousedown", function (e) {
-  if (
-    !historyPopup.classList.contains("hidden") &&
-      !historyPopup.contains(e.target)
-  ) {
-    closeHistoryPopup();
-  }
-});
+document.addEventListener("mousedown", function (e) { if (!historyPopup.classList.contains("hidden") && !historyPopup.contains(e.target)) closeHistoryPopup(); });
 
-function toggleSidebar() { sidebar.classList.toggle("collapsed"); }
-
-function toggleLightMode() {
-  var isLight = document.getElementById("lightMode").checked;
-  document.body.className = isLight ? "light" : "dark";
-}
-
-function toggleMultilineMode() {
-  multilineMode = document.getElementById("multilineMode").checked;
-  inputEl.rows = multilineMode ? 5 : 1;
-}
-
-function toggleShowInfo() { showInfo = document.getElementById("showInfo").checked; }
-
-function addLog(type, message) {
-  var entry = document.createElement("div");
-  entry.className = "log-entry";
-
-  var timestamp = new Date().toISOString().replace("T", "D").replace("Z", "");
-
-  entry.innerHTML =
-    '<div class="log-timestamp">' + timestamp + "</div>" +
-      '<div class="log-message ' + type + '">' + escapeHtml(message) + "</div>";
-
-  logsEl.appendChild(entry);
-  logsEl.scrollTop = logsEl.scrollHeight;
-}
-
-function clearLogs() { logsEl.innerHTML = ""; }
-
+// ================================
+// Connection Lifecycle (WebSocket)
+// ================================
 function toggleConnection() { isConnected ? disconnect() : connect(); }
-
+function disconnect() { if (ws) ws.close(); }
 function connect() {
   if ("WebSocket" in window) {
     var wsUrl = serverUrlInput.value;
@@ -590,12 +749,13 @@ function connect() {
 
     ws.onopen = function(e) {
       addLog("success", "Connected to kdb+ server at " + wsUrl);
-      updateStatus(true);
+      updateConnectionState(true);
+      focusInput();
     };
 
     ws.onclose = function(e) {
       addLog("info", "Disconnected from server");
-      updateStatus(false);
+      updateConnectionState(false);
     };
 
     ws.onmessage = function(e) {
@@ -612,46 +772,44 @@ function connect() {
 
     ws.onerror = function(e) {
       addLog("error", "WebSocket ERROR - Check if the kdb+ Server is running");
-      updateStatus(false);
+      updateConnectionState(false);
     };
   } else {
     alert("WebSocket not supported on your browser");
   }
 }
 
-function disconnect() {
-  if (ws) {
-    ws.close();
-  }
+function updateConnectionState(connected) {
+  isConnected = connected;
+  renderUI();
 }
 
-function updateStatus(connected) {
-  isConnected = connected;
-  serverUrl.disabled = connected;
-  serverUrl.style.opacity = connected ? "0.5" : "1";
+// ================================
+// UI Rendering & State Application
+// ================================
+function applyConnectionUI() {
+  serverUrlInput.disabled = isConnected;
+  serverUrlInput.style.opacity = isConnected ? "0.5" : "1";
 
-  if (connected) {
-    statusText.textContent = "Connected";
-    statusEl.className = "status connected clickable";
-    connectBtn.textContent = "Disconnect";
-    connectBtn.classList.replace("btn-green", "btn-red");
+  statusText.textContent = isConnected ? "Connected" : "Disconnected";
+  statusEl.className = "status " + statusText.textContent.toLowerCase() + " clickable";
 
-    inputEl.disabled = false;
-    runBtn.disabled = false;
-  } else {
-    statusText.textContent = "Disconnected";
-    statusEl.className = "status disconnected clickable";
-    connectBtn.textContent = "Connect";
-    connectBtn.classList.replace("btn-red", "btn-green");
+  connectBtn.textContent = isConnected ? "Disconnect" : "Connect";
+  connectBtn.classList.toggle("btn-green", !isConnected);
+  connectBtn.classList.toggle("btn-red", isConnected);
 
-    inputEl.disabled = true;
-    runBtn.disabled = true;
-  }
+  runBtn.disabled = inputEl.disabled = !isConnected;
+}
 
-  toggleLiveMode();
-  toggleMultilineMode();
+function renderUI() {
+  applyConnectionUI();
+  applyLiveUI();
+  applyMultilineUI();
   updateHelpText();
 }
+
+function applyLiveUI() { liveContainer.classList.toggle("show", isLiveMode && isConnected); }
+function applyMultilineUI() { inputEl.rows = multilineMode ? 5 : 1; }
 
 function updateHelpText() {
   if (!isConnected) {
@@ -659,20 +817,38 @@ function updateHelpText() {
     return;
   }
   const searchHelp = "Press Ctrl+r to toggle Search History";
-  if (isLiveMode) {
-    helpText.textContent = "Live mode enabled • Code evaluates as you type";
-  }
-  const multilineHelp = "Multi-line mode enabled • Press Ctrl+Enter to execute • " + searchHelp;
-  if (multilineMode) {
-    if (isLiveMode) {
-      helpText.innerHTML += "<br>" + multilineHelp;
-    } else {
-      helpText.innerHTML = multilineHelp;
-    }
-  } else {
-    helpText.innerHTML = "Press Enter to execute • Press ↑↓ to Scroll History • " + searchHelp;
+  let messages = [];
+  if (isLiveMode) messages.push("Live mode enabled • Code evaluates as you type");
+  if (multilineMode) messages.push("Multi-line mode enabled • Press Ctrl+Enter to execute • " + searchHelp);
+  if (!isLiveMode && !multilineMode) messages.push("Press Enter to execute • Press ↑↓ to scroll history • " + searchHelp);
+  helpText.innerHTML = messages.join("<br>");
+}
+
+function focusInput() {
+  if (!inputEl.disabled) {
+    inputEl.focus();
+    inputEl.selectionStart = inputEl.selectionEnd = inputEl.value.length;
   }
 }
+
+// ================================
+// Output & Logging Helpers
+// ================================
+function addLog(type, message) {
+  var entry = document.createElement("div");
+  entry.className = "log-entry";
+
+  var timestamp = new Date().toISOString().replace("T", "D").replace("Z", "");
+
+  entry.innerHTML =
+    '<div class="log-timestamp">' + timestamp + "</div>" +
+      '<div class="log-message ' + type + '">' + escapeHtml(message) + "</div>";
+
+  logsEl.appendChild(entry);
+  logsEl.scrollTop = logsEl.scrollHeight;
+}
+
+function clearLogs() { logsEl.innerHTML = ""; }
 
 function addOutput(type, content, roundtrip) {
   var line = document.createElement("div");
@@ -699,8 +875,6 @@ function addOutput(type, content, roundtrip) {
   outputEl.scrollTop = outputEl.scrollHeight;
 }
 
-function clearInput() { inputEl.value = liveOutputEl.textContent = ""; }
-
 function clearOutput() { outputEl.innerHTML = ""; }
 
 function escapeHtml(text) {
@@ -709,8 +883,11 @@ function escapeHtml(text) {
   return div.innerHTML;
 }
 
+// ================================
+// Code Execution & Keyboard Handling
+// ================================
 function executeCode() {
-  var code = inputEl.value.replace(/\s+$/, "");
+  const code = inputEl.value.replace(/\s+$/, "");
   if (!code) return;
 
   cmdHistory.push(code);
@@ -758,35 +935,10 @@ function handleKeyDown(event) {
   }
 }
 
-function historyUp(event) {
-  event.preventDefault();
-  // Save latest draft input
-  if (historyIndex === cmdHistory.length) {
-    draftInput = inputEl.value;
-  } else if (historyIndex > 0) {
-    historyIndex--;
-    inputEl.value = cmdHistory[historyIndex];
-  }
-}
-
-function historyDown(event) {
-  event.preventDefault();
-  if (historyIndex < cmdHistory.length - 1) {
-    historyIndex++;
-    inputEl.value = cmdHistory[historyIndex];
-  } else {
-    historyIndex = cmdHistory.length;
-    // Restore latest draft input
-    inputEl.value = draftInput;
-  }
-}
-
-function toggleLiveMode() {
-  isLiveMode = document.getElementById("liveMode").checked;
-  liveContainer.classList.toggle("show", isLiveMode && isConnected);
-  updateHelpText();
-}
-
+// ================================
+// Live Mode Input Handling
+// ================================
+function clearInput() { inputEl.value = liveOutputEl.textContent = ""; }
 function handleInput() {
   if (!isLiveMode) return;
 
@@ -795,16 +947,23 @@ function handleInput() {
     return;
   }
 
-  var code = inputEl.value.replace(/\s+$/, "");
+  const code = inputEl.value.replace(/\s+$/, "");
+  if (!code) return;
   clearTimeout(debounceTimer);
   debounceTimer = setTimeout(function() {
     lastSendTime = Date.now();
     ws.send(code);
-  }, 300);
+  }, LIVE_DEBOUNCE_MS);
 }
 
+// ================================
+// Server Controls UI
+// ================================
 function toggleServerControls() { document.getElementById("serverControls").classList.toggle("hidden"); }
 
+// ================================
+// q Syntax Highlighting Engine
+// ================================
 const COLORS = {
   keyword:   "#ca72e4",
   number:    "#d99a5e",
@@ -820,18 +979,14 @@ const COLORS = {
   escape:    "#2ac3de"
 };
 
-// Define all patterns with their colors
 const PATTERNS = [
   // Comments (check at start or after whitespace)
   { regex: /^\/.*$/m, color: "comment" },
   { regex: /(?<=^|\s)\/.*$/m, color: "comment" },
-
   // Strings
   { regex: /"(?:[^"\\]|\\.)*"?/, color: "string" },
-
   // Symbols - entire backtick expression
   { regex: /`(?::[A-Za-z0-9_.:/]*|[A-Za-z0-9_.]*)/, color: "symbol" },
-
   // Temporal types
   { regex: /\b([12]\d{3}\.(0[1-9]|1[0-2])\.(0[1-9]|[12]\d|3[01]))D([01]\d|2[0-3])(?::([0-5]\d)(?::([0-5]\d(?:\.\d{0,9})?))?)?p?\b/, color: "temporal" },
   { regex: /\b([12]\d{3}\.(0[1-9]|1[0-2])\.(0[1-9]|[12]\d|3[01]))T([01]\d|2[0-3])(?::([0-5]\d)(?::([0-5]\d(?:\.\d{0,3})?))?)?z?\b/, color: "temporal" },
@@ -840,28 +995,21 @@ const PATTERNS = [
   { regex: /\b([12]\d{3}\.(0[1-9]|1[0-2])m)\b/, color: "temporal" },
   { regex: /\b([01]\d|2[0-3])(?::([0-5]\d)(?::([0-5]\d(?:\.\d{0,3})?))?)\b/, color: "temporal" },
   { regex: /\b\d+D(?:([01]\d|2[0-3])(?::([0-5]\d)(?::([0-5]\d(?:\.\d{0,9})?))?)?)?n?\b/, color: "temporal" },
-
   // Null values
   { regex: /\b0N[ghijepmdznuvt]?\b/, color: "constant" },
   { regex: /\b0n\b/, color: "constant" },
-
   // Infinity
   { regex: /\b-?0W[hijepdnutv]?\b/, color: "constant" },
   { regex: /\b-?0wz?\b/, color: "constant" },
-
   // Booleans
   { regex: /\b[01]+b\b/, color: "boolean" },
-
   // Internal functions (.z, .Q, .h, .j)
   { regex: /\.(Q|z|h|j)\.[A-Za-z0-9_]+/, color: "internal" },
-
   // Cast operators and internal functions
   { regex: /\b[0-2]:/, color: "internal" },
   { regex: /-(?:[1-9]|1[0-689]|2[0-79]|3[01368]|120)!/, color: "internal" },
-
   // General namespaces (but not .z, .Q, .h, .j)
   { regex: /\.(?!z\.|Q\.|h\.|j\.|[0-2]:)[A-Za-z][A-Za-z0-9_]*(?:\.[A-Za-z0-9_]+)+/, color: "namespace" },
-
   // Numbers with type suffixes
   { regex: /\b0x[0-9a-fA-F]+\b/, color: "number" },
   { regex: /\b\d+[fhij]\b/, color: "number" },
@@ -869,16 +1017,12 @@ const PATTERNS = [
   { regex: /\.\d+(?:e[+-]?\d+)?\b/, color: "number" },
   { regex: /\b\d+e[+-]?\d+\b/, color: "number" },
   { regex: /\b\d+\b/, color: "number" },
-
   // Commands (lines starting with backslash)
   { regex: /^\\.+$/m, color: "command" },
-
   // Keywords - DML operations
   { regex: /\b(select|update|delete|exec|from|by|fby|where|aj|aj0|ajf|ajf0|ej|ij|ijf|lj|ljf|uj|ujf|wj|wj1|upsert|insert)\b/, color: "keyword" },
-
   // Conditionals
   { regex: /\b(do|while|if)\b/, color: "keyword" },
-
   // Other keywords
   { regex: /\b(abs|acos|all|and|any|asc|asin|asof|atan|attr|avg|avgs|bin|binr|ceiling|cols|cor|cos|count|cov|cross|csv|cut|deltas|desc|dev|differ|distinct|div|dsave|each|ema|enlist|eval|except|exit|exp|fills|first|fkeys|flip|floor|get|getenv|group|gtime|hclose|hcount|hdel|hopen|hsym|iasc|idesc|in|inter|inv|key|keys|last|like|load|log|lower|lsq|ltime|ltrim|mavg|max|maxs|mcount|md5|mdev|med|meta|min|mins|mmax|mmin|mmu|mod|msum|neg|next|not|null|or|over|parse|peach|pj|prd|prds|prev|prior|rand|rank|ratios|raze|read0|read1|reciprocal|reval|reverse|rload|rotate|rsave|rtrim|save|scan|scov|sdev|set|setenv|show|signum|sin|sqrt|ss|ssr|string|sublist|sum|sums|sv|svar|system|tables|tan|til|trim|type|ungroup|union|upper|value|var|view|views|vs|wavg|within|wsum|xasc|xbar|xcol|xcols|xdesc|xexp|xgroup|xkey|xlog|xprev|xrank)\b/, color: "keyword" }
 ];
@@ -971,8 +1115,6 @@ function highlightString(str) {
   result += "</span>";
   return result;
 }
-
-function span(text, color) { return `<span style="color:${color}">${text}</span>`; }
 
     </script>
 
