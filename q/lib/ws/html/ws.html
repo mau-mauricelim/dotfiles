@@ -1,7 +1,11 @@
 <!--
-Vibe Code with Claude Sonnect 4.5 & ChatGPT
+Vibe Code with Claude Sonnect 4.5, ChatGPT & Gemini 3
 TODO:
-- Update the Disconnected, Live, Info symbols ...
+- Update corresponding disabled symbols
+- onerror calls onclose "Connection closed unexpectedly" even when connection is not opened
+- Copy all, want q)query to be on same line (same for highlight and copy if possible)
+  - Copied popup on the top after clicking copy all - similar to copy code block logic in markdown
+- Tooltip for toggles
 -->
 
 <!DOCTYPE html>
@@ -44,18 +48,36 @@ body.light { background: #ffffff; color: #1f2937; }
 
 .header-controls { display: flex; align-items: center; gap: 12px; }
 
+/* Status Pulse Animation */
+@keyframes pulse {
+  0% { opacity: 1; transform: scale(1); }
+  50% { opacity: 0.5; transform: scale(1.1); }
+  100% { opacity: 1; transform: scale(1); }
+}
 .status {
   display: flex;
   align-items: center;
   gap: 8px;
   font-size: 14px;
 }
+.status.connected .status-icon { animation: pulse 2s infinite ease-in-out; color: #34d399; }
 .status.disconnected { color: #ef4444; }
-.status.connected { color: #34d399; }
 .status.clickable { cursor: pointer; }
 .status-icon { width: 16px; height: 16px; }
 
 .server-controls { display: flex; gap: 8px; align-items: center; }
+
+.server-protocol {
+  padding: 6px 8px;
+  border: 1px solid;
+  border-radius: 4px 0 0 4px;
+  font-size: 14px;
+  cursor: pointer;
+  border-right: none;
+}
+.server-protocol:focus { outline: none; border-color: #3b82f6; }
+.dark .server-protocol { background: #111827; border-color: #374151; color: #f3f4f6; }
+.light .server-protocol { background: #ffffff; border-color: #d1d5db; color: #1f2937; }
 
 .server-input {
   padding: 6px 12px;
@@ -98,10 +120,25 @@ body.light { background: #ffffff; color: #1f2937; }
   font-size: 14px;
   cursor: pointer;
 }
-.toggle input { width: 16px; height: 16px; cursor: pointer; }
-.dark .toggle { color: #d1d5db; }
-.light .toggle { color: #4b5563; }
 
+/* Hide default checkboxes */
+.toggle input { display: none; }
+/* Icon Styling */
+.toggle-icon {
+  width: 18px;
+  height: 18px;
+  opacity: 0.5;
+  transition: all 0.2s;
+}
+.toggle span { font-size: 13px; }
+/* Active State: Icon lights up and label stays clear */
+.toggle input:checked + .toggle-icon {
+  opacity: 1;
+  color: #60a5fa;
+  filter: drop-shadow(0 0 3px rgba(96, 165, 250, 0.5));
+}
+
+.dark .toggle:hover .toggle-icon { opacity: 0.9; }
 .theme-switch { position: relative; width: 52px; height: 26px; }
 .theme-switch input { display: none; }
 .theme-switch input:checked + .slider { background: #fde68a; }
@@ -345,33 +382,46 @@ body.light { background: #ffffff; color: #1f2937; }
       </h1>
 
       <div class="header-controls">
-        <div class="status disconnected clickable" id="status">
-          <svg class="status-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <circle cx="12" cy="12" r="5"/>
+        <div class="status disconnected clickable" id="status" title="Click to toggle server settings">
+          <svg class="status-icon" width="16" height="16" viewBox="0 0 24 24" fill="currentColor">
+            <circle cx="12" cy="12" r="8"/>
           </svg>
           <span id="statusText">Disconnected</span>
         </div>
 
         <div id="serverControls" class="server-controls">
-          <input type="text" class="server-input" id="serverUrl" value="ws://localhost:5000">
+          <select class="server-protocol" id="serverProtocol">
+            <option value="ws://">ws://</option>
+            <option value="wss://">wss://</option>
+          </select>
+          <input type="text" class="server-input" id="serverUrl" value="localhost:5000">
           <button class="btn btn-green" id="connectBtn">Connect</button>
         </div>
       </div>
 
       <div class="header-right">
-        <label class="toggle">
+        <label class="toggle" title="Live Mode (Evaluate as you type)">
           <input type="checkbox" id="liveMode">
+          <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/>
+          </svg>
           <span>Live</span>
         </label>
 
-        <label class="toggle">
+        <label class="toggle" title="Show Metadata (Timestamps/Roundtrip)">
           <input type="checkbox" id="showInfo">
+          <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
           <span>Info</span>
         </label>
 
-        <label class="toggle">
+        <label class="toggle" title="Multi-line Editor">
           <input type="checkbox" id="multilineMode">
-          <span>Multi-line</span>
+          <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
+          </svg>
+          <span>Multi</span>
         </label>
 
         <label class="theme-switch">
@@ -379,7 +429,7 @@ body.light { background: #ffffff; color: #1f2937; }
           <span class="slider"></span>
         </label>
 
-        <button class="icon-btn" id="toggleSidebarBtn" title="Toggle sidebar">
+        <button class="icon-btn" id="toggleSidebarBtn">
           <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M4 4h16v16H4z M9 4v16"/>
           </svg>
@@ -409,11 +459,18 @@ body.light { background: #ffffff; color: #1f2937; }
 
         <div class="output-header">
           <span>Console</span>
-          <button class="icon-btn" id="clearOutputBtn" title="Clear output">
-            <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
-              <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7 m5 4v6m4-6v6 M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3 M4 7h16"/>
-            </svg>
-          </button>
+          <div style="display: flex; gap: 8px;">
+            <button class="icon-btn" id="clearOutputBtn" title="Clear output">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M19 7l-.867 12.142A2 2 0 0116.138 21H7.862 a2 2 0 01-1.995-1.858L5 7 m5 4v6m4-6v6 M9 7V4a1 1 0 011-1h4a1 1 0 011 1v3 M4 7h16"/>
+              </svg>
+            </button>
+            <button class="icon-btn" id="copyAllBtn" title="Copy to clipboard">
+              <svg fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-width="2" stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3"/>
+              </svg>
+            </button>
+          </div>
         </div>
         <div class="output-area" id="output"></div>
       </div>
@@ -447,18 +504,20 @@ body.light { background: #ffffff; color: #1f2937; }
 let ws = null;
 let isConnected = false;
 let isLiveMode = false;
-let showInfo = false;
 let multilineMode = false;
+let showInfo = false;
 
+let draftInput = "";
+let historyFuzzyMode = true;
 let historyIndex = -1;
 let historySelectionIndex = -1;
-let draftInput = "";
+let historyTimer = null;
 let lastSendTime = null;
-let debounceTimer = null;
-let historyFuzzyMode = true;
+let liveTimer = null;
 
 const cmdHistory = [];
-const LIVE_DEBOUNCE_MS = 300;
+const historyTimerMs = 150;
+const liveTimerMs = 300;
 
 // ================================
 // Cached DOM Elements
@@ -499,9 +558,10 @@ inputEl.addEventListener("input", handleInput);
 inputEl.addEventListener("keydown", handleKeyDown);
 runBtn.addEventListener("click", executeCode);
 
+document.getElementById("clearLogsBtn").addEventListener("click", clearLogs);
 document.getElementById("clearInputBtn").addEventListener("click", clearInput);
 document.getElementById("clearOutputBtn").addEventListener("click", clearOutput);
-document.getElementById("clearLogsBtn").addEventListener("click", clearLogs);
+document.getElementById("copyAllBtn").addEventListener("click", copyAllOutput);
 
 // ================================
 // UI Toggle & Mode Handlers
@@ -674,7 +734,11 @@ function historyDown(event) {
   }
 }
 
-historySearch.addEventListener("input", function () { renderHistory(historySearch.value); });
+historySearch.addEventListener("input", function () {
+  clearTimeout(historyTimer);
+  historyTimer = setTimeout(() => renderHistory(historySearch.value), historyTimerMs);
+});
+
 historySearch.addEventListener("keydown", function (e) {
   const items = historyResults.children;
 
@@ -739,11 +803,32 @@ document.addEventListener("mousedown", function (e) { if (!historyPopup.classLis
 // ================================
 function toggleConnection() { isConnected ? disconnect() : connect(); }
 function disconnect() { if (ws) ws.close(); }
-function connect() {
-  if ("WebSocket" in window) {
-    var wsUrl = serverUrlInput.value;
 
-    addLog("info", "Connecting to " + wsUrl + " ...");
+function connect() {
+  if (!("WebSocket" in window)) {
+    alert("WebSocket not supported on your browser");
+    return;
+  }
+
+  const protocol = document.getElementById("serverProtocol").value;
+  const hostPort = serverUrlInput.value.trim();
+
+  // Validate host:port
+  if (!hostPort) {
+    addLog("error", "Please enter host:port (e.g., localhost:5000)");
+    return;
+  }
+  // Basic validation for host:port format
+  if (!hostPort.match(/^[a-zA-Z0-9.-]+(:\d+)?$/)) {
+    addLog("error", "Invalid format. Use: hostname:port");
+    return;
+  }
+
+  const wsUrl = protocol + hostPort;
+
+  addLog("info", "Connecting to " + wsUrl + " ...");
+
+  try {
     ws = new WebSocket(wsUrl);
     ws.binaryType="arraybuffer";
 
@@ -754,7 +839,11 @@ function connect() {
     };
 
     ws.onclose = function(e) {
-      addLog("info", "Disconnected from server");
+      if (e.wasClean) {
+        addLog("info", "Disconnected from server");
+      } else {
+        addLog("error", "Connection closed unexpectedly");
+      }
       updateConnectionState(false);
     };
 
@@ -762,7 +851,7 @@ function connect() {
       var result = deserialize(e.data);
       var roundtrip = lastSendTime ? Date.now() - lastSendTime : null;
 
-      if (isLiveMode && document.activeElement === inputEl && inputEl.value.replace(/\s+$/, "")) {
+      if (isLiveMode && document.activeElement === inputEl && inputEl.value.trim()) {
         liveOutputEl.textContent = result;
       } else {
         addOutput("result", result, roundtrip);
@@ -771,11 +860,11 @@ function connect() {
     };
 
     ws.onerror = function(e) {
-      addLog("error", "WebSocket ERROR - Check if the kdb+ Server is running");
-      updateConnectionState(false);
+      addLog("error", "Check if the kdb+ Server is running");
     };
-  } else {
-    alert("WebSocket not supported on your browser");
+  } catch (err) {
+    addLog("error", "Failed to create WebSocket: " + err.message);
+    return;
   }
 }
 
@@ -788,8 +877,12 @@ function updateConnectionState(connected) {
 // UI Rendering & State Application
 // ================================
 function applyConnectionUI() {
+  const protocolSelect = document.getElementById("serverProtocol");
+
   serverUrlInput.disabled = isConnected;
+  protocolSelect.disabled = isConnected;
   serverUrlInput.style.opacity = isConnected ? "0.5" : "1";
+  protocolSelect.style.opacity = isConnected ? "0.5" : "1";
 
   statusText.textContent = isConnected ? "Connected" : "Disconnected";
   statusEl.className = "status " + statusText.textContent.toLowerCase() + " clickable";
@@ -877,6 +970,26 @@ function addOutput(type, content, roundtrip) {
 
 function clearOutput() { outputEl.innerHTML = ""; }
 
+function copyAllOutput() {
+  const btn = document.getElementById("copyAllBtn");
+
+  // Select all output lines and join their textContent
+  const lines = Array.from(outputEl.querySelectorAll('.output-line'))
+  .map(line => line.innerText)
+  .join('\n');
+
+  if (!lines) return;
+
+  navigator.clipboard.writeText(lines).then(() => {
+    // Visual feedback: change icon color temporarily
+    const originalColor = btn.style.color;
+    btn.style.color = "#34d399";
+    setTimeout(() => btn.style.color = originalColor, 1000);
+  }).catch(err => {
+      console.error('Failed to copy: ', err);
+    });
+}
+
 function escapeHtml(text) {
   var div = document.createElement("div");
   div.textContent = text;
@@ -887,7 +1000,7 @@ function escapeHtml(text) {
 // Code Execution & Keyboard Handling
 // ================================
 function executeCode() {
-  const code = inputEl.value.replace(/\s+$/, "");
+  const code = inputEl.value.trim();
   if (!code) return;
 
   cmdHistory.push(code);
@@ -947,13 +1060,13 @@ function handleInput() {
     return;
   }
 
-  const code = inputEl.value.replace(/\s+$/, "");
+  const code = inputEl.value.trim();
   if (!code) return;
-  clearTimeout(debounceTimer);
-  debounceTimer = setTimeout(function() {
+  clearTimeout(liveTimer);
+  liveTimer = setTimeout(function() {
     lastSendTime = Date.now();
     ws.send(code);
-  }, LIVE_DEBOUNCE_MS);
+  }, liveTimerMs);
 }
 
 // ================================
@@ -1098,7 +1211,7 @@ function highlightString(str) {
   while (i < str.length) {
     if (str[i] === "\\" && i + 1 < str.length) {
       // Escape sequence - highlight in cyan
-      const escapeSeq = str.substr(i, 2);
+      const escapeSeq = str.substring(i, i + 2);
       result += `<span style="color:${COLORS.escape}">${escapeHtml(escapeSeq)}</span>`;
       i += 2;
     } else if (str[i] === '"' && i === str.length - 1) {
