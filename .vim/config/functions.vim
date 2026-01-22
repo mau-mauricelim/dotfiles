@@ -60,3 +60,12 @@ function! AltFileOrOldFile()
 endfunction
 nnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
 vnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
+
+" Netrw
+function! NetrwMapping()
+  " TODO: E444: Cannot close last window
+  nnoremap <buffer> <silent> q :close<CR>
+  " TODO: Check for plugin existence. Is there another way to do this natively?
+  nnoremap <buffer> h <Plug>VinegarUp
+  nmap <buffer> l <CR>
+endfunction

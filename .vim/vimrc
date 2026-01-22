@@ -13,3 +13,5 @@ call Require("$HOME/.vim/config/options.vim")
 call Require("$HOME/.vim/config/keymaps.vim")
 call Require("$HOME/.vim/config/autocmds.vim")
 call Require("$HOME/.vim/config/functions.vim")
+
+call Require("$HOME/.vim/config/plugins.vim")

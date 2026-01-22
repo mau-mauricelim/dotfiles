@@ -198,3 +198,7 @@ nnoremap <Leader>m :<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:
 " Custom toggles
 nnoremap <Bslash>n :set nonu! nornu!<CR>
 vnoremap <Bslash>n :set nonu! nornu!<CR>
+
+" Buffer list
+nnoremap ]b :bnext<CR>
+nnoremap [b :bprev<CR>

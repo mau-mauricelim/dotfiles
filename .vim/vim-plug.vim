@@ -8,20 +8,9 @@ endif
 call plug#begin()
     Plug 'joshdick/onedark.vim'
     Plug 'airblade/vim-gitgutter'
-    Plug 'itchyny/lightline.vim'
+    Plug 'vim-airline/vim-airline'
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
+    Plug 'tpope/vim-vinegar'
+    Plug 'tpope/vim-commentary'
 call plug#end()
-
-if exists('g:plugs["onedark.vim"]')
-    colorscheme onedark
-endif
-
-if exists('g:plugs["lightline.vim"]')
-    set laststatus=2
-    if exists('g:onedark')
-        let g:lightline = {
-            \ 'colorscheme': 'onedark',
-            \ }
-    endif
-endif
