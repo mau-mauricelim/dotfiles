@@ -26,4 +26,7 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     " Grep
     nnoremap <Leader>sg :Rg<CR>
     vnoremap <Leader>sg <Esc>:Rg<CR>
+    " [S]earch [K]eymaps
+    nnoremap <Leader>sk :Maps<CR>
+    vnoremap <Leader>sk <Esc>:Maps<CR>
 endif
