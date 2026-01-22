@@ -7,9 +7,13 @@ function! Require(file)
     endif
 endfunction
 
-call Require("$HOME/.vim/vim-plug.vim")
+" NOTE: Order is important here
+
+call Require("$HOME/.vim/config/vim-plug.vim")
 
 call Require("$HOME/.vim/config/options.vim")
 call Require("$HOME/.vim/config/keymaps.vim")
 call Require("$HOME/.vim/config/autocmds.vim")
 call Require("$HOME/.vim/config/functions.vim")
+
+call Require("$HOME/.vim/config/plugins.vim")

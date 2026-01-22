@@ -60,3 +60,12 @@ function! AltFileOrOldFile()
 endfunction
 nnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
 vnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
+
+" Netrw
+function! NetrwMapping()
+  nnoremap <buffer> <silent> q :bdelete<CR>
+  nmap <buffer> h -
+  nmap <buffer> <Left> -
+  nmap <buffer> l <CR>
+  nmap <buffer> <Right> <CR>
+endfunction

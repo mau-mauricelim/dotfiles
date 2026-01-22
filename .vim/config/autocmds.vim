@@ -29,3 +29,9 @@ augroup close_with_q
   autocmd FileType help,qf nnoremap <buffer> <silent> q :close<CR>
   autocmd FileType help,qf setlocal nobuflisted
 augroup END
+
+" netrw mappings
+augroup netrw_mappings
+  autocmd!
+  autocmd FileType netrw call NetrwMapping()
+augroup END
