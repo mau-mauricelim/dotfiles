@@ -51,27 +51,44 @@ onoremap <expr> N 'nN'[v:searchforward]
 " Join line below cursor while maintaining cursor position
 nnoremap J mzJ`z
 
-" Line Operations
+"" Line Operations
+" [L]ines [J]oin by delimiter in file
 nnoremap <Leader>lj ggvG<Up>:s/\n//<Left>
+" [L]ines [J]oin by delimiter in visual selection
 vnoremap <Leader>lj <Up>:s/\n//<Left>
+" [L]ine [S]plit by delimiter
 nnoremap <Leader>ls <Esc><S-v>:s//\r/g<Left><Left><Left><Left><Left>
 vnoremap <Leader>ls <Esc><S-v>:s//\r/g<Left><Left><Left><Left><Left>
+" [C]ontiguous duplicate lines squeeze in file
 nnoremap <silent> <Leader>lc mz:%!uniq<CR>`z
+" [C]ontiguous duplicate lines squeeze in visual selection
 vnoremap <silent> <Leader>lc mz:!uniq<CR>`z
+" Remove [D]uplicate lines in file
 nnoremap <silent> <Leader>ld mz:%!awk '\!a[$0]++'<CR>`z
+" Remove [D]uplicate lines in visual selection
 vnoremap <silent> <Leader>ld mz:!awk '\!a[$0]++'<CR>`z
+" Convert file format to Uni[X]
 nnoremap <silent> <Leader>lx :w <Bar> e ++ff=dos <Bar> set ff=unix <Bar> w<CR>
+" Convert file format to Uni[X]
 vnoremap <silent> <Leader>lx :w <Bar> e ++ff=dos <Bar> set ff=unix <Bar> w<CR>
+" Remove [L]ines [E]mpty in file
 nnoremap <silent> <Leader>le :g/^$/d<CR>
 
-" Json Line Operations
+"" Json Line Operations
+" Pretty print json
 nnoremap <silent> <Leader>jq :%!jq<CR>
 vnoremap <silent> <Leader>jq :!jq<CR>
 
-" Format Operations
+"" Format Operations
+" [F]ormat end of [L]ines in file
 nnoremap <silent> <Leader>fl mz:%s/\s\+$//<CR>`z
+" [F]ormat end of [L]ines in visual selection
 vnoremap <silent> <Leader>fl mz:s/\s\+$//<CR>`z
+" cat -s to squeeze-blank
+" $(where cat|tail -1) to identify the default command if it has been aliased
+" [F]ormat [C]ontiguous empty lines in file
 nnoremap <silent> <Leader>fc mz:%!$(where cat<Bar>tail -1) -s<CR>`z
+" [F]ormat [C]ontiguous empty lines in visual selection
 vnoremap <silent> <Leader>fc mz:!$(where cat<Bar>tail -1) -s<CR>`z
 
 " Remap C-c to Esc
@@ -187,10 +204,6 @@ nnoremap cC "_cc
 
 " Insert tab space in normal mode
 nnoremap <Tab> i<Tab><Esc>
-
-" Comment strings (requires comment plugin with gc command)
-nnoremap gcn ONOTE: <Esc>gccA
-nnoremap gct OTODO: <Esc>gccA
 
 " Edit macros
 nnoremap <Leader>m :<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<CR><c-f><left>

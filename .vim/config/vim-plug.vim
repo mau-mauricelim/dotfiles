@@ -1,6 +1,6 @@
 " Vim plug
 " Bootstrap
-if !isdirectory('~/.vim/autoload/plug.vim')
+if !filereadable(expand('~/.vim/autoload/plug.vim'))
     call system('curl -fLo ~/.vim/autoload/plug.vim --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim')
 endif
 

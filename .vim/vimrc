@@ -1,4 +1,4 @@
-" WARN: Vimscript function needs to start with a capital letter
+" Vimscript function needs to start with a capital letter
 " Function to source file if it exists
 function! Require(file)
     " Prefix arguments with a vimscript function with `a:` to indicate argument scope

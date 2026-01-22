@@ -11,6 +11,11 @@ if exists('g:plugs["vim-airline"]')
     let g:airline#extensions#tabline#enabled = 1
 endif
 
+if exists('g:plugs["vim-commentary"]')
+    nmap gcn ONOTE: <Esc>gccA
+    nmap gct OTODO: <Esc>gccA
+endif
+
 if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     " [ ] Find existing buffers
     nnoremap <Leader><Leader> :Buffers<CR>
