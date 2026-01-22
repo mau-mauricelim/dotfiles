@@ -1,43 +1,15 @@
-" Syntax highlighting
-filetype plugin indent on
-syntax on
-" Show existing tab with 4 spaces width
-set tabstop=4
-" When indenting with '>', use 4 spaces width
-set shiftwidth=4
-" On pressing tab, insert 4 spaces
-set expandtab
-" Cursor line
-set cursorline
-" No wrap
-set nowrap
-" Allow the cursor to move just past the end of the line
-set virtualedit=onemore
+" WARN: Vimscript function needs to start with a capital letter
+" Function to source file if it exists
+function! Require(file)
+    " Prefix arguments with a vimscript function with `a:` to indicate argument scope
+    if filereadable(expand(a:file))
+        exe 'source' a:file
+    endif
+endfunction
 
-" New split defaults to bottom and right
-set splitbelow splitright
+call Require("$HOME/.vim/vim-plug.vim")
 
-" Set absolute and relative line number
-set nu rnu
-
-" Wildmenu
-set wildmenu
-set wildmode=longest:full,full
-
-" Persistent undo
-set undodir=$XDG_DATA_HOME/vim/undo
-set directory=$XDG_DATA_HOME/vim/swap
-set backupdir=$XDG_DATA_HOME/vim/backup
-set viminfo+=n$XDG_DATA_HOME/vim/viminfo
-set undofile
-set undolevels=100000
-set undoreload=100000
-
-" Functions
-source $HOME/.vim/function.vim
-
-" Vim plug
-call SourceFile("$HOME/.vim/vim-plug.vim")
-
-" Remaps
-call SourceFile("$HOME/.vim/remap.vim")
+call Require("$HOME/.vim/config/options.vim")
+call Require("$HOME/.vim/config/keymaps.vim")
+call Require("$HOME/.vim/config/autocmds.vim")
+call Require("$HOME/.vim/config/functions.vim")
