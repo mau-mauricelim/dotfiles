@@ -141,6 +141,8 @@ common_user_install() {
         cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
     # Full install
     if [ "$INSTALL_TYPE" = "full" ]; then
+        # Vim headless install
+        vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run nvim headless install inside tmux
