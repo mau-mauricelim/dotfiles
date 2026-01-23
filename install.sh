@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Usage: bash install.sh [full]
+# Usage: bash install.sh [full] [main]
 INSTALL_TYPE="${1:-min}"         # Defaults to minimal install
 INSTALL_TYPE="${INSTALL_TYPE,,}" # Lowercase
+BRANCH_NAME="${2:-main}"         # Defaults to main branch
 
 echo_with_date() { echo "$(date) [INFO]: $1"; }
 
@@ -97,7 +98,7 @@ common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim"
     # Clone the dotfiles
-    [ -d "$HOME/dotfiles" ] || git clone --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
+    [ -d "$HOME/dotfiles" ] || git clone -b "$BRANCH_NAME" --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Copy the q folder as static files
     cp -r "$HOME/dotfiles/q" "$HOME"
     # Stow the dotfiles
@@ -142,7 +143,7 @@ common_user_install() {
     # Full install
     if [ "$INSTALL_TYPE" = "full" ]; then
         # Vim headless install
-        vim -es -u ~/.vimrc -i NONE -c "PlugInstall" -c "qa"
+        vim -Nu ~/.vim/vimrc -E -s +'PlugInstall --sync' +qa
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run nvim headless install inside tmux

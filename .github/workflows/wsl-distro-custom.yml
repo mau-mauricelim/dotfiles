@@ -39,6 +39,7 @@ jobs:
           file: Dockerfile.${{ matrix.BASE_IMAGE }}
           build-args: |
             INSTALL_TYPE=${{ matrix.INSTALL_TYPE }}
+            BRANCH_NAME=${{ github.ref_name }}
       - name: Upload docker image to registry
         run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
       - name: Export docker container to a tar.gz file using gzip
