@@ -147,10 +147,11 @@ common_user_install() {
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run nvim headless install inside tmux
+        # NOTE: TSUpdateSync parsers are from nvim-treesitter ensure_installed
         tmux new -d "\
-            timeout 300 nvim --headless '+Lazy! sync'            +qa;\
-            timeout 300 nvim --headless '+MasonToolsInstallSync' +qa;\
-            timeout 300 nvim --headless '+TSUpdate'              +qa"
+            timeout 300 nvim --headless '+Lazy! sync'                                                              +qa;\
+            timeout 300 nvim --headless '+MasonToolsInstallSync'                                                   +qa;\
+            timeout 300 nvim --headless '+TSUpdateSync bash c html lua luadoc markdown markdown_inline vim vimdoc' +qa"
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
