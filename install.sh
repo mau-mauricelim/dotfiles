@@ -1,7 +1,8 @@
 #!/usr/bin/env bash
-# Usage: bash install.sh [full]
+# Usage: bash install.sh [full] [main]
 INSTALL_TYPE="${1:-min}"         # Defaults to minimal install
 INSTALL_TYPE="${INSTALL_TYPE,,}" # Lowercase
+BRANCH_NAME="${2:-main}"         # Defaults to main branch
 
 echo_with_date() { echo "$(date) [INFO]: $1"; }
 
@@ -97,7 +98,7 @@ common_user_install() {
     # Create the top level directories before stowing so that stow does not symlink from the top level
     mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim"
     # Clone the dotfiles
-    [ -d "$HOME/dotfiles" ] || git clone --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
+    [ -d "$HOME/dotfiles" ] || git clone -b "$BRANCH_NAME" --depth=10 https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Copy the q folder as static files
     cp -r "$HOME/dotfiles/q" "$HOME"
     # Stow the dotfiles
@@ -141,13 +142,16 @@ common_user_install() {
         cp -r flavors/*.yazi "$XDG_CONFIG_HOME/yazi/flavors" && rm -rf flavors
     # Full install
     if [ "$INSTALL_TYPE" = "full" ]; then
+        # Vim headless install
+        vim -Nu ~/.vim/vimrc -E -s +'PlugInstall --sync' +qa
         # TPM installation
         git clone -q --depth=1 https://github.com/tmux-plugins/tpm "$XDG_CONFIG_HOME/tmux/plugins/tpm" && "$XDG_CONFIG_HOME/tmux/plugins/tpm/bin/install_plugins"
         # Run nvim headless install inside tmux
+        # NOTE: TSUpdateSync parsers are from nvim-treesitter ensure_installed
         tmux new -d "\
-            timeout 300 nvim --headless '+Lazy! sync'            +qa;\
-            timeout 300 nvim --headless '+MasonToolsInstallSync' +qa;\
-            timeout 300 nvim --headless '+TSUpdate'              +qa"
+            timeout 300 nvim --headless '+Lazy! sync'                                                              +qa;\
+            timeout 300 nvim --headless '+MasonToolsInstallSync'                                                   +qa;\
+            timeout 300 nvim --headless '+TSUpdateSync bash c html lua luadoc markdown markdown_inline vim vimdoc' +qa"
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
