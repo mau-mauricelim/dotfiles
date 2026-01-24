@@ -1,12 +1,4 @@
-<!--
-Vibe Code with Claude Sonnect 4.5, ChatGPT & Gemini 3
-TODO:
-- Update corresponding disabled symbols
-- onerror calls onclose "Connection closed unexpectedly" even when connection is not opened
-- Copy all, want q)query to be on same line (same for highlight and copy if possible)
-  - Copied popup on the top after clicking copy all - similar to copy code block logic in markdown
-- Tooltip for toggles
--->
+<!-- Vibe Code with Claude Sonnect 4.5, ChatGPT & Gemini 3 -->
 
 <!DOCTYPE html>
 <html>
@@ -266,18 +258,18 @@ body.light { background: #ffffff; color: #1f2937; }
   padding: 16px;
   font-size: 14px;
 }
-.output-line { margin-bottom: 8px; }
-.output-input { display: flex; gap: 8px; }
-.output-prompt { color: #34d399; }
+.output-line { padding-left: 0; margin-left: 0; }
+.output-input { display: inline-flex; gap: 0; white-space: pre-wrap; }
+.output-prompt { color: #34d399; margin-right: 0; }
 
 .output-text { white-space: pre-wrap; }
 .dark .output-text { color: #f3f4f6; }
 .light .output-text { color: #1f2937; }
 
-.output-result { padding-left: 24px; white-space: pre-wrap; }
+.output-result { padding-left: 0; margin-left: 0; white-space: pre-wrap; }
 .output-result.error { color: #ef4444; }
 
-.output-info { padding-left: 24px; font-size: 12px; font-style: italic; }
+.output-info { padding-left: 0; font-size: 12px; font-style: italic; }
 .dark .output-info { color: #6b7280; }
 .light .output-info { color: #9ca3af; }
 
@@ -408,20 +400,20 @@ body.light { background: #ffffff; color: #1f2937; }
           <span>Live</span>
         </label>
 
-        <label class="toggle" title="Show Metadata (Timestamps/Roundtrip)">
-          <input type="checkbox" id="showInfo">
-          <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
-          </svg>
-          <span>Info</span>
-        </label>
-
         <label class="toggle" title="Multi-line Editor">
           <input type="checkbox" id="multilineMode">
           <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
             <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h7"/>
           </svg>
           <span>Multi</span>
+        </label>
+
+        <label class="toggle" title="Show Metadata (Timestamps/Roundtrip)">
+          <input type="checkbox" id="showInfo">
+          <svg class="toggle-icon" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+          </svg>
+          <span>Info</span>
         </label>
 
         <label class="theme-switch">
@@ -841,8 +833,10 @@ function connect() {
     ws.onclose = function(e) {
       if (e.wasClean) {
         addLog("info", "Disconnected from server");
-      } else {
+      } else if (isConnected) {
         addLog("error", "Connection closed unexpectedly");
+      } else {
+        addLog("error", "Unable to connect. Check if the kdb+ server is running.");
       }
       updateConnectionState(false);
     };
@@ -860,7 +854,7 @@ function connect() {
     };
 
     ws.onerror = function(e) {
-      addLog("error", "Check if the kdb+ Server is running");
+      console.debug("WebSocket error");
     };
   } catch (err) {
     addLog("error", "Failed to create WebSocket: " + err.message);
@@ -948,7 +942,11 @@ function addOutput(type, content, roundtrip) {
   line.className = "output-line";
 
   if (type === "input") {
-    line.innerHTML = '<div class="output-input"><span class="output-prompt">q)</span><span class="output-text">' + highlightQ(content) + "</span></div>";
+    line.innerHTML =
+    '<div class="output-input">' +
+      '<span class="output-prompt">q)</span>' +
+      '<span class="output-text">' + highlightQ(content) + '</span>' +
+    '</div>';
   } else if (type === "result") {
     const isError = content.startsWith("'");
     const cls = isError ? "output-result error" : "output-result";
@@ -968,26 +966,43 @@ function addOutput(type, content, roundtrip) {
   outputEl.scrollTop = outputEl.scrollHeight;
 }
 
-function clearOutput() { outputEl.innerHTML = ""; }
+function clearOutput() {
+  if (!outputEl.innerHTML) return;
+  const btn = document.getElementById("clearOutputBtn");
+  flashButtonColor(btn, "#ef4444");
+  outputEl.innerHTML = "";
+}
 
 function copyAllOutput() {
-  const btn = document.getElementById("copyAllBtn");
+  const lines = [];
 
-  // Select all output lines and join their textContent
-  const lines = Array.from(outputEl.querySelectorAll('.output-line'))
-  .map(line => line.innerText)
-  .join('\n');
+  outputEl.querySelectorAll(".output-line").forEach(line => {
+    const prompt = line.querySelector(".output-prompt");
+    const text = line.querySelector(".output-text");
 
-  if (!lines) return;
+    if (prompt && text) {
+      lines.push("q)" + text.textContent);
+    } else {
+      lines.push(line.textContent.trim());
+    }
+  });
 
-  navigator.clipboard.writeText(lines).then(() => {
-    // Visual feedback: change icon color temporarily
-    const originalColor = btn.style.color;
-    btn.style.color = "#34d399";
-    setTimeout(() => btn.style.color = originalColor, 1000);
+  if (!lines.length) return;
+
+  navigator.clipboard.writeText(lines.join("\n")).then(() => {
+    const btn = document.getElementById("copyAllBtn");
+    flashButtonColor(btn, "#34d399");
   }).catch(err => {
       console.error('Failed to copy: ', err);
     });
+}
+
+// Visual feedback: change icon color temporarily
+function flashButtonColor(btn, color, duration = 300) {
+  if (!btn) return;
+  const originalColor = btn.style.color;
+  btn.style.color = color;
+  setTimeout(() => { btn.style.color = originalColor; }, duration);
 }
 
 function escapeHtml(text) {
@@ -1001,7 +1016,7 @@ function escapeHtml(text) {
 // ================================
 function executeCode() {
   const code = inputEl.value.trim();
-  if (!code) return;
+  // if (!code) return;
 
   cmdHistory.push(code);
   historyIndex = cmdHistory.length;
