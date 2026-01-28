@@ -1,0 +1,27 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+if ! command -v yt-dlp &>/dev/null; then
+    echo "Error: yt-dlp is not installed" >&2
+    exit 1
+fi
+
+if [[ $# -eq 0 ]]; then
+    echo "Usage: $0 URL [URL...]"
+    echo "Downloads YouTube audio as MP3 in highest quality"
+    exit 1
+fi
+
+for url in "$@"; do
+    yt-dlp \
+        --extract-audio \
+        --audio-format mp3 \
+        --audio-quality 0 \
+        --embed-thumbnail \
+        --embed-metadata \
+        --replace-in-metadata title " {2,}" " " \
+        -o "%(title)s.%(ext)s" \
+        --no-playlist \
+        --extractor-args "youtube:player_client=android" \
+        "$url"
+done
