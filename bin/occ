@@ -1,0 +1,77 @@
+#!/usr/bin/env bash
+# Open Chinese Convert - Recursive Filename Renamer
+set -euo pipefail
+
+DRY_RUN=false
+CONFIG=""
+DIR=""
+
+usage() {
+    echo "Usage: $0 [-d] CONFIG DIRECTORY"
+    echo ""
+    echo "Options:"
+    echo "    -d            Dry run: Show what would be renamed without making changes"
+    echo ""
+    echo "Example CONFIG:"
+    echo "    s2t.json      Simplified Chinese to Traditional Chinese"
+    echo "    t2s.json      Traditional Chinese to Simplified Chinese"
+    echo "    s2tw.json     Simplified Chinese to Traditional Chinese (Taiwan Standard)"
+    echo "    tw2s.json     Traditional Chinese (Taiwan Standard) to Simplified Chinese"
+    echo ""
+    echo "See https://github.com/BYVoid/OpenCC?tab=readme-ov-file#configurations-%E9%85%8D%E7%BD%AE%E6%96%87%E4%BB%B6 for the full list"
+    exit 1
+}
+
+while getopts "d" opt; do
+    case $opt in
+        d) DRY_RUN=true ;;
+        *) usage ;;
+    esac
+done
+shift $((OPTIND-1))
+
+if [[ $# -lt 2 ]]; then
+    usage
+fi
+
+CONFIG="$1"
+DIR="$2"
+
+if ! command -v opencc &>/dev/null; then
+    echo "Error: opencc is not installed" >&2
+    exit 1
+fi
+
+if [[ ! -d "$DIR" ]]; then
+    echo "Error: Directory '$DIR' does not exist." >&2
+    exit 1
+fi
+
+if [ "$DRY_RUN" = true ]; then
+    echo "--- DRY RUN MODE: No files will be modified ---"
+fi
+
+# NOTE:
+# The -depth flag is important; it ensures files inside a folder are renamed before the folder itself is renamed,
+# preventing "Path not found" errors. Using -print0 and read -d '' is safer for filenames with odd characters or
+# newlines
+find "$DIR" -depth -name '*[[:print:]]*' -print0 | while read -d $'\0' -r old; do
+    dir=$(dirname "$old")
+    base=$(basename "$old")
+    new_base=$(echo "$base" | opencc -c "${CONFIG}")
+    if [[ "$base" != "$new_base" ]]; then
+        if [ "$DRY_RUN" = true ]; then
+            echo "[DRY-RUN] Would rename: '$base' -> '$new_base'"
+        else
+            if mv -v "$old" "$dir/$new_base"; then
+                : # Success
+            else
+                echo "Warning: Failed to rename '$old'" >&2
+            fi
+        fi
+    fi
+done
+
+if [ "$DRY_RUN" = true ]; then
+    echo "--- Dry run complete. Remove -d to apply changes. ---"
+fi
