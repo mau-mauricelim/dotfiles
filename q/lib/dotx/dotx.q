@@ -14,7 +14,7 @@
 / @example - `char$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
 .Q.atobp:{
     / Pad to length of multiple 4
-    x:"="^.q.roundm[4;count x]$x:(x?"=")#x;
+    x:"="^.q.roundup[4;count x]$x:(x?"=")#x;
     `byte$(neg sum"="=x)_raze flip 256 vs 64 sv'0N 4#.Q.b6?x};
 
 /######
@@ -30,7 +30,8 @@
 
 / Round y to nearest multiple of x
 / @example - 4 roundm 18
-.q.roundm:{x*floor 0.5+y%x};
+.q.round:{x*floor 0.5+y%x};
+.q.roundup:{x*ceiling y%x};
 
 / Remove leading or trailing X from a list
 / @example - "-" trimX "--- Hello, --- World! ---"
