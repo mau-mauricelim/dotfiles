@@ -1,14 +1,21 @@
+:: Installs and update copyparty and cloudflared
 @echo off
 
-goto comment
-Install/update Windows copyparty and cloudflared
-Place this script in a directory (recommended: C:\copyparty)
-And add this directory to PATH
-:comment
-
+:: NOTE: Add this directory to PATH
 set dir=C:\copyparty
+set /P dir="Enter install path (%dir%): "
+echo "Install path: %dir%"
 md %dir% 2>nul
 
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/cloudparty.bat" "%dir%\cloudparty.bat"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/cloudparty.ps1" "%dir%\cloudparty.ps1"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/copyparty.conf" "%dir%\copyparty.conf"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/install.bat" "%dir%\install.bat"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/party.bat" "%dir%\party.bat"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/READMD.md" "%dir%\READMD.md"
+call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/windows.md" "%dir%\windows.md"
+
+:: Runs copyparty from any directory
 call :download "https://github.com/9001/copyparty/releases/latest/download/copyparty-sfx.py" "%dir%\party.py"
 call :download "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" "%dir%\cloudflared.exe"
 
