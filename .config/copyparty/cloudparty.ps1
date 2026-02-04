@@ -18,31 +18,27 @@ function Log($lvl = "INFO", $msg) {
     Write-Host "$ts [$lvl]: $msg" -ForegroundColor $color
 }
 
+# NOTE: Cloudflare tunnel starts up slower
 Log "INFO" "Starting Cloudparty"
+
+Log "INFO" "Starting Cloudflare tunnel in a new window"
+
+$logName = "cloudflared.tmp"
+$logPath = Join-Path $PSScriptRoot $logName
+Log "INFO" "Cloudflare tunnel temporary log file: $logPath"
+
+$cloudflared = Start-Process `
+    -FilePath "cloudflared" `
+    -ArgumentList "tunnel --url http://127.0.0.1:3923 --logfile `"$logPath`"" `
+    -PassThru -WindowStyle Normal
+Log "INFO" "Cloudflare tunnel started"
 
 Log "INFO" "Starting Copyparty in a new window"
 $copyparty = Start-Process `
     -FilePath "cmd.exe" `
     -ArgumentList "/c party.py -c copyparty.conf" `
-    -PassThru `
-    -WindowStyle Normal
+    -PassThru -WindowStyle Normal
 Log "INFO" "Copyparty started"
-
-Log "INFO" "Starting Cloudflare Tunnel in a new window"
-$logPath = Join-Path $PSScriptRoot "cloudflared.log"
-
-# Remove old log file if it exists
-if (Test-Path $logPath) {
-    Remove-Item $logPath -Force
-    Log "DEBUG" "Removed old cloudflared.log"
-}
-
-$cloudflared = Start-Process `
-    -FilePath "cloudflared" `
-    -ArgumentList "tunnel --url http://127.0.0.1:3923 --logfile `"$logPath`"" `
-    -PassThru `
-    -WindowStyle Normal
-Log "INFO" "Cloudflare Tunnel started in new window with logging"
 
 # Use a thread-safe synchronized wrapper for the flag
 $syncHash = [Hashtable]::Synchronized(@{
@@ -55,19 +51,10 @@ $global:cpTeardownDone = $false
 $cleanup = {
     if ($global:cpTeardownDone) { return }
     $global:cpTeardownDone = $true
+
     Log "INFO" "Stopping all processes"
-    if ($cloudflared -and !$cloudflared.HasExited) {
-        Log "INFO" "Stopping Cloudflare Tunnel [PID: $($cloudflared.Id)]"
-        try {
-            Stop-Process -Id $cloudflared.Id -Force -ErrorAction SilentlyContinue
-            Log "INFO" "Cloudflare Tunnel stopped"
-        } catch {
-            Log "ERROR" "Failed to stop Cloudflare Tunnel"
-            Log "ERROR" "$_"
-        }
-    } else {
-        Log "INFO" "Cloudflare Tunnel already stopped"
-    }
+
+    # NOTE: Copyparty stops slower
     if ($copyparty -and !$copyparty.HasExited) {
         Log "INFO" "Stopping Copyparty [PID: $($copyparty.Id)]"
         try {
@@ -80,75 +67,85 @@ $cleanup = {
     } else {
         Log "INFO" "Copyparty already stopped"
     }
-    # Clean up log file
+
+    if ($cloudflared -and !$cloudflared.HasExited) {
+        Log "INFO" "Stopping Cloudflare tunnel [PID: $($cloudflared.Id)]"
+        try {
+            Stop-Process -Id $cloudflared.Id -Force -ErrorAction SilentlyContinue
+            Log "INFO" "Cloudflare tunnel stopped"
+        } catch {
+            Log "ERROR" "Failed to stop Cloudflare tunnel"
+            Log "ERROR" "$_"
+        }
+    } else {
+        Log "INFO" "Cloudflare tunnel already stopped"
+    }
+
     if (Test-Path $logPath) {
+        Log "DEBUG" "Removing Cloudflare tunnel temporary log file: $logPath"
         try {
             Remove-Item $logPath -Force -ErrorAction SilentlyContinue
-            Log "DEBUG" "Cleaned up cloudflared.log"
+            Log "DEBUG" "Removed Cloudflare tunnel temporary log file"
         } catch {
-            Log "WARN" "Could not remove cloudflared.log"
+            Log "WARN" "Failed to remove Cloudflare tunnel temporary log file"
         }
     }
+
     Log "INFO" "All processes stopped"
 }
 
 try {
-    # Wait for Tunnel connection registration or timeout (30s)
-    Log "INFO" "Monitoring cloudflared.log for tunnel URL and ready state..."
+    # Wait and watch for quick tunnel URL and connection registration with a timeout of 30s
+    $timeout = 30
+    Log "INFO" "Watching Cloudflare tunnel temporary log file"
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
-    while (-not $syncHash.TunnelReady -and $timer.Elapsed.TotalSeconds -lt 30) {
-        # If copyparty crashes early, stop waiting
+    while (-not $syncHash.TunnelReady -and $timer.Elapsed.TotalSeconds -lt $timeout) {
         if ($copyparty.HasExited) { throw "Copyparty exited unexpectedly" }
+        if ($cloudflared.HasExited) { throw "Cloudflare tunnel exited unexpectedly" }
 
-        # If cloudflared crashes early, stop waiting
-        if ($cloudflared.HasExited) { throw "Cloudflared exited unexpectedly" }
-
-        # Check if log file exists and read it
+        # Read log file if it exists
         if (Test-Path $logPath) {
             try {
                 $content = Get-Content $logPath -Raw -ErrorAction SilentlyContinue
-
                 if ($content) {
-                    # Strip ANSI color codes for reliable regex matching
-                    $cleanContent = $content -replace '\x1b\[[0-9;]*m',''
-
-                    # Extract and copy URL (only once)
-                    if (-not $syncHash.UrlCopied -and $cleanContent -match "(https://[\w-]+\.trycloudflare\.com)") {
+                    # Copy quick tunnel URL to clipboard once
+                    if (-not $syncHash.UrlCopied -and $content -match "(https://[\w-]+\.trycloudflare\.com)") {
                         $url = $matches[1]
                         try {
+                            Log "INFO" "Your quick Tunnel has been created! Visit it at (it may take some time to be reachable):"
+                            Log "INFO" $url
                             Set-Clipboard -Value $url
-                            Log "INFO" "Quick Tunnel URL has been copied to the clipboard!"
-                            Log "INFO" "Tunnel URL: $url"
+                            Log "INFO" "URL copied to the clipboard!"
                             $syncHash.UrlCopied = $true
                         } catch {
-                            Log "ERROR" "Failed to copy quick Tunnel URL to the clipboard"
+                            Log "ERROR" "Failed to copy Cloudflare quick tunnel URL to the clipboard"
                             Log "ERROR" "$_"
                         }
                     }
-
-                    # Detect Tunnel connection registration
-                    if ($cleanContent -match "Registered tunnel connection") {
+                    # Detect tunnel connection registration
+                    if ($content -match "Registered tunnel connection") {
                         $syncHash.TunnelReady = $true
-                        Log "INFO" "Tunnel connection registered successfully"
+                        Log "INFO" "Registered Cloudflare tunnel connection with Copyparty!"
+                        Log "INFO" "Cloudparty UP and running!"
+                        break
                     }
                 }
             } catch {
                 # Ignore transient file access errors
             }
         }
-
         Start-Sleep -Milliseconds 200
     }
 
-    if (-not $syncHash.TunnelReady) {
-        Log "WARN" "Tunnel did not register within 30 seconds"
+    if (-not $syncHash.TunnelReady) { throw "Cloudflare tunnel connection with Copyparty not registered within $timeout seconds - aborting" }
+
+    # Wait for either process to exit - if one stops, kill everything
+    while (-not $copyparty.HasExited -and -not $cloudflared.HasExited) {
+        Start-Sleep -Milliseconds 500
     }
 
-    Log "INFO" "Cloudparty running"
-
-    # Robust wait for Copyparty
-    if (-not $copyparty.HasExited) { Wait-Process -Id $copyparty.Id }
-    Log "INFO" "Copyparty exited"
+    if ($copyparty.HasExited) { Log "INFO" "Copyparty exited" }
+    if ($cloudflared.HasExited) { Log "INFO" "Cloudflare tunnel exited" }
 }
 catch {
     Log "ERROR" "$_"
