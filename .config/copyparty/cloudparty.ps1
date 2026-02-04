@@ -28,52 +28,27 @@ $copyparty = Start-Process `
     -WindowStyle Normal
 Log "INFO" "Copyparty started"
 
-Log "INFO" "Starting Cloudflare Tunnel"
-$pinfo = New-Object System.Diagnostics.ProcessStartInfo
-$pinfo.FileName = "cloudflared"
-$pinfo.Arguments = "tunnel --url http://127.0.0.1:3923"
-$pinfo.RedirectStandardError = $true
-$pinfo.RedirectStandardOutput = $true
-$pinfo.UseShellExecute = $false
-$pinfo.CreateNoWindow = $true
-$cloudflared = New-Object System.Diagnostics.Process
-$cloudflared.StartInfo = $pinfo
+Log "INFO" "Starting Cloudflare Tunnel in a new window"
+$logPath = Join-Path $PSScriptRoot "cloudflared.log"
 
-# Use a thread-safe synchronized wrapper for the flag
-$syncHash = [Hashtable]::Synchronized(@{ TunnelReady = $false })
-
-# Event Handler: captures and parses output
-$outputAction = {
-    param($sender, $e)
-    if ($e.Data) {
-        # TODO: Is there any way to stream output the console while keeping its colors?
-        # Steam output to console
-        [Console]::WriteLine($e.Data)
-        # Strip ANSI color codes for reliable regex matching
-        $cleanLine = $e.Data -replace '\x1b\[[0-9;]*m',''
-        # Copy quick Tunnel URL
-        if ($cleanLine -match "(https://[\w-]+\.trycloudflare\.com)") {
-            $url = $matches[1]
-            try {
-                Set-Clipboard -Value $url
-                Log "INFO" "Quick Tunnel URL has been copied to the clipboard!"
-            } catch {
-                Log "ERROR" "Failed to copy quick Tunnel URL to the clipboard"
-                Log "ERROR" "$_"
-            }
-        }
-        # Detect Tunnel connection registration
-        if ($cleanLine -match "Registered Tunnel connection") { $Event.MessageData.TunnelReady = $true }
-    }
+# Remove old log file if it exists
+if (Test-Path $logPath) {
+    Remove-Item $logPath -Force
+    Log "DEBUG" "Removed old cloudflared.log"
 }
 
-# Register events passing the synchronized hash as MessageData
-Register-ObjectEvent -InputObject $cloudflared -EventName "ErrorDataReceived" -Action $outputAction -MessageData $syncHash | Out-Null
-Register-ObjectEvent -InputObject $cloudflared -EventName "OutputDataReceived" -Action $outputAction -MessageData $syncHash | Out-Null
+$cloudflared = Start-Process `
+    -FilePath "cloudflared" `
+    -ArgumentList "tunnel --url http://127.0.0.1:3923 --logfile `"$logPath`"" `
+    -PassThru `
+    -WindowStyle Normal
+Log "INFO" "Cloudflare Tunnel started in new window with logging"
 
-$cloudflared.Start() | Out-Null
-$cloudflared.BeginErrorReadLine()
-$cloudflared.BeginOutputReadLine()
+# Use a thread-safe synchronized wrapper for the flag
+$syncHash = [Hashtable]::Synchronized(@{
+    TunnelReady = $false
+    UrlCopied = $false
+})
 
 # Cleanup logic
 $global:cpTeardownDone = $false
@@ -105,17 +80,70 @@ $cleanup = {
     } else {
         Log "INFO" "Copyparty already stopped"
     }
+    # Clean up log file
+    if (Test-Path $logPath) {
+        try {
+            Remove-Item $logPath -Force -ErrorAction SilentlyContinue
+            Log "DEBUG" "Cleaned up cloudflared.log"
+        } catch {
+            Log "WARN" "Could not remove cloudflared.log"
+        }
+    }
     Log "INFO" "All processes stopped"
 }
 
 try {
     # Wait for Tunnel connection registration or timeout (30s)
+    Log "INFO" "Monitoring cloudflared.log for tunnel URL and ready state..."
     $timer = [System.Diagnostics.Stopwatch]::StartNew()
     while (-not $syncHash.TunnelReady -and $timer.Elapsed.TotalSeconds -lt 30) {
         # If copyparty crashes early, stop waiting
         if ($copyparty.HasExited) { throw "Copyparty exited unexpectedly" }
-        Start-Sleep -Milliseconds 100
+
+        # If cloudflared crashes early, stop waiting
+        if ($cloudflared.HasExited) { throw "Cloudflared exited unexpectedly" }
+
+        # Check if log file exists and read it
+        if (Test-Path $logPath) {
+            try {
+                $content = Get-Content $logPath -Raw -ErrorAction SilentlyContinue
+
+                if ($content) {
+                    # Strip ANSI color codes for reliable regex matching
+                    $cleanContent = $content -replace '\x1b\[[0-9;]*m',''
+
+                    # Extract and copy URL (only once)
+                    if (-not $syncHash.UrlCopied -and $cleanContent -match "(https://[\w-]+\.trycloudflare\.com)") {
+                        $url = $matches[1]
+                        try {
+                            Set-Clipboard -Value $url
+                            Log "INFO" "Quick Tunnel URL has been copied to the clipboard!"
+                            Log "INFO" "Tunnel URL: $url"
+                            $syncHash.UrlCopied = $true
+                        } catch {
+                            Log "ERROR" "Failed to copy quick Tunnel URL to the clipboard"
+                            Log "ERROR" "$_"
+                        }
+                    }
+
+                    # Detect Tunnel connection registration
+                    if ($cleanContent -match "Registered tunnel connection") {
+                        $syncHash.TunnelReady = $true
+                        Log "INFO" "Tunnel connection registered successfully"
+                    }
+                }
+            } catch {
+                # Ignore transient file access errors
+            }
+        }
+
+        Start-Sleep -Milliseconds 200
     }
+
+    if (-not $syncHash.TunnelReady) {
+        Log "WARN" "Tunnel did not register within 30 seconds"
+    }
+
     Log "INFO" "Cloudparty running"
 
     # Robust wait for Copyparty
