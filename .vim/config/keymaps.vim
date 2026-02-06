@@ -1,5 +1,10 @@
 " Redraw / Clear hlsearch / Diff Update on pressing <Esc>
-nnoremap <silent> <Esc> :nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
+if v:version >= 900
+    nnoremap <silent> <Esc> :nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
+else
+    " Older vim versions has issue with single Esc key
+    nnoremap <silent> <Esc><Esc> :nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
+endif
 
 " Exit terminal mode
 tnoremap <Esc><Esc> <C-\><C-n>
