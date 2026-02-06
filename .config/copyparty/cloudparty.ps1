@@ -29,7 +29,7 @@ Log "INFO" "Cloudflare tunnel temporary log file: $logPath"
 
 $cloudflared = Start-Process `
     -FilePath "cloudflared" `
-    -ArgumentList "tunnel --url http://127.0.0.1:3923 --logfile `"$logPath`"" `
+    -ArgumentList "tunnel --url http://127.0.0.1 --logfile `"$logPath`"" `
     -PassThru -WindowStyle Normal
 Log "INFO" "Cloudflare tunnel started"
 
