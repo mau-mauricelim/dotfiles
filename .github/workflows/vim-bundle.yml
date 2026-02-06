@@ -27,36 +27,9 @@ jobs:
       - name: Cleanup
         run: |
           cd ~/.vim
-
-          find . -type d \( \
-            -name ".git" -o \
-            -name ".github" -o \
-            -name "bin" -o \
-            -name "doc" -o \
-            -name "docs" -o \
-            -name "img" -o \
-            -name "man" -o \
-            -name "shell" -o \
-            -name "src" -o \
-            -name "test" -o \
-            -name "tests" \
-          \) -exec rm -rf {} + 2>/dev/null || true
-
-          find . -type f \( \
-            -name "*.md" -o \
-            -name "*.txt" -o \
-            -name "*.rst" -o \
-            -name "LICENSE*" -o \
-            -name "CHANGELOG*" -o \
-            -name "README*" -o \
-            -name "*.png" -o \
-            -name "*.jpg" -o \
-            -name "*.jpeg" -o \
-            -name "*.gif" -o \
-            -name "*.svg" -o \
-            -name ".gitignore" -o \
-            -name ".gitattributes" \
-          \) -delete
+          # Delete all files that are NOT .vim files or vimrc
+          find . -type f ! -name "*.vim" ! -name "vimrc" -delete
+          find . -type d -empty -delete
 
       - name: Upload artifact
         uses: actions/upload-artifact@v4
