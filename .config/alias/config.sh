@@ -62,6 +62,7 @@ alias restow='stow .' # use -nv for simulation
 alias rg="rg -L --hidden --glob '!.git'"
 alias rr="rm -r"
 alias rrf="rm -rf"
+alias rxl="find . -maxdepth 1 -xtype l -delete" # Remove broken symlinks
 alias s="ssh"
 alias ta="tmux attach || tmux"
 alias td="tmux detach"
