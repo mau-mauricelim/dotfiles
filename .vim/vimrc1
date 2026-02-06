@@ -1,0 +1,514 @@
+" Single vimrc file for portability (except filetype.vim, indent and syntax files)
+
+"+----------+
+"| vim-plug |
+"+----------+
+
+" Vim plug bootstrap
+let plug_path = expand('~/.vim/autoload/plug.vim')
+
+if !filereadable(plug_path)
+    echo "INFO: Downloading vim-plug"
+    execute '!curl -fLo ' . plug_path . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    if v:shell_error != 0
+        echoerr "ERROR: Failed to download vim-plug. Check your internet connection."
+    endif
+endif
+
+if filereadable(plug_path)
+    " Make sure you use single quotes
+    call plug#begin()
+    Plug 'joshdick/onedark.vim'
+    Plug 'airblade/vim-gitgutter'
+    Plug 'vim-airline/vim-airline'
+    Plug 'junegunn/fzf'
+    Plug 'junegunn/fzf.vim'
+    Plug 'tpope/vim-vinegar'
+    Plug 'tpope/vim-commentary'
+    call plug#end()
+endif
+
+"+---------+
+"| options |
+"+---------+
+
+" Set <space> as the leader key
+let mapleader = ' '
+let maplocalleader = ' '
+
+" Syntax highlighting
+filetype plugin indent on
+syntax on
+
+" Wildmenu
+set wildmenu
+set wildmode=longest:full,full
+
+" Persistent undo - custom directories
+let l:data_home = exists('$XDG_DATA_HOME') ? $XDG_DATA_HOME : expand('~/.config/local/share')
+let l:vim_base = l:data_home . '/vim'
+if !isdirectory(l:vim_base . '/undo')   | call mkdir(l:vim_base . '/undo', 'p')   | endif
+if !isdirectory(l:vim_base . '/swap')   | call mkdir(l:vim_base . '/swap', 'p')   | endif
+if !isdirectory(l:vim_base . '/backup') | call mkdir(l:vim_base . '/backup', 'p') | endif
+let &undodir    = l:vim_base . '/undo'
+let &directory  = l:vim_base . '/swap'
+let &backupdir  = l:vim_base . '/backup'
+let &viminfo   += 'n' . l:vim_base . '/viminfo'
+
+" Make line numbers default
+set number relativenumber
+
+" Enable mouse mode
+set mouse=a
+set mousemodel=extend
+
+" Clipboard settings
+set clipboard=unnamed
+
+" Enable break indent
+" set breakindent
+
+" Save undo history
+set undofile
+set undolevels=100000
+set undoreload=100000
+
+" Disable swapfile
+set noswapfile
+
+" Case-insensitive searching
+set ignorecase smartcase
+
+" Keep signcolumn auto by default
+set signcolumn=auto
+
+" Set textwidth for gq
+set textwidth=120
+set formatoptions-=t
+
+" Decrease update time
+set updatetime=100
+
+" Decrease mapped sequence wait time
+set timeoutlen=300
+
+" Configure how new splits should be opened
+set splitright splitbelow
+
+" Sets how vim will display certain whitespace
+set list
+set listchars=tab:»\ ,trail:·,nbsp:␣
+
+" Show which line your cursor is on
+set cursorline
+
+" Tab settings
+set tabstop=4
+set shiftwidth=4
+set expandtab
+
+" No wrap
+set nowrap
+
+" Allow cursor to move just past end of line
+set virtualedit=onemore
+
+" Set highlight on search
+set hlsearch
+
+" Disable audible and visual bells
+set noerrorbells novisualbell
+set t_vb=
+
+"+---------+
+"| keymaps |
+"+---------+
+
+" Redraw / Clear hlsearch / Diff Update on pressing <Esc>
+if v:version >= 900
+    nnoremap <silent> <Esc> :nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
+else
+    " Older vim versions has issue with single Esc key
+    nnoremap <silent> <Esc><Esc> :nohlsearch<Bar>diffupdate<Bar>normal! <C-L><CR>
+endif
+
+" Exit terminal mode
+tnoremap <Esc><Esc> <C-\><C-n>
+
+" Split navigation with Ctrl-HJKL
+nnoremap <C-h> <C-w><C-h>
+nnoremap <C-l> <C-w><C-l>
+nnoremap <C-j> <C-w><C-j>
+nnoremap <C-k> <C-w><C-k>
+
+" Side scroll
+nnoremap <S-ScrollWheelUp> 10zh
+vnoremap <S-ScrollWheelUp> 10zh
+nnoremap <S-ScrollWheelDown> 10zl
+vnoremap <S-ScrollWheelDown> 10zl
+
+" Center screen on current line
+nnoremap k kzz
+vnoremap k kzz
+nnoremap j jzz
+vnoremap j jzz
+nnoremap G Gzz
+vnoremap G Gzz
+nnoremap <C-End> Gzz
+vnoremap <C-End> Gzz
+nnoremap <Up> kzz
+vnoremap <Up> kzz
+nnoremap <Down> jzz
+vnoremap <Down> jzz
+nnoremap <C-u> <C-u>zz
+vnoremap <C-u> <C-u>zz
+nnoremap <C-d> <C-d>zz
+vnoremap <C-d> <C-d>zz
+nnoremap <PageUp> <C-u>zz
+vnoremap <PageUp> <C-u>zz
+nnoremap <PageDown> <C-d>zz
+vnoremap <PageDown> <C-d>zz
+inoremap <PageUp> <Esc><C-u>zzi
+inoremap <PageDown> <Esc><C-d>zzi
+
+" Saner behavior of n and N - center search and open folds
+nnoremap <expr> n 'Nn'[v:searchforward].'zzzv'
+xnoremap <expr> n 'Nn'[v:searchforward]
+onoremap <expr> n 'Nn'[v:searchforward]
+nnoremap <expr> N 'nN'[v:searchforward].'zzzv'
+xnoremap <expr> N 'nN'[v:searchforward]
+onoremap <expr> N 'nN'[v:searchforward]
+
+" Join line below cursor while maintaining cursor position
+nnoremap J mzJ`z
+
+"" Line Operations
+" [L]ines [J]oin by delimiter in file
+nnoremap <Leader>lj ggvG<Up>:s/\n//<Left>
+" [L]ines [J]oin by delimiter in visual selection
+vnoremap <Leader>lj <Up>:s/\n//<Left>
+" [L]ine [S]plit by delimiter
+nnoremap <Leader>ls <Esc><S-v>:s//\r/g<Left><Left><Left><Left><Left>
+vnoremap <Leader>ls <Esc><S-v>:s//\r/g<Left><Left><Left><Left><Left>
+" [C]ontiguous duplicate lines squeeze in file
+nnoremap <silent> <Leader>lc mz:%!uniq<CR>`z
+" [C]ontiguous duplicate lines squeeze in visual selection
+vnoremap <silent> <Leader>lc mz:!uniq<CR>`z
+" Remove [D]uplicate lines in file
+nnoremap <silent> <Leader>ld mz:%!awk '\!a[$0]++'<CR>`z
+" Remove [D]uplicate lines in visual selection
+vnoremap <silent> <Leader>ld mz:!awk '\!a[$0]++'<CR>`z
+" Convert file format to Uni[X]
+nnoremap <silent> <Leader>lx :w <Bar> e ++ff=dos <Bar> set ff=unix <Bar> w<CR>
+" Convert file format to Uni[X]
+vnoremap <silent> <Leader>lx :w <Bar> e ++ff=dos <Bar> set ff=unix <Bar> w<CR>
+" Remove [L]ines [E]mpty in file
+nnoremap <silent> <Leader>le :g/^$/d<CR>
+
+"" Json Line Operations
+" Pretty print json
+nnoremap <silent> <Leader>jq :%!jq<CR>
+vnoremap <silent> <Leader>jq :!jq<CR>
+
+"" Format Operations
+" [F]ormat end of [L]ines in file
+nnoremap <silent> <Leader>fl mz:%s/\s\+$//<CR>`z
+" [F]ormat end of [L]ines in visual selection
+vnoremap <silent> <Leader>fl mz:s/\s\+$//<CR>`z
+" cat -s to squeeze-blank
+" $(where cat|tail -1) to identify the default command if it has been aliased
+" [F]ormat [C]ontiguous empty lines in file
+nnoremap <silent> <Leader>fc mz:%!$(where cat<Bar>tail -1) -s<CR>`z
+" [F]ormat [C]ontiguous empty lines in visual selection
+vnoremap <silent> <Leader>fc mz:!$(where cat<Bar>tail -1) -s<CR>`z
+
+" Remap C-c to Esc
+inoremap <C-c> <Esc>
+
+" kj to Esc
+inoremap kj <Esc>
+vnoremap kj <Esc>
+inoremap KJ <Esc>
+vnoremap KJ <Esc>
+
+" Remap Home/End to toggle between start/end of line
+nnoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+inoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
+nnoremap <expr> 0 charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> 0 charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+nnoremap <expr> <End> charcol(".") == charcol("$")-1 ? "g_" : "$"
+vnoremap <expr> <End> charcol(".") == charcol("$") ? "g_" : "$"
+inoremap <expr> <End> charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"
+
+" If EOL, then join, else delete char
+nnoremap <expr> x charcol(".") == charcol("$") ? "J" : "x"
+
+" Save file
+nnoremap <C-s> :w<CR><Esc>
+inoremap <C-s> <Esc>:w<CR><Esc>
+xnoremap <C-s> <Esc>:w<CR><Esc>
+snoremap <C-s> <Esc>:w<CR><Esc>
+
+" Quit without saving with nonzero exit code
+nnoremap ZC :cq<CR>
+
+" New file
+nnoremap <Leader>nf :enew<CR>
+
+" Disable go to sleep keymap
+nnoremap gs <nop>
+
+" Quickfix list
+nnoremap <Leader>lq :copen<CR>
+nnoremap ]q :cnext<CR>
+nnoremap [q :cprev<CR>
+
+" Indenting to remain in visual mode
+vnoremap < <gv
+vnoremap > >gv
+
+" Sentence case word
+nnoremap <Leader>gS guiwv~
+
+" Visual block mode
+nnoremap <Bslash>B <C-v>
+vnoremap <Bslash>B <C-v>
+
+" Split and move
+nnoremap <Leader><Bar> :vsp<CR><C-w><C-p>:bp<CR><C-w><C-p>
+nnoremap <Leader>- :sp<CR><C-w><C-p>:bp<CR><C-w><C-p>
+
+" Execute vim commands
+nnoremap <Leader>xv :exec getline(".")<CR>
+
+" Add stylua ignore above current line
+nnoremap <Leader>li yyP^d$a-- stylua: ignore<Esc>
+
+" Add semi-colon separator
+nnoremap <silent> <Leader>; mzA;<Esc>`z
+vnoremap <silent> <Leader>; mz<C-q>$A;<Esc>
+
+" Change all lines
+nnoremap <Leader>ca ggdGi
+
+" Delete all lines
+nnoremap <Leader>da ggdG
+
+" Yank all lines
+nnoremap <silent> <Leader>ya :%y<CR>
+
+" Highlight all lines
+nnoremap <silent> <Leader>va ggVG$
+
+" Select to end/start of line
+nnoremap L v$h
+vnoremap L $h
+nnoremap H v^
+vnoremap H ^
+
+" Search and replace word under cursor
+nnoremap <Leader>/r :%s/<C-r><C-w>//g<Left><Left>
+
+" Search whole word
+nnoremap <Leader>/w /\<\><Left><Left>
+
+" Search current without moving cursor
+nnoremap * *N
+vnoremap * *N
+nnoremap # #n
+vnoremap # #n
+nnoremap g* g*N
+vnoremap g* g*N
+nnoremap g# g#n
+vnoremap g# g#n
+
+" Copy file name/path
+nnoremap <silent> <Leader>cf :let @" = expand("%")<CR>
+nnoremap <silent> <Leader>cp :let @" = expand("%:p")<CR>
+
+" Delete into black hole register
+vnoremap D "_d
+nnoremap dD "_dd
+vnoremap C "_c
+nnoremap cC "_cc
+
+" Insert tab space in normal mode
+nnoremap <Tab> i<Tab><Esc>
+
+" Edit macros
+nnoremap <Leader>m :<c-u><c-r><c-r>='let @'. v:register .' = '. string(getreg(v:register))<CR><c-f><left>
+
+" Custom toggles
+nnoremap <Bslash>n :set nonu! nornu!<CR>
+vnoremap <Bslash>n :set nonu! nornu!<CR>
+
+" Buffer list
+nnoremap ]b :bnext<CR>
+nnoremap [b :bprev<CR>
+
+"+----------+
+"| autocmds |
+"+----------+
+
+" Disable auto comment new lines
+augroup disable_auto_comment
+    autocmd!
+    autocmd BufEnter * set fo-=c fo-=r fo-=o
+augroup END
+
+" Center screen on buffer read
+augroup center_screen
+    autocmd!
+    autocmd BufReadPre * normal! zz
+augroup END
+
+" Add new filetype mappings
+augroup filetype_mappings
+    autocmd!
+    autocmd BufRead,BufNewFile *.q setfiletype q
+    autocmd BufRead,BufNewFile *.k setfiletype k
+augroup END
+
+" Go to last location when opening a buffer
+augroup last_location
+    autocmd!
+    autocmd BufReadPost * if line("'\"") > 0 && line("'\"") <= line("$") && &filetype !~# 'gitcommit' | exe "normal! g'\"" | endif
+augroup END
+
+" Close some filetypes with q
+augroup close_with_q
+    autocmd!
+    autocmd FileType help,qf nnoremap <buffer> <silent> q :close<CR>
+    autocmd FileType help,qf setlocal nobuflisted
+augroup END
+
+" netrw mappings
+augroup netrw_mappings
+    autocmd!
+    autocmd FileType netrw call NetrwMapping()
+augroup END
+
+"+-----------+
+"| functions |
+"+-----------+
+
+" Toggle virtualedit
+function! ToggleVirtualEdit()
+    if &virtualedit == 'onemore'
+        set virtualedit=all
+        echo "virtualedit=all"
+    else
+        set virtualedit=onemore
+        echo "virtualedit=onemore"
+    endif
+endfunction
+nnoremap <Bslash>V :call ToggleVirtualEdit()<CR>
+vnoremap <Bslash>V :call ToggleVirtualEdit()<CR>
+
+" Toggle clipboard
+function! ToggleClipboard()
+    if &clipboard == 'unnamedplus'
+        set clipboard=unnamed
+        echo "clipboard=unnamed"
+    elseif &clipboard == 'unnamed'
+        set clipboard=
+        echo "clipboard="
+    else
+        set clipboard=unnamedplus
+        echo "clipboard=unnamedplus"
+    endif
+endfunction
+nnoremap <Bslash>p :call ToggleClipboard()<CR>
+vnoremap <Bslash>p :call ToggleClipboard()<CR>
+
+" Toggle signcolumn
+function! ToggleSigncolumn()
+    if &signcolumn == 'yes'
+        set signcolumn=no
+        echo "signcolumn=no"
+    else
+        set signcolumn=yes
+        echo "signcolumn=yes"
+    endif
+endfunction
+nnoremap <Bslash>s :call ToggleSigncolumn()<CR>
+vnoremap <Bslash>s :call ToggleSigncolumn()<CR>
+
+" Remove trailing blank lines
+function! TrimEndLines()
+    let save_cursor = getpos(".")
+    silent! %s#\($\n\s*\)\+\%$##
+    call setpos('.', save_cursor)
+endfunction
+nnoremap <silent> <Leader>fe :call TrimEndLines()<CR>
+
+" Toggle alternate or last file
+function! AltFileOrOldFile()
+    if @# != ''
+        execute 'buffer #'
+    elseif !empty(v:oldfiles)
+        execute 'edit ' . v:oldfiles[0]
+    else
+        echo "No alternate file available"
+    endif
+endfunction
+nnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
+vnoremap <silent> <Leader>. :call AltFileOrOldFile()<CR>
+
+" Netrw
+function! NetrwMapping()
+    nnoremap <buffer> <silent> q :bdelete<CR>
+    nmap <buffer> h -
+    nmap <buffer> <Left> -
+    nmap <buffer> l <CR>
+    nmap <buffer> <Right> <CR>
+endfunction
+
+"+---------+
+"| plugins |
+"+---------+
+
+if exists('g:plugs["onedark.vim"]')
+    colorscheme onedark
+endif
+
+if exists('g:plugs["vim-gitgutter"]')
+    nmap ]h <Plug>(GitGutterNextHunk)
+    nmap [h <Plug>(GitGutterPrevHunk)
+endif
+
+if exists('g:plugs["vim-airline"]')
+    let g:airline#extensions#tabline#enabled = 1
+    " Hide the default mode indicator at the bottom of the screen as using status line plugin
+    set noshowmode
+endif
+
+if exists('g:plugs["vim-commentary"]')
+    nmap gcn ONOTE: <Esc>gccA
+    nmap gct OTODO: <Esc>gccA
+endif
+
+if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
+    " [S]earch [F]iles
+    nnoremap <Leader>sf :Files<CR>
+    vnoremap <Leader>sf <Esc>:Files<CR>
+    " [ ] Find existing buffers
+    nnoremap <Leader><Leader> :Buffers<CR>
+    vnoremap <Leader><Leader> <Esc>:Buffers<CR>
+    " Grep
+    nnoremap <Leader>sg :Rg<CR>
+    vnoremap <Leader>sg <Esc>:Rg<CR>
+    " [S]earch Recent Files ("." for repeat)
+    nnoremap <Leader>s. :History<CR>
+    vnoremap <Leader>s. <Esc>:History<CR>
+    "[S]earch [C]ommand history
+    nnoremap <Leader>sc :History:<CR>
+    vnoremap <Leader>sc <Esc>:History:<CR>
+    " Search History
+    nnoremap <Leader>s/ :History/<CR>
+    vnoremap <Leader>s/ <Esc>:History/<CR>
+    " [S]earch [K]eymaps
+    nnoremap <Leader>sk :Maps<CR>
+    vnoremap <Leader>sk <Esc>:Maps<CR>
+endif
