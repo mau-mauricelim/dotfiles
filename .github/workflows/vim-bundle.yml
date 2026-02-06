@@ -1,0 +1,40 @@
+name: Vim bundle
+
+on:
+  workflow_dispatch:
+  workflow_call:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Vim
+        run: |
+          mkdir -p ~/.vim
+          cp -r .vim/* ~/.vim/
+
+      - name: Install plugins
+        run: |
+          echo "Running PlugInstall..."
+          vim -Nu ~/.vim/vimrc -E -s +'PlugInstall --sync' +qa || { echo "PlugInstall completed with warnings/errors (this is often normal)"; }
+          echo "Installed plugins:"
+          ls -la ~/.vim/plugged/ 2>/dev/null || echo "No plugged directory found"
+
+      - name: Cleanup Vim
+        run: |
+          cd ~/.vim
+          # Delete all files that are NOT .vim files or vimrc
+          find . -type f ! -name "*.vim" ! -name "vimrc" -delete
+          find . -type d -empty -delete
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vim-bundle
+          path: ~/.vim
+          include-hidden-files: true
+          retention-days: 5

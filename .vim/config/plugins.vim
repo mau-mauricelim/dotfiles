@@ -1,5 +1,5 @@
 if exists('g:plugs["onedark.vim"]')
-    colorscheme onedark
+    silent! colorscheme onedark
 endif
 
 if exists('g:plugs["vim-gitgutter"]')

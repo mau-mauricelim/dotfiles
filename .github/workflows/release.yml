@@ -55,6 +55,8 @@ jobs:
         uses: softprops/action-gh-release@v2
         with:
           body_path: ${{ github.workspace }}-CHANGELOG.txt
-          files: target/release/wsl-*-custom.zip
+          files: |
+            target/release/wsl-*-custom.zip
+            target/release/vim-bundle.zip
           tag_name: ${{ inputs.TAG_NAME}}
           prerelease: true
