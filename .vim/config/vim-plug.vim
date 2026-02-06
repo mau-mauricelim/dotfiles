@@ -3,7 +3,7 @@ let plug_path = expand('~/.vim/autoload/plug.vim')
 
 if !filereadable(plug_path)
     echo "INFO: Downloading vim-plug"
-    execute '!curl -fLo ' . plug_path . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
+    silent execute '!curl -fLo ' . plug_path . ' --create-dirs https://raw.githubusercontent.com/junegunn/vim-plug/master/plug.vim'
     if v:shell_error != 0
         echoerr "ERROR: Failed to download vim-plug. Check your internet connection."
     endif
