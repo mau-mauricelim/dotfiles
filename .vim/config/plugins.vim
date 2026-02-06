@@ -5,6 +5,7 @@ endif
 if exists('g:plugs["vim-gitgutter"]')
     nmap ]h <Plug>(GitGutterNextHunk)
     nmap [h <Plug>(GitGutterPrevHunk)
+    set signcolumn=yes
 endif
 
 if exists('g:plugs["vim-airline"]')
