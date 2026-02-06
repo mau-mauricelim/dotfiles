@@ -23,9 +23,6 @@ set number relativenumber
 set mouse=a
 set mousemodel=extend
 
-" Don't show the mode
-set noshowmode
-
 " Clipboard settings
 set clipboard=unnamed
 
@@ -43,8 +40,8 @@ set noswapfile
 " Case-insensitive searching
 set ignorecase smartcase
 
-" Keep signcolumn on by default
-set signcolumn=yes
+" Keep signcolumn auto by default
+set signcolumn=auto
 
 " Set textwidth for gq
 set textwidth=120

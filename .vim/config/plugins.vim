@@ -9,6 +9,8 @@ endif
 
 if exists('g:plugs["vim-airline"]')
     let g:airline#extensions#tabline#enabled = 1
+    " Hide the default mode indicator at the bottom of the screen as using status line plugin
+    set noshowmode
 endif
 
 if exists('g:plugs["vim-commentary"]')
