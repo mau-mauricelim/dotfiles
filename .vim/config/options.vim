@@ -11,10 +11,15 @@ set wildmenu
 set wildmode=longest:full,full
 
 " Persistent undo - custom directories
-set undodir=$XDG_DATA_HOME/vim/undo
-set directory=$XDG_DATA_HOME/vim/swap
-set backupdir=$XDG_DATA_HOME/vim/backup
-set viminfo+=n$XDG_DATA_HOME/vim/viminfo
+let l:data_home = exists('$XDG_DATA_HOME') ? $XDG_DATA_HOME : expand('~/.config/local/share')
+let l:vim_base = l:data_home . '/vim'
+if !isdirectory(l:vim_base . '/undo')   | call mkdir(l:vim_base . '/undo', 'p')   | endif
+if !isdirectory(l:vim_base . '/swap')   | call mkdir(l:vim_base . '/swap', 'p')   | endif
+if !isdirectory(l:vim_base . '/backup') | call mkdir(l:vim_base . '/backup', 'p') | endif
+let &undodir    = l:vim_base . '/undo'
+let &directory  = l:vim_base . '/swap'
+let &backupdir  = l:vim_base . '/backup'
+let &viminfo   += 'n' . l:vim_base . '/viminfo'
 
 " Make line numbers default
 set number relativenumber
