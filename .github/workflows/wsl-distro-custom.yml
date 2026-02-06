@@ -9,6 +9,9 @@ env:
   DOCKERHUB_USERNAME: maumauricelim
 
 jobs:
+  bundle:
+    uses: ./.github/workflows/vim-bundle.yml
+    secrets: inherit
   build:
     timeout-minutes: 15
     strategy:

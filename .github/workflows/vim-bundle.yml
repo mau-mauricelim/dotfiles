@@ -1,8 +1,8 @@
-name: vim bundle
+name: Vim bundle
 
 on:
-  push:
   workflow_dispatch:
+  workflow_call:
 
 jobs:
   bundle:
@@ -12,7 +12,7 @@ jobs:
       - name: Checkout
         uses: actions/checkout@v4
 
-      - name: Setup vim
+      - name: Setup Vim
         run: |
           mkdir -p ~/.vim
           cp -r .vim/* ~/.vim/
@@ -24,7 +24,7 @@ jobs:
           echo "Installed plugins:"
           ls -la ~/.vim/plugged/ 2>/dev/null || echo "No plugged directory found"
 
-      - name: Cleanup
+      - name: Cleanup Vim
         run: |
           cd ~/.vim
           # Delete all files that are NOT .vim files or vimrc
@@ -34,7 +34,7 @@ jobs:
       - name: Upload artifact
         uses: actions/upload-artifact@v4
         with:
-          name: .vim
+          name: vim-bundle
           path: ~/.vim
           include-hidden-files: true
           retention-days: 5
