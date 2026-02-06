@@ -1,0 +1,67 @@
+name: vim bundle
+
+on:
+  push:
+  workflow_dispatch:
+
+jobs:
+  bundle:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup vim
+        run: |
+          mkdir -p ~/.vim
+          cp -r .vim/* ~/.vim/
+
+      - name: Install plugins
+        run: |
+          echo "Running PlugInstall..."
+          vim -Nu ~/.vim/vimrc -E -s +'PlugInstall --sync' +qa || { echo "PlugInstall completed with warnings/errors (this is often normal)"; }
+          echo "Installed plugins:"
+          ls -la ~/.vim/plugged/ 2>/dev/null || echo "No plugged directory found"
+
+      - name: Cleanup
+        run: |
+          cd ~/.vim
+
+          find . -type d \( \
+            -name ".git" -o \
+            -name ".github" -o \
+            -name "bin" -o \
+            -name "doc" -o \
+            -name "docs" -o \
+            -name "img" -o \
+            -name "man" -o \
+            -name "shell" -o \
+            -name "src" -o \
+            -name "test" -o \
+            -name "tests" \
+          \) -exec rm -rf {} + 2>/dev/null || true
+
+          find . -type f \( \
+            -name "*.md" -o \
+            -name "*.txt" -o \
+            -name "*.rst" -o \
+            -name "LICENSE*" -o \
+            -name "CHANGELOG*" -o \
+            -name "README*" -o \
+            -name "*.png" -o \
+            -name "*.jpg" -o \
+            -name "*.jpeg" -o \
+            -name "*.gif" -o \
+            -name "*.svg" -o \
+            -name ".gitignore" -o \
+            -name ".gitattributes" \
+          \) -delete
+
+      - name: Upload artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: vim-bundle
+          path: ~/.vim
+          include-hidden-files: true
+          retention-days: 5
