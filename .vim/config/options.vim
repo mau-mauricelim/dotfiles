@@ -53,6 +53,9 @@ set noswapfile
 " Case-insensitive searching
 set ignorecase smartcase
 
+" Keep signcolumn auto by default
+silent! set signcolumn=auto
+
 " Set textwidth for gq
 set textwidth=120
 set formatoptions-=t

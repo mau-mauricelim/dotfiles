@@ -7,7 +7,7 @@ else
 endif
 
 " Exit terminal mode
-tnoremap <Esc><Esc> <C-\><C-n>
+silent! tnoremap <Esc><Esc> <C-\><C-n>
 
 " Split navigation with Ctrl-HJKL
 nnoremap <C-h> <C-w><C-h>
