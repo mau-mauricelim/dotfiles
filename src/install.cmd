@@ -16,7 +16,7 @@ IF /I "%CONFIRM%" NEQ "Y" GOTO END
 @echo(
 @echo Overwriting any existing WSL distribution with the same name: [%distro_name%].
 @SET WslCustomDistro=%USERPROFILE%\AppData\Local\Packages\WslCustomDistro
-@powershell -Command "if((wsl -l -v | Where {$_.Replace(\"`0\",\"\") -match \" %distro_name% \"}).count -gt 0) {wsl --unregister %distro_name%}; $InstallLocation='%WslCustomDistro%\%distro_name%'; if(-not(Test-Path -PathType container $InstallLocation)) {$null = new-item $InstallLocation -ItemType Directory}; echo \"Installing to [$InstallLocation]\";wsl --import %distro_name% $InstallLocation $(ls .\*.tar.gz)"
+@powershell -Command "if((wsl -l -v | Where {$_.Replace(\"`0\",\"\") -match \" %distro_name% \"}).count -gt 0) {wsl --unregister %distro_name%}; $InstallLocation='%WslCustomDistro%\%distro_name%'; if(-not(Test-Path -PathType container $InstallLocation)) {$null = new-item $InstallLocation -ItemType Directory}; echo \"Installing to [$InstallLocation]\";wsl --import %distro_name% $InstallLocation $(ls .\*.tar.xz)"
 @REM Clean up WslCustomDistro path
 @powershell -Command "gci '%WslCustomDistro%' -directory -recurse | Where { (gci $_.fullName).count -eq 0 } | select -expandproperty FullName | Foreach-Object { Remove-Item $_ }"
 

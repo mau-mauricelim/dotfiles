@@ -45,10 +45,10 @@ jobs:
             BRANCH_NAME=${{ github.ref_name }}
       - name: Upload docker image to registry
         run: docker image push ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-      - name: Export docker container to a tar.gz file using gzip
+      - name: Export docker container to a tar.xz file using gzip
         run: |
           docker run -dit --hostname ${{ env.IMAGE_NAME }} --name ${{ env.IMAGE_NAME }} ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          docker export ${{ env.IMAGE_NAME }} | gzip > /tmp/${{ env.IMAGE_NAME }}.tar.gz
+          docker export ${{ env.IMAGE_NAME }} | xz -9 > /tmp/${{ env.IMAGE_NAME }}.tar.xz
       - name: Export WSL install script
         # run: sed "s/SET_DISTRO_NAME/${{ env.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
         # Use the same distro name
@@ -58,5 +58,5 @@ jobs:
         with:
           name: wsl-${{ env.IMAGE_NAME }}
           path: |
-            /tmp/${{ env.IMAGE_NAME }}.tar.gz
+            /tmp/${{ env.IMAGE_NAME }}.tar.xz
             /tmp/install.cmd
