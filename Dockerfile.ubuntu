@@ -18,18 +18,18 @@ SHELL ["/bin/bash", "-c"]
 RUN sed -i 's:^path-exclude=/usr/share/man:#path-exclude=/usr/share/man:' /etc/dpkg/dpkg.cfg.d/excludes && \
     # Install required packages
     apt-get -qq update >/dev/null 2>&1 && \
-        apt-get -qq install -y --no-install-recommends \
-            sudo && \
+    apt-get -qq install -y --no-install-recommends \
+        sudo && \
     # Create user
     groupadd --gid $USER_GID $USERNAME && \
-        # Set Zsh as the default shell
-        useradd --uid $USER_UID --gid $USER_GID -m -N -s /bin/zsh $USERNAME && \
-        mkdir -p /etc/sudoers.d && \
-        echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
-        chmod 0440 /etc/sudoers.d/$USERNAME && \
-        # Add docker permissions
-        groupadd docker && \
-        usermod -aG docker $USERNAME && \
+    # Set Zsh as the default shell
+    useradd --uid $USER_UID --gid $USER_GID -m -N -s /bin/zsh $USERNAME && \
+    mkdir -p /etc/sudoers.d && \
+    echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME && \
+    # Add docker permissions
+    groupadd docker && \
+    usermod -aG docker $USERNAME && \
     # Remove the default "ubuntu" user
     userdel -r ubuntu && \
     # Set default user for WSL and Network settings
@@ -45,5 +45,5 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 RUN bash install.sh $INSTALL_TYPE $BRANCH_NAME && rm install.sh && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
-        for test in /tmp/tests/*.sh; do bash "$test"; done && \
-        rm -rf /tmp/tests
+    for test in /tmp/tests/*.sh; do bash "$test"; done && \
+    rm -rf /tmp/tests
