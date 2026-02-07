@@ -185,8 +185,7 @@ return { -- LSP Configuration & Plugins
     registry.refresh(function()
       if not registry.is_installed(pkg_name) then
         local pkg = registry.get_package(pkg_name)
-        local M = require('config.functions')
-        pkg:install(M.IsMusl() and { version = '3.15.0' } or nil)
+        pkg:install(IsMusl() and { version = '3.15.0' } or nil)
       end
     end)
 

@@ -2,7 +2,7 @@
 -- stylua: ignore start
 local M = {}
 
-function IsMusl() return string.find(vim.fn.system("ldd " .. vim.fn.exepath("nvim") .. " 2>&1"), "musl") end
+function IsMusl() return vim.loop.fs_stat('/lib/ld-musl-x86_64.so.1') ~= nil end
 
 -- Print lua commands
 function P(v) print(vim.inspect(v)); return v end
