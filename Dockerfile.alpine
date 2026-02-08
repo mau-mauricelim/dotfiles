@@ -16,11 +16,11 @@ ARG BRANCH_NAME=main
 RUN apk -q --no-progress --no-cache add sudo bash && \
     # Create user
     addgroup --gid $USER_GID $USERNAME && \
-        # Set Zsh as the default shell
-        adduser --system $USERNAME --shell /bin/zsh --uid $USER_UID && \
-        mkdir -p /etc/sudoers.d && \
-        echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
-        chmod 0440 /etc/sudoers.d/$USERNAME && \
+    # Set Zsh as the default shell
+    adduser --system $USERNAME --shell /bin/zsh --uid $USER_UID && \
+    mkdir -p /etc/sudoers.d && \
+    echo $USERNAME ALL=\(root\) NOPASSWD:ALL > /etc/sudoers.d/$USERNAME && \
+    chmod 0440 /etc/sudoers.d/$USERNAME && \
     # Set default user for WSL and Network settings
     echo -e "[user]\ndefault=$USERNAME\n[interop]\nappendWindowsPath=false" >> /etc/wsl.conf && \
     # ISSUE: WSL interoperability with Apline. /etc/profile overwrites the PATH variable in .zshenv
@@ -36,5 +36,5 @@ COPY --chown=$USERNAME:$USERNAME tests /tmp/tests
 RUN bash install.sh $INSTALL_TYPE $BRANCH_NAME && rm install.sh && \
     # Run tests
     echo -e "\n#########\n# TESTS #\n#########\n" && \
-        for test in /tmp/tests/*.sh; do bash "$test"; done && \
-        rm -rf /tmp/tests
+    for test in /tmp/tests/*.sh; do bash "$test"; done && \
+    rm -rf /tmp/tests
