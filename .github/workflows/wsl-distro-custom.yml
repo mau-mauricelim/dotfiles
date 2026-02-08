@@ -48,7 +48,7 @@ jobs:
       - name: Export docker container to a tar.xz file using gzip
         run: |
           docker run -dit --hostname ${{ env.IMAGE_NAME }} --name ${{ env.IMAGE_NAME }} ${{ env.DOCKERHUB_USERNAME }}/${{ env.IMAGE_NAME }}:latest
-          docker export ${{ env.IMAGE_NAME }} | xz -9e --extreme --lzma2=dict=1536M --threads=0 --memlimit=0 > /tmp/${{ env.IMAGE_NAME }}.tar.xz
+          docker export ${{ env.IMAGE_NAME }} | xz -9e --lzma2=dict=256M --threads=1 > /tmp/${{ env.IMAGE_NAME }}.tar.xz
       - name: Export WSL install script
         # run: sed "s/SET_DISTRO_NAME/${{ env.IMAGE_NAME }}/g" src/install.cmd > /tmp/install.cmd
         # Use the same distro name
