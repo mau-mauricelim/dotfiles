@@ -151,7 +151,7 @@ common_user_install() {
         tmux new -d "\
             timeout 300 nvim --headless '+Lazy! sync'                                                              +qa;\
             timeout 300 nvim --headless '+MasonToolsInstallSync'                                                   +qa;\
-            timeout 300 nvim --headless '+TSUpdateSync bash c html lua luadoc markdown markdown_inline vim vimdoc' +qa"
+            timeout 500 nvim --headless '+TSUpdateSync bash c html lua luadoc markdown markdown_inline vim vimdoc' +qa"
     fi
     # Start zsh and exit (It'll allow powerlevel10k to do everything it needs to do on first run.)
     echo exit | script -qec zsh /dev/null >/dev/null
