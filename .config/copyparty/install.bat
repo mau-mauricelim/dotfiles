@@ -19,8 +19,24 @@ call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.
 call :download "https://github.com/9001/copyparty/releases/latest/download/copyparty-sfx.py" "%dir%\party.py"
 call :download "https://github.com/cloudflare/cloudflared/releases/latest/download/cloudflared-windows-amd64.exe" "%dir%\cloudflared.exe"
 
-:: pause
+set confirm=n
+set /P confirm=Do you want to create desktop shortcuts? [Y/n] 
+if /I "%confirm%" NEQ "Y" goto end
 
+powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%userprofile%\Desktop\cloudparty.lnk'); $s.TargetPath='%dir%\cloudparty.bat'; $s.WorkingDirectory='%dir%'; $s.Save()"
+echo "Created desktop shortcut for: cloudparty"
+echo.
+powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%userprofile%\Desktop\party.lnk'); $s.TargetPath='%dir%\party.bat'; $s.WorkingDirectory='%dir%'; $s.Save()"
+echo "Created desktop shortcut for: party"
+echo.
+
+:end
+
+:: TODO: Check if PATH is set
+:: TODO: Add desktop shortcuts icons
+
+echo "Install complete!"
+pause
 :: Exit the script
 exit /b
 
@@ -28,7 +44,8 @@ exit /b
 set url=%~1
 set out=%~2
 echo Downloading %url% to %out% ...
-curl -sL "%url%" -o "%out%"
+:: Add a Cache-Busting Query Parameter to fetch the latest version from source
+curl -sL "%url%?v=%RANDOM%" -o "%out%"
 echo Download complete!
 echo.
 :: Exit the function
