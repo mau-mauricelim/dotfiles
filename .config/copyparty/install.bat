@@ -1,10 +1,20 @@
 :: Installs and update copyparty and cloudflared
 @echo off
 
-:: NOTE: Add this directory to PATH
 set dir=C:\copyparty
 set /P dir="Enter install path (%dir%): "
-echo "Install path: %dir%"
+echo.
+
+:: Normalize path
+set "dir=%dir:/=\%"
+:strip_double
+set "oldDir=%dir%"
+set "dir=%dir:\\=\%"
+if not "%dir%"=="%oldDir%" goto :strip_double
+if "%dir:~-1%"=="\" set "dir=%dir:~0,-1%"
+
+echo Install path: %dir%
+echo.
 md %dir% 2>nul
 
 call :download "https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/cloudparty.bat" "%dir%\cloudparty.bat"
@@ -21,21 +31,41 @@ call :download "https://github.com/cloudflare/cloudflared/releases/latest/downlo
 
 set confirm=n
 set /P confirm=Do you want to create desktop shortcuts? [Y/n] 
-if /I "%confirm%" NEQ "Y" goto end
+echo.
+if /I "%confirm%" NEQ "Y" goto pathcheck
 
+:: TODO: Add desktop shortcuts icons
 powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%userprofile%\Desktop\cloudparty.lnk'); $s.TargetPath='%dir%\cloudparty.bat'; $s.WorkingDirectory='%dir%'; $s.Save()"
-echo "Created desktop shortcut for: cloudparty"
+echo Created desktop shortcut for: cloudparty
 echo.
 powershell "$s=(New-Object -COM WScript.Shell).CreateShortcut('%userprofile%\Desktop\party.lnk'); $s.TargetPath='%dir%\party.bat'; $s.WorkingDirectory='%dir%'; $s.Save()"
-echo "Created desktop shortcut for: party"
+echo Created desktop shortcut for: party
 echo.
 
+:pathcheck
+powershell -Command "$p = [Environment]::GetEnvironmentVariable('Path', 'Machine') + ';' + [Environment]::GetEnvironmentVariable('Path', 'User'); $found = $p.Split(';') | ForEach-Object { $_.TrimEnd('\') } | Where-Object { $_ -ieq '%dir%' }; if ($found) { exit 0 } else { exit 1 }"
+
+if %errorlevel% equ 0 (
+    echo [OK] %dir% found in User PATH
+    echo.
+) else (
+    echo [!!] %dir% not found in User PATH
+    echo.
+    set confirm=n
+    set /P confirm=Do you want to add %dir% to User PATH? [Y/n] 
+    echo.
+    if /I "%confirm%" NEQ "Y" goto end
+
+    :: Add directory to User PATH
+    powershell -Command "[Environment]::SetEnvironmentVariable('Path', [Environment]::GetEnvironmentVariable('Path', 'User') + ';%dir%', 'User')"
+    :: Add directory to current session PATH
+    set "PATH=%PATH%;%dir%"
+    echo [OK] %dir% added to User PATH
+    echo.
+)
+
 :end
-
-:: TODO: Check if PATH is set
-:: TODO: Add desktop shortcuts icons
-
-echo "Install complete!"
+echo Install complete!
 pause
 :: Exit the script
 exit /b
