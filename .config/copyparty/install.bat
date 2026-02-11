@@ -1,4 +1,4 @@
-:: Installs and update copyparty and cloudflared
+:: Windows Install/Update of copyparty and cloudflared
 @echo off
 
 set dir=C:\copyparty

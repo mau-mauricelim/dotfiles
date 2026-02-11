@@ -1,6 +1,6 @@
 # Copyparty and cloudflare
 
-## Quick install
+## Windows Quick install
 
 ```cmd
 > curl -sSf https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/copyparty/install.bat -o %tmp%\install.bat && %tmp%\install.bat

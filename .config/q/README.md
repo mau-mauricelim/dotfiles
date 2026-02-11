@@ -1,10 +1,16 @@
 # Installing kdb+
-## Windows
-Download (and unzip) the kdb+ binaries into `C:\q` (`/mnt/c/q`)
+
+## Windows Quick install
+
+```cmd
+> curl -sSf https://raw.githubusercontent.com/mau-mauricelim/dotfiles/main/.config/q/install.bat -o %tmp%\install.bat && %tmp%\install.bat
+```
+
+Download (and unzip) the kdb+ binaries into `C:\q` (`/mnt/c/q`) manually or use [download.sh](./download.sh) in WSL
 
 > [!NOTE]
-> Non KDB-X versions uses the same license key file (KDB PLUS TRIAL)
-> KDB-X uses a different license key file (COMMUNITY)
+> - Non KDB-X versions uses the same license key file (KDB PLUS TRIAL)
+> - KDB-X uses a different license key file (COMMUNITY)
 
 The directory should look like:
 ```sh
@@ -79,29 +85,36 @@ The directory should look like:
 ### Running multiple versions of kdb+ using [q.bat](./q.bat)
 [q.bat](./q.bat) is a wrapper script for running multiple versions of kdb+
 
-Edit enviroment variables for your account:
-```cmd
-echo %PATH% | find /i "C:\q" > nul || set PATH=%PATH%;"C:\q"
-setx QINIT C:\q\q.q
-```
-
 Usage:
 ```cmd
 q
 q <version>
 q 4.0
 q 4.1
+q x
 ```
 
-Create a shortcut in the Start Menu:
+<details>
+    <summary>The following setup steps can be skipped when using the <a href="#windows-quick-install">quick installer</a></summary>
+
+Edit enviroment variables for your account:
+```cmd
+echo %PATH% | find /i "C:\q" > nul || set PATH=%PATH%;"C:\q"
+setx QINIT C:\q\q.q
+```
+
+Create a Start Menu shortcut:
 - Right-click on `q.bat` > `Create shortcut`
-- Move the shortcut to: `C:\Users\%UserName%\AppData\Roaming\Microsoft\Windows\Start Menu\Programs`
+- Move the shortcut to: `%APPDATA%\Microsoft\Windows\Start Menu\Programs`
 - `Rename` the shortcut to the same name as the program (`q.bat`/`q`)
 - Open the start menu and search `q.bat`/`q` to launch it
 - `Pin to Start`
+</details>
 
 ## WSL
-The file `C:\q\q.q` can be a windows symlink to a file in WSL distro
+The `QINIT` file can be a windows symlink to a file in WSL distro
+
+Example:
 ```cmd
 mklink C:\q\q.q \\wsl.localhost\<distro name>\home\<user>\q.q
 ```
