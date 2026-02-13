@@ -97,7 +97,9 @@ Installation:
 1. Unzip the directory
 2. Select all the fonts
 3. Right-click and "Install all"
-> HINT: It might be useful to disable ligatures.
+
+> [!TIP]
+> It might be useful to disable ligatures
 
 Windows Terminal Usage:
 1. Open up Settings in Windows Terminal `Ctrl-,`
