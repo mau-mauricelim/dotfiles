@@ -93,3 +93,13 @@ set hlsearch
 " Disable audible and visual bells
 set noerrorbells novisualbell
 set t_vb=
+
+" Change cursor based on mode
+" Vertical bar/line cursor (Start Insert mode)
+let &t_SI = "\e[6 q"
+" Underline cursor (Start Replace mode)
+let &t_SR = "\e[4 q"
+" Block cursor (End Insert (normal) mode)
+let &t_EI = "\e[2 q"
+" Block cursor (exit)
+autocmd VimLeave * let &t_me="\e[6 q"
