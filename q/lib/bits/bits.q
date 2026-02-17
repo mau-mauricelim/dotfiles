@@ -2,17 +2,17 @@
 /# Bitwise operation #
 /#####################
 
-.lib.require`codec
+.lib.require`codec;
 
 / Bits right shift
 / @example - .bits.bitsRightShift[1;10100b]
-/ bitsRightShift:.bits.bitsRightShift:xprev; / Slower
+/ .bits.bitsRightShift:xprev; / Slower
 // WARN: The length is shorter (no padding), use xprev to get the same length
 .bits.bitsRightShift:{neg[x]_y};
 
 / Bits left shift
 / @example - .bits.bitsLeftShift[1;1 0 1 0 0]
-/ bitsLeftShift:.bits.bitsLeftShift:{neg[x]xprev y}; / Slower
+/ .bits.bitsLeftShift:{neg[x]xprev y}; / Slower
 // WARN: The length is longer, use xprev to get the same length
 .bits.bitsLeftShift:{1=y,x#0b};
 
