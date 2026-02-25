@@ -125,7 +125,7 @@ set virtualedit=onemore
 set hlsearch
 
 " Disable audible and visual bells
-set noerrorbells novisualbell
+set noerrorbells visualbell
 set t_vb=
 
 " Change cursor based on mode
