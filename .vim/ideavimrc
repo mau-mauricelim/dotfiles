@@ -1,6 +1,6 @@
-" +---------------------------------------------------------+
-" | IdeaVim Plugins (Built-in emulations)                   |
-" +---------------------------------------------------------+
+" +-----------------+
+" | IdeaVim Plugins |
+" +-----------------+
 " Better join
 set ideajoin
 
@@ -28,9 +28,9 @@ nmap sr cs
 " Visual mode
 xmap sa S
 
-" +---------------------------------------------------------+
-" | Core Options                                            |
-" +---------------------------------------------------------+
+" +---------+
+" | Options |
+" +---------+
 let mapleader = " "
 let maplocalleader = " "
 
@@ -46,6 +46,10 @@ set scrolloff=10
 set ignorecase smartcase
 set incsearch hlsearch
 
+" Disable audible and visual bells
+set noerrorbells visualbell
+set t_vb=
+
 " System & Formatting
 set tabstop=4
 set shiftwidth=4
@@ -54,9 +58,9 @@ set timeoutlen=300
 set splitright splitbelow
 set virtualedit=onemore
 
-" +---------------------------------------------------------+
-" | Core Keymaps                                            |
-" +---------------------------------------------------------+
+" +---------+
+" | Keymaps |
+" +---------+
 " Don't use Ex mode, use Q for formatting
 map Q gq
 " Clear highlights on Esc
@@ -151,9 +155,12 @@ vnoremap * *N
 nnoremap # #n
 vnoremap # #n
 
-" +---------------------------------------------------------+
-" | IDE Actions (Replacing Plugins & Shell Commands)        |
-" +---------------------------------------------------------+
+" Toggle alternate or last file
+nnoremap <silent> <Leader>. :e#<CR>
+
+" +-------------+
+" | IDE Actions |
+" +-------------+
 " Save file
 nnoremap <C-s> :action SaveAll<CR>
 inoremap <C-s> <Esc>:action SaveAll<CR>
@@ -177,7 +184,6 @@ nmap [h :action VcsShowPrevChangeMarker<CR>
 " Buffers / Tabs
 nnoremap ]b :action NextTab<CR>
 nnoremap [b :action PreviousTab<CR>
-nnoremap <silent> <Leader>. :e#<CR>
 
 " Quickfix list equivalent (Tool window)
 nnoremap <Leader>lq :action ActivateProblemsViewToolWindow<CR>
