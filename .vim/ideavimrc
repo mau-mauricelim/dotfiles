@@ -168,14 +168,12 @@ xnoremap <C-s> <Esc>:action SaveAll<CR>
 
 " File searching (Replacing FZF)
 nnoremap <Leader>sf :action GotoFile<CR>
-vnoremap <Leader>sf <Esc>:action GotoFile<CR>
 nnoremap <Leader><Leader> :action RecentFiles<CR>
-vnoremap <Leader><Leader> <Esc>:action RecentFiles<CR>
 nnoremap <Leader>sg :action FindInPath<CR>
-vnoremap <Leader>sg <Esc>:action FindInPath<CR>
 nnoremap <Leader>s. :action RecentFiles<CR>
 nnoremap <Leader>sc :action Console.History<CR>
 nnoremap <Leader>sk :action KeymapSettings<CR>
+vnoremap <Leader>sw :action FindInPath<CR>
 
 " GitGutter equivalent
 nmap ]h :action VcsShowNextChangeMarker<CR>
