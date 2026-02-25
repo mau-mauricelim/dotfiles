@@ -38,9 +38,11 @@ let maplocalleader = " "
 set number relativenumber
 set cursorline
 set nowrap
-set list
-set listchars=tab:»\ ,trail:·,nbsp:␣
 set scrolloff=10
+"set list
+"set listchars=tab:»\ ,trail:·,nbsp:␣
+" Editor > General > Appearance > Show Whitespaces: Trailing
+" Editor > Colorscheme > General > Text > Whitespaces: #FF0000 (Only can set foreground)
 
 " Search behavior
 set ignorecase smartcase
