@@ -13,6 +13,47 @@ function SetVimOpt(option, value)
   vim.notify(option .. '="' .. value .. '"')
 end
 
+-- INFO: https://github.com/neovim/neovim/blob/master/runtime/lua/vim/_core/defaults.lua
+function M._visual_search(forward)
+  assert(forward == 0 or forward == 1)
+  local pos = vim.fn.getpos('.')
+  local vpos = vim.fn.getpos('v')
+  local mode = vim.fn.mode()
+  local chunks = vim.fn.getregion(pos, vpos, { type = mode })
+  local esc_chunks = vim
+    .iter(chunks)
+    :map(function(v)
+      return vim.fn.escape(v, [[\]])
+    end)
+    :totable()
+  local esc_pat = table.concat(esc_chunks, [[\n]])
+  if #esc_pat == 0 then
+    vim.api.nvim_echo({ { 'E348: No string under cursor' } }, true, { err = true })
+    return '<Esc>'
+  end
+  local search = [[\V]] .. esc_pat
+  vim.fn.setreg('/', search)
+  vim.fn.histadd('/', search)
+  vim.v.searchforward = forward
+  -- NOTE: Disable count jumps
+  -- The count has to be adjusted when searching backwards and the cursor
+  -- isn't positioned at the beginning of the selection
+  local count = 0
+  if forward == 0 then
+    local _, line, col, _ = unpack(pos)
+    local _, vline, vcol, _ = unpack(vpos)
+    if
+      line > vline
+      or mode == 'v' and line == vline and col > vcol
+      or mode == 'V' and col ~= 1
+      or mode == '\22' and col > vcol
+    then
+      count = count + 1
+    end
+  end
+  return '<Esc>' .. count .. 'n'
+end
+
 -- Toggle virtual edit mode between onemore and all
 function M.toggleVirtualEdit() SetVimOpt('virtualedit', vim.o.virtualedit == 'onemore' and 'all' or 'onemore') end
 

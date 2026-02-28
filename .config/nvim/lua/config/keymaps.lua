@@ -175,12 +175,6 @@ vim.keymap.set('v', 'H', '^', { desc = 'Select to start of line' })
 vim.keymap.set('n', '<Leader>/r', [[:%s/<C-r><C-w>//g<Left><Left>]], { desc = '[S]earch and [R]eplace the word under the cursor' })
 -- Search whole word
 vim.keymap.set('n', '<Leader>/w', '/\\<\\><Left><Left>', { desc = '[/] Search [W]hole word' })
--- Search current
-vim.keymap.set({ 'n', 'v' }, '*', '*N', { desc = 'Search current' })
-vim.keymap.set({ 'n', 'v' }, '#', '#n', { desc = 'Search current' })
--- Like "*/#", but don't put "\<" and "\>" around the word
-vim.keymap.set({ 'n', 'v' }, 'g*', 'g*N', { desc = 'Search current' })
-vim.keymap.set({ 'n', 'v' }, 'g#', 'g#n', { desc = 'Search current' })
 
 -- Copy File Name/Path to unamed register - p to paste
 vim.keymap.set('n', '<Leader>cf', ':let @" = expand("%")<CR>', { desc = '[C]opy [F]ile', silent = true })
@@ -210,8 +204,17 @@ vim.keymap.set('n', '<Leader>m', [[:<c-u><c-r><c-r>='let @'. v:register .' = '. 
 
 local M = require('config.functions')
 
+-- Search current
+vim.keymap.set('n', '*', '*N', { desc = 'Search current' })
+vim.keymap.set('n', '#', '#n', { desc = 'Search current' })
+vim.keymap.set('x', '*', function() return M._visual_search(1) end, { desc = 'Search current', expr = true })
+vim.keymap.set('x', '#', function() return M._visual_search(0) end, { desc = 'Search current', expr = true })
+-- Like "*/#", but don't put "\<" and "\>" around the word
+vim.keymap.set('n', 'g*', 'g*N', { desc = 'Search current' })
+vim.keymap.set('n', 'g#', 'g#n', { desc = 'Search current' })
+
 -- Send lines to adjacent tmux pane
-vim.keymap.set('n', '<Leader>tl', function ()
+vim.keymap.set('n', '<Leader>tl', function()
   vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
   vim.cmd.normal "g@l"
 end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
