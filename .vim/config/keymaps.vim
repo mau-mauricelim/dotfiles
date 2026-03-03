@@ -106,17 +106,19 @@ inoremap KJ <Esc>
 vnoremap KJ <Esc>
 
 " Remap Home/End to toggle between start/end of line
-nnoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "0" : "^"
-vnoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "0" : "^"
-inoremap <expr> <Home> charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
-nnoremap <expr> 0 charcol(".") == indent(line(".")) + 1 ? "0" : "^"
-vnoremap <expr> 0 charcol(".") == indent(line(".")) + 1 ? "0" : "^"
-nnoremap <expr> <End> charcol(".") == charcol("$")-1 ? "g_" : "$"
-vnoremap <expr> <End> charcol(".") == charcol("$") ? "g_" : "$"
-inoremap <expr> <End> charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"
+" NOTE: vim v7.4.629 does not have charcol
+let s:charcol = exists('*charcol') ? 'charcol' : 'col'
+nnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
+inoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
+nnoremap <expr> 0 {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> 0 {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
+nnoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$")-1 ? "g_" : "$"
+vnoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$") ? "g_" : "$"
+inoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$")-1 ? "<Esc>g_a" : "<Esc>$a"
 
 " If EOL, then join, else delete char
-nnoremap <expr> x charcol(".") == charcol("$") ? "J" : "x"
+nnoremap <expr> x {s:charcol}(".") == {s:charcol}("$") ? "J" : "x"
 
 " Save file
 nnoremap <C-s> :w<CR><Esc>
@@ -201,14 +203,25 @@ vnoremap g# g#n
 nnoremap <silent> <Leader>cf :let @" = expand("%")<CR>
 nnoremap <silent> <Leader>cp :let @" = expand("%:p")<CR>
 
-" Copy to system clipboard
-nnoremap gy "+y
-vnoremap gy "+y
+if has('clipboard')
+    " Copy to system clipboard
+    nnoremap gy "+y
+    xnoremap gy "+y
+    " Paste from system clipboard and convert ff to unix
+    nnoremap gp "+p:w \| e ++ff=dos \| set ff=unix \| w<CR>
+    xnoremap gp "+p:w \| e ++ff=dos \| set ff=unix \| w<CR>
+endif
+
+" Visually select changed text
+nnoremap gV `[v`]
+
+" Search inside visual selection
+xnoremap g/ <Esc>/\%V
 
 " Replace selection
 nnoremap griw viw"0p
 nnoremap grr V"0p
-vnoremap gr "0P
+vnoremap gr "0p
 
 " Delete into black hole register
 vnoremap D "_d

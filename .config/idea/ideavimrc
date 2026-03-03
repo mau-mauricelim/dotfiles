@@ -141,7 +141,7 @@ nnoremap <Tab> i<Tab><Esc>
 nnoremap <Leader>gS guiwv~
 
 " Split and move
-nnoremap <Leader>| :vsp<CR>
+nnoremap <Leader><Bar> :vsp<CR>
 nnoremap <Leader>- :sp<CR>
 
 " Text manipulation
@@ -165,11 +165,20 @@ vnoremap * *N
 nnoremap # #n
 vnoremap # #n
 
-" Copy
+" Copy to system clipboard
 nnoremap gy "+y
-vnoremap gy "+y
+xnoremap gy "+y
+" Paste from system clipboard
+nnoremap gp "+p
+xnoremap gp "+p
 
-" Replace
+" Visually select changed text
+nnoremap gV `[v`]
+
+" Search inside visual selection
+xnoremap g/ <Esc>/\%V
+
+" Replace selection
 nnoremap griw viw"0p
 nnoremap grr V"0p
 vnoremap gr "0p
@@ -195,7 +204,6 @@ nnoremap <Leader>sg :action FindInPath<CR>
 nnoremap <Leader>sr :action FindInPath<CR>
 nnoremap <Leader>s. :action RecentFiles<CR>
 nnoremap <Leader>sc :action Console.History<CR>
-nnoremap <Leader>sk :action KeymapSettings<CR>
 vnoremap <Leader>sw :action FindInPath<CR>
 
 " GitGutter equivalent
