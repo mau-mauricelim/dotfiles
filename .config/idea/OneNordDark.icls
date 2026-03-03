@@ -1,7 +1,7 @@
 <scheme name="OneNordDark" version="142" parent_scheme="Darcula">
   <metaInfo>
     <property name="ide">idea</property>
-    <property name="ideVersion">2025.3.3.0.0</property>
+    <property name="ideVersion">2025.3.2.0.0</property>
     <property name="originalScheme">OneNordDark</property>
   </metaInfo>
   <colors>
@@ -9,7 +9,7 @@
     <option name="ANNOTATIONS_COLOR" value="7E8491" />
     <option name="ANNOTATIONS_LAST_COMMIT_COLOR" value="A5B0C5" />
     <option name="CARET_COLOR" value="52AD70" />
-    <option name="CARET_ROW_COLOR" value="353B49" />
+    <option name="CARET_ROW_COLOR" value="2D3343" />
     <option name="CONSOLE_BACKGROUND_KEY" value="242B38" />
     <option name="DELETED_LINES_COLOR" value="EF5F6B" />
     <option name="DIFF_SEPARATORS_BACKGROUND" value="2B2D30" />
@@ -47,7 +47,8 @@
     <option name="RIGHT_MARGIN_COLOR" value="4C566A" />
     <option name="SELECTED_INDENT_GUIDE" value="CA72E4" />
     <option name="SELECTED_TEARLINE_COLOR" value="546178" />
-    <option name="SELECTION_BACKGROUND" value="363C51" />
+    <option name="SELECTION_BACKGROUND" value="D99A5E" />
+    <option name="SELECTION_FOREGROUND" value="242B38" />
     <option name="ScrollBar.Mac.hoverThumbColor" value="6C7A9688" />
     <option name="ScrollBar.Mac.thumbColor" value="4C566A88" />
     <option name="TEARLINE_COLOR" value="4C566A" />
@@ -58,7 +59,7 @@
     <option name="VCS_ANNOTATIONS_COLOR_5" value="22252E" />
     <option name="VISUAL_INDENT_GUIDE" value="363C51" />
     <option name="WHITESPACES" value="EF5F6B" />
-    <option name="WHITESPACES_MODIFIED_LINES_COLOR" value="4DBDCB" />
+    <option name="WHITESPACES_MODIFIED_LINES_COLOR" value="CA72E4" />
   </colors>
   <attributes>
     <option name="ANNOTATION_ATTRIBUTE_NAME_ATTRIBUTES">
@@ -287,22 +288,22 @@
     </option>
     <option name="CUSTOM_KEYWORD1_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="d99a5e" />
+        <option name="FOREGROUND" value="dcb899" />
       </value>
     </option>
     <option name="CUSTOM_KEYWORD2_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="ca72e4" />
+        <option name="FOREGROUND" value="cfa9d6" />
       </value>
     </option>
     <option name="CUSTOM_KEYWORD3_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="5ab0f6" />
+        <option name="FOREGROUND" value="a3c1e5" />
       </value>
     </option>
     <option name="CUSTOM_KEYWORD4_ATTRIBUTES">
       <value>
-        <option name="FOREGROUND" value="ebc275" />
+        <option name="FOREGROUND" value="98d1d1" />
         <option name="EFFECT_TYPE" value="1" />
       </value>
     </option>
@@ -376,7 +377,6 @@
     <option name="DEFAULT_CONSTANT">
       <value>
         <option name="FOREGROUND" value="4dbdcb" />
-        <option name="FONT_TYPE" value="2" />
       </value>
     </option>
     <option name="DEFAULT_DOC_COMMENT">
@@ -974,7 +974,6 @@
         <option name="FOREGROUND" value="4dbdcb" />
       </value>
     </option>
-    <option name="PY.KEYWORD_ARGUMENT" baseAttributes="DEFAULT_PARAMETER" />
     <option name="PY.PREDEFINED_DEFINITION">
       <value>
         <option name="FOREGROUND" value="81a1c1" />
@@ -990,7 +989,6 @@
         <option name="FOREGROUND" value="ca72e4" />
       </value>
     </option>
-    <option name="PY.STRING.B" baseAttributes="DEFAULT_STRING" />
     <option name="RAINBOW_COLOR0">
       <value>
         <option name="FOREGROUND" value="dcb899" />
