@@ -21,6 +21,8 @@
     co = checkout
     cob = checkout -b
     col = checkout -
+    com = !git checkout $(git symbolic-ref refs/remotes/origin/HEAD | cut -d'/' -f4)
+    cod = checkout develop
     aa = add -A
     rmc = rm --cached
     cm = commit -m
@@ -37,6 +39,7 @@
     please = push --force-with-lease
     pooh = !git push --force-with-lease origin HEAD
     done = !git push origin HEAD
+    acp = "!f() { git add -A && git commit -m \"$@\" && git push; }; f"
     rbi = !git fetch && git rebase -i
     rbn = !sh -c 'git fetch && git rebase -i HEAD~$1' -
     rb1 = !git rebase -i HEAD~1
