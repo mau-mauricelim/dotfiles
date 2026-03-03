@@ -27,7 +27,7 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     nnoremap <Leader>sg :Rg<CR>
     " [S]earch Recent Files ("." for repeat)
     nnoremap <Leader>s. :History<CR>
-    "[S]earch [C]ommand history
+    " [S]earch [C]ommand history
     nnoremap <Leader>sc :History:<CR>
     " Search History
     nnoremap <Leader>s/ :History/<CR>

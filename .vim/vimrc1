@@ -250,7 +250,7 @@ inoremap KJ <Esc>
 vnoremap KJ <Esc>
 
 " Remap Home/End to toggle between start/end of line
-" NOTE: vim 7.4 does not have charcol
+" NOTE: vim v7.4.629 does not have charcol
 let s:charcol = exists('*charcol') ? 'charcol' : 'col'
 nnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
 vnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
@@ -542,7 +542,7 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     nnoremap <Leader>sg :Rg<CR>
     " [S]earch Recent Files ("." for repeat)
     nnoremap <Leader>s. :History<CR>
-    "[S]earch [C]ommand history
+    " [S]earch [C]ommand history
     nnoremap <Leader>sc :History:<CR>
     " Search History
     nnoremap <Leader>s/ :History/<CR>
