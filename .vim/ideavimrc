@@ -1,3 +1,5 @@
+" Reload changes with Ctrl-Shift-O (default)
+
 " +-----------------+
 " | IdeaVim Plugins |
 " +-----------------+
@@ -42,7 +44,7 @@ set scrolloff=10
 "set list
 "set listchars=tab:»\ ,trail:·,nbsp:␣
 " Editor > General > Appearance > Show Whitespaces: Trailing
-" Editor > Colorscheme > General > Text > Whitespaces: #FF0000 (Only can set foreground)
+" Editor > Colorscheme > General > Text > Whitespaces
 
 " Search behavior
 set ignorecase smartcase
@@ -59,6 +61,9 @@ set expandtab
 set timeoutlen=300
 set splitright splitbelow
 set virtualedit=onemore
+
+" q syntax
+set iskeyword+=.
 
 " +---------+
 " | Keymaps |
@@ -122,6 +127,9 @@ nnoremap dD "_dd
 vnoremap C "_c
 nnoremap cC "_cc
 
+" Yank to end of line
+nnoremap Y y$
+
 " Indenting remains in visual mode
 vnoremap < <gv
 vnoremap > >gv
@@ -133,7 +141,7 @@ nnoremap <Tab> i<Tab><Esc>
 nnoremap <Leader>gS guiwv~
 
 " Split and move
-nnoremap <Leader><Bar> :vsp<CR>
+nnoremap <Leader>| :vsp<CR>
 nnoremap <Leader>- :sp<CR>
 
 " Text manipulation
@@ -157,21 +165,34 @@ vnoremap * *N
 nnoremap # #n
 vnoremap # #n
 
+" Copy
+nnoremap gy "+y
+vnoremap gy "+y
+
+" Replace
+nnoremap griw viw"0p
+nnoremap grr V"0p
+vnoremap gr "0p
+
 " Toggle alternate or last file
 nnoremap <silent> <Leader>. :e#<CR>
+
+" Buffer delete
+nnoremap <Leader>bd :bd<CR>
 
 " +-------------+
 " | IDE Actions |
 " +-------------+
 " Save file
-nnoremap <C-s> :action SaveAll<CR>
-inoremap <C-s> <Esc>:action SaveAll<CR>
-xnoremap <C-s> <Esc>:action SaveAll<CR>
+nnoremap <C-s> :action SaveDocument<CR>
+inoremap <C-s> <Esc>:action SaveDocument<CR>
+xnoremap <C-s> <Esc>:action SaveDocument<CR>
 
-" File searching (Replacing FZF)
+" File searching
 nnoremap <Leader>sf :action GotoFile<CR>
 nnoremap <Leader><Leader> :action RecentFiles<CR>
 nnoremap <Leader>sg :action FindInPath<CR>
+nnoremap <Leader>sr :action FindInPath<CR>
 nnoremap <Leader>s. :action RecentFiles<CR>
 nnoremap <Leader>sc :action Console.History<CR>
 nnoremap <Leader>sk :action KeymapSettings<CR>
@@ -185,15 +206,47 @@ nmap [h :action VcsShowPrevChangeMarker<CR>
 nnoremap ]b :action NextTab<CR>
 nnoremap [b :action PreviousTab<CR>
 
-" Quickfix list equivalent (Tool window)
-nnoremap <Leader>lq :action ActivateProblemsViewToolWindow<CR>
-
-" Formatting (Replacing custom shell/awk functions)
-" Let the IDE handle trailing spaces and file formatting
+" Formatting
 nnoremap <silent> <Leader>fl :action ReformatCode<CR>
 vnoremap <silent> <Leader>fl :action ReformatCode<CR>
-nnoremap <silent> <Leader>jq :action ReformatCode<CR>
 
 " Copy file path
-nnoremap <silent> <Leader>cf :action CopyReference<CR>
+nnoremap <silent> <Leader>cf :action CopyFileName<CR>
 nnoremap <silent> <Leader>cp :action CopyAbsolutePath<CR>
+
+" Oil-like
+nnoremap - :action SelectInProjectView<CR>
+
+" Move lines
+map <A-j> <Action>(MoveStatementDown)
+map <A-k> <Action>(MoveStatementUp)
+
+" Hunks
+nmap <Leader>hr <Action>(Vcs.RollbackChangedLines)
+
+" Terminal
+nnoremap <C-space>- :action ActivateTerminalToolWindow<CR>
+
+" +------------+
+" | Sethandler |
+" +------------+
+sethandler <C-Left> a:vim
+sethandler <C-Right> a:vim
+sethandler <C-A> a:ide
+sethandler <C-C> a:ide
+sethandler <C-D> a:vim
+sethandler <C-F> a:ide
+sethandler <C-G> a:vim
+sethandler <C-H> a:vim
+sethandler <C-J> a:vim
+sethandler <C-K> a:vim
+sethandler <C-L> a:vim
+sethandler <C-N> a:vim
+sethandler <C-P> a:vim
+sethandler <C-Q> a:vim
+sethandler <C-S> a:vim
+sethandler <C-T> a:vim
+sethandler <C-U> a:vim
+sethandler <C-V> a:ide
+sethandler <C-W> a:vim
+sethandler <C-Y> a:vim
