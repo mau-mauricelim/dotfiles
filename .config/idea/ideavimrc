@@ -61,6 +61,7 @@ set expandtab
 set timeoutlen=300
 set splitright splitbelow
 set virtualedit=onemore
+set nostartofline
 
 " q syntax
 set iskeyword+=.

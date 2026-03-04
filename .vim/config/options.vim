@@ -66,6 +66,9 @@ silent! set signcolumn=auto
 set textwidth=120
 set formatoptions-=t
 
+" Preserve column position
+set nostartofline
+
 " Decrease update time
 set updatetime=100
 
