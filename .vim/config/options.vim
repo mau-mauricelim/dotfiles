@@ -6,8 +6,14 @@ let maplocalleader = ' '
 filetype plugin indent on
 syntax on
 
+" Recursively search relative to pwd and PATH
+set path+=**
+" Project-Only
+"set path=.,**
+
 " Wildmenu
 set wildmenu
+silent! set wildoptions=fuzzy,pum
 set wildmode=longest:full,full
 
 " Persistent undo - custom directories
