@@ -104,7 +104,7 @@ set t_vb=
 " Vertical bar/line cursor (Start Insert mode)
 let &t_SI = "\e[6 q"
 " Underline cursor (Start Replace mode)
-let &t_SR = "\e[4 q"
+silent! let &t_SR = "\e[4 q"
 " Block cursor (End Insert (normal) mode)
 let &t_EI = "\e[2 q"
 " Block cursor (exit)
