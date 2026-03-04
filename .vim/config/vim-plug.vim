@@ -12,6 +12,7 @@ endif
 if filereadable(plug_path)
     " Make sure you use single quotes
     call plug#begin()
+    Plug 'machakann/vim-highlightedyank'
     Plug 'joshdick/onedark.vim'
     Plug 'airblade/vim-gitgutter'
     Plug 'vim-airline/vim-airline'

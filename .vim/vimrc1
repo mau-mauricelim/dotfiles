@@ -18,6 +18,7 @@ endif
 if filereadable(plug_path)
     " Make sure you use single quotes
     call plug#begin()
+    Plug 'machakann/vim-highlightedyank'
     Plug 'joshdick/onedark.vim'
     Plug 'airblade/vim-gitgutter'
     Plug 'vim-airline/vim-airline'
@@ -326,6 +327,7 @@ nnoremap L v$h
 vnoremap L $h
 nnoremap H v^
 vnoremap H ^
+nnoremap Y y$
 
 " Search and replace word under cursor
 nnoremap <Leader>/r :%s/<C-r><C-w>//g<Left><Left>
@@ -390,6 +392,9 @@ nnoremap <silent> <Leader>. :e#<CR>
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprev<CR>
 nnoremap bd :bd<CR>
+
+" [N]ormal [M]essages
+nnoremap <Leader>nm :messages<CR>
 
 "+----------+
 "| autocmds |
@@ -512,6 +517,15 @@ endfunction
 "+---------+
 "| plugins |
 "+---------+
+
+if exists('g:plugs["vim-highlightedyank"]')
+    if !exists('##TextYankPost')
+        nmap y <Plug>(highlightedyank)
+        xmap y <Plug>(highlightedyank)
+        omap y <Plug>(highlightedyank)
+    endif
+    let g:highlightedyank_highlight_duration = 200
+endif
 
 if exists('g:plugs["onedark.vim"]')
     silent! colorscheme onedark

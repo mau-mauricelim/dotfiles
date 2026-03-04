@@ -182,6 +182,7 @@ nnoremap L v$h
 vnoremap L $h
 nnoremap H v^
 vnoremap H ^
+nnoremap Y y$
 
 " Search and replace word under cursor
 nnoremap <Leader>/r :%s/<C-r><C-w>//g<Left><Left>
@@ -246,3 +247,6 @@ nnoremap <silent> <Leader>. :e#<CR>
 nnoremap ]b :bnext<CR>
 nnoremap [b :bprev<CR>
 nnoremap bd :bd<CR>
+
+" [N]ormal [M]essages
+nnoremap <Leader>nm :messages<CR>

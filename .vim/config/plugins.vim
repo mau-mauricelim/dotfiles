@@ -1,3 +1,12 @@
+if exists('g:plugs["vim-highlightedyank"]')
+    if !exists('##TextYankPost')
+        nmap y <Plug>(highlightedyank)
+        xmap y <Plug>(highlightedyank)
+        omap y <Plug>(highlightedyank)
+    endif
+    let g:highlightedyank_highlight_duration = 200
+endif
+
 if exists('g:plugs["onedark.vim"]')
     silent! colorscheme onedark
 endif

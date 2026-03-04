@@ -120,15 +120,13 @@ nnoremap L v$h
 vnoremap L $h
 nnoremap H v^
 vnoremap H ^
+nnoremap Y y$
 
 " Delete into black hole register
 vnoremap D "_d
 nnoremap dD "_dd
 vnoremap C "_c
 nnoremap cC "_cc
-
-" Yank to end of line
-nnoremap Y y$
 
 " Indenting remains in visual mode
 vnoremap < <gv
