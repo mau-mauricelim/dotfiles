@@ -69,3 +69,10 @@ function! NetrwMapping()
     nmap <buffer> l <CR>
     nmap <buffer> <Right> <CR>
 endfunction
+
+" Auto set paste
+function! XTermPasteBegin()
+  set pastetoggle=<Esc>[201~
+  set paste
+  return ""
+endfunction

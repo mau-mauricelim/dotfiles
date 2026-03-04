@@ -56,7 +56,7 @@ onoremap <expr> N 'nN'[v:searchforward]
 " Join line below cursor while maintaining cursor position
 nnoremap J mzJ`z
 
-"" Line Operations
+" Line Operations
 " [L]ines [J]oin by delimiter in file
 nnoremap <Leader>lj ggvG<Up>:s/\n//<Left>
 " [L]ines [J]oin by delimiter in visual selection
@@ -79,12 +79,12 @@ vnoremap <silent> <Leader>lx :w <Bar> e ++ff=dos <Bar> set ff=unix <Bar> w<CR>
 " Remove [L]ines [E]mpty in file
 nnoremap <silent> <Leader>le :g/^$/d<CR>
 
-"" Json Line Operations
+" Json Line Operations
 " Pretty print json
 nnoremap <silent> <Leader>jq :%!jq<CR>
 vnoremap <silent> <Leader>jq :!jq<CR>
 
-"" Format Operations
+" Format Operations
 " [F]ormat end of [L]ines in file
 nnoremap <silent> <Leader>fl mz:%s/\s\+$//<CR>`z
 " [F]ormat end of [L]ines in visual selection
@@ -212,6 +212,9 @@ if has('clipboard')
     nnoremap gp "+p:w \| e ++ff=dos \| set ff=unix \| w<CR>
     xnoremap gp "+p:w \| e ++ff=dos \| set ff=unix \| w<CR>
 endif
+
+" Auto set paste
+inoremap <special> <expr> <Esc>[200~ XTermPasteBegin()
 
 " Visually select changed text
 nnoremap gV `[v`]

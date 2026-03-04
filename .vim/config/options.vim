@@ -112,3 +112,7 @@ silent! let &t_SR = "\e[4 q"
 let &t_EI = "\e[2 q"
 " Block cursor (exit)
 autocmd VimLeave * let &t_me="\e[6 q"
+
+" Auto set paste
+let &t_SI .= "\e[?2004h"
+let &t_EI .= "\e[?2004l"
