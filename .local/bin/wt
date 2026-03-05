@@ -1,10 +1,11 @@
 #!/usr/bin/env bash
 # wt - Git Worktree CLI
 
-# TODO: Add test file
+# TODO:
 # gzip wt.1 later?
 # Update the usage with all the flags
 # test not robust
+# should wt rm also remove the branch?
 
 set -euo pipefail
 
@@ -54,7 +55,7 @@ else
 fi
 
 sanitize_name() {
-  echo "$1" | tr '/' '-' | tr ' ' '_' | tr -cd 'A-Za-z0-9_.-'
+  echo "$1" | tr '/' '-' | tr ' ' '_' | tr -cd 'A-Za-z0-9_.-@'
 }
 
 CMD="${1:-}"
@@ -76,18 +77,16 @@ case "$CMD" in
     cat <<EOF >&2
 wt — Git Worktree Manager
 
-Usage: wt <command> [args]
-
 Commands:
-  init                    Setup auto-cd (eval "\$(wt init)")
-  add <name>              Create new branch + worktree
-  co <name>               Switch to worktree
-  rm [-f] [<name>]        Remove (use -f/--force to force)
-  ignore                  Ignore .worktree/ locally
-  nuke                    DANGER: Delete ALL worktrees + .worktree/ folder
-  prune                   git worktree prune
-  ls                      List worktrees (pretty table)
-  mv <old> <new>          Move + rename branch
+  init                    Setup auto-cd
+  add <name>              New branch + worktree
+  co <name>               Switch
+  rm [-f] [<name>]        Remove (safe by default)
+  ignore                  Local ignore
+  nuke [-f]               DANGER: delete .worktree/ + ALL branches
+  prune                   Prune
+  ls                      Pretty table (current highlighted)
+  mv <old> <new>          Move
 EOF
     exit 0
     ;;
@@ -97,37 +96,50 @@ EOF
     mkdir -p "$(dirname "$EXCLUDE")"
     if ! grep -qE '^\.worktree/?' "$EXCLUDE" 2>/dev/null; then
       echo ".worktree/" >> "$EXCLUDE"
-      info "Added .worktree/ to local exclude file"
+      info "Added .worktree/ to local exclude"
     else
-      success ".worktree/ already ignored locally"
+      success ".worktree/ already ignored"
       exit 0
     fi
-    success "Worktrees are now ignored locally"
+    success "Ignored locally"
     ;;
 
   nuke)
     if [[ $FORCE -eq 0 ]]; then
-      warn "This will DELETE the entire .worktree/ folder and ALL worktrees!"
-      warn "This is irreversible."
+      warn "This will DELETE the entire .worktree folder"
+      warn "AND permanently delete all associated branches!"
       read -r -p "Type NUKE to confirm: " confirm
-      if [[ "$confirm" != "NUKE" ]]; then
-        error "Aborted."
-        exit 1
-      fi
+      [[ "$confirm" != "NUKE" ]] && { error "Aborted"; exit 1; }
     fi
-    info "NUKING all worktrees..."
+    info "NUKING all worktrees and their branches..."
+
+    # Collect branches first (exclude main)
+    branches=()
+    while IFS= read -r line; do
+      if [[ "$line" == "branch "* ]]; then
+        b="${line#branch refs/heads/}"
+        [[ "$b" != "main" && "$b" != "master" ]] && branches+=("$b")
+      fi
+    done < <(git worktree list --porcelain)
+
     cd "$GIT_ROOT"
-    for wt_path in $(git worktree list --porcelain | grep '^worktree ' | cut -d' ' -f2); do
-      [[ "$wt_path" != "$GIT_ROOT" ]] && git worktree remove -f "$wt_path" 2>/dev/null || true
+    git worktree list --porcelain | grep '^worktree ' | cut -d' ' -f2 | while read -r wt; do
+      [[ "$wt" != "$GIT_ROOT" ]] && git worktree remove -f "$wt" 2>/dev/null || true
     done
     rm -rf "$WORKTREE_BASE"
     git worktree prune -v
-    success "Everything nuked"
-    echo "$GIT_ROOT" # auto-cd back to main
+
+    # Delete branches
+    for b in "${branches[@]}"; do
+      git branch -D "$b" 2>/dev/null || true
+    done
+
+    success "Nuked everything (worktrees + branches)"
+    echo "$GIT_ROOT"
     ;;
 
   add)
-    [[ $# -ne 1 ]] && { error "Usage: wt add <name>"; exit 1; }
+    [[ $# -ne 1 ]] && { error "Usage: wt add <name> (exactly one argument)"; exit 1; }
     user_name="$1"
     dir_name=$(sanitize_name "$user_name")
     path="$WORKTREE_BASE/$dir_name"
@@ -183,22 +195,6 @@ EOF
     success "Removed '$dir_name'"
     ;;
 
-  ls)
-    printf "${C_BOLD}%-50s %-12s %s${C_RESET}\n" "Path" "Commit" "Branch"
-    echo "────────────────────────────────────────────────────────────────────"
-    git worktree list | while read -r line; do
-      path=$(echo "$line" | awk '{print $1}')
-      commit=$(echo "$line" | awk '{print $2}')
-      branch=$(echo "$line" | awk '{print $3}')
-      if [[ "$path" == "$CURRENT_PATH" ]]; then
-        printf "${C_GREEN}→ %-48s %-12s %s (current)${C_RESET}\n" "$path" "$commit" "$branch"
-      else
-        printf "  %-48s %-12s %s\n" "$path" "$commit" "$branch"
-      fi
-    done
-    echo -e "\n${C_BLUE}Worktrees stored in:${C_RESET} $WORKTREE_BASE"
-    ;;
-
   prune)
     [[ $IN_WORKTREE -eq 1 ]] && cd "$GIT_ROOT" >/dev/null
     info "Pruning stale worktrees..."
@@ -224,6 +220,46 @@ EOF
     git worktree move "$old_path" "$new_path"
     git -C "$new_path" branch -m "$old_user" "$new_user" 2>/dev/null || true
     [[ $was_current -eq 1 ]] && echo "$new_path" || success "Moved"
+    ;;
+
+  ls)
+    # Beautiful aligned table
+    printf "${C_BOLD}%-60s %-12s %s${C_RESET}\n" "Worktree" "Commit" "Branch"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    git worktree list | while read -r line; do
+      full_path=$(echo "$line" | awk '{print $1}')
+      commit=$(echo "$line" | awk '{print $2}')
+      branch=$(echo "$line" | awk '{print $3}')
+      rel_path="${full_path#$GIT_ROOT/}"
+      if [[ "$full_path" == "$CURRENT_PATH" ]]; then
+        printf "${C_GREEN}→ %-58s %-12s %s (current)${C_RESET}\n" "$rel_path" "$commit" "$branch"
+      else
+        printf "  %-58s %-12s %s\n" "$rel_path" "$commit" "$branch"
+      fi
+    done
+    echo -e "\n${C_BLUE}Stored in:${C_RESET} $WORKTREE_BASE"
+    ;;
+
+  rm)
+    name="${1:-}"
+    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree"; exit 1; }; name="$CURRENT_NAME"; }
+
+    dir_name=$(sanitize_name "$name")
+    path="$WORKTREE_BASE/$dir_name"
+    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
+
+    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
+
+    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
+
+    if [[ $FORCE -eq 1 ]]; then
+      info "Removing '$dir_name' (forced)"
+      git worktree remove -f "$path"
+    else
+      info "Removing '$dir_name'"
+      git worktree remove "$path" # let git fail if dirty
+    fi
+    success "Removed '$dir_name'"
     ;;
 
   *)
