@@ -442,7 +442,7 @@ cmd_install() {
   esac
 
   # ── Write source lines ─────────────────────────────────────────────────
-  local shell_src="$(dirname "$0")/wt.shell.sh"
+  local shell_src="$(dirname "$0")/lib/wt/wt.shell.sh"
 
   header "Installing wt shell integration"
   echo ""
@@ -455,17 +455,26 @@ cmd_install() {
 
   # Replace "/home/<user>" with "$HOME"
   shell_src="${shell_src/#$HOME/\$HOME}"
+  printf -v shell_cmd '\n# wt — Git Worktree Manager\n[ -f "%s" ] && source "%s"\n' \
+    "$shell_src" "$shell_src"
+
+  info "Adding the following lines to bash/zsh rc files:"
+  echo ""
+  shell_diff="${shell_cmd//[$'\n']/$'\n'+}"
+  printf "%s" "${GREEN}+${shell_diff%+}"
+  echo ""
+
   for rc in "$bashrc" "$zshrc"; do
     [[ -f "$rc" ]] || continue
     if grep -qF "wt.shell.sh" "$rc" 2>/dev/null; then
       warn "Already installed in ${rc} — skipping."
     else
-      printf '\n# wt — Git Worktree Manager\n[ -f "%s" ] && source "%s"\n' \
-        "$shell_src" "$shell_src" >> "$rc"
+      printf "%s" "$shell_cmd" >> "$rc"
       success "Added to ${rc}"
       (( installed++ ))
     fi
   done
+  # TODO: Install man?
 
   # ── If neither file was touched, give manual instructions ──────────────
   if [[ $installed -eq 0 ]]; then
