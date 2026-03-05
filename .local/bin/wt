@@ -58,19 +58,19 @@ sanitize_name() {
   echo "$1" | tr '/' '-' | tr ' ' '_' | tr -cd 'A-Za-z0-9_.-@'
 }
 
-CMD="${1:-}"
-shift || true
-
 FORCE=0
-NEW_ARGS=()
+ARGS=()
 for arg in "$@"; do
   if [[ "$arg" == "-f" || "$arg" == "--force" ]]; then
     FORCE=1
   else
-    NEW_ARGS+=("$arg")
+    ARGS+=("$arg")
   fi
 done
-set -- "${NEW_ARGS[@]}"
+set -- "${ARGS[@]}"
+
+CMD="${1:-}"
+shift || true
 
 case "$CMD" in
   ""|help|--help|-h)
@@ -79,14 +79,14 @@ wt — Git Worktree Manager
 
 Commands:
   init                    Setup auto-cd
-  add <name>              New branch + worktree
-  co <name>               Switch
-  rm [-f] [<name>]        Remove (safe by default)
-  ignore                  Local ignore
-  nuke [-f]               DANGER: delete .worktree/ + ALL branches
-  prune                   Prune
-  ls                      Pretty table (current highlighted)
-  mv <old> <new>          Move
+  add <name>              Add worktree
+  co <name>               Checkout worktree
+  rm [-f] [<name>]        Remove worktree
+  ignore                  Ignore worktrees locally
+  nuke [-f]               Delete all worktrees + associated branches
+  prune                   Prune worktrees
+  ls                      List worktrees
+  mv <old> <new>          Move worktree
 EOF
     exit 0
     ;;
@@ -94,11 +94,11 @@ EOF
   ignore)
     EXCLUDE="$GIT_ROOT/.git/info/exclude"
     mkdir -p "$(dirname "$EXCLUDE")"
-    if ! grep -qE '^\.worktree/?' "$EXCLUDE" 2>/dev/null; then
+    if [[ ! -f "$EXCLUDE" ]] || ! grep -qE '^\s*\.worktree/?\s*(#.*)?$' "$EXCLUDE" 2>/dev/null; then
       echo ".worktree/" >> "$EXCLUDE"
       info "Added .worktree/ to local exclude"
     else
-      success ".worktree/ already ignored"
+      success ".worktree/ already ignored locally"
       exit 0
     fi
     success "Ignored locally"
@@ -106,50 +106,84 @@ EOF
 
   nuke)
     if [[ $FORCE -eq 0 ]]; then
-      warn "This will DELETE the entire .worktree folder"
-      warn "AND permanently delete all associated branches!"
+      warn "This will DELETE the entire .worktree folder AND all associated branches!"
       read -r -p "Type NUKE to confirm: " confirm
       [[ "$confirm" != "NUKE" ]] && { error "Aborted"; exit 1; }
     fi
-    info "NUKING all worktrees and their branches..."
-
-    # Collect branches first (exclude main)
+    info "NUKING all worktrees and associated branches..."
+    cd "$GIT_ROOT"
     branches=()
     while IFS= read -r line; do
-      if [[ "$line" == "branch "* ]]; then
-        b="${line#branch refs/heads/}"
-        [[ "$b" != "main" && "$b" != "master" ]] && branches+=("$b")
-      fi
+      [[ "$line" == "branch "* ]] && b="${line#branch refs/heads/}" && [[ "$b" != "main" && "$b" != "master" ]] && branches+=("$b")
     done < <(git worktree list --porcelain)
-
-    cd "$GIT_ROOT"
     git worktree list --porcelain | grep '^worktree ' | cut -d' ' -f2 | while read -r wt; do
       [[ "$wt" != "$GIT_ROOT" ]] && git worktree remove -f "$wt" 2>/dev/null || true
     done
     rm -rf "$WORKTREE_BASE"
     git worktree prune -v
-
-    # Delete branches
-    for b in "${branches[@]}"; do
-      git branch -D "$b" 2>/dev/null || true
-    done
-
-    success "Nuked everything (worktrees + branches)"
+    for b in "${branches[@]}"; do git branch -D "$b" 2>/dev/null || true; done
+    success "Everything nuked"
     echo "$GIT_ROOT"
     ;;
 
   add)
-    [[ $# -ne 1 ]] && { error "Usage: wt add <name> (exactly one argument)"; exit 1; }
+    [[ $# -ne 1 ]] && { error "Usage: wt add <name>"; exit 1; }
     user_name="$1"
     dir_name=$(sanitize_name "$user_name")
     path="$WORKTREE_BASE/$dir_name"
 
     [[ -d "$path" ]] && { error "Worktree '$dir_name' already exists"; exit 1; }
-    git show-ref --verify --quiet "refs/heads/$user_name" && { error "Branch '$user_name' exists — use wt co"; exit 1; }
+    if git show-ref --verify --quiet "refs/heads/$user_name"; then
+      error "Branch '$user_name' already exists — use 'wt co $user_name'"
+      exit 1
+    fi
+    if git worktree list | grep -q " $path "; then
+      error "Worktree path already registered in Git"
+      exit 1
+    fi
 
     info "Creating branch '$user_name' → folder '$dir_name'"
     git worktree add -b "$user_name" "$path"
     echo "$path"
+    ;;
+
+  rm)
+    name="${1:-}"
+    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree. Use 'wt rm <name>' or run from inside one"; exit 1; }; name="$CURRENT_NAME"; }
+
+    dir_name=$(sanitize_name "$name")
+    path="$WORKTREE_BASE/$dir_name"
+    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
+
+    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
+
+    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
+
+    if [[ $FORCE -eq 1 ]]; then
+      info "Removing '$dir_name' (forced)"
+      git worktree remove -f "$path"
+    else
+      info "Removing '$dir_name'"
+      git worktree remove "$path"
+    fi
+    success "Removed '$dir_name'"
+    ;;
+
+  ls)
+    printf "${C_BOLD}%-60s %-12s %s${C_RESET}\n" "Worktree" "Commit" "Branch"
+    echo "────────────────────────────────────────────────────────────────────────────────"
+    git worktree list | while read -r line; do
+      full_path=$(echo "$line" | awk '{print $1}')
+      commit=$(echo "$line" | awk '{print $2}')
+      branch=$(echo "$line" | awk '{print $3}')
+      rel_path="${full_path#$GIT_ROOT/}"
+      if [[ "$full_path" == "$CURRENT_PATH" ]]; then
+        printf "${C_GREEN}→ %-58s %-12s %s (current)${C_RESET}\n" "$rel_path" "$commit" "$branch"
+      else
+        printf "  %-58s %-12s %s\n" "$rel_path" "$commit" "$branch"
+      fi
+    done
+    echo -e "\n${C_BLUE}Stored in:${C_RESET} $WORKTREE_BASE"
     ;;
 
   co)
@@ -178,23 +212,6 @@ EOF
     echo "$WORKTREE_BASE/$dir_name"
     ;;
 
-  rm)
-    name="${1:-}"
-    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree"; exit 1; }; name="$CURRENT_NAME"; }
-
-    dir_name=$(sanitize_name "$name")
-    path="$WORKTREE_BASE/$dir_name"
-    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
-
-    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
-
-    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
-
-    info "Removing '$dir_name'${FORCE:+ (forced)}..."
-    git worktree remove ${FORCE:+-f} "$path"
-    success "Removed '$dir_name'"
-    ;;
-
   prune)
     [[ $IN_WORKTREE -eq 1 ]] && cd "$GIT_ROOT" >/dev/null
     info "Pruning stale worktrees..."
@@ -220,46 +237,6 @@ EOF
     git worktree move "$old_path" "$new_path"
     git -C "$new_path" branch -m "$old_user" "$new_user" 2>/dev/null || true
     [[ $was_current -eq 1 ]] && echo "$new_path" || success "Moved"
-    ;;
-
-  ls)
-    # Beautiful aligned table
-    printf "${C_BOLD}%-60s %-12s %s${C_RESET}\n" "Worktree" "Commit" "Branch"
-    echo "────────────────────────────────────────────────────────────────────────────────"
-    git worktree list | while read -r line; do
-      full_path=$(echo "$line" | awk '{print $1}')
-      commit=$(echo "$line" | awk '{print $2}')
-      branch=$(echo "$line" | awk '{print $3}')
-      rel_path="${full_path#$GIT_ROOT/}"
-      if [[ "$full_path" == "$CURRENT_PATH" ]]; then
-        printf "${C_GREEN}→ %-58s %-12s %s (current)${C_RESET}\n" "$rel_path" "$commit" "$branch"
-      else
-        printf "  %-58s %-12s %s\n" "$rel_path" "$commit" "$branch"
-      fi
-    done
-    echo -e "\n${C_BLUE}Stored in:${C_RESET} $WORKTREE_BASE"
-    ;;
-
-  rm)
-    name="${1:-}"
-    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree"; exit 1; }; name="$CURRENT_NAME"; }
-
-    dir_name=$(sanitize_name "$name")
-    path="$WORKTREE_BASE/$dir_name"
-    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
-
-    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
-
-    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
-
-    if [[ $FORCE -eq 1 ]]; then
-      info "Removing '$dir_name' (forced)"
-      git worktree remove -f "$path"
-    else
-      info "Removing '$dir_name'"
-      git worktree remove "$path" # let git fail if dirty
-    fi
-    success "Removed '$dir_name'"
     ;;
 
   *)

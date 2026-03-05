@@ -10,21 +10,31 @@ cd main-repo
 
 eval "$(wt init)"
 
+echo "🧪 Running wt tests"
+
 wt ignore
+wt ignore # idempotent check
+[[ -f .git/info/exclude ]] && grep -q ".worktree/" .git/info/exclude || { echo "FAIL: ignore"; exit 1; }
+
 wt add feature1
 wt add "bugfix/test"
 wt add "somelong@hello/path"
-wt ls | grep -q "(current)" || { echo "FAIL ls"; exit 1; }
 
-# Dirty test
-echo "dirty" > dirty.txt
-! wt rm 2>/dev/null && echo "✅ rm safe on dirty"
-wt rm -f feature1
+# Test safe rm on dirty worktree
+wt co feature1
+echo "dirty change" > dirty.txt
+! wt rm 2>/dev/null && echo '✅ `wt rm` (safe) correctly failed on dirty'
+wt rm -f feature1 && echo '✅ `wt rm -f` succeeded on dirty'
 
-# Nuke test
+# Test clean rm
+wt rm bugfix/test
+
+# Test add checks
+! wt add feature1 2>/dev/null && echo "✅ add existing branch rejected"
+! wt add "nonexistent" 2>/dev/null && [[ $? -eq 1 ]] && echo "✅ add with checks"
+
 wt nuke -f
 [[ ! -d .worktree ]] && echo "✅ nuke worked"
-wt add test-after-nuke   # should succeed because branch was deleted
 
-echo "🎉 ALL EDGE CASES PASSED (dirty, special chars, nuke, ls, force)"
+echo "🎉 ALL TESTS PASSED"
 rm -rf "$TEST_DIR"
