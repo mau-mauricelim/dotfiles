@@ -51,7 +51,6 @@ alias egrep="egrep --color=auto"
 alias fdh='fd -H'
 alias fgrep="fgrep --color=auto"
 alias grep="grep --color=auto"
-alias groot='cd $(git rev-parse --show-toplevel)' # I Am Groot!
 alias k9="kill -9"
 alias la="ls -A"
 alias ldr="ls -d {.,}*/"
@@ -97,5 +96,20 @@ clone()  {
         git clone "$1" && cd "$(basename "$1" .git)"
     else
         git clone "$1" "$2" && cd "$2"
+    fi
+}
+
+# Git root: I am Groot! (Works on worktree as well)
+groot() {
+    git rev-parse --git-dir >/dev/null 2>&1 || { echo "Not a git repository"; return 1; }
+    # Get the main worktree root (the first entry in the list)
+    local root
+    root=$(git worktree list --porcelain 2>/dev/null | awk '/^worktree /{print substr($0,10); exit}')
+    # Change directory in the current shell
+    if [ -n "$root" ]; then
+        cd "$root" || return 1
+    else
+        echo "Could not determine git root"
+        return 1
     fi
 }
