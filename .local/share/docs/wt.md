@@ -20,10 +20,9 @@ stays out of your way everywhere else.
    - [wt help](#wt-help)
 5. [How Worktrees Are Named](#how-worktrees-are-named)
 6. [The cd Problem — How wt Solves It](#the-cd-problem)
-7. [Recommended .gitignore](#recommended-gitignore)
-8. [Typical Workflows](#typical-workflows)
-9. [Design Decisions & Trade-offs](#design-decisions--trade-offs)
-10. [Troubleshooting](#troubleshooting)
+7. [Typical Workflows](#typical-workflows)
+8. [Design Decisions & Trade-offs](#design-decisions--trade-offs)
+9. [Troubleshooting](#troubleshooting)
 
 ## Why wt?
 
@@ -33,7 +32,8 @@ useful but the raw commands are verbose and easy to mistype.
 
 `wt` adds:
 
-- **Consistent location** — all worktrees live under `<repo>/.worktree/`
+- **Consistent location** — all worktrees live under `<repo-path>/<worktree-path>/`
+  - **\<worktree-path\>**: `.git/worktrees`
 - **Auto-navigation** — `cd` into a new or existing worktree automatically
 - **Branch creation** — `wt add` creates the branch if it does not exist
 - **Safe removal** — detects if you are inside the worktree being deleted and
@@ -117,12 +117,12 @@ wt add main # worktree for an already-existing branch
 
 **What happens:**
 
-1. `mkdir -p <repo-root>/.worktree/`
+1. `mkdir -p <repo-root>/<worktree-path>/`
 2. If `<branch>` exists locally → `git worktree add <path> <branch>`
 3. If `<branch>` does not exist → `git worktree add -b <branch> <path>`
 4. Navigates into the new directory
 
-**Path format:** `<repo-root>/.worktree/<repo-name>.<sanitized-branch>`
+**Path format:** `<repo-root>/<worktree-path>/<repo-name>.<sanitized-branch>`
 
 **Guards:**
 - Fails if the worktree directory already exists (use `wt co` to visit it)
@@ -175,13 +175,13 @@ Sample output:
 ```
  Worktrees — myapp
 
-  Path                                           Commit   Branch
-  ─────────────────────────────────────────────  ───────  ──────────────────
-  /home/user/projects/myapp                      a1b2c3d  main
-▶ /home/user/projects/myapp/.worktree/myapp.fe…  f4e5d6c  feature/login
-  /home/user/projects/myapp/.worktree/myapp.bu…  8a9b0c1  bugfix-123
+  Path                                                 Commit   Branch
+  ─────────────────────────────────────────────        ───────  ──────────────────
+  /home/user/projects/myapp                            a1b2c3d  main
+▶ /home/user/projects/myapp/<worktree-path>/myapp.fe…  f4e5d6c  feature/login
+  /home/user/projects/myapp/<worktree-path>/myapp.bu…  8a9b0c1  bugfix-123
 
-  Managed in .worktree/: 2  |  Repo root: /home/user/projects/myapp
+  Managed in <worktree-path>/: 2  |  Repo root: /home/user/projects/myapp
 ```
 
 The `▶` marker shows the worktree you are currently inside.
@@ -252,7 +252,7 @@ wt --help
 All worktrees are placed under:
 
 ```
-<repo-root>/.worktree/<repo-name>.<sanitized-branch>
+<repo-root>/<worktree-path>/<repo-name>.<sanitized-branch>
 ```
 
 Branch names are **sanitized** for use as directory components:
@@ -264,15 +264,15 @@ Branch names are **sanitized** for use as directory components:
 
 Examples:
 
-| Repo         | Branch               | Worktree path                                        |
-| -            | -                    | -                                                    |
-| `myapp`      | `main`               | `myapp/.worktree/myapp.main`                         |
-| `myapp`      | `feature/login`      | `myapp/.worktree/myapp.feature-login`                |
-| `myapp`      | `bugfix-123`         | `myapp/.worktree/myapp.bugfix-123`                   |
-| `api-server` | `chore/upgrade deps` | `api-server/.worktree/api-server.chore-upgrade_deps` |
+| Repo         | Branch               | Worktree path                                              |
+| -            | -                    | -                                                          |
+| `myapp`      | `main`               | `myapp/<worktree-path>/myapp.main`                         |
+| `myapp`      | `feature/login`      | `myapp/<worktree-path>/myapp.feature-login`                |
+| `myapp`      | `bugfix-123`         | `myapp/<worktree-path>/myapp.bugfix-123`                   |
+| `api-server` | `chore/upgrade deps` | `api-server/<worktree-path>/api-server.chore-upgrade_deps` |
 
 The `<repo-name>.` prefix keeps things identifiable when you open
-`.worktree/` in a file browser or editor sidebar, especially useful if you
+`<worktree-path>/` in a file browser or editor sidebar, especially useful if you
 work in a monorepo or have similarly-named branches across repos.
 
 ## The cd Problem
@@ -318,19 +318,6 @@ wt() {
 Because the function runs **inside your shell process** (not a subshell), the
 `cd` takes effect in your session.
 
-## Recommended .gitignore
-
-Add `.worktree/` to your repo's `.gitignore` so the worktree directories are
-not accidentally staged or committed:
-
-```
-# .gitignore
-.worktree/
-```
-
-Git itself already knows about worktrees and will not double-check them out,
-but editors (VS Code, IntelliJ, etc.) may try to index them without this entry.
-
 ## Typical Workflows
 
 ### Start a new feature
@@ -338,7 +325,7 @@ but editors (VS Code, IntelliJ, etc.) may try to index them without this entry.
 ```sh
 # In main repo:
 wt add feature/payment-api
-# → creates .worktree/myapp.feature-payment-api
+# → creates <worktree-path>/myapp.feature-payment-api
 # → navigates there automatically
 
 # Work on the feature...
@@ -379,16 +366,15 @@ wt prune                        # tidy git bookkeeping
 
 ## Design Decisions & Trade-offs
 
-| Decision                            | Rationale                                                                                                                                 |
-| -                                   | -                                                                                                                                         |
-| `.worktree/` directory in repo root | Keeps everything self-contained. One `ls` shows all worktrees for the repo. Consistent across machines.                                   |
-| `<repo>.<branch>` naming            | Avoids collisions when multiple repos share branch names. Identifiable at a glance.                                                       |
-| Branch sanitization (`/` → `-`)     | Forward slashes in directory names are legal but cause problems in shell tab-completion, some editors, and certain tools.                 |
-| `--force` fallback on `wt rm`       | Git refuses to remove worktrees with changes. A warning + force is more useful than a hard failure, since you already asked to remove it. |
-| Shell function + binary split       | The binary is portable and testable independently. The shell function is minimal by design.                                               |
-| No automatic `.gitignore` edits     | Modifying user files without explicit consent is surprising. The recommendation is documented instead.                                    |
-| `wt add` creates branch if missing  | The most common use case is starting new work. Requiring a pre-existing branch adds friction with little benefit.                         |
-| `wt rm` does not delete the branch  | Branch lifecycle is separate from worktree lifecycle. Deleting a branch is irreversible; deleting a worktree directory is not.            |
+| Decision                                  | Rationale                                                                                                                                 |
+| -                                         | -                                                                                                                                         |
+| `<worktree-path>/` directory in repo root | Keeps everything self-contained. One `ls` shows all worktrees for the repo. Consistent across machines.                                   |
+| `<repo-name>.<branch>` naming             | Avoids collisions when multiple repos share branch names. Identifiable at a glance.                                                       |
+| Branch sanitization (`/` → `-`)           | Forward slashes in directory names are legal but cause problems in shell tab-completion, some editors, and certain tools.                 |
+| `--force` fallback on `wt rm`             | Git refuses to remove worktrees with changes. A warning + force is more useful than a hard failure, since you already asked to remove it. |
+| Shell function + binary split             | The binary is portable and testable independently. The shell function is minimal by design.                                               |
+| `wt add` creates branch if missing        | The most common use case is starting new work. Requiring a pre-existing branch adds friction with little benefit.                         |
+| `wt rm` does not delete the branch        | Branch lifecycle is separate from worktree lifecycle. Deleting a branch is irreversible; deleting a worktree directory is not.            |
 
 ## Troubleshooting
 

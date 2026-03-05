@@ -5,6 +5,12 @@
 .\" =============================================================================
 .TH WT 1 "2025" "wt 1.0.0" "User Commands"
 .
+.\" ── String definitions ───────────────────────────────────────────────────────
+.\" Worktree base path, relative to the repo root.
+.\" Change this one line if the path ever changes.
+.ds WT_PATH .git/worktrees
+.ds WT_INIT wt.init.sh
+.
 .\" ── NAME ─────────────────────────────────────────────────────────────────────
 .SH NAME
 wt \- ergonomic Git worktree manager
@@ -53,11 +59,11 @@ that provides a consistent directory layout, automatic navigation, and
 branch auto-creation.
 .PP
 All managed worktrees are placed under
-.B .worktree/
-in the repository root, named after the repository and branch:
+.I \*[WT_PATH]/
+inside the repository root, named after the repository and branch:
 .PP
 .RS
-.I <repo-root>/.worktree/<repo-name>.<sanitized-branch>
+.I <repo-root>/\*[WT_PATH]/<repo-name>.<sanitized-branch>
 .RE
 .PP
 Because shell scripts run in a subshell and cannot change the parent
@@ -67,7 +73,7 @@ uses a two-layer architecture: the binary emits a
 .B __WT_CD__:/path
 token on standard output when a directory change is needed; a companion
 shell function (see
-.BR wt.init.sh )
+.BR \*[WT_INIT] )
 intercepts it and performs the
 .BR cd (1)
 in the actual shell session.
@@ -87,7 +93,7 @@ If
 does not exist locally it is created with
 .BR "git worktree add \-b" .
 The
-.I .worktree/
+.I \*[WT_PATH]/
 directory is created if it does not already exist.
 After the worktree is ready, the shell navigates into it automatically
 (requires shell integration).
@@ -175,18 +181,28 @@ Requires shell integration.
 .
 .TP
 .B wt install
-Append a
+Locate
+.B \*[WT_INIT]
+and append a
 .B source
-line for
-.B wt.init.sh
-to
+line for it to
 .B ~/.bashrc
 and/or
-.B ~/.zshrc
+.B ${ZDOTDIR:-~}/.zshrc
 (whichever exist).
 Skips files that already contain the line.
-Prints the source command to run immediately without restarting the
-shell.
+Prints the exact
+.B source
+command to run immediately without restarting the shell.
+.IP
+.B \*[WT_INIT]
+is expected at
+.I ../lib/\*[WT_INIT]
+relative to the
+.B wt
+binary.
+With the recommended layout this resolves to
+.IR ~/.local/lib/wt.init.sh .
 .
 .TP
 .BR "wt help" ", " "wt \-h" ", " "wt \-\-help"
@@ -199,10 +215,15 @@ Print the version string.
 .\" ── DIRECTORY LAYOUT ─────────────────────────────────────────────────────────
 .SH DIRECTORY LAYOUT
 .TP
-.I <repo-root>/.worktree/
+.I <repo-root>/\*[WT_PATH]/
 Base directory for all managed worktrees.
+Because this path lives inside
+.IR .git/ ,
+it is automatically excluded from git tracking and does not require a
+.I .gitignore
+entry.
 .TP
-.I <repo-root>/.worktree/<repo-name>.<sanitized-branch>
+.I <repo-root>/\*[WT_PATH]/<repo-name>.<sanitized-branch>
 Worktree directory for a given branch.
 .PP
 Branch names are sanitized before use as directory components:
@@ -238,19 +259,36 @@ solves this by printing a sentinel token on standard output:
 The
 .B wt
 shell function defined in
-.B wt.init.sh
+.B \*[WT_INIT]
 captures all output from the binary, strips this token, and performs the
 .BR cd (1)
 in the current shell process.
 Commands that do not trigger navigation pass output through unchanged.
 .PP
+Because the binary's stdout is redirected to a temporary file during
+capture,
+.BR "[ -t 1 ]"
+is always false inside the binary. The shell function therefore sets
+.B WT_COLOR=1
+when its own stdout is a terminal, preserving colour output.
+.PP
+.B \*[WT_INIT]
+locates the
+.B wt
+binary by checking
+.I ../bin/wt
+relative to itself, then
+.IR /usr/local/bin/wt ,
+then
+.IR ~/.local/bin/wt .
+.PP
 To install, run
 .B wt install
-and reload your shell, or manually add:
+and reload your shell, or manually add to your rc file:
 .PP
 .RS
 .EX
-source "/path/to/wt.init.sh"
+source "/path/to/\*[WT_INIT]"
 .EE
 .RE
 .PP
@@ -262,19 +300,23 @@ type wt    # should print: wt is a function
 .EE
 .RE
 .
-.\" ── GITIGNORE ────────────────────────────────────────────────────────────────
-.SH GITIGNORE
-It is strongly recommended to add the following to the repository's
-.BR .gitignore (5):
-.PP
-.RS
-.EX
-.worktree/
-.EE
-.RE
-.PP
-Git itself will not commit worktree content, but editors and other tools
-may attempt to index the directories without this entry.
+.\" ── ENVIRONMENT ──────────────────────────────────────────────────────────────
+.SH ENVIRONMENT
+.TP
+.B WT_COLOR
+Set to
+.B 1
+by the shell function when its stdout is a terminal, so the binary
+emits colour output even though its own stdout is a temp file.
+Set to
+.B 0
+to suppress colour unconditionally.
+.TP
+.B ZDOTDIR
+If set, the zsh rc file is resolved as
+.I $ZDOTDIR/.zshrc
+rather than
+.IR ~/.zshrc .
 .
 .\" ── EXAMPLES ─────────────────────────────────────────────────────────────────
 .SH EXAMPLES
@@ -328,21 +370,30 @@ wt mv old-name new-name
 .\" ── FILES ────────────────────────────────────────────────────────────────────
 .SH FILES
 .TP
-.I ~/.bashrc, ~/.zshrc
+.I ~/.bashrc
+.TQ
+.I ${ZDOTDIR:-~}/.zshrc
 Modified by
 .B wt install
 to source
-.IR wt.init.sh .
+.IR \*[WT_INIT] .
 .TP
-.I <repo-root>/.worktree/
-Base directory for managed worktrees (not tracked by git when
-.B .worktree/
-is in
-.BR .gitignore (5)).
+.I <repo-root>/\*[WT_PATH]/
+Base directory for managed worktrees.
+Lives inside
+.I .git/
+and is therefore never tracked by git.
 .TP
-.I wt.init.sh
-Shell function wrapper. Must be sourced (not executed) in the current
-shell for directory navigation to work.
+.I \*[WT_INIT]
+Shell function wrapper.
+Must be
+.I sourced
+(not executed) in the current shell for directory navigation to work.
+Located at
+.I ../lib/\*[WT_INIT]
+relative to the
+.B wt
+binary.
 .
 .\" ── EXIT STATUS ──────────────────────────────────────────────────────────────
 .SH EXIT STATUS
@@ -357,10 +408,10 @@ etc.). An error message is printed to standard error.
 .\" ── DIAGNOSTICS ──────────────────────────────────────────────────────────────
 .SH DIAGNOSTICS
 .TP
-.B Not inside a git repository.
+.B Not inside a git repository
 The current directory (or any parent) is not a git repository.
 .TP
-.BI "Branch '" branch "' is already checked out in another worktree."
+.BI "Branch '" branch "' is already checked out in another worktree"
 Git does not allow the same branch in two worktrees simultaneously.
 Remove or move the other worktree first.
 .TP
@@ -368,25 +419,46 @@ Remove or move the other worktree first.
 The computed path does not exist. Run
 .B wt ls
 to see registered worktrees, or run
-.B git worktree prune
+.B wt prune
 if a stale entry remains.
 .TP
-.B Worktree has local changes — forcing removal.
+.B Worktree has local changes \(em forcing removal
 The worktree contained uncommitted changes.
 .B wt rm
 retried with
 .BR \-\-force .
 Changes are permanently lost.
 .TP
-.B wt: binary not found.
+.B wt.init.sh not found. Expected: \fIpath\fP
+.B wt install
+could not locate
+.B \*[WT_INIT]
+at the expected path relative to the binary.
+Ensure
+.B \*[WT_INIT]
+is at
+.I ../lib/\*[WT_INIT]
+relative to the
+.B wt
+binary (e.g.\&
+.IR ~/.local/lib/wt.init.sh ).
+.TP
+.B wt: binary not found
 The shell function in
-.B wt.init.sh
+.B \*[WT_INIT]
 could not locate the
 .B wt
-binary. Ensure
+binary.
+.B \*[WT_INIT]
+searches for
 .B wt
-is on
-.BR $PATH .
+at
+.IR ../bin/wt
+(relative to itself), then
+.IR /usr/local/bin/wt ,
+then
+.IR ~/.local/bin/wt .
+Ensure one of these paths is valid.
 .
 .\" ── SEE ALSO ─────────────────────────────────────────────────────────────────
 .SH SEE ALSO
@@ -403,22 +475,25 @@ Written with the help of Claude (Anthropic).
 .\" ── BUGS ─────────────────────────────────────────────────────────────────────
 .SH BUGS
 .IP \(bu 2
-Remote-tracking branches (e.g.
+Remote-tracking branches (e.g.\&
 .BR origin/feature/foo )
 produce detached HEAD worktrees.
 Create a local tracking branch first:
-.B "git checkout \-b feature/foo origin/feature/foo"
+.EX
+git checkout \-b feature/foo origin/feature/foo
+wt add feature/foo
+.EE
 .IP \(bu 2
 Branch sanitization is one-way: two distinct branches can map to the
-same directory name (e.g.
+same directory name (e.g.\&
 .B a/b
 and
 .BR a\-b ).
 .B wt add
-will fail on the second one with a "directory already exists" error.
+will fail on the second with a "directory already exists" error.
 .IP \(bu 2
 .B export \-f wt
 in
-.B wt.init.sh
+.B \*[WT_INIT]
 exports the function to bash subshells only; zsh does not inherit
-exported functions.
+exported shell functions.
