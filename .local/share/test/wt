@@ -1,0 +1,60 @@
+#!/usr/bin/env bash
+set -euo pipefail
+
+echo "🧪 Starting wt tests"
+
+TEST_DIR="/tmp/wt-test-$$"
+mkdir -p "$TEST_DIR"
+cd "$TEST_DIR"
+
+# Setup fresh repo
+git init main-repo
+cd main-repo
+echo ".worktree/" >> .gitignore
+git add .gitignore
+git commit -m "init"
+
+echo "✅ Setup complete. Running tests..."
+
+# 1. add
+wt add feature1
+[[ "$(basename "$(pwd)")" == "feature1" ]] || { echo "FAIL: no auto-cd"; exit 1; }
+echo "test" > file.txt
+git add file.txt && git commit -m "commit in feature1"
+
+# 2. successive add (no nesting!)
+cd ..
+wt add feature2
+[[ "$(pwd)" == "$TEST_DIR/main-repo/.worktree/feature2" ]] || { echo "FAIL: nesting detected!"; exit 1; }
+echo "successive add works"
+
+# 3. co (existing)
+cd "$TEST_DIR/main-repo"
+wt co feature1
+[[ "$(basename "$(pwd)")" == "feature1" ]] || { echo "FAIL: co"; exit 1; }
+
+# 4. rm (current)
+wt rm
+[[ "$(pwd)" == "$TEST_DIR/main-repo" ]] || { echo "FAIL: rm current"; exit 1; }
+
+# 5. rm specific + force
+wt add dirty-worktree
+echo "dirty" > uncommitted.txt
+wt rm -f dirty-worktree
+echo "force rm works"
+
+# 6. mv
+wt add old-name
+wt mv old-name new-name
+[[ -d ".worktree/new-name" ]] || { echo "FAIL: mv"; exit 1; }
+
+# 7. ls, prune
+wt ls | grep -q "new-name"
+wt prune
+
+# 8. branch with /
+wt add feature/auth-login
+[[ -d ".worktree/feature/auth-login" ]] || { echo "FAIL: slash in name"; exit 1; }
+
+echo "🎉 ALL TESTS PASSED!"
+echo "Test repo left in: $TEST_DIR/main-repo (safe to delete)"

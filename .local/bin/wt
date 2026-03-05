@@ -1,0 +1,206 @@
+#!/usr/bin/env bash
+# wt - Git Worktree CLI
+
+# TODO: Add test file
+# Change prune to nuke :)
+# Can the init not be shared between bash and zsh?
+# gzip wt.1 later?
+
+set -euo pipefail
+
+# ───── Colors ─────
+if [[ -t 1 ]]; then
+  C_RED=$'\e[31m'
+  C_GREEN=$'\e[32m'
+  C_YELLOW=$'\e[33m'
+  C_BLUE=$'\e[34m'
+  C_RESET=$'\e[0m'
+  C_BOLD=$'\e[1m'
+else
+  C_RED= C_GREEN= C_YELLOW= C_BLUE= C_RESET= C_BOLD=
+fi
+
+info()    { printf "${C_BLUE}→${C_RESET} %s\n" "$1"; }
+success() { printf "${C_GREEN}✓${C_RESET} %s\n" "$1"; }
+warn()    { printf "${C_YELLOW}⚠${C_RESET} %s\n" "$1" >&2; }
+error()   { printf "${C_RED}✗${C_RESET} %s\n" "$1" >&2; }
+
+usage() {
+  cat <<'EOF'
+wt - Git Worktree CLI
+
+Usage: wt <command> [args]
+
+Commands:
+  init [bash|zsh]     Print shell integration (put in .bashrc/.zshrc)
+  add <name>          Create NEW branch + worktree + auto-cd
+  co <name>           Checkout existing worktree or branch
+  rm [-f|--force] [<name>]  Remove worktree (force allowed)
+  prune               git worktree prune
+  ls                  List worktrees
+  mv <old> <new>      Move + rename branch
+  [help|--help|-h]    Show help
+EOF
+}
+
+# ───── Init command  ─────
+if [[ "${1:-}" == "init" ]]; then
+  SHELL_TYPE="${2:-bash}"
+  case "$SHELL_TYPE" in
+    bash)
+      cat <<'EOF'
+wt() {
+  local output
+  output="$(command wt "$@")"
+  if [[ -n "$output" && -d "$output" ]]; then
+    printf "${C_BLUE}→${C_RESET} %s\n" "$(basename "$output")" >&2
+    cd "$output"
+  else
+    printf '%s\n' "$output"
+  fi
+}
+EOF
+      ;;
+    zsh)
+      cat <<'EOF'
+wt() {
+  local output
+  output="$(command wt "$@")"
+  if [[ -n "$output" && -d "$output" ]]; then
+    print -P "%F{blue}→%f %B$(basename "$output")%b" >&2
+    cd "$output"
+  else
+    printf '%s\n' "$output"
+  fi
+}
+EOF
+      ;;
+    *)
+      error "Unsupported shell: $SHELL_TYPE (use bash or zsh)"
+      exit 1
+      ;;
+  esac
+  exit 0
+fi
+
+GIT_COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null) || { error "Not in a Git repo"; exit 1; }
+GIT_ROOT=$(cd "$(dirname "$GIT_COMMON_DIR")" && pwd -P)
+WORKTREE_BASE="$GIT_ROOT/.worktree"
+mkdir -p "$WORKTREE_BASE"
+
+CURRENT_PATH=$(pwd -P)
+if [[ "$CURRENT_PATH" == "$WORKTREE_BASE/"* ]]; then
+  CURRENT_NAME="${CURRENT_PATH#"$WORKTREE_BASE"/}"
+  IN_WORKTREE=1
+else
+  CURRENT_NAME=""
+  IN_WORKTREE=0
+fi
+
+CMD="${1:-}"
+shift || true
+
+FORCE=0
+NEW_ARGS=()
+for arg in "$@"; do
+  if [[ "$arg" == "-f" || "$arg" == "--force" ]]; then
+    FORCE=1
+  else
+    NEW_ARGS+=("$arg")
+  fi
+done
+set -- "${NEW_ARGS[@]}"
+
+case "$CMD" in
+  ""|help|--help|-h)
+    usage
+    exit 0
+    ;;
+
+  add)
+    [[ $# -eq 0 ]] && { error "Usage: wt add <name>"; exit 1; }
+    name="$1"
+    path="$WORKTREE_BASE/$name"
+
+    [[ -d "$path" ]] && { error "Worktree '$name' exists. Use 'wt co $name'"; exit 1; }
+    git show-ref --verify --quiet "refs/heads/$name" && { error "Branch '$name' exists. Use 'wt co'"; exit 1; }
+
+    info "Creating new branch '$name' + worktree..."
+    git worktree add -b "$name" "$path"
+    echo "$path"
+    ;;
+
+  co)
+    [[ $# -eq 0 ]] && { error "Usage: wt co <name>"; exit 1; }
+    name="$1"
+    path="$WORKTREE_BASE/$name"
+
+    if [[ -d "$path" ]]; then
+      info "Switching to '$name'..."
+      echo "$path"
+      exit 0
+    fi
+
+    if git show-ref --verify --quiet "refs/heads/$name"; then
+      info "Adding worktree for local branch '$name'..."
+      git worktree add "$path" "$name"
+    elif git show-ref --verify --quiet "refs/remotes/origin/$name"; then
+      info "Adding worktree for remote branch 'origin/$name'..."
+      git worktree add -b "$name" "$path" "origin/$name"
+    else
+      error "Branch '$name' not found. Run git fetch?"
+      exit 1
+    fi
+    echo "$path"
+    ;;
+
+  rm)
+    name="${1:-}"
+    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree"; exit 1; }; name="$CURRENT_NAME"; }
+
+    path="$WORKTREE_BASE/$name"
+    [[ ! -d "$path" ]] || ! git worktree list | grep -q "^$path " && { error "Worktree '$name' not found"; exit 1; }
+
+    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
+
+    info "Removing worktree '$name'${FORCE:+ (forced)}..."
+    git worktree remove ${FORCE:+-f} "$path"
+    success "Removed '$name'"
+    ;;
+
+  prune)
+    [[ $IN_WORKTREE -eq 1 ]] && cd "$GIT_ROOT" >/dev/null
+    info "Pruning stale worktrees..."
+    git worktree prune -v
+    ;;
+
+  ls)
+    git worktree list
+    echo -e "\n${C_BLUE}Worktrees stored in:${C_RESET} $WORKTREE_BASE"
+    ;;
+
+  mv)
+    [[ $# -ne 2 ]] && { error "Usage: wt mv <old> <new>"; exit 1; }
+    old="$1"; new="$2"
+    old_path="$WORKTREE_BASE/$old"
+    new_path="$WORKTREE_BASE/$new"
+
+    [[ ! -d "$old_path" ]] && { error "Worktree '$old' not found"; exit 1; }
+    [[ -d "$new_path" ]] && { error "Worktree '$new' exists"; exit 1; }
+
+    was_current=0
+    [[ "$CURRENT_PATH" == "$old_path"* ]] && { was_current=1; cd "$GIT_ROOT" >/dev/null; }
+
+    info "Moving '$old' → '$new'..."
+    git worktree move "$old_path" "$new_path"
+    git -C "$new_path" branch -m "$old" "$new" 2>/dev/null || true
+
+    [[ $was_current -eq 1 ]] && echo "$new_path" || success "Moved successfully"
+    ;;
+
+  *)
+    error "Unknown command: $CMD"
+    usage
+    exit 1
+    ;;
+esac
