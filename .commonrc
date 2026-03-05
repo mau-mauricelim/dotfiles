@@ -55,6 +55,7 @@ sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 # `ln -s /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe $HOME/dotfiles/.local/bin`
 
 addToPath "$HOME/.local/bin"
+export MANPATH="$HOME/.local/share/man:"
 
 # Set PATH to include Neovim
 addToPathFront /opt/nvim-linux-x86_64/bin
