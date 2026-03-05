@@ -1,0 +1,41 @@
+.TH WT 1 "March 2026" "wt" "User Commands"
+
+.SH NAME
+wt \- convenient Git worktree manager
+
+.SH SYNOPSIS
+.B wt
+.I command
+[args]
+
+.SH COMMANDS
+.TP
+.B init
+Print shell wrapper (eval "$(wt init)").
+
+.TP
+.B add <name>
+Create new branch + worktree.
+
+.TP
+.B co <name>
+Switch to worktree.
+
+.TP
+.B rm [-f] [<name>]
+Remove worktree.
+
+.TP
+.B ignore
+Auto-add .worktree/ to .gitignore and stage it.
+
+.TP
+.B prune | ls | mv
+Standard worktree commands.
+
+.SH FILES
+.I <repo>/.worktree/<name>
+(and .gitignore now handled automatically)
+
+.SH SEE ALSO
+git-worktree(1)
