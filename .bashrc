@@ -46,8 +46,3 @@ fi
 if command -v zoxide >/dev/null; then
     eval "$(zoxide init --cmd cd bash)"
 fi
-
-# wt
-if command -v wt >/dev/null; then
-    eval "$(wt init bash)"
-fi

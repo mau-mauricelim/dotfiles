@@ -18,11 +18,6 @@ if command -v zoxide >/dev/null; then
     eval "$(zoxide init --cmd cd zsh)"
 fi
 
-# wt
-if command -v wt >/dev/null; then
-    eval "$(wt init zsh)"
-fi
-
 # Zsh Theme - Powerlevel10k
 sourceFile $ZDOTDIR/powerlevel10k/powerlevel10k.zsh-theme
 # To customize prompt, run `p10k configure` or edit $ZDOTDIR/.p10k.zsh

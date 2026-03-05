@@ -49,12 +49,14 @@ Shows usage.
 
 1. Install binary
 
+TODO:
+
 2. Setup wt on your shell
 
 To start using wt, add it to your shell
 
 ```sh
-eval "$(zoxide init)"
+eval "$(wt init)"
 ```
 
 3. Add worktree folder to `.gitignore`:
@@ -66,7 +68,8 @@ eval "$(zoxide init)"
 ## Examples
 
 ```bash
-wt add feature/user-dashboard     # creates + cd
+wt add feature/auth               # Creates .worktree/feature-auth (branch stays "feature/auth") + cd
+wt add "my cool feature"          # Creates .worktree/my_cool_feature
 wt co bugfix/123                  # switch (or create if exists on remote)
 wt ls
 wt rm                             # remove current (cd back to main)
@@ -77,3 +80,6 @@ wt rm feature2 --force
 wt mv feature/old feature/new-ui  # rename dir + branch
 wt prune
 ```
+
+> [!NOTE]
+> You can still type the original branch name or the sanitized folder name — both are accepted.
