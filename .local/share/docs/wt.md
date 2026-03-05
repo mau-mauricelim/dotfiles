@@ -20,7 +20,7 @@ Your `rm`/`mv`/`co` examples used plain `feature2`/`feature3`, and including the
 ## Full command reference
 
 **`wt ignore`**
-Automatically adds `.worktree/` to `.gitignore` (creates the file if missing) and stages it.
+Ignore `.worktree/` locally. Add to `.git/info/exclude`.
 
 **`wt add <name>`**
 Creates a *new* branch + worktree and cds into it (from current HEAD).
