@@ -1,42 +1,58 @@
 #!/usr/bin/env bash
 set -euo pipefail
 
+echo "🧪 Starting wt tests"
+
 TEST_DIR="/tmp/wt-test-$$"
 mkdir -p "$TEST_DIR"
 cd "$TEST_DIR"
+
 git init main-repo
 cd main-repo
-echo ".worktree/" >> .gitignore
-git add .gitignore
-git commit -m "init"
+git commit --allow-empty -m "init" 2>/dev/null || true
 
-echo "🧪 Running wt tests..."
+# ───── SIMULATE THE EXACT SHELL WRAPPER (this fixes auto-cd in tests) ─────
+wt() {
+  local output
+  output="$(command wt "$@")"
+  if [[ -n "$output" && -d "$output" ]]; then
+    echo -e "\033[34m→\033[0m $(basename "$output")" >&2
+    cd "$output" || return 1
+  else
+    printf '%s\n' "$output"
+  fi
+}
 
-# Basic flow
+echo "✅ Wrapper simulated — auto-cd enabled for tests"
+
+# 1. ignore (new!)
+wt ignore
+grep -q ".worktree/" .gitignore || { echo "FAIL: ignore"; exit 1; }
+echo "✅ wt ignore works"
+
+# 2. add + auto-cd
 wt add feature1
 [[ "$(basename "$(pwd)")" == "feature1" ]] || { echo "FAIL: auto-cd"; exit 1; }
+echo "✅ auto-cd works"
 
-# Successive add (no nesting)
+# 3. successive add (no nesting)
 cd ..
 wt add feature2
 [[ "$(pwd)" == "$TEST_DIR/main-repo/.worktree/feature2" ]] || { echo "FAIL: nesting"; exit 1; }
 
-# Sanitization tests
+# 4. sanitization + co + rm + mv (same as before)
 wt add "feature/user dashboard"
 [[ -d ".worktree/feature-user_dashboard" ]] || { echo "FAIL: sanitization"; exit 1; }
-echo "✅ Sanitization: feature/user dashboard → feature-user_dashboard"
 
-wt co feature/user-dashboard   # should work via sanitization
+wt co feature/user-dashboard
 [[ "$(basename "$(pwd)")" == "feature-user_dashboard" ]] || { echo "FAIL: co sanitized"; exit 1; }
 
-# rm current
 wt rm
 [[ "$(pwd)" == "$TEST_DIR/main-repo" ]] || { echo "FAIL: rm current"; exit 1; }
 
-# mv with sanitization
 wt add "old name"
 wt mv "old name" "new name"
 [[ -d ".worktree/new_name" ]] || { echo "FAIL: mv"; exit 1; }
 
-echo "🎉 ALL TESTS PASSED! (including sanitization and auto-cd)"
-echo "Clean up: rm -rf $TEST_DIR"
+echo "🎉 ALL TESTS PASSED! (auto-cd, ignore, sanitization, everything)"
+echo "Cleanup: rm -rf $TEST_DIR"

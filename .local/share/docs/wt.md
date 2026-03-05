@@ -19,6 +19,9 @@ Your `rm`/`mv`/`co` examples used plain `feature2`/`feature3`, and including the
 
 ## Full command reference
 
+**`wt ignore`**
+Automatically adds `.worktree/` to `.gitignore` (creates the file if missing) and stages it.
+
 **`wt add <name>`**
 Creates a *new* branch + worktree and cds into it (from current HEAD).
 
@@ -68,6 +71,7 @@ eval "$(wt init)"
 ## Examples
 
 ```bash
+wt ignore                         # Appended .worktree/ to .gitignore + staged
 wt add feature/auth               # Creates .worktree/feature-auth (branch stays "feature/auth") + cd
 wt add "my cool feature"          # Creates .worktree/my_cool_feature
 wt co bugfix/123                  # switch (or create if exists on remote)

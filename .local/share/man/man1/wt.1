@@ -8,48 +8,34 @@ wt \- convenient Git worktree manager
 .I command
 [args]
 
-.SH DESCRIPTION
-.B wt
-is a tiny bash wrapper that makes Git worktrees delightful.
-It automatically cds, prevents nesting, and adds sensible defaults.
-
 .SH COMMANDS
 .TP
+.B init
+Print shell wrapper (eval "$(wt init)").
+
+.TP
 .B add <name>
-Create a new branch + worktree and switch into it.
+Create new branch + worktree.
 
 .TP
 .B co <name>
-Switch to an existing worktree or add one for an existing branch (local or remote).
+Switch to worktree.
 
 .TP
 .B rm [-f] [<name>]
-Remove the current worktree (no argument) or a specific one.
-The \-f / \-\-force flag forces removal even if the worktree is dirty.
+Remove worktree.
 
 .TP
-.B prune
-Run git worktree prune (removes stale entries).
+.B ignore
+Auto-add .worktree/ to .gitignore and stage it.
 
 .TP
-.B ls
-List all worktrees (git worktree list).
-
-.TP
-.B mv <old> <new>
-Move a worktree and rename the branch inside it.
-
-.TP
-.B help
-Show usage.
+.B prune | ls | mv
+Standard worktree commands.
 
 .SH FILES
-.TP
 .I <repo>/.worktree/<name>
-All worktrees are stored here (add to .gitignore).
-
-.SH AUTHOR
-Maurice
+(and .gitignore now handled automatically)
 
 .SH SEE ALSO
 git-worktree(1)

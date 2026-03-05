@@ -8,10 +8,11 @@
 # Sanitize branch names
 # Update the usage with all the flags
 # wt ignore
+# local gitignore without staging
 
 set -euo pipefail
 
-# Colors
+# Colors (stderr only)
 if [[ -t 2 ]]; then
   C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m' C_RESET=$'\e[0m'
 else
@@ -40,7 +41,6 @@ SHELL_INIT
   exit 0
 fi
 
-# ───── REPO ROOT ─────
 GIT_COMMON_DIR=$(git rev-parse --git-common-dir 2>/dev/null) || { error "Not inside a Git repository"; exit 1; }
 GIT_ROOT=$(cd "$(dirname "$GIT_COMMON_DIR")" && pwd -P)
 WORKTREE_BASE="$GIT_ROOT/.worktree"
@@ -55,10 +55,6 @@ else
   IN_WORKTREE=0
 fi
 
-# ───── NAME SANITIZATION ─────
-# feature/auth     → feature-auth
-# "my branch"      → my_branch
-# anything-else!   → anything-else_
 sanitize_name() {
   echo "$1" | tr '/' '-' | tr ' ' '_' | tr -cd 'A-Za-z0-9_.-'
 }
@@ -80,20 +76,36 @@ set -- "${NEW_ARGS[@]}"
 case "$CMD" in
   ""|help|--help|-h)
     cat <<EOF >&2
-wt - Git Worktree CLI
+wt — Git worktree manager
 
 Usage: wt <command>
 
 Commands:
   init                    Print shell wrapper (eval "\$(wt init)")
-  add <name>              New branch + worktree (sanitized dir)
+  add <name>              New branch + worktree
   co <name>               Switch to worktree
-  rm [-f] [<name>]        Remove (force with -f)
+  rm [-f] [<name>]        Remove
   prune                   git worktree prune
-  ls                      List worktrees
-  mv <old> <new>          Move + rename branch
+  ls                      List
+  mv <old> <new>          Move + rename
+  ignore                  Auto-add .worktree/ to .gitignore + stage it
 EOF
     exit 0
+    ;;
+
+  ignore)
+    if [[ ! -f .gitignore ]]; then
+      echo ".worktree/" > .gitignore
+      info "Created .gitignore with .worktree/"
+    elif ! grep -qE '^\.worktree/?$' .gitignore; then
+      echo ".worktree/" >> .gitignore
+      info "Appended .worktree/ to .gitignore"
+    else
+      success "Already ignored (.worktree/ is in .gitignore)"
+      exit 0
+    fi
+    git add .gitignore
+    success "Staged .gitignore — commit when ready: git commit -m 'ignore worktrees'"
     ;;
 
   add)
@@ -107,7 +119,7 @@ EOF
 
     info "Creating branch '$user_name' → folder '$dir_name'"
     git worktree add -b "$user_name" "$path"
-    echo "$path"
+    echo "$path"          # ← ONLY this goes to stdout for auto-cd
     ;;
 
   co)
@@ -116,6 +128,7 @@ EOF
     dir_name=$(sanitize_name "$user_name")
     path="$WORKTREE_BASE/$dir_name"
 
+    # Try sanitized first, then original
     if [[ ! -d "$path" ]]; then
       path="$WORKTREE_BASE/$user_name"
     fi
