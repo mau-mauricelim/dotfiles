@@ -8,7 +8,7 @@
 .\" ── String definitions ───────────────────────────────────────────────────────
 .\" Worktree base path, relative to the repo root.
 .\" Change this one line if the path ever changes.
-.ds WT_PATH .git/worktrees
+.ds WT_PATH .worktrees
 .ds WT_INIT wt.init.sh
 .
 .\" ── NAME ─────────────────────────────────────────────────────────────────────
@@ -217,11 +217,12 @@ Print the version string.
 .TP
 .I <repo-root>/\*[WT_PATH]/
 Base directory for all managed worktrees.
-Because this path lives inside
-.IR .git/ ,
-it is automatically excluded from git tracking and does not require a
+This directory should be added to the repository's
 .I .gitignore
-entry.
+to prevent editors and other tools from indexing worktree content:
+.EX
+\*[WT_PATH]/
+.EE
 .TP
 .I <repo-root>/\*[WT_PATH]/<repo-name>.<sanitized-branch>
 Worktree directory for a given branch.
@@ -380,9 +381,11 @@ to source
 .TP
 .I <repo-root>/\*[WT_PATH]/
 Base directory for managed worktrees.
-Lives inside
-.I .git/
-and is therefore never tracked by git.
+Add
+.I \*[WT_PATH]/
+to the repository's
+.I .gitignore
+to keep it untracked.
 .TP
 .I \*[WT_INIT]
 Shell function wrapper.

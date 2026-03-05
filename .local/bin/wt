@@ -3,20 +3,27 @@
 #  wt — Git Worktree Manager
 #  Version: 1.0.0
 #
-#  IMPORTANT: For `cd` to work, you must source the shell integration
+#  IMPORTANT: For `cd` to work, you must source the shell integration.
 #  Run `wt install` to set it up, or manually add to your shell rc:
 #
 #    source /path/to/wt.init.sh
 #
-#  Without shell integration, all commands still work EXCEPT navigation (cd)
+#  Without shell integration, all commands still work EXCEPT navigation (cd).
 # =============================================================================
 
 set -uo pipefail
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 
-RED='' GREEN='' YELLOW='' BLUE='' CYAN='' BOLD='' DIM='' NC=''
+# Colour detection:
+# When invoked via the wt shell function, stdout is redirected to a temp
+# file so [ -t 1 ] is always false -- even though the user's terminal is
+# right there. The shell function sets WT_COLOR=1 to preserve intent.
+# Direct invocation still works via the [ -t 1 ] fallback.
 if [[ "${WT_COLOR:-}" == "1" || -t 1 ]]; then
+  # $'...' (ANSI C quoting) embeds the real ESC byte at assignment time.
+  # This works in bash AND zsh, and means the variables work correctly
+  # inside echo, printf, cat <<EOF, and anywhere else — no -e flag needed.
   RED=$'\033[0;31m'
   GREEN=$'\033[0;32m'
   YELLOW=$'\033[1;33m'
@@ -25,6 +32,8 @@ if [[ "${WT_COLOR:-}" == "1" || -t 1 ]]; then
   BOLD=$'\033[1m'
   DIM=$'\033[2m'
   NC=$'\033[0m'
+else
+  RED='' GREEN='' YELLOW='' BLUE='' CYAN='' BOLD='' DIM='' NC=''
 fi
 
 # ── Logging helpers ───────────────────────────────────────────────────────────
@@ -39,14 +48,14 @@ dim()     { printf "  ${DIM}%b${NC}\n" "$*"; }
 
 # ── Git helpers ───────────────────────────────────────────────────────────────
 
-# Print repo root, or die if not in a git repo
+# Print repo root, or die if not in a git repo.
 git_root() {
   # IMPORTANT: git rev-parse --show-toplevel returns the *current worktree's*
   # root, not the main repo root. When called from inside a linked worktree
   # (e.g. ${worktree_rel}/repo.feature-login), it returns that subdirectory —
   # causing all subsequent paths to nest incorrectly.
   #
-  # The main repo is always the FIRST entry in git worktree list
+  # The main repo is always the FIRST entry in git worktree list.
   #
   # NOTE: we capture the awk output into a variable rather than using
   # `pipeline || die` directly. With `set -o pipefail`, when awk exits early
@@ -60,18 +69,24 @@ git_root() {
   printf '%s\n' "$_root"
 }
 
-# Print repo name (basename of root)
-repo_name() { basename "$(git_root)"; }
+# Print repo name (basename of root).
+repo_name() {
+  basename "$(git_root)"
+}
 
-# Print the base directory where all managed worktrees live
-worktree_rel=".git/worktrees"
-worktree_base() { echo "$(git_root)/${worktree_rel}"; }
+# Print the base directory where all managed worktrees live.
+worktree_rel=".worktrees"
+worktree_base() {
+  echo "$(git_root)/${worktree_rel}"
+}
 
-# Sanitize a branch name for use as a directory component
-# Replaces '/' with '-' so feature/auth → feature-auth
-sanitize_branch() { echo "${1}" | tr '/' '-' | tr ' ' '_'; }
+# Sanitize a branch name for use as a directory component.
+# Replaces '/' with '-' so feature/auth → feature-auth.
+sanitize_branch() {
+  echo "${1}" | tr '/' '-' | tr ' ' '_'
+}
 
-# Print the full managed worktree path for a given branch
+# Print the full managed worktree path for a given branch.
 worktree_path() {
   local branch="${1}"
   local safe_branch
@@ -79,8 +94,10 @@ worktree_path() {
   echo "$(worktree_base)/$(repo_name).${safe_branch}"
 }
 
-# Check if a branch exists locally
-branch_exists() { git show-ref --verify --quiet "refs/heads/${1}"; }
+# Check if a branch exists locally.
+branch_exists() {
+  git show-ref --verify --quiet "refs/heads/${1}"
+}
 
 # If the current directory is inside a managed worktree, print the original
 # branch name (from git worktree list). Prints empty string if not in one.
@@ -97,7 +114,7 @@ current_worktree_branch() {
   esac
 
   # Walk git worktree list to find a registered worktree whose path
-  # is a prefix of (or equal to) cwd
+  # is a prefix of (or equal to) cwd.
   local found_branch=""
   while IFS= read -r line; do
     case "$line" in
@@ -130,13 +147,15 @@ current_worktree_branch() {
 # special token on stdout. The shell wrapper function (wt.init.sh) intercepts
 # it and performs the `cd` on our behalf.
 
-signal_cd() { echo "__WT_CD__:${1}"; }
+signal_cd() {
+  echo "__WT_CD__:${1}"
+}
 
 # ── Commands ──────────────────────────────────────────────────────────────────
 
 # wt add <branch>
-# Creates a new managed worktree for <branch>
-# If the branch doesn't exist yet it is created
+# Creates a new managed worktree for <branch>.
+# If the branch doesn't exist yet it is created.
 cmd_add() {
   local branch="${1:-}"
   [[ -z "$branch" ]] && die "Usage: wt add <branch>"
@@ -180,9 +199,9 @@ cmd_add() {
 }
 
 # wt rm [branch]
-# Remove a managed worktree
-#   No argument → removes the worktree you are currently inside
-#   With <branch> → removes that specific worktree
+# Remove a managed worktree.
+#   No argument → removes the worktree you are currently inside.
+#   With <branch> → removes that specific worktree.
 cmd_remove() {
   local branch="${1:-}"
   local root
@@ -199,7 +218,7 @@ cmd_remove() {
 
   [[ -d "$path" ]] || die "No worktree found at: ${path}"
 
-  # If we are inside the worktree being removed, we must leave first
+  # If we are inside the worktree being removed, we must leave first.
   local cwd
   cwd="$(pwd -P 2>/dev/null || pwd)"
   local needs_cd=false
@@ -229,8 +248,8 @@ cmd_remove() {
 }
 
 # wt prune
-# Prune all stale worktree administrative files
-# If currently in any managed worktree, navigates to repo root first
+# Prune all stale worktree administrative files.
+# If currently in any managed worktree, navigates to repo root first.
 cmd_prune() {
   local root
   root="$(git_root)"
@@ -259,7 +278,7 @@ cmd_prune() {
 }
 
 # wt ls
-# Pretty-print all worktrees for this repo
+# Pretty-print all worktrees for this repo.
 cmd_list() {
   local root base
   root="$(git_root)"
@@ -349,8 +368,8 @@ cmd_list() {
 }
 
 # wt mv <from-branch> <to-branch>
-# Move/rename a managed worktree, updating git's tracking data
-# If you are currently in the worktree being moved, navigates to the new path
+# Move/rename a managed worktree, updating git's tracking data.
+# If you are currently in the worktree being moved, navigates to the new path.
 cmd_move() {
   local from="${1:-}" to="${2:-}"
   [[ -z "$from" || -z "$to" ]] && die "Usage: wt mv <from-branch> <to-branch>"
@@ -394,7 +413,7 @@ cmd_move() {
 }
 
 # wt co <branch>
-# Navigate into a managed worktree. Requires shell integration
+# Navigate into a managed worktree. Requires shell integration.
 cmd_checkout() {
   local branch="${1:-}"
   [[ -z "$branch" ]] && die "Usage: wt co <branch>"
@@ -499,51 +518,51 @@ ${BOLD}USAGE${NC}
 ${BOLD}COMMANDS${NC}
 
   ${GREEN}add${NC} <branch>
-      Create a new managed worktree for <branch>
-      Automatically creates the branch if it doesn't exist locally
-      Then navigates into the new worktree directory
+      Create a new managed worktree for <branch>.
+      Automatically creates the branch if it doesn't exist locally.
+      Then navigates into the new worktree directory.
 
       Path: <repo-root>/${worktree_rel}/<repo-name>.<branch>
 
   ${GREEN}rm${NC} [branch]
-      Remove a managed worktree
+      Remove a managed worktree.
         wt rm              → removes the worktree you are currently inside
         wt rm <branch>     → removes a specific worktree by branch name
-      If the tree has uncommitted changes, removal is forced with a warning
-      Navigates back to repo root if you were inside the removed worktree
+      If the tree has uncommitted changes, removal is forced with a warning.
+      Navigates back to repo root if you were inside the removed worktree.
 
   ${GREEN}prune${NC}
-      Remove stale/dead worktree administrative files (git bookkeeping)
+      Remove stale/dead worktree administrative files (git bookkeeping).
       Equivalent to: git worktree prune --verbose
-      Navigates to repo root if currently in any managed worktree
+      Navigates to repo root if currently in any managed worktree.
 
   ${GREEN}ls${NC}
-      List all worktrees with path, short commit hash, and branch name
-      Highlights the worktree you are currently in with ${GREEN}▶${NC}
+      List all worktrees with path, short commit hash, and branch name.
+      Highlights the worktree you are currently in with ${GREEN}▶${NC}.
 
   ${GREEN}mv${NC} <from-branch> <to-branch>
-      Move (rename) a managed worktree's directory and update git's tracking
+      Move (rename) a managed worktree's directory and update git's tracking.
       If you are currently inside the renamed worktree, navigates to the
-      new location automatically
+      new location automatically.
 
   ${GREEN}co${NC} <branch>
-      Navigate into a managed worktree for <branch>
-      Requires shell integration. Use 'wt install' to set it up
+      Navigate into a managed worktree for <branch>.
+      Requires shell integration. Use 'wt install' to set it up.
 
   ${GREEN}install${NC}
       Append shell integration to ~/.bashrc and/or ~/.zshrc so that
       commands that need to change directory (add, rm, co, mv, prune)
-      actually work in your current shell session
+      actually work in your current shell session.
 
   ${GREEN}help${NC}  (-h, --help)
-      Show this help message
+      Show this help message.
 
 ${BOLD}HOW DIRECTORY CHANGES WORK${NC}
   Bash scripts run in a subshell and cannot change the parent shell's
   directory. wt solves this with a thin shell wrapper function. The binary
   signals the desired path; the wrapper performs the actual 'cd'.
 
-  Run ${CYAN}wt install${NC} once, then reload your shell
+  Run ${CYAN}wt install${NC} once, then reload your shell.
 
 ${BOLD}WORKTREE NAMING${NC}
   Branches with slashes are sanitized:  feature/auth → feature-auth
