@@ -413,15 +413,36 @@ cmd_checkout() {
 }
 
 # wt install
-# Appends the wt shell function to .bashrc and/or .zshrc.
+# Appends the wt shell function to bash/zsh rc file
 cmd_install() {
-  local shell_file=""
-  local this_script
-  this_script="$(cd "$(dirname "${BASH_SOURCE[0]}")" && pwd)/$(basename "${BASH_SOURCE[0]}")"
+  # ── Resolve true home ──────────────────────────────────────────────────
+  local true_home
+  if command -v getent &>/dev/null; then
+    true_home="$(getent passwd "$(id -un)" | cut -d: -f6)"
+  elif command -v dscl &>/dev/null; then          # macOS
+    true_home="$(dscl . -read "/Users/$(id -un)" NFSHomeDirectory 2>/dev/null | awk '{print $2}')"
+  fi
+  true_home="${true_home:-$HOME}"   # fallback to $HOME if all else fails
 
-  # Locate the companion wt.shell.sh relative to this script
-  local shell_src
-  shell_src="$(dirname "$this_script")/wt.shell.sh"
+  # ── Resolve rc files ───────────────────────────────────────────────────
+  local bashrc="${true_home}/.bashrc"
+  local zshrc="${ZDOTDIR:-${true_home}}/.zshrc"   # respect ZDOTDIR
+
+  # ── Check login shell to warn if neither bash nor zsh ─────────────────
+  local login_shell
+  if command -v getent &>/dev/null; then
+    login_shell="$(getent passwd "$(id -un)" | cut -d: -f7)"
+  else
+    login_shell="${SHELL:-unknown}"
+  fi
+
+  case "$login_shell" in
+    */bash|*/zsh) ;;
+    *) warn "Login shell is '${login_shell}' — only bash/zsh rc files will be modified." ;;
+  esac
+
+  # ── Write source lines ─────────────────────────────────────────────────
+  local shell_src="$(dirname "$0")/wt.shell.sh"
 
   header "Installing wt shell integration"
   echo ""
@@ -432,32 +453,26 @@ cmd_install() {
 
   local installed=0
 
-  for rc in "$HOME/.bashrc" "$HOME/.zshrc"; do
-    if [[ -f "$rc" ]]; then
-      if grep -q "wt.shell.sh" "$rc" 2>/dev/null; then
-        warn "Already installed in ${rc} — skipping."
-      else
-        echo "" >> "$rc"
-        echo "# wt — Git Worktree Manager" >> "$rc"
-        echo "[ -f \"${shell_src}\" ] && source \"${shell_src}\"" >> "$rc"
-        success "Added to ${rc}"
-        (( installed++ ))
-      fi
+  # Replace "/home/<user>" with "$HOME"
+  shell_src="${shell_src/#$HOME/\$HOME}"
+  for rc in "$bashrc" "$zshrc"; do
+    [[ -f "$rc" ]] || continue
+    if grep -qF "wt.shell.sh" "$rc" 2>/dev/null; then
+      warn "Already installed in ${rc} — skipping."
+    else
+      printf '\n# wt — Git Worktree Manager\n[ -f "%s" ] && source "%s"\n' \
+        "$shell_src" "$shell_src" >> "$rc"
+      success "Added to ${rc}"
+      (( installed++ ))
     fi
   done
 
+  # ── If neither file was touched, give manual instructions ──────────────
   if [[ $installed -eq 0 ]]; then
-    warn "No .bashrc / .zshrc modified (either not found or already installed)."
-    info  "Manually add to your shell rc:"
+    warn "No rc files modified."
     echo ""
-    echo "    source \"${shell_src}\""
-    echo ""
-  else
-    echo ""
-    info "Reload your shell or run:"
-    echo ""
-    echo "    source \"${shell_src}\""
-    echo ""
+    info  "Manually add to your shell's rc file:"
+    printf '\n    source "%s"\n\n' "$shell_src"
   fi
 }
 
