@@ -168,7 +168,7 @@ if command -v yazi >/dev/null; then
 fi
 
 # wt — Git Worktree Manager
-[ -f "$HOME/bin/lib/wt/wt.shell.sh" ] && source "$HOME/bin/lib/wt/wt.shell.sh"
+[ -f "$HOME/.local/bin/lib/wt/wt.shell.sh" ] && source "$HOME/.local/bin/lib/wt/wt.shell.sh"
 
 # ssh key permissions
 for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do
