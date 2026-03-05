@@ -45,30 +45,31 @@ useful but the raw commands are verbose and easy to mistype.
 ### Manual (recommended)
 
 ```sh
-# 1. Clone or copy the two files somewhere on your PATH or anywhere you prefer:
-cp wt         ~/.local/bin/wt
-cp wt.init.sh ~/.local/lib/wt.init.sh
+# 1. Clone, copy or symlink the two files somewhere on your PATH or anywhere you prefer:
+cp $HOME/dotfiles/.local/bin/wt         $HOME/.local/bin/wt
+cp $HOME/dotfiles/.local/lib/wt.init.sh $HOME/.local/lib/wt.init.sh
 
 # Make the binary executable
-chmod +x ~/.local/bin/wt
+chmod +x $HOME/.local/bin/wt
 
 # 2. Run the installer to add shell integration
 wt install
 
 # 3. Reload your shell
-source ~/.bashrc     # or ~/.zshrc
+source $HOME/.bashrc # or $HOME/.zshrc
 ```
 
 ### Automatic installer
 
 ```sh
 chmod +x wt
-wt install         # writes source line to ~/.bashrc and/or ~/.zshrc
-source ~/.bashrc   # reload
+wt install           # writes source line to $HOME/.bashrc and/or $HOME/.zshrc
+source $HOME/.bashrc # reload
 ```
 
-> **Note:** `wt install` only adds a `source` line; it does not move any
-> files. Make sure `wt` is on your `$PATH` before running it.
+> [!NOTE]
+> - `wt install` only adds a `source` line; it does not move any files
+> - Make sure `wt` is on your `$PATH` before running it
 
 ## Shell Integration
 
@@ -80,9 +81,9 @@ means a plain script can never change your terminal's working directory.
 
 `wt` solves this with a two-layer design:
 
-| Layer          | File          | Role                                                                                             |
-| -              | -             | -                                                                                                |
-| Binary         | `wt`          | Performs all git operations; emits `__WT_CD__:/path` on stdout when a directory change is needed |
+| Layer          | File         | Role                                                                                             |
+| -              | -            | -                                                                                                |
+| Binary         | `wt`         | Performs all git operations; emits `__WT_CD__:/path` on stdout when a directory change is needed |
 | Shell function | `wt.init.sh` | Wraps the binary; intercepts the `__WT_CD__` token; calls `cd` in your actual shell              |
 
 **Without** the shell function, every command still works **except** navigation
@@ -93,7 +94,7 @@ To install:
 
 ```sh
 wt install
-source ~/.bashrc   # or ~/.zshrc
+source $HOME/.bashrc # or $HOME/.zshrc
 ```
 
 Or manually add to your shell rc:
@@ -111,7 +112,7 @@ Create a new managed worktree for `<branch>` and navigate into it.
 ```sh
 wt add feature/login
 wt add bugfix-123
-wt add main            # worktree for an already-existing branch
+wt add main # worktree for an already-existing branch
 ```
 
 **What happens:**
@@ -132,8 +133,8 @@ wt add main            # worktree for an already-existing branch
 Remove a managed worktree.
 
 ```sh
-wt rm                  # remove the one you are currently inside
-wt rm feature/login    # remove a specific one by branch name
+wt rm               # remove the one you are currently inside
+wt rm feature/login # remove a specific one by branch name
 ```
 
 **What happens:**
@@ -143,8 +144,9 @@ wt rm feature/login    # remove a specific one by branch name
 3. Runs `git worktree remove <path>`
 4. If the tree has uncommitted changes, re-runs with `--force` and warns you
 
-> `wt rm` does **not** delete the branch itself — only the checked-out
-> directory. Delete the branch separately with `git branch -d <branch>`.
+> [!NOTE]
+> - `wt rm` does **not** delete the branch itself — only the checked-out directory
+> - Delete the branch separately with `git branch -d <branch>`
 
 ### `wt prune`
 
@@ -201,8 +203,9 @@ wt mv old-experiment new-experiment
 3. If you were inside `<from>`, navigates to the corresponding location in
    `<to>` (preserving any subdirectory you were in)
 
-> `wt mv` renames the **worktree directory** — it does not rename the git
-> branch. To rename the branch as well, run `git branch -m <from> <to>` after.
+> [!NOTE]
+> - `wt mv` renames the **worktree directory** — it does not rename the git branch
+> - To rename the branch as well, run `git branch -m <from> <to>` after
 
 ### `wt co <branch>`
 
@@ -219,7 +222,7 @@ branches — it simply changes your working directory to the worktree for
 
 ### `wt install`
 
-Append shell integration to `~/.bashrc` and/or `~/.zshrc`.
+Append shell integration to `$HOME/.bashrc` and/or `$HOME/.zshrc`.
 
 ```sh
 wt install
@@ -231,7 +234,7 @@ binary). Skips any file that already has it.
 After running, reload your shell:
 
 ```sh
-source ~/.bashrc   # or ~/.zshrc
+source $HOME/.bashrc # or $HOME/.zshrc
 ```
 
 ### `wt help`
@@ -342,7 +345,7 @@ wt add feature/payment-api
 git add . && git commit -m "feat: payment api skeleton"
 
 # Switch back to main branch:
-cd ~/projects/myapp
+cd $HOME/projects/myapp
 ```
 
 ### Review a colleague's PR branch
@@ -395,7 +398,7 @@ Shell integration is not active. Run:
 
 ```sh
 wt install
-source ~/.bashrc   # or ~/.zshrc
+source $HOME/.bashrc   # or $HOME/.zshrc
 ```
 
 Then verify the function is loaded:
