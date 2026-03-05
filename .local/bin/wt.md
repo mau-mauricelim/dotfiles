@@ -4,8 +4,6 @@ A small, ergonomic CLI wrapper around `git worktree`. It keeps all your
 worktrees in a predictable location, handles navigation automatically, and
 stays out of your way everywhere else.
 
----
-
 ## Table of Contents
 
 1. [Why wt?](#why-wt)
@@ -27,8 +25,6 @@ stays out of your way everywhere else.
 9. [Design Decisions & Trade-offs](#design-decisions--trade-offs)
 10. [Troubleshooting](#troubleshooting)
 
----
-
 ## Why wt?
 
 `git worktree` lets you have multiple branches checked out simultaneously in
@@ -43,8 +39,6 @@ useful but the raw commands are verbose and easy to mistype.
 - **Safe removal** — detects if you are inside the worktree being deleted and
   moves you out first
 - **Pretty listing** — `wt ls` with aligned columns and current-location marker
-
----
 
 ## Installation
 
@@ -76,8 +70,6 @@ source ~/.bashrc   # reload
 > **Note:** `wt install` only adds a `source` line; it does not move any
 > files. Make sure `wt` is on your `$PATH` before running it.
 
----
-
 ## Shell Integration
 
 > This is the most important thing to understand about `wt`.
@@ -88,10 +80,10 @@ means a plain script can never change your terminal's working directory.
 
 `wt` solves this with a two-layer design:
 
-| Layer | File | Role |
-|---|---|---|
-| Binary | `wt` | Performs all git operations; emits `__WT_CD__:/path` on stdout when a directory change is needed |
-| Shell function | `wt.shell.sh` | Wraps the binary; intercepts the `__WT_CD__` token; calls `cd` in your actual shell |
+| Layer          | File          | Role                                                                                             |
+| -              | -             | -                                                                                                |
+| Binary         | `wt`          | Performs all git operations; emits `__WT_CD__:/path` on stdout when a directory change is needed |
+| Shell function | `wt.shell.sh` | Wraps the binary; intercepts the `__WT_CD__` token; calls `cd` in your actual shell              |
 
 **Without** the shell function, every command still works **except** navigation
 (`wt add`, `wt co`, `wt rm`, `wt mv`, `wt prune` all operate correctly, they
@@ -109,8 +101,6 @@ Or manually add to your shell rc:
 ```sh
 source "/path/to/wt.shell.sh"
 ```
-
----
 
 ## Command Reference
 
@@ -137,8 +127,6 @@ wt add main            # worktree for an already-existing branch
 - Fails if the worktree directory already exists (use `wt co` to visit it)
 - Fails if the branch is already checked out in another worktree
 
----
-
 ### `wt rm [branch]`
 
 Remove a managed worktree.
@@ -158,8 +146,6 @@ wt rm feature/login    # remove a specific one by branch name
 > `wt rm` does **not** delete the branch itself — only the checked-out
 > directory. Delete the branch separately with `git branch -d <branch>`.
 
----
-
 ### `wt prune`
 
 Remove stale git administrative files left behind when worktree directories
@@ -173,8 +159,6 @@ Equivalent to `git worktree prune --verbose`.
 
 If you are currently inside any managed worktree, `wt prune` navigates to the
 repo root first (git refuses to prune while inside one of the worktrees).
-
----
 
 ### `wt ls`
 
@@ -200,8 +184,6 @@ Sample output:
 
 The `▶` marker shows the worktree you are currently inside.
 
----
-
 ### `wt mv <from> <to>`
 
 Move (rename) a managed worktree. Updates both the directory and git's
@@ -222,8 +204,6 @@ wt mv old-experiment new-experiment
 > `wt mv` renames the **worktree directory** — it does not rename the git
 > branch. To rename the branch as well, run `git branch -m <from> <to>` after.
 
----
-
 ### `wt co <branch>`
 
 Navigate into an existing managed worktree.
@@ -236,8 +216,6 @@ wt co bugfix-123
 `co` is short for "checkout", but unlike `git checkout` it does not switch
 branches — it simply changes your working directory to the worktree for
 `<branch>`. The branch must already have a worktree (use `wt add` first).
-
----
 
 ### `wt install`
 
@@ -256,8 +234,6 @@ After running, reload your shell:
 source ~/.bashrc   # or ~/.zshrc
 ```
 
----
-
 ### `wt help`
 
 Print the built-in reference.
@@ -267,8 +243,6 @@ wt help
 wt -h
 wt --help
 ```
-
----
 
 ## How Worktrees Are Named
 
@@ -280,25 +254,23 @@ All worktrees are placed under:
 
 Branch names are **sanitized** for use as directory components:
 
-| Character | Replacement |
-|---|---|
-| `/` (forward slash) | `-` (hyphen) |
-| ` ` (space) | `_` (underscore) |
+| Character           | Replacement      |
+| -                   | -                |
+| `/` (forward slash) | `-` (hyphen)     |
+| ` ` (space)         | `_` (underscore) |
 
 Examples:
 
-| Repo | Branch | Worktree path |
-|---|---|---|
-| `myapp` | `main` | `myapp/.worktree/myapp.main` |
-| `myapp` | `feature/login` | `myapp/.worktree/myapp.feature-login` |
-| `myapp` | `bugfix-123` | `myapp/.worktree/myapp.bugfix-123` |
+| Repo         | Branch               | Worktree path                                        |
+| -            | -                    | -                                                    |
+| `myapp`      | `main`               | `myapp/.worktree/myapp.main`                         |
+| `myapp`      | `feature/login`      | `myapp/.worktree/myapp.feature-login`                |
+| `myapp`      | `bugfix-123`         | `myapp/.worktree/myapp.bugfix-123`                   |
 | `api-server` | `chore/upgrade deps` | `api-server/.worktree/api-server.chore-upgrade_deps` |
 
 The `<repo-name>.` prefix keeps things identifiable when you open
 `.worktree/` in a file browser or editor sidebar, especially useful if you
 work in a monorepo or have similarly-named branches across repos.
-
----
 
 ## The cd Problem
 
@@ -343,8 +315,6 @@ wt() {
 Because the function runs **inside your shell process** (not a subshell), the
 `cd` takes effect in your session.
 
----
-
 ## Recommended .gitignore
 
 Add `.worktree/` to your repo's `.gitignore` so the worktree directories are
@@ -357,8 +327,6 @@ not accidentally staged or committed:
 
 Git itself already knows about worktrees and will not double-check them out,
 but editors (VS Code, IntelliJ, etc.) may try to index them without this entry.
-
----
 
 ## Typical Workflows
 
@@ -406,22 +374,18 @@ git branch -d feature/login     # delete the branch
 wt prune                        # tidy git bookkeeping
 ```
 
----
-
 ## Design Decisions & Trade-offs
 
-| Decision | Rationale |
-|---|---|
-| `.worktree/` directory in repo root | Keeps everything self-contained. One `ls` shows all worktrees for the repo. Consistent across machines. |
-| `<repo>.<branch>` naming | Avoids collisions when multiple repos share branch names. Identifiable at a glance. |
-| Branch sanitization (`/` → `-`) | Forward slashes in directory names are legal but cause problems in shell tab-completion, some editors, and certain tools. |
-| `--force` fallback on `wt rm` | Git refuses to remove worktrees with changes. A warning + force is more useful than a hard failure, since you already asked to remove it. |
-| Shell function + binary split | The binary is portable and testable independently. The shell function is minimal by design. |
-| No automatic `.gitignore` edits | Modifying user files without explicit consent is surprising. The recommendation is documented instead. |
-| `wt add` creates branch if missing | The most common use case is starting new work. Requiring a pre-existing branch adds friction with little benefit. |
-| `wt rm` does not delete the branch | Branch lifecycle is separate from worktree lifecycle. Deleting a branch is irreversible; deleting a worktree directory is not. |
-
----
+| Decision                            | Rationale                                                                                                                                 |
+| -                                   | -                                                                                                                                         |
+| `.worktree/` directory in repo root | Keeps everything self-contained. One `ls` shows all worktrees for the repo. Consistent across machines.                                   |
+| `<repo>.<branch>` naming            | Avoids collisions when multiple repos share branch names. Identifiable at a glance.                                                       |
+| Branch sanitization (`/` → `-`)     | Forward slashes in directory names are legal but cause problems in shell tab-completion, some editors, and certain tools.                 |
+| `--force` fallback on `wt rm`       | Git refuses to remove worktrees with changes. A warning + force is more useful than a hard failure, since you already asked to remove it. |
+| Shell function + binary split       | The binary is portable and testable independently. The shell function is minimal by design.                                               |
+| No automatic `.gitignore` edits     | Modifying user files without explicit consent is surprising. The recommendation is documented instead.                                    |
+| `wt add` creates branch if missing  | The most common use case is starting new work. Requiring a pre-existing branch adds friction with little benefit.                         |
+| `wt rm` does not delete the branch  | Branch lifecycle is separate from worktree lifecycle. Deleting a branch is irreversible; deleting a worktree directory is not.            |
 
 ## Troubleshooting
 
