@@ -55,6 +55,7 @@ sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 # `ln -s /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe $HOME/dotfiles/.local/bin`
 
 addToPath "$HOME/.local/bin"
+export MANPATH="$HOME/.local/share/man:"
 
 # Set PATH to include Neovim
 addToPathFront /opt/nvim-linux-x86_64/bin
@@ -168,7 +169,7 @@ if command -v yazi >/dev/null; then
 fi
 
 # wt — Git Worktree Manager
-[ -f "$HOME/.local/bin/lib/wt/wt.shell.sh" ] && source "$HOME/.local/bin/lib/wt/wt.shell.sh"
+[ -f "$HOME/.local/bin/../lib/wt.init.sh" ] && source "$HOME/.local/bin/../lib/wt.init.sh"
 
 # ssh key permissions
 for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do

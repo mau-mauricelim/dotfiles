@@ -6,7 +6,7 @@
 #  IMPORTANT: For `cd` to work, you must source the shell integration.
 #  Run `wt install` to set it up, or manually add to your shell rc:
 #
-#    source /path/to/wt.shell.sh
+#    source /path/to/wt.init.sh
 #
 #  Without shell integration, all commands still work EXCEPT navigation (cd).
 # =============================================================================
@@ -15,7 +15,12 @@ set -uo pipefail
 
 # ── Colours ──────────────────────────────────────────────────────────────────
 
-if [ -t 1 ]; then
+# Colour detection:
+# When invoked via the wt shell function, stdout is redirected to a temp
+# file so [ -t 1 ] is always false -- even though the user's terminal is
+# right there. The shell function sets WT_COLOR=1 to preserve intent.
+# Direct invocation still works via the [ -t 1 ] fallback.
+if [[ "${WT_COLOR:-}" == "1" || -t 1 ]]; then
   # $'...' (ANSI C quoting) embeds the real ESC byte at assignment time.
   # This works in bash AND zsh, and means the variables work correctly
   # inside echo, printf, cat <<EOF, and anywhere else — no -e flag needed.
@@ -123,7 +128,7 @@ current_worktree_branch() {
 # ── Signal mechanism ──────────────────────────────────────────────────────────
 #
 # Because a subprocess cannot change the parent shell's directory, we emit a
-# special token on stdout. The shell wrapper function (wt.shell.sh) intercepts
+# special token on stdout. The shell wrapper function (wt.init.sh) intercepts
 # it and performs the `cd` on our behalf.
 
 signal_cd() {
@@ -442,13 +447,13 @@ cmd_install() {
   esac
 
   # ── Write source lines ─────────────────────────────────────────────────
-  local shell_src="$(dirname "$0")/lib/wt/wt.shell.sh"
+  local shell_src="$(dirname "$0")/../lib/wt.init.sh"
 
   header "Installing wt shell integration"
   echo ""
 
   if [[ ! -f "$shell_src" ]]; then
-    die "wt.shell.sh not found next to the wt script.\nExpected: ${shell_src}"
+    die "wt.init.sh not found next to the wt script.\nExpected: ${shell_src}"
   fi
 
   local installed=0
@@ -466,7 +471,7 @@ cmd_install() {
 
   for rc in "$bashrc" "$zshrc"; do
     [[ -f "$rc" ]] || continue
-    if grep -qF "wt.shell.sh" "$rc" 2>/dev/null; then
+    if grep -qF "wt.init.sh" "$rc" 2>/dev/null; then
       warn "Already installed in ${rc} — skipping."
     else
       printf "%s" "$shell_cmd" >> "$rc"

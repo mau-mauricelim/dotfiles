@@ -46,8 +46,8 @@ useful but the raw commands are verbose and easy to mistype.
 
 ```sh
 # 1. Clone or copy the two files somewhere on your PATH or anywhere you prefer:
-cp wt          ~/.local/bin/wt
-cp wt.shell.sh ~/.local/lib/wt/wt.shell.sh
+cp wt         ~/.local/bin/wt
+cp wt.init.sh ~/.local/lib/wt.init.sh
 
 # Make the binary executable
 chmod +x ~/.local/bin/wt
@@ -83,7 +83,7 @@ means a plain script can never change your terminal's working directory.
 | Layer          | File          | Role                                                                                             |
 | -              | -             | -                                                                                                |
 | Binary         | `wt`          | Performs all git operations; emits `__WT_CD__:/path` on stdout when a directory change is needed |
-| Shell function | `wt.shell.sh` | Wraps the binary; intercepts the `__WT_CD__` token; calls `cd` in your actual shell              |
+| Shell function | `wt.init.sh` | Wraps the binary; intercepts the `__WT_CD__` token; calls `cd` in your actual shell              |
 
 **Without** the shell function, every command still works **except** navigation
 (`wt add`, `wt co`, `wt rm`, `wt mv`, `wt prune` all operate correctly, they
@@ -99,7 +99,7 @@ source ~/.bashrc   # or ~/.zshrc
 Or manually add to your shell rc:
 
 ```sh
-source "/path/to/wt.shell.sh"
+source "/path/to/wt.init.sh"
 ```
 
 ## Command Reference
@@ -225,7 +225,7 @@ Append shell integration to `~/.bashrc` and/or `~/.zshrc`.
 wt install
 ```
 
-Adds a `source` line pointing to `wt.shell.sh` (located next to the `wt`
+Adds a `source` line pointing to `wt.init.sh` (located next to the `wt`
 binary). Skips any file that already has it.
 
 After running, reload your shell:
@@ -294,7 +294,7 @@ stdout:
 __WT_CD__:/path/to/destination
 ```
 
-The shell wrapper function (`wt.shell.sh`) intercepts this:
+The shell wrapper function (`wt.init.sh`) intercepts this:
 
 ```bash
 wt() {

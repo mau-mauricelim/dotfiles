@@ -67,7 +67,7 @@ uses a two-layer architecture: the binary emits a
 .B __WT_CD__:/path
 token on standard output when a directory change is needed; a companion
 shell function (see
-.BR wt.shell.sh )
+.BR wt.init.sh )
 intercepts it and performs the
 .BR cd (1)
 in the actual shell session.
@@ -178,7 +178,7 @@ Requires shell integration.
 Append a
 .B source
 line for
-.B wt.shell.sh
+.B wt.init.sh
 to
 .B ~/.bashrc
 and/or
@@ -238,7 +238,7 @@ solves this by printing a sentinel token on standard output:
 The
 .B wt
 shell function defined in
-.B wt.shell.sh
+.B wt.init.sh
 captures all output from the binary, strips this token, and performs the
 .BR cd (1)
 in the current shell process.
@@ -250,7 +250,7 @@ and reload your shell, or manually add:
 .PP
 .RS
 .EX
-source "/path/to/wt.shell.sh"
+source "/path/to/wt.init.sh"
 .EE
 .RE
 .PP
@@ -332,7 +332,7 @@ wt mv old-name new-name
 Modified by
 .B wt install
 to source
-.IR wt.shell.sh .
+.IR wt.init.sh .
 .TP
 .I <repo-root>/.worktree/
 Base directory for managed worktrees (not tracked by git when
@@ -340,7 +340,7 @@ Base directory for managed worktrees (not tracked by git when
 is in
 .BR .gitignore (5)).
 .TP
-.I wt.shell.sh
+.I wt.init.sh
 Shell function wrapper. Must be sourced (not executed) in the current
 shell for directory navigation to work.
 .
@@ -380,7 +380,7 @@ Changes are permanently lost.
 .TP
 .B wt: binary not found.
 The shell function in
-.B wt.shell.sh
+.B wt.init.sh
 could not locate the
 .B wt
 binary. Ensure
@@ -419,6 +419,6 @@ will fail on the second one with a "directory already exists" error.
 .IP \(bu 2
 .B export \-f wt
 in
-.B wt.shell.sh
+.B wt.init.sh
 exports the function to bash subshells only; zsh does not inherit
 exported functions.

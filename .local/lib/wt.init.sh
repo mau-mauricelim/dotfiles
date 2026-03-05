@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # =============================================================================
-#  wt.shell.sh — Shell integration for wt
+#  wt.init.sh — Shell integration for wt
 #
 #  Source this file in your ~/.bashrc or ~/.zshrc.
 #  Do NOT execute it directly.
@@ -22,11 +22,11 @@ wt() {
 
   local _wt_bin
 
-  # 1. Same directory as this shell file (ideal when installed together)
+  # 1. Default location
   local _this_dir
   _this_dir="$(cd "$(dirname "${BASH_SOURCE[0]:-$0}")" 2>/dev/null && pwd)"
-  if [[ -x "${_this_dir}/wt" ]]; then
-    _wt_bin="${_this_dir}/wt"
+  if [[ -x "${_this_dir}/../bin/wt" ]]; then
+    _wt_bin="${_this_dir}/../bin/wt"
   # 2. Common install locations
   elif command -v _wt_impl &>/dev/null; then
     _wt_bin="_wt_impl"
@@ -45,7 +45,13 @@ wt() {
   _tmpout="$(mktemp)" || { echo "wt: mktemp failed" >&2; return 1; }
   _tmperr="$(mktemp)" || { rm -f "$_tmpout"; echo "wt: mktemp failed" >&2; return 1; }
 
-  "$_wt_bin" "$@" >"$_tmpout" 2>"$_tmperr"
+  # Forward colour intent: stdout is captured to a file inside this function,
+  # so the binary's [ -t 1 ] check always fails. Pass WT_COLOR=1 when our
+  # own stdout (the user's terminal) is a tty.
+  local _color_env=""
+  [ -t 1 ] && _color_env="WT_COLOR=1"
+
+  env ${_color_env} "$_wt_bin" "$@" >"$_tmpout" 2>"$_tmperr"
   local _exit_code=$?
 
   # ── Extract the cd signal (if any) ──────────────────────────────────────
