@@ -1,0 +1,249 @@
+.\" Manpage for wt — Git Worktree Manager
+.\" Contact: your-email@example.com
+.TH WT 1 "2025" "wt 1.0.0" "User Commands"
+
+.SH NAME
+wt \- minimal Git worktree manager with auto-cd support
+
+.SH SYNOPSIS
+.B wt
+.I command
+.RI [ options ]
+
+.SH DESCRIPTION
+.B wt
+is a thin wrapper around
+.BR git-worktree (1)
+that enforces a consistent directory layout, sanitizes branch names,
+auto-registers an ignore rule, and \(em when the shell function is
+installed \(em automatically changes the current directory after
+worktree operations.
+
+All linked worktrees are placed under:
+
+.RS
+.I <repo-root>/.worktree/<repo-name>.<sanitized-branch>
+.RE
+
+For example, branch
+.B feature/login
+in a repo called
+.B myapp
+produces:
+
+.RS
+.I myapp/.worktree/myapp.feature-login
+.RE
+
+.SH SHELL SETUP
+.B wt
+cannot change the directory of the calling shell on its own.  Install
+the shell wrapper by adding the following line to
+.B ~/.bashrc
+or
+.BR ~/.zshrc :
+
+.RS
+.EX
+eval "$(wt init)"
+.EE
+.RE
+
+This defines a shell function named
+.B wt
+that calls the binary and performs any
+.BR cd (1)
+operations that the binary requests.  The function is compatible with
+both
+.BR bash (1)
+and
+.BR zsh (1).
+
+.SH COMMANDS
+
+.TP
+.B init
+Print the shell function definition to standard output.  Intended for
+.EX
+    eval "$(wt init)"
+.EE
+
+.TP
+.BI add " branch"
+Create a new linked worktree for
+.IR branch .
+If the branch does not exist locally it is created.  If the worktree
+already exists, the command is a no-op and the shell wrapper will cd
+into the existing path.
+
+.TP
+.BR rm \ [\fB-f\fR]\ [\fIbranch\fR]
+Remove a linked worktree.
+
+Without arguments, removes the worktree the shell is currently inside
+and returns to the main worktree root.
+
+With a
+.I branch
+argument, removes that specific worktree regardless of the current
+directory.
+
+.B -f / --force
+is passed through to
+.BR git-worktree-remove (1)
+to allow removal of a worktree with uncommitted changes.
+
+.TP
+.BI co " branch"
+.PD 0
+.TP
+.BI checkout " branch"
+.PD
+Change directory into the worktree for
+.IR branch .
+The worktree must already exist; use
+.B wt add
+to create it first.
+
+.TP
+.BR ls
+.PD 0
+.TP
+.BR list
+.PD
+Display all worktrees.  The currently active worktree is marked with
+a
+.B ▶
+arrow and highlighted.  Each entry shows the directory name, the
+abbreviated HEAD commit SHA, and the branch name.
+
+.TP
+.BI mv " from to"
+.PD 0
+.TP
+.BI move " from to"
+.PD
+Move (rename) the worktree identified by
+.I from
+to the path derived from
+.IR to .
+If the shell is currently inside the source worktree it will be
+redirected to the new path automatically.
+
+.TP
+.B prune
+Run
+.B git worktree prune
+to remove stale administrative files for worktrees that no longer
+exist on disk.
+
+.TP
+.BR nuke \ [\fB-f\fR]
+Remove
+.I all
+linked worktrees and delete each worktree's associated local branch.
+Prompts for confirmation unless
+.B -f / --force
+is given.  The shell is returned to the main worktree root if it was
+inside any of the removed worktrees.
+
+.SH BRANCH SANITIZATION
+Branch names may contain characters that are not safe as directory
+components.
+.B wt
+applies the following transformations to derive a directory name:
+
+.RS
+.IP \(bu 2
+.B /
+is replaced by
+.B -
+.IP \(bu 2
+Any character that is not alphanumeric, a dot, a hyphen, or an
+underscore is replaced by
+.B -
+.IP \(bu 2
+Leading and trailing hyphens are stripped.
+.IP \(bu 2
+Consecutive hyphens are collapsed to a single hyphen.
+.RE
+
+.SH IGNORE RULE
+The first time a worktree is added,
+.B wt
+appends
+.B /.worktree
+to
+.I .git/info/exclude
+so that the directory is invisible to
+.BR git-status (1)
+without modifying any tracked file.
+
+.SH ENVIRONMENT
+.B wt
+reads no special environment variables.  It relies solely on
+.BR git (1)
+commands to discover repository topology.
+
+.SH FILES
+.TP
+.I <repo-root>/.worktree/
+Directory that holds all linked worktrees managed by
+.BR wt .
+.TP
+.I <repo-root>/.git/info/exclude
+Receives the
+.B /.worktree
+entry on first use.
+
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+A usage error, a missing worktree, or an underlying
+.BR git (1)
+failure occurred.  A diagnostic message is written to standard error.
+
+.SH EXAMPLES
+
+.SS One-time setup
+.EX
+# Add to ~/.bashrc or ~/.zshrc
+echo 'eval "$(wt init)"' >> ~/.zshrc
+source ~/.zshrc
+.EE
+
+.SS Daily workflow
+.EX
+# Start work on a new feature
+wt add feature/payments
+# → creates .worktree/myrepo.feature-payments, cd's into it
+
+# List all worktrees
+wt ls
+
+# Jump to an existing worktree
+wt co feature/payments
+
+# Rename a worktree
+wt mv feature/payments feature/stripe-payments
+
+# Done with a worktree
+wt rm              # removes current, cd's to repo root
+wt rm feature/old  # removes by name
+
+# Tear down everything
+wt nuke -f
+.EE
+
+.SH SEE ALSO
+.BR git-worktree (1),
+.BR git (1)
+
+.SH BUGS
+Report bugs at https://github.com/your-org/wt/issues
+
+.SH AUTHOR
+Written by you.
