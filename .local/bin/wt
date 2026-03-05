@@ -8,15 +8,15 @@
 
 set -euo pipefail
 
-# Colors (to stderr)
 if [[ -t 2 ]]; then
-  C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m' C_RESET=$'\e[0m'
+  C_BLUE=$'\e[34m' C_GREEN=$'\e[32m' C_YELLOW=$'\e[33m' C_RED=$'\e[31m' C_RESET=$'\e[0m' C_BOLD=$'\e[1m'
 else
-  C_BLUE= C_GREEN= C_YELLOW= C_RED= C_RESET=
+  C_BLUE= C_GREEN= C_YELLOW= C_RED= C_RESET= C_BOLD=
 fi
 
 info()    { echo "${C_BLUE}→${C_RESET} $1" >&2; }
 success() { echo "${C_GREEN}✓${C_RESET} $1" >&2; }
+warn()    { echo "${C_YELLOW}⚠${C_RESET} $1" >&2; }
 error()   { echo "${C_RED}✗${C_RESET} $1" >&2; }
 
 # ───── INIT ─────
@@ -27,7 +27,6 @@ wt() {
   output="$(command wt "$@")"
   last_line=$(printf '%s\n' "$output" | tail -n 1 | sed 's/^[[:space:]]*//;s/[[:space:]]*$//')
   if [[ -n "$last_line" && -d "$last_line" ]]; then
-    # Print everything except the hidden path line
     printf '%s\n' "$output" | head -n -1
     echo -e "\033[34m→\033[0m $(basename "$last_line")" >&2
     cd "$last_line" || return 1
@@ -75,18 +74,19 @@ set -- "${NEW_ARGS[@]}"
 case "$CMD" in
   ""|help|--help|-h)
     cat <<EOF >&2
-wt — Git worktree manager
+wt — Git Worktree Manager
 
-Usage: wt <command>
+Usage: wt <command> [args]
 
 Commands:
-  init                    Setup auto-cd (run once)
-  add <name>              New branch + worktree + cd
+  init                    Setup auto-cd (eval "\$(wt init)")
+  add <name>              Create new branch + worktree
   co <name>               Switch to worktree
-  rm [-f] [<name>]        Remove
-  ignore                  Ignore .worktree/ locally (.git/info/exclude)
+  rm [-f] [<name>]        Remove (use -f/--force to force)
+  ignore                  Ignore .worktree/ locally
+  nuke                    DANGER: Delete ALL worktrees + .worktree/ folder
   prune                   git worktree prune
-  ls                      List
+  ls                      List worktrees (pretty table)
   mv <old> <new>          Move + rename branch
 EOF
     exit 0
@@ -95,13 +95,9 @@ EOF
   ignore)
     EXCLUDE="$GIT_ROOT/.git/info/exclude"
     mkdir -p "$(dirname "$EXCLUDE")"
-
-    if [[ ! -f "$EXCLUDE" ]]; then
-      echo ".worktree/" > "$EXCLUDE"
-      info "Created local exclude file"
-    elif ! grep -qE '^\.worktree/?' "$EXCLUDE" 2>/dev/null; then
+    if ! grep -qE '^\.worktree/?' "$EXCLUDE" 2>/dev/null; then
       echo ".worktree/" >> "$EXCLUDE"
-      info "Added .worktree/ to local exclude"
+      info "Added .worktree/ to local exclude file"
     else
       success ".worktree/ already ignored locally"
       exit 0
@@ -109,22 +105,43 @@ EOF
     success "Worktrees are now ignored locally"
     ;;
 
+  nuke)
+    if [[ $FORCE -eq 0 ]]; then
+      warn "This will DELETE the entire .worktree/ folder and ALL worktrees!"
+      warn "This is irreversible."
+      read -r -p "Type NUKE to confirm: " confirm
+      if [[ "$confirm" != "NUKE" ]]; then
+        error "Aborted."
+        exit 1
+      fi
+    fi
+    info "NUKING all worktrees..."
+    cd "$GIT_ROOT"
+    for wt_path in $(git worktree list --porcelain | grep '^worktree ' | cut -d' ' -f2); do
+      [[ "$wt_path" != "$GIT_ROOT" ]] && git worktree remove -f "$wt_path" 2>/dev/null || true
+    done
+    rm -rf "$WORKTREE_BASE"
+    git worktree prune -v
+    success "Everything nuked"
+    echo "$GIT_ROOT" # auto-cd back to main
+    ;;
+
   add)
-    [[ $# -eq 0 ]] && { error "Usage: wt add <name>"; exit 1; }
+    [[ $# -ne 1 ]] && { error "Usage: wt add <name>"; exit 1; }
     user_name="$1"
     dir_name=$(sanitize_name "$user_name")
     path="$WORKTREE_BASE/$dir_name"
 
     [[ -d "$path" ]] && { error "Worktree '$dir_name' already exists"; exit 1; }
-    git show-ref --verify --quiet "refs/heads/$user_name" && { error "Branch exists — use 'wt co'"; exit 1; }
+    git show-ref --verify --quiet "refs/heads/$user_name" && { error "Branch '$user_name' exists — use wt co"; exit 1; }
 
     info "Creating branch '$user_name' → folder '$dir_name'"
     git worktree add -b "$user_name" "$path"
-    echo "$path"   # last line = cd target
+    echo "$path"
     ;;
 
   co)
-    [[ $# -eq 0 ]] && { error "Usage: wt co <name>"; exit 1; }
+    [[ $# -ne 1 ]] && { error "Usage: wt co <name>"; exit 1; }
     user_name="$1"
     dir_name=$(sanitize_name "$user_name")
     path="$WORKTREE_BASE/$dir_name"
@@ -161,20 +178,31 @@ EOF
 
     [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
 
-    info "Removing '$dir_name'${FORCE:+ (forced)}"
+    info "Removing '$dir_name'${FORCE:+ (forced)}..."
     git worktree remove ${FORCE:+-f} "$path"
-    success "Removed"
+    success "Removed '$dir_name'"
+    ;;
+
+  ls)
+    printf "${C_BOLD}%-50s %-12s %s${C_RESET}\n" "Path" "Commit" "Branch"
+    echo "────────────────────────────────────────────────────────────────────"
+    git worktree list | while read -r line; do
+      path=$(echo "$line" | awk '{print $1}')
+      commit=$(echo "$line" | awk '{print $2}')
+      branch=$(echo "$line" | awk '{print $3}')
+      if [[ "$path" == "$CURRENT_PATH" ]]; then
+        printf "${C_GREEN}→ %-48s %-12s %s (current)${C_RESET}\n" "$path" "$commit" "$branch"
+      else
+        printf "  %-48s %-12s %s\n" "$path" "$commit" "$branch"
+      fi
+    done
+    echo -e "\n${C_BLUE}Worktrees stored in:${C_RESET} $WORKTREE_BASE"
     ;;
 
   prune)
     [[ $IN_WORKTREE -eq 1 ]] && cd "$GIT_ROOT" >/dev/null
     info "Pruning stale worktrees..."
     git worktree prune -v
-    ;;
-
-  ls)
-    git worktree list
-    echo -e "\n${C_BLUE}Worktrees stored in:${C_RESET} $WORKTREE_BASE" >&2
     ;;
 
   mv)
@@ -195,7 +223,6 @@ EOF
     info "Moving '$old_user' → '$new_user'"
     git worktree move "$old_path" "$new_path"
     git -C "$new_path" branch -m "$old_user" "$new_user" 2>/dev/null || true
-
     [[ $was_current -eq 1 ]] && echo "$new_path" || success "Moved"
     ;;
 

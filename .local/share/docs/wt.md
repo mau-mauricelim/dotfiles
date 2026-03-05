@@ -19,6 +19,8 @@ Your `rm`/`mv`/`co` examples used plain `feature2`/`feature3`, and including the
 
 ## Full command reference
 
+- All commands are with force flags are **safe by default**
+
 **`wt ignore`**
 Ignore `.worktree/` locally. Add to `.git/info/exclude`.
 
@@ -31,7 +33,7 @@ Creates a *new* branch + worktree and cds into it (from current HEAD).
 - Otherwise → helpful error
 
 **`wt rm [-f|--force]` (no arg)**
-Removes the worktree you are currently in and cds back to main repo root.
+- Removes the worktree you are currently in and cds back to main repo root.
 
 **`wt rm [-f|--force] <name>`**
 Removes any worktree (safe even if you're inside it).
@@ -40,13 +42,16 @@ Removes any worktree (safe even if you're inside it).
 Runs `git worktree prune` (cleans stale entries).
 
 **`wt ls`**
-`git worktree list` + shows storage folder.
+Worktree list
 
 **`wt mv <old> <new>`**
 Moves the directory *and* renames the branch inside (very useful).
 
 **`wt [help|--help|-h]`**
 Shows usage.
+
+**`wt nuke [-f|--force]`**
+Deletes all worktrees
 
 ## Installation
 
@@ -83,6 +88,8 @@ wt rm -f feature1
 wt rm feature2 --force
 wt mv feature/old feature/new-ui  # rename dir + branch
 wt prune
+wt nuke                           # Prompts NUKE to confirm deletion
+wt nuke -f
 ```
 
 > [!NOTE]
