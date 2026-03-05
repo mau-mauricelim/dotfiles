@@ -46,15 +46,15 @@ sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
 # NOTE: Avoid adding /mnt/c/Windows/System32 to PATH as it is very large!
 # https://github.com/Saghen/blink.cmp/issues/795
-# Use a symlink to `~/dotfiles/bin` if necessary:
+# Use a symlink to `$HOME/dotfiles/.local/bin` if necessary:
 # HACK: WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
 # https://github.com/iamcco/markdown-preview.nvim/issues/309
-# `ln -s /mnt/c/Windows/System32/cmd.exe ~/dotfiles/bin`
+# `ln -s /mnt/c/Windows/System32/cmd.exe $HOME/dotfiles/.local/bin`
 # HACK: Lazygit: Open pull request in browser
 # bash: line 1: powershell.exe: command not found
-# `ln -s /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe ~/dotfiles/bin`
+# `ln -s /mnt/c/Windows/System32/WindowsPowerShell/v1.0/powershell.exe $HOME/dotfiles/.local/bin`
 
-addToPath "$HOME/bin"
+addToPath "$HOME/.local/bin"
 
 # Set PATH to include Neovim
 addToPathFront /opt/nvim-linux-x86_64/bin
