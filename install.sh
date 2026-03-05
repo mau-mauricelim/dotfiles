@@ -96,7 +96,7 @@ common_root_install() {
 common_user_install() {
     echo_with_date "Running common user install"
     # Create the top level directories before stowing so that stow does not symlink from the top level
-    mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/."{vim,local}
+    mkdir -p "$HOME/.config/"{nvim,tmux,yazi,zsh,q} "$HOME/.vim" "$HOME/.local/"{lib,share}
     # Clone the dotfiles
     [ -d "$HOME/dotfiles" ] || git clone -b "$BRANCH_NAME" --filter=blob:none https://github.com/mau-mauricelim/dotfiles.git "$HOME/dotfiles" >/dev/null
     # Copy the q folder as static files
