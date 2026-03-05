@@ -12,10 +12,6 @@ eval "$(wt init)"
 
 echo "🧪 Running wt tests"
 
-wt ignore
-wt ignore # idempotent check
-[[ -f .git/info/exclude ]] && grep -q ".worktree/" .git/info/exclude || { echo "FAIL: ignore"; exit 1; }
-
 wt add feature1
 wt add "bugfix/test"
 wt add "somelong@hello/path"
@@ -25,6 +21,8 @@ wt co feature1
 echo "dirty change" > dirty.txt
 ! wt rm 2>/dev/null && echo '✅ `wt rm` (safe) correctly failed on dirty'
 wt rm -f feature1 && echo '✅ `wt rm -f` succeeded on dirty'
+
+[[ -f .git/info/exclude ]] && grep -q ".worktree/" .git/info/exclude || { echo "FAIL: ignore"; exit 1; }
 
 # Test clean rm
 wt rm bugfix/test

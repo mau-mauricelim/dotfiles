@@ -3,7 +3,7 @@
 
 # TODO:
 # gzip wt.1 later?
-# Update the usage with all the flags
+# Update the usage with all the flags (docs and man)
 # test not robust
 # should wt rm also remove the branch?
 
@@ -58,6 +58,16 @@ sanitize_name() {
   echo "$1" | tr '/' '-' | tr ' ' '_' | tr -cd 'A-Za-z0-9_.-@'
 }
 
+# ───── AUTO-IGNORE ─────
+ensure_ignore() {
+  local EXCLUDE="$GIT_ROOT/.git/info/exclude"
+  mkdir -p "$(dirname "$EXCLUDE")"
+  if ! grep -qE '^\.worktree/?' "$EXCLUDE" 2>/dev/null; then
+    echo ".worktree/" >> "$EXCLUDE"
+  fi
+}
+
+# ───── FORCE FLAG PARSING ─────
 FORCE=0
 ARGS=()
 for arg in "$@"; do
@@ -79,29 +89,15 @@ wt — Git Worktree Manager
 
 Commands:
   init                    Setup auto-cd
-  add <name>              Add worktree
-  co <name>               Checkout worktree
-  rm [-f] [<name>]        Remove worktree
-  ignore                  Ignore worktrees locally
-  nuke [-f]               Delete all worktrees + associated branches
-  prune                   Prune worktrees
-  ls                      List worktrees
-  mv <old> <new>          Move worktree
+  add <name>              New branch + worktree
+  co <name>               Switch
+  rm [-f] [<name>]        Remove (SAFE by default)
+  nuke [-f]               DANGER: delete .worktree/ + associated branches
+  prune                   Prune
+  ls                      List
+  mv <old> <new>          Move
 EOF
     exit 0
-    ;;
-
-  ignore)
-    EXCLUDE="$GIT_ROOT/.git/info/exclude"
-    mkdir -p "$(dirname "$EXCLUDE")"
-    if [[ ! -f "$EXCLUDE" ]] || ! grep -qE '^\s*\.worktree/?\s*(#.*)?$' "$EXCLUDE" 2>/dev/null; then
-      echo ".worktree/" >> "$EXCLUDE"
-      info "Added .worktree/ to local exclude"
-    else
-      success ".worktree/ already ignored locally"
-      exit 0
-    fi
-    success "Ignored locally"
     ;;
 
   nuke)
@@ -133,57 +129,12 @@ EOF
     path="$WORKTREE_BASE/$dir_name"
 
     [[ -d "$path" ]] && { error "Worktree '$dir_name' already exists"; exit 1; }
-    if git show-ref --verify --quiet "refs/heads/$user_name"; then
-      error "Branch '$user_name' already exists — use 'wt co $user_name'"
-      exit 1
-    fi
-    if git worktree list | grep -q " $path "; then
-      error "Worktree path already registered in Git"
-      exit 1
-    fi
+    git show-ref --verify --quiet "refs/heads/$user_name" && { error "Branch '$user_name' exists — use wt co"; exit 1; }
 
+    ensure_ignore
     info "Creating branch '$user_name' → folder '$dir_name'"
     git worktree add -b "$user_name" "$path"
     echo "$path"
-    ;;
-
-  rm)
-    name="${1:-}"
-    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree. Use 'wt rm <name>' or run from inside one"; exit 1; }; name="$CURRENT_NAME"; }
-
-    dir_name=$(sanitize_name "$name")
-    path="$WORKTREE_BASE/$dir_name"
-    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
-
-    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
-
-    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
-
-    if [[ $FORCE -eq 1 ]]; then
-      info "Removing '$dir_name' (forced)"
-      git worktree remove -f "$path"
-    else
-      info "Removing '$dir_name'"
-      git worktree remove "$path"
-    fi
-    success "Removed '$dir_name'"
-    ;;
-
-  ls)
-    printf "${C_BOLD}%-60s %-12s %s${C_RESET}\n" "Worktree" "Commit" "Branch"
-    echo "────────────────────────────────────────────────────────────────────────────────"
-    git worktree list | while read -r line; do
-      full_path=$(echo "$line" | awk '{print $1}')
-      commit=$(echo "$line" | awk '{print $2}')
-      branch=$(echo "$line" | awk '{print $3}')
-      rel_path="${full_path#$GIT_ROOT/}"
-      if [[ "$full_path" == "$CURRENT_PATH" ]]; then
-        printf "${C_GREEN}→ %-58s %-12s %s (current)${C_RESET}\n" "$rel_path" "$commit" "$branch"
-      else
-        printf "  %-58s %-12s %s\n" "$rel_path" "$commit" "$branch"
-      fi
-    done
-    echo -e "\n${C_BLUE}Stored in:${C_RESET} $WORKTREE_BASE"
     ;;
 
   co)
@@ -199,6 +150,7 @@ EOF
       exit 0
     fi
 
+    ensure_ignore
     if git show-ref --verify --quiet "refs/heads/$user_name"; then
       info "Adding worktree for local branch '$user_name'"
       git worktree add "$WORKTREE_BASE/$dir_name" "$user_name"
@@ -210,6 +162,66 @@ EOF
       exit 1
     fi
     echo "$WORKTREE_BASE/$dir_name"
+    ;;
+
+  rm)
+    name="${1:-}"
+    [[ -z "$name" ]] && { [[ $IN_WORKTREE -eq 0 ]] && { error "Not in a worktree. Use 'wt rm <name>' or run from inside one"; exit 1; }; name="$CURRENT_NAME"; }
+
+    dir_name=$(sanitize_name "$name")
+    path="$WORKTREE_BASE/$dir_name"
+    [[ ! -d "$path" ]] && path="$WORKTREE_BASE/$name"
+    [[ ! -d "$path" ]] && { error "Worktree '$name' not found"; exit 1; }
+
+    [[ "$CURRENT_PATH" == "$path"* ]] && echo "$GIT_ROOT"
+
+    if [[ $FORCE -eq 1 ]]; then
+      info "Removing '$dir_name' (forced)"
+      git worktree remove -f "$path"
+    else
+      info "Removing '$dir_name'"
+      git worktree remove "$path"
+    fi
+    success "Removed '$dir_name'"
+    ;;
+
+  ls)
+    mapfile -t wt_lines < <(git worktree list)
+
+    # Calculate max length for dynamic width
+    max_len=8
+    for line in "${wt_lines[@]}"; do
+      full=$(echo "$line" | awk '{print $1}')
+      rel="${full#$GIT_ROOT/}"
+      [[ ${#rel} -gt $max_len ]] && max_len=${#rel}
+    done
+    # Cap at 65 for terminal sanity
+    WIDTH=$(( max_len > 65 ? 65 : max_len + 2 ))
+
+    # Print header
+    printf "${C_BOLD}%-*s %-12s %s${C_RESET}\n" "$WIDTH" "Worktree" "Commit" "Branch"
+    printf '─%.0s' $(seq 1 $((WIDTH + 12 + 10))); echo
+
+    # Print rows with truncation
+    for line in "${wt_lines[@]}"; do
+      full=$(echo "$line" | awk '{print $1}')
+      commit=$(echo "$line" | awk '{print $2}')
+      branch=$(echo "$line" | awk '{print $3}')
+      rel="${full#$GIT_ROOT/}"
+
+      # Truncate long paths in the middle
+      if [[ ${#rel} -gt $WIDTH ]]; then
+        half=$(( (WIDTH - 3) / 2 ))
+        rel="${rel:0:$half}...${rel: -$((WIDTH - half - 3))}"
+      fi
+
+      if [[ "$full" == "$CURRENT_PATH" ]]; then
+        printf "${C_GREEN}→ %-*s %-12s %s (current)${C_RESET}\n" "$((WIDTH-2))" "$rel" "$commit" "$branch"
+      else
+        printf "  %-*s %-12s %s\n" "$((WIDTH-2))" "$rel" "$commit" "$branch"
+      fi
+    done
+    echo -e "\n${C_BLUE}Stored in:${C_RESET} $WORKTREE_BASE"
     ;;
 
   prune)
