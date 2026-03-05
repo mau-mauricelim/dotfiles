@@ -9,6 +9,7 @@ return { -- Highlight, edit, and navigate code
 
     ---@diagnostic disable-next-line: missing-fields
     require('nvim-treesitter.configs').setup({
+      parser_install_dir = vim.fn.stdpath("data") .. "/site",
       ensure_installed = { 'bash', 'c', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
