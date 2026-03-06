@@ -123,6 +123,9 @@ Worktrees
 
 Move/rename a worktree.
 
+> [!NOTE]
+> Does not rename branch
+
 ```sh
 wt mv feature/old feature/new
 # Renames .worktree/myrepo.feature-old → .worktree/myrepo.feature-new

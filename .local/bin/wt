@@ -6,68 +6,27 @@ WT_VERSION="1.0.0"
 WT_DIR=".worktree"
 
 # ── Colors ────────────────────────────────────────────────────────────────────
-# Do NOT use -t 1 — this script runs inside $() capture from the shell wrapper,
-# so stdout is never a tty.  Instead honour NO_COLOR / TERM conventions.
+# Do NOT use -t 1: stdout is always a pipe inside $() capture from the shell
+# wrapper. Honour TERM / NO_COLOR instead — both survive subshell capture.
 RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; BOLD=''; DIM=''; NC=''
 
 _setup_colors() {
-  # https://no-color.org
-  [[ "${NO_COLOR:-}" != "" ]] && return
-  # dumb terminal
-  [[ "${TERM:-}" == "dumb" ]] && return
-  # Need *some* terminal hint (TERM is inherited through $() captures)
-  [[ -z "${TERM:-}" ]] && return
-
-  RED=$'\033[0;31m'
-  GREEN=$'\033[0;32m'
-  YELLOW=$'\033[1;33m'
-  BLUE=$'\033[0;34m'
-  CYAN=$'\033[0;36m'
-  BOLD=$'\033[1m'
-  DIM=$'\033[2m'
-  NC=$'\033[0m'
+  [[ "${NO_COLOR:-}" != ""      ]] && return   # https://no-color.org
+  [[ "${TERM:-}"     == "dumb"  ]] && return
+  [[ -z "${TERM:-}"             ]] && return
+  RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[1;33m'
+  BLUE=$'\033[0;34m'; CYAN=$'\033[0;36m'
+  BOLD=$'\033[1m'; DIM=$'\033[2m'; NC=$'\033[0m'
 }
 _setup_colors
 
-# ── Helpers ───────────────────────────────────────────────────────────────────
-
-die()     { printf '%berror:%b %s\n' "$RED" "$NC" "$*" >&2; exit 1; }
-info()    { printf '%b→%b %s\n'     "$CYAN" "$NC" "$*"; }
-success() { printf '%b✓%b %s\n'     "$GREEN" "$NC" "$*"; }
+# ── Logging ───────────────────────────────────────────────────────────────────
+die()     { printf '%berror:%b %s\n' "$RED"    "$NC" "$*" >&2; exit 1; }
+info()    { printf '%b→%b %s\n'     "$CYAN"   "$NC" "$*"; }
+success() { printf '%b✓%b %s\n'     "$GREEN"  "$NC" "$*"; }
 warn()    { printf '%b⚠%b %s\n'     "$YELLOW" "$NC" "$*"; }
 
-# Pad a plain string to N chars, then wrap with color codes.
-# This avoids ANSI bytes corrupting printf field widths.
-_cpad() {
-  # _cpad <color> <reset> <width> <string>
-  local color="$1" reset="$2" width="$3" str="$4"
-  local truncated="${str:0:$width}"
-  local padded
-  padded=$(printf "%-${width}s" "$truncated")
-  printf '%b%s%b' "$color" "$padded" "$reset"
-}
-
-# Sanitize a branch name into a safe directory component.
-# feature/my-thing  →  feature-my-thing
-# fix/bug@1.0       →  fix-bug-1.0
-sanitize_branch() {
-  printf '%s' "$1" \
-    | sed 's|/|-|g' \
-    | sed 's|[^a-zA-Z0-9._-]|-|g' \
-    | sed 's|^-\+||; s|-\+$||' \
-    | sed 's|-\{2,\}|-|g'
-}
-
-# Derive a short repo name (origin remote → dirname → fallback).
-repo_name() {
-  local name
-  name=$(git remote get-url origin 2>/dev/null \
-    | sed 's|\.git$||; s|/$||; s|.*[/:]||') || true
-  if [[ -z "$name" ]]; then
-    name=$(basename "$(get_main_worktree)")
-  fi
-  printf '%s' "$name"
-}
+# ── Git helpers ───────────────────────────────────────────────────────────────
 
 require_git() {
   git rev-parse --git-dir &>/dev/null || die "not inside a git repository"
@@ -79,18 +38,16 @@ get_main_worktree() {
     | awk '/^worktree /{print substr($0,10); exit}'
 }
 
-# Return the top-level path of the worktree we are currently inside,
-# or empty string when we are in the main worktree.
+# Absolute path of the linked worktree we are currently inside, or "" if main.
 get_current_worktree() {
-  local top
+  local top main
   top=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
-  local main
   main=$(get_main_worktree)
   [[ "$top" != "$main" ]] && printf '%s' "$top"
-  return 0   # prevent set -e firing when top==main ([[ ]] exits 1)
+  return 0   # [[ ]] exits 1 when equal; explicit return 0 prevents set -e firing
 }
 
-# Given a worktree path, return its branch short name.
+# Given a worktree path, return its branch short name (strips refs/heads/).
 get_worktree_branch() {
   git worktree list --porcelain \
     | awk -v p="$1" '
@@ -100,32 +57,88 @@ get_worktree_branch() {
     | sed 's|refs/heads/||'
 }
 
-# Resolve a user-supplied name to an absolute worktree path.
-# Accepts:  bare name (feature1), sanitized name, or repo.name form.
+# ── Branch / path helpers ─────────────────────────────────────────────────────
+
+# Sanitize a branch name into a safe directory suffix.
+#   feature/my-thing  →  feature-my-thing
+#   fix/bug@1.0       →  fix-bug-1.0
+sanitize_branch() {
+  printf '%s' "$1" \
+    | sed 's|/|-|g' \
+    | sed 's|[^a-zA-Z0-9._-]|-|g' \
+    | sed 's|^-\+||; s|-\+$||' \
+    | sed 's|-\{2,\}|-|g'
+}
+
+# Stable repo prefix from origin remote URL, falling back to main worktree
+# directory basename.  Used only when CREATING new worktree dirs (add).
+repo_name() {
+  local name
+  name=$(git remote get-url origin 2>/dev/null \
+    | sed 's|\.git$||; s|/$||; s|.*[/:]||') || true
+  if [[ -z "$name" ]]; then
+    name=$(basename "$(get_main_worktree)")
+  fi
+  printf '%s' "$name"
+}
+
+# Detect the prefix (e.g. "dotfiles") actually used by existing worktrees on
+# disk.  Falls back to repo_name() when .worktree/ is empty.
+# This keeps mv/rm/co correct even when repo_name() returns a different value
+# today than it did at add-time (dir renamed, remote URL changed, etc.).
+wt_prefix() {
+  local main wt_dir d base
+  main=$(get_main_worktree)
+  wt_dir="$main/$WT_DIR"
+
+  if [[ -d "$wt_dir" ]]; then
+    for d in "$wt_dir"/*/; do
+      [[ -d "$d" ]] || continue
+      base=$(basename "$d")
+      # A managed dir is  <prefix>.<suffix>  — extract prefix before first dot.
+      if [[ "$base" == *.* ]]; then
+        printf '%s' "${base%%.*}"
+        return 0
+      fi
+    done
+  fi
+
+  repo_name   # fallback when no existing worktrees
+}
+
+# Resolve a user-supplied name → absolute worktree path by scanning .worktree/.
+# Repo-name-agnostic: works regardless of what prefix was used at add-time.
+#
+# Accepts:  branch name   (feature/login  →  sanitized to feature-login)
+#           sanitized     (feature-login)
+#           exact dir     (dotfiles.feature-login)
 resolve_wt_path() {
   local name="$1"
-  local main repo san wt_path
+  local main wt_dir san d base
 
   main=$(get_main_worktree)
-  repo=$(repo_name)
+  wt_dir="$main/$WT_DIR"
+  [[ -d "$wt_dir" ]] || return 1
+
   san=$(sanitize_branch "$name")
 
-  # Try canonical form first
-  wt_path="$main/$WT_DIR/${repo}.${san}"
-  [[ -d "$wt_path" ]] && { printf '%s' "$wt_path"; return 0; }
+  # Scan every directory; match on sanitized suffix (prefix-agnostic).
+  for d in "$wt_dir"/*/; do
+    [[ -d "$d" ]] || continue
+    base=$(basename "$d")
+    if [[ "$base" == *".$san" || "$base" == "$san" ]]; then
+      printf '%s' "${d%/}"
+      return 0
+    fi
+  done
 
-  # Try raw sanitized name
-  wt_path="$main/$WT_DIR/$san"
-  [[ -d "$wt_path" ]] && { printf '%s' "$wt_path"; return 0; }
-
-  # Try literal name
-  wt_path="$main/$WT_DIR/$name"
-  [[ -d "$wt_path" ]] && { printf '%s' "$wt_path"; return 0; }
+  # Literal fallback (user passed the exact directory name).
+  [[ -d "$wt_dir/$name" ]] && { printf '%s' "$wt_dir/$name"; return 0; }
 
   return 1
 }
 
-# Ensure the .worktree dir is listed in .git/info/exclude.
+# Ensure .worktree is listed in .git/info/exclude (idempotent).
 ensure_excluded() {
   local main exclude_file
   main=$(get_main_worktree)
@@ -137,36 +150,31 @@ ensure_excluded() {
   fi
 }
 
-# Emit a special cd directive that the shell wrapper intercepts.
+# Emit a cd directive intercepted by the shell wrapper (invisible to user).
 emit_cd() { printf '__WT_CD__:%s\n' "$1"; }
 
 # ── Commands ──────────────────────────────────────────────────────────────────
 
 # wt init
-# Prints a POSIX-compatible shell function definition; meant to be eval'd.
-# Works in both bash and zsh.
+# Outputs a POSIX-compatible shell function for eval; works in bash and zsh.
+#
+# Single invocation: capture stdout only. stderr flows to the terminal so git
+# progress ("Preparing worktree…") is visible live. nuke prompt uses /dev/tty.
 cmd_init() {
   cat <<'SHELL_FUNC'
 wt() {
   local _out _ret _cd
-
-  # Capture stdout; stderr flows directly to terminal so git progress etc. show.
-  _out=$(command wt "$@" 2>/dev/null)
-  _ret=$?
-
-  # Also run again to get stderr visible (errors), filtering cd directives.
-  # We separate concerns: cd directive on stdout, human output on stderr path.
-  # Simpler: just re-run? No — instead capture merged, strip directive lines.
-  # Actually: capture stdout only (nuke prompt uses /dev/tty directly).
+  # Single invocation — stdout captured; stderr goes straight to terminal.
   _out=$(command wt "$@")
   _ret=$?
 
-  # Extract an optional cd directive.
+  # Extract optional cd directive (last one wins).
   _cd=$(printf '%s\n' "$_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://')
 
-  # Print everything except the hidden directive.
-  printf '%s\n' "$_out" | grep -v '^__WT_CD__:'
+  # Print all output lines except the hidden directive.
+  printf '%s\n' "$_out" | grep -v '^__WT_CD__:' || true
 
+  # Perform directory change in the current shell process.
   if [ -n "$_cd" ] && [ -d "$_cd" ]; then
     cd "$_cd" || return 1
   fi
@@ -182,16 +190,16 @@ cmd_add() {
   [[ -z "$branch" ]] && die "usage: wt add <branch>"
 
   require_git
-  local main repo san wt_name wt_path
+  local main prefix san wt_name wt_path
   main=$(get_main_worktree)
-  repo=$(repo_name)
+  prefix=$(repo_name)
   san=$(sanitize_branch "$branch")
-  wt_name="${repo}.${san}"
+  wt_name="${prefix}.${san}"
   wt_path="$main/$WT_DIR/$wt_name"
 
-  # Idempotent: already exists → just cd there.
+  # Idempotent: already exists → just cd there (quiet, no spurious warning).
   if [[ -d "$wt_path" ]]; then
-    warn "worktree already exists: ${BOLD}${wt_name}${NC}"
+    info "already at ${BOLD}${wt_name}${NC}"
     emit_cd "$wt_path"
     return 0
   fi
@@ -271,9 +279,7 @@ cmd_nuke() {
   local main
   main=$(get_main_worktree)
 
-  # Collect all non-main worktrees + their branches up-front.
-  local -a paths=()
-  local -a branches=()
+  local -a paths=() branches=()
   local _path="" _branch=""
 
   while IFS= read -r line; do
@@ -295,18 +301,19 @@ cmd_nuke() {
     return 0
   fi
 
-  # ── Print the list — goes to normal stdout (captured by shell wrapper) ──
   printf '\n%bWorktrees to be nuked:%b\n' "$BOLD" "$NC"
+  local p
   for p in "${paths[@]}"; do
-    printf '  %b✗%b %s  %b%s%b\n' "$RED" "$NC" "$(basename "$p")" "$DIM" "$p" "$NC"
+    printf '  %b✗%b %-40s  %b%s%b\n' \
+      "$RED" "$NC" "$(basename "$p")" "$DIM" "$p" "$NC"
   done
   printf '\n'
 
   if [[ $force -eq 0 ]]; then
-    # Write prompt directly to /dev/tty so it bypasses $() capture.
-    printf '%bnuke all worktrees and their branches?%b [y/N] ' "$YELLOW" "$NC" > /dev/tty
+    printf '%bnuke all worktrees and their branches?%b [y/N] ' \
+      "$YELLOW" "$NC" >/dev/tty
     local confirm
-    read -r confirm < /dev/tty
+    read -r confirm </dev/tty
     if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
       info "aborted"
       return 0
@@ -319,10 +326,10 @@ cmd_nuke() {
 
   local i
   for i in "${!paths[@]}"; do
-    local p="${paths[$i]}"
+    local wtp="${paths[$i]}"
     local b="${branches[$i]:-}"
-    info "removing ${BOLD}$(basename "$p")${NC}"
-    git -C "$main" worktree remove --force "$p" 2>/dev/null || true
+    info "removing ${BOLD}$(basename "$wtp")${NC}"
+    git -C "$main" worktree remove --force "$wtp" 2>/dev/null || true
     if [[ -n "$b" ]]; then
       if git -C "$main" branch -D "$b" 2>/dev/null; then
         success "deleted branch ${BOLD}${b}${NC}"
@@ -339,6 +346,9 @@ cmd_nuke() {
 }
 
 # wt ls
+# Two-pass: collect → compute column width → render.
+# ANSI alignment rule: pad plain text FIRST, then apply color codes.
+# [main] badge goes at END of line so SHA + branch columns stay aligned.
 cmd_ls() {
   require_git
 
@@ -346,17 +356,18 @@ cmd_ls() {
   cur_top=$(git rev-parse --show-toplevel 2>/dev/null || printf '')
   main_top=$(get_main_worktree)
 
-  # ── First pass: collect all entries to compute column widths ────────────
-  local -a all_paths=() all_heads=() all_branches=()
+  # ── Pass 1: collect ────────────────────────────────────────────────────
+  local -a all_paths=() all_heads=() all_branches=() all_is_main=()
   local _path="" _head="" _branch="" _detached=0
 
   while IFS= read -r line; do
     case "$line" in
-      "worktree "*)  _path="${line#worktree }"; _head=""; _branch=""; _detached=0 ;;
-      "HEAD "*)      _head="${line#HEAD }" ;;
-      "branch "*)    _branch="${line#branch refs/heads/}" ;;
-      "detached")    _detached=1 ;;
-      "bare")        _branch="(bare)" ;;
+      "worktree "*)
+        _path="${line#worktree }"; _head=""; _branch=""; _detached=0 ;;
+      "HEAD "*)    _head="${line#HEAD }" ;;
+      "branch "*)  _branch="${line#branch refs/heads/}" ;;
+      "detached")  _detached=1 ;;
+      "bare")      _branch="(bare)" ;;
       "")
         if [[ -n "$_path" ]]; then
           all_paths+=("$_path")
@@ -366,71 +377,57 @@ cmd_ls() {
           else
             all_branches+=("${_branch:-}")
           fi
+          [[ "$_path" == "$main_top" ]] && all_is_main+=(1) || all_is_main+=(0)
         fi
         _path=""; _head=""; _branch=""; _detached=0
         ;;
     esac
   done < <(git worktree list --porcelain; printf '\n')
 
-  # Compute max visible label length (cap at 50 chars)
-  local max_label=10
+  # ── Pass 1b: name column width (plain chars only, cap at 50) ──────────
+  local max_label=4
+  local p lbl len
   for p in "${all_paths[@]}"; do
-    local lbl
     lbl=$(basename "$p")
-    local len=${#lbl}
+    len=${#lbl}
     [[ $len -gt 50 ]] && len=50
     [[ $len -gt $max_label ]] && max_label=$len
   done
-  # Add 2 for the [main] badge if present; round up
-  local col_width=$(( max_label + 2 ))
+  local col_width=$(( max_label + 1 ))
 
-  # ── Second pass: render ─────────────────────────────────────────────────
+  # ── Pass 2: render ────────────────────────────────────────────────────
   printf '\n%bWorktrees%b\n\n' "$BOLD" "$NC"
 
-  local i
+  local i head branch is_cur is_main label display marker color branch_color badge padded
   for i in "${!all_paths[@]}"; do
-    local p="${all_paths[$i]}"
-    local head="${all_heads[$i]}"
-    local branch="${all_branches[$i]}"
-    local label
+    p="${all_paths[$i]}"
+    head="${all_heads[$i]}"
+    branch="${all_branches[$i]}"
     label=$(basename "$p")
+    is_main="${all_is_main[$i]}"
+    [[ "$p" == "$cur_top" ]] && is_cur=1 || is_cur=0
 
-    local is_cur=0 is_main=0
-    [[ "$p" == "$cur_top" ]]  && is_cur=1
-    [[ "$p" == "$main_top" ]] && is_main=1
+    display="$label"
+    [[ ${#label} -gt 50 ]] && display="${label:0:47}..."
 
-    # Truncate long label with ellipsis
-    local display_label="$label"
-    if [[ ${#label} -gt 50 ]]; then
-      display_label="${label:0:47}..."
-    fi
-
-    # Marker + colors
-    local marker color branch_color
     if [[ $is_cur -eq 1 ]]; then
-      marker="${GREEN}▶${NC}"
-      color="$BOLD"
-      branch_color="$CYAN"
+      marker="${GREEN}▶${NC}"; color="$BOLD"; branch_color="$CYAN"
     else
-      marker="${DIM}◦${NC}"
-      color="$DIM"
-      branch_color="$BLUE"
+      marker="${DIM}◦${NC}";  color="$DIM";  branch_color="$BLUE"
     fi
 
-    # Build the [main] badge (part of the padded label column)
-    local badge=""
-    [[ $is_main -eq 1 ]] && badge=" ${DIM}[main]${NC}"
+    # [main] badge AFTER branch — sha column stays aligned across all rows.
+    [[ $is_main -eq 1 ]] && badge="  ${DIM}[main]${NC}" || badge=""
 
-    # Pad the plain label to col_width BEFORE adding any color codes.
-    local padded_label
-    padded_label=$(printf "%-${col_width}s" "$display_label")
+    # Pad plain text first, color second.
+    padded=$(printf "%-${col_width}s" "$display")
 
-    printf '  %b%b %b%s%b%s  %b%s%b  %b%s%b\n' \
+    printf '  %b%b %b%s%b  %b%s%b  %b%s%b%s\n' \
       "$marker" "$NC" \
-      "$color"  "$padded_label" "$NC" \
-      "$badge" \
-      "$DIM"   "$head"   "$NC" \
-      "$branch_color" "${branch:-(detached)}" "$NC"
+      "$color"  "$padded" "$NC" \
+      "$DIM"    "$head"   "$NC" \
+      "$branch_color" "${branch:-(detached)}" "$NC" \
+      "$badge"
   done
 
   printf '\n'
@@ -442,15 +439,23 @@ cmd_mv() {
   [[ -z "$from" || -z "$to" ]] && die "usage: wt mv <from> <to>"
 
   require_git
-  local main repo to_san to_path from_path
+  local main to_san to_path from_path prefix
   main=$(get_main_worktree)
-  repo=$(repo_name)
 
   from_path=$(resolve_wt_path "$from") \
     || die "source worktree not found: $from"
 
+  # Derive prefix from the SOURCE directory name so new dir uses same prefix.
+  local from_base
+  from_base=$(basename "$from_path")
+  if [[ "$from_base" == *.* ]]; then
+    prefix="${from_base%%.*}"
+  else
+    prefix=$(repo_name)
+  fi
+
   to_san=$(sanitize_branch "$to")
-  to_path="$main/$WT_DIR/${repo}.${to_san}"
+  to_path="$main/$WT_DIR/${prefix}.${to_san}"
 
   local was_here=0
   local cur
@@ -480,7 +485,8 @@ cmd_co() {
 # wt help
 cmd_help() {
   printf '\n'
-  printf '%bwt%b — Git Worktree Manager %b v%s%b\n\n' "$BOLD" "$NC" "$DIM" "$WT_VERSION" "$NC"
+  printf '%bwt%b — Git Worktree Manager %b v%s%b\n\n' \
+    "$BOLD" "$NC" "$DIM" "$WT_VERSION" "$NC"
   printf '%bUSAGE%b\n'    "$BOLD" "$NC"
   printf '  wt <command> [options]\n\n'
   printf '%bCOMMANDS%b\n' "$BOLD" "$NC"
@@ -518,16 +524,16 @@ main() {
   shift || true
 
   case "$cmd" in
-    init)                cmd_init            ;;
-    add)                 cmd_add    "$@"     ;;
-    rm|remove)           cmd_rm     "$@"     ;;
-    co|checkout)         cmd_co     "$@"     ;;
-    ls|list)             cmd_ls              ;;
-    mv|move)             cmd_mv     "$@"     ;;
-    prune)               cmd_prune           ;;
-    nuke)                cmd_nuke   "$@"     ;;
-    help|-h|--help)      cmd_help            ;;
-    version|-V|--version) printf 'wt %s\n' "$WT_VERSION" ;;
+    init)                  cmd_init              ;;
+    add)                   cmd_add      "$@"     ;;
+    rm|remove)             cmd_rm       "$@"     ;;
+    co|checkout)           cmd_co       "$@"     ;;
+    ls|list)               cmd_ls                ;;
+    mv|move)               cmd_mv       "$@"     ;;
+    prune)                 cmd_prune             ;;
+    nuke)                  cmd_nuke     "$@"     ;;
+    help|-h|--help)        cmd_help              ;;
+    version|-V|--version)  printf 'wt %s\n' "$WT_VERSION" ;;
     *) die "unknown command: '$cmd'  (run 'wt help')" ;;
   esac
 }
