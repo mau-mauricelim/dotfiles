@@ -15,7 +15,7 @@ PASS=0; FAIL=0; SKIP=0; FAILED_TESTS=()
 TMPDIR_ROOT=""
 
 # ── Fixtures ──────────────────────────────────────────────────────────────────
-cleanup() { [[ -n "${TMPDIR_ROOT:-}" ]] && rm -rf "$TMPDIR_ROOT"; }
+cleanup() { [[ -n "${TMPDIR_ROOT:-}" ]] && rm -rf "$TMPDIR_ROOT"; return 0; }
 trap cleanup EXIT
 
 make_repo() {
@@ -266,8 +266,18 @@ test_rm_resolves_by_scan() {
 test_rm_from_within() {
   WT add feature/inner >/dev/null
   local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-inner"
-  local cd_target
-  cd_target=$(cd "$wt_path" && WT_cd rm)
+
+  # Capture ALL output (stdout+stderr) so git errors are visible on test failure.
+  local full_out cd_target
+  full_out=$(cd "$wt_path" && TERM=xterm command "$WT_BIN" rm 2>&1) || true
+  cd_target=$(printf '%s\n' "$full_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://') || true
+
+  # If removal failed, print wt/git output so the failure is diagnosable.
+  if [[ -d "$wt_path" ]]; then
+    printf '    wt output (rm failed):\n' >&2
+    printf '%s\n' "$full_out" | sed 's/^/      /' >&2
+  fi
+
   assert_eq "cd back to main repo" "$cd_target" "$_REPO"
   assert_dir_missing "worktree removed" "$wt_path"
 }
@@ -564,8 +574,12 @@ test_version_has_number() {
 # RUN
 # ═════════════════════════════════════════════════════════════════════════════
 
-[[ -x "$WT_BIN" ]] \
-  || { printf '%berror:%b %s is not executable\n' "$RED" "$NC" "$WT_BIN"; exit 1; }
+if [[ ! -x "$WT_BIN" ]]; then
+  printf '%berror:%b %s not found or not executable\n\n' "$RED" "$NC" "$WT_BIN"
+  printf '%bUsage:%b  %s [path/to/wt]\n' "$BOLD" "$NC" "$0"
+  printf '         WT_BIN=/usr/local/bin/wt %s\n\n' "$0"
+  exit 1
+fi
 
 printf '\n%bwt test suite%b  (%b%s%b)\n' "$BOLD" "$NC" "$DIM" "$WT_BIN" "$NC"
 

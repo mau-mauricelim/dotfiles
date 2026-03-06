@@ -254,7 +254,15 @@ cmd_rm() {
 
   local git_args=()
   [[ $force -eq 1 ]] && git_args+=(--force)
-  git -C "$main" worktree remove "${git_args[@]}" "$wt_path"
+
+  # Change process CWD to $main before calling git when we are inside the
+  # worktree being removed.  Some git versions refuse to remove a worktree
+  # whose path contains the calling process's working directory.
+  if [[ $was_here -eq 1 ]]; then
+    ( cd "$main" && git worktree remove "${git_args[@]}" "$wt_path" )
+  else
+    git -C "$main" worktree remove "${git_args[@]}" "$wt_path"
+  fi
   success "worktree removed"
 
   [[ $was_here -eq 1 ]] && emit_cd "$main"
@@ -329,7 +337,8 @@ cmd_nuke() {
     local wtp="${paths[$i]}"
     local b="${branches[$i]:-}"
     info "removing ${BOLD}$(basename "$wtp")${NC}"
-    git -C "$main" worktree remove --force "$wtp" 2>/dev/null || true
+    # cd to $main so process CWD is never inside the worktree being removed.
+    ( cd "$main" && git worktree remove --force "$wtp" ) 2>/dev/null || true
     if [[ -n "$b" ]]; then
       if git -C "$main" branch -D "$b" 2>/dev/null; then
         success "deleted branch ${BOLD}${b}${NC}"
