@@ -168,6 +168,11 @@ if command -v yazi >/dev/null; then
     }
 fi
 
+# wt
+if command -v wt >/dev/null; then
+    eval "$(wt init)"
+fi
+
 # ssh key permissions
 for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do
     if [ -f "$SSH_KEY" ]; then
