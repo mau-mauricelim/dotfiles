@@ -44,6 +44,9 @@ WT_cd() {
 # Run the wt binary and return its exit code (suppress output).
 WT_exit() { local rc=0; TERM=xterm command "$WT_BIN" "$@" &>/dev/null || rc=$?; echo "$rc"; }
 
+# Get the branch a worktree is on; "" for detached HEAD.
+wt_branch() { git -C "$1" branch --show-current 2>/dev/null || true; }
+
 # ── Assertions ────────────────────────────────────────────────────────────────
 
 assert_eq() {
@@ -58,9 +61,9 @@ assert_eq() {
 assert_contains() {
   local label="$1" haystack="$2" needle="$3"
   printf '%s' "$haystack" | grep -qF "$needle" && return 0
-  printf '    %bFAIL%b  %s\n'              "$RED" "$NC" "$label"
-  printf '      needle: [%b%s%b]\n'        "$DIM" "$needle" "$NC"
-  printf '      in:     [%b%s%b]\n'        "$DIM" "$haystack" "$NC"
+  printf '    %bFAIL%b  %s\n'       "$RED" "$NC" "$label"
+  printf '      needle: [%b%s%b]\n' "$DIM" "$needle" "$NC"
+  printf '      in:     [%b%s%b]\n' "$DIM" "$haystack" "$NC"
   return 1
 }
 
@@ -72,7 +75,7 @@ assert_not_contains() {
   return 1
 }
 
-assert_dir_exists()  {
+assert_dir_exists() {
   local label="$1" dir="$2"
   [[ -d "$dir" ]] && return 0
   printf '    %bFAIL%b  %s: directory not found: %s\n' "$RED" "$NC" "$label" "$dir"
@@ -86,7 +89,7 @@ assert_dir_missing() {
   return 1
 }
 
-assert_exit_ok()   {
+assert_exit_ok() {
   local label="$1"; shift
   local rc; rc=$(WT_exit "$@")
   [[ "$rc" -eq 0 ]] && return 0
@@ -128,9 +131,9 @@ run_test() {
 
 section() { printf '\n%b%s%b\n' "$BOLD" "$1" "$NC"; }
 
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # TEST CASES
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 # ── Sanitize ──────────────────────────────────────────────────────────────────
 
@@ -149,13 +152,12 @@ test_sanitize_special_chars() {
 }
 
 test_sanitize_consecutive_dashes() {
-  # feature/--double  →  feature-double  (consecutive dashes collapsed)
   WT add "feature/--double" >/dev/null
   assert_dir_exists "collapses consecutive dashes" \
     "$_REPO/.worktree/$(basename "$_REPO").feature-double"
 }
 
-# ── wt add ────────────────────────────────────────────────────────────────────
+# ── wt add: branch resolution ─────────────────────────────────────────────────
 
 test_add_new_branch() {
   local out; out=$(WT add feature/new-thing)
@@ -170,9 +172,8 @@ test_add_existing_branch() {
   WT add existing-branch >/dev/null
   local wt_path="$_REPO/.worktree/$(basename "$_REPO").existing-branch"
   assert_dir_exists "worktree exists" "$wt_path"
-  local head_branch
-  head_branch=$(git -C "$wt_path" branch --show-current 2>/dev/null || true)
-  assert_eq "branch is existing-branch" "$head_branch" "existing-branch"
+  local head_branch; head_branch=$(wt_branch "$wt_path")
+  assert_eq "on existing-branch" "$head_branch" "existing-branch"
 }
 
 test_add_idempotent_no_nest() {
@@ -184,7 +185,6 @@ test_add_idempotent_no_nest() {
 }
 
 test_add_idempotent_no_warning() {
-  # Idempotent add should NOT say "already exists" (old confusing message).
   WT add feature/idem2 >/dev/null
   local out; out=$(WT add feature/idem2)
   assert_not_contains "no 'already exists' warning" "$out" "already exists"
@@ -209,11 +209,9 @@ test_add_auto_exclude() {
     "$(cat "$_REPO/.git/info/exclude")" "/.worktree"
 }
 
-# Bug: add should work from anywhere inside the repo (including .worktree/ container).
 test_add_from_worktree_container() {
   WT add feature/first >/dev/null
   mkdir -p "$_REPO/.worktree"
-  # Simulate being in the .worktree container dir (not a linked worktree).
   local repo_name; repo_name=$(basename "$_REPO")
   local wt_path="$_REPO/.worktree/${repo_name}.feature-from-container"
   local cd_target
@@ -222,7 +220,6 @@ test_add_from_worktree_container() {
   assert_eq "cd emitted correctly" "$cd_target" "$wt_path"
 }
 
-# Bug: add from inside a linked worktree should also work.
 test_add_from_inside_linked_worktree() {
   WT add feature/base >/dev/null
   local repo_name; repo_name=$(basename "$_REPO")
@@ -232,6 +229,68 @@ test_add_from_inside_linked_worktree() {
   cd_target=$(cd "$base_path" && WT_cd add feature/from-linked)
   assert_dir_exists "worktree created from inside linked worktree" "$new_path"
   assert_eq "cd emitted to new worktree" "$cd_target" "$new_path"
+}
+
+# ── wt add: commit-ish / tag / SHA ───────────────────────────────────────────
+
+test_add_tag_detached() {
+  # Create a tag and add a worktree pointing at it — should be detached HEAD.
+  git tag v1.0.0
+  WT add v1.0.0 >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").v1.0.0"
+  assert_dir_exists "worktree at tag created" "$wt_path"
+  # Detached HEAD: branch --show-current returns empty string.
+  local branch; branch=$(wt_branch "$wt_path")
+  assert_eq "detached HEAD (no branch)" "$branch" ""
+}
+
+test_add_tag_output_says_detached() {
+  git tag v2.0.0
+  local out; out=$(WT add v2.0.0)
+  assert_contains "output mentions 'detached'" "$out" "detached"
+}
+
+test_add_sha_detached() {
+  # Use the full commit SHA of HEAD.
+  local sha; sha=$(git rev-parse HEAD)
+  local short; short=$(git rev-parse --short HEAD)
+  WT add "$sha" >/dev/null
+  local wt_path; wt_path=$(find "$_REPO/.worktree" -maxdepth 1 -name "*.${short}*" -type d | head -1)
+  # Dir should exist and be in detached state.
+  assert_dir_exists "worktree at full SHA created" "${wt_path:-/nonexistent}"
+  local branch; branch=$(wt_branch "$wt_path")
+  assert_eq "full SHA is detached HEAD" "$branch" ""
+}
+
+test_add_short_sha_detached() {
+  local short; short=$(git rev-parse --short HEAD)
+  WT add "$short" >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").${short}"
+  assert_dir_exists "worktree at short SHA created" "$wt_path"
+  local branch; branch=$(wt_branch "$wt_path")
+  assert_eq "short SHA is detached HEAD" "$branch" ""
+}
+
+test_add_tag_cd_emitted() {
+  git tag v3.0.0
+  local target; target=$(WT_cd add v3.0.0)
+  local expected="$_REPO/.worktree/$(basename "$_REPO").v3.0.0"
+  assert_eq "cd emitted to tag worktree" "$target" "$expected"
+}
+
+test_add_tag_dir_name_sanitized() {
+  # Tags with slashes get sanitized just like branch names.
+  git tag "release/v4.0.0"
+  WT add "release/v4.0.0" >/dev/null
+  assert_dir_exists "tag with slash sanitized" \
+    "$_REPO/.worktree/$(basename "$_REPO").release-v4.0.0"
+}
+
+test_add_ls_shows_detached() {
+  git tag v5.0.0
+  WT add v5.0.0 >/dev/null
+  local out; out=$(WT ls)
+  assert_contains "ls shows detached marker" "$out" "detached"
 }
 
 # ── wt rm ─────────────────────────────────────────────────────────────────────
@@ -244,21 +303,16 @@ test_rm_by_branch_name() {
 }
 
 test_rm_by_short_name() {
-  # User passes bare name without the slash prefix.
   WT add feature/short-rm >/dev/null
   WT rm feature/short-rm >/dev/null
   assert_dir_missing "removed by branch name" \
     "$_REPO/.worktree/$(basename "$_REPO").feature-short-rm"
 }
 
-# Bug: wt rm <name> where <name> resolves via disk scan, not repo_name().
 test_rm_resolves_by_scan() {
-  # Create worktrees.  repo_name() uses dirname = repo but pretend we're
-  # resolving later (same session, same repo_name, still exercises scan path).
   WT add feature/scan-rm >/dev/null
   local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-scan-rm"
   assert_dir_exists "setup: worktree exists" "$wt_path"
-  # Remove using the branch name with slash — resolve_wt_path must scan.
   WT rm "feature/scan-rm" >/dev/null
   assert_dir_missing "scan-based rm succeeded" "$wt_path"
 }
@@ -267,12 +321,10 @@ test_rm_from_within() {
   WT add feature/inner >/dev/null
   local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-inner"
 
-  # Capture ALL output (stdout+stderr) so git errors are visible on test failure.
   local full_out cd_target
   full_out=$(cd "$wt_path" && TERM=xterm command "$WT_BIN" rm 2>&1) || true
   cd_target=$(printf '%s\n' "$full_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://') || true
 
-  # If removal failed, print wt/git output so the failure is diagnosable.
   if [[ -d "$wt_path" ]]; then
     printf '    wt output (rm failed):\n' >&2
     printf '%s\n' "$full_out" | sed 's/^/      /' >&2
@@ -288,6 +340,32 @@ test_rm_nonexistent_fails() {
 
 test_rm_from_main_without_name_fails() {
   assert_exit_fail "rm without name from main fails" rm
+}
+
+# wt rm -D: delete branch on remove
+test_rm_D_deletes_branch() {
+  WT add feature/kill-me >/dev/null
+  WT rm -D feature/kill-me >/dev/null
+  local branches; branches=$(git branch --list "feature/kill-me")
+  assert_eq "branch deleted with -D" "$branches" ""
+}
+
+test_rm_without_D_keeps_branch() {
+  WT add feature/keep-me >/dev/null
+  WT rm feature/keep-me >/dev/null
+  local branches; branches=$(git branch --list "feature/keep-me")
+  assert_not_contains "branch kept without -D" "x${branches}x" "xx"
+  # branch should still exist
+  [[ -n "$branches" ]] || { printf '    FAIL  branch was deleted even without -D\n'; return 1; }
+}
+
+test_rm_D_detached_no_error() {
+  # Removing a detached-HEAD worktree with -D should not fail
+  git tag v9.9.9
+  WT add v9.9.9 >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").v9.9.9"
+  assert_exit_ok "rm -D on detached HEAD exits 0" rm -D v9.9.9
+  assert_dir_missing "detached worktree removed" "$wt_path"
 }
 
 # ── wt ls ─────────────────────────────────────────────────────────────────────
@@ -306,16 +384,12 @@ test_ls_shows_linked_worktrees() {
   assert_contains "beta in ls"  "$out" "${repo_name}.feature-beta"
 }
 
-# Bug: [main] badge must not shift the SHA column.
 test_ls_sha_column_aligned() {
   WT add feature/a >/dev/null
   WT add feature/b >/dev/null
   local out; out=$(TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
-  # Strip ANSI codes for analysis.
   local plain
   plain=$(printf '%s' "$out" | sed 's/\x1b\[[0-9;]*m//g')
-  # Find the sha column position on the main line and a worktree line.
-  # The sha (7 hex chars) should start at the same offset on every data line.
   local sha_positions
   sha_positions=$(printf '%s\n' "$plain" \
     | grep -E '^\s+[▶◦]' \
@@ -324,11 +398,9 @@ test_ls_sha_column_aligned() {
           if($i ~ /^[0-9a-f]{7}$/) { print index($0,$i); break }
         }
       }' | sort -u | wc -l | tr -d ' ')
-  # All rows should have their SHA at the same offset → exactly 1 unique position.
   assert_eq "sha column aligned across all rows" "$sha_positions" "1"
 }
 
-# Bug: long names must not overflow the layout.
 test_ls_long_name_truncated() {
   local long; long=$(printf 'x%.0s' {1..60})
   WT add "$long" >/dev/null 2>&1 || true
@@ -380,25 +452,20 @@ test_mv_from_within_emits_cd() {
   assert_eq "mv from within emits new path" "$cd_target" "$new_path"
 }
 
-# Bug: mv where source uses a different prefix from current repo_name().
 test_mv_resolves_by_scan() {
-  # Create worktree (prefix = basename of repo dir).
   WT add feature/payments >/dev/null
   local repo_name; repo_name=$(basename "$_REPO")
   local old_path="$_REPO/.worktree/${repo_name}.feature-payments"
   local new_path="$_REPO/.worktree/${repo_name}.feature-stripe"
   assert_dir_exists "setup: worktree exists" "$old_path"
-  # mv should resolve via disk scan — using branch name with slash.
   WT mv "feature/payments" "feature/stripe" >/dev/null
   assert_dir_missing "old path gone"    "$old_path"
   assert_dir_exists  "new path present" "$new_path"
 }
 
-# Bug: mv keeps the SAME prefix as the source (doesn't switch to repo_name()).
 test_mv_preserves_prefix() {
   WT add myfeature >/dev/null
   local repo_name; repo_name=$(basename "$_REPO")
-  # Both old and new should share the same prefix.
   local old_path="$_REPO/.worktree/${repo_name}.myfeature"
   local new_path="$_REPO/.worktree/${repo_name}.myfeature-v2"
   WT mv myfeature myfeature-v2 >/dev/null
@@ -408,6 +475,32 @@ test_mv_preserves_prefix() {
 
 test_mv_nonexistent_fails() {
   assert_exit_fail "mv nonexistent source fails" mv no-such ghost
+}
+
+# wt mv -D: rename branch to match new name
+test_mv_D_renames_branch() {
+  WT add feature/rename-me >/dev/null
+  WT mv -D feature/rename-me feature/renamed >/dev/null
+  # Old branch should be gone, new branch should exist.
+  local old_b; old_b=$(git branch --list "feature/rename-me")
+  local new_b; new_b=$(git branch --list "feature/renamed")
+  assert_eq "old branch gone after mv -D"   "$old_b" ""
+  [[ -n "$new_b" ]] || { printf '    FAIL  new branch missing after mv -D\n'; return 1; }
+}
+
+test_mv_without_D_keeps_old_branch() {
+  WT add feature/no-rename >/dev/null
+  WT mv feature/no-rename feature/no-rename-v2 >/dev/null
+  # Without -D the branch should be unchanged.
+  local old_b; old_b=$(git branch --list "feature/no-rename")
+  [[ -n "$old_b" ]] || { printf '    FAIL  branch was renamed even without -D\n'; return 1; }
+}
+
+test_mv_D_detached_warns_not_errors() {
+  git tag v7.0.0
+  WT add v7.0.0 >/dev/null
+  # -D on a detached HEAD worktree should exit 0 (just warn, no branch to rename).
+  assert_exit_ok "mv -D on detached HEAD exits 0" mv -D v7.0.0 v7-renamed
 }
 
 # ── wt prune ─────────────────────────────────────────────────────────────────
@@ -432,11 +525,28 @@ test_nuke_force_removes_all() {
   assert_dir_missing "nuke2 gone" "$_REPO/.worktree/${repo_name}.feature-nuke2"
 }
 
-test_nuke_deletes_branches() {
-  WT add feature/delbranch >/dev/null
+# nuke WITHOUT -D must NOT delete branches (behaviour change from old default).
+test_nuke_keeps_branches_without_D() {
+  WT add feature/keep-branch >/dev/null
   WT nuke -f >/dev/null
-  local branches; branches=$(git branch --list "feature/delbranch")
-  assert_eq "branch deleted after nuke" "$branches" ""
+  local branches; branches=$(git branch --list "feature/keep-branch")
+  [[ -n "$branches" ]] \
+    || { printf '    FAIL  branch was deleted even without -D\n'; return 1; }
+}
+
+# nuke -D must delete branches.
+test_nuke_D_deletes_branches() {
+  WT add feature/delete-branch >/dev/null
+  WT nuke -f -D >/dev/null
+  local branches; branches=$(git branch --list "feature/delete-branch")
+  assert_eq "branch deleted with nuke -D" "$branches" ""
+}
+
+# nuke -D with detached-HEAD worktree should still exit 0.
+test_nuke_D_detached_no_error() {
+  git tag v8.0.0
+  WT add v8.0.0 >/dev/null
+  assert_exit_ok "nuke -f -D with detached HEAD exits 0" nuke -f -D
 }
 
 test_nuke_no_worktrees_message() {
@@ -462,7 +572,6 @@ test_init_outputs_function() {
   assert_contains "init handles cd directive"     "$out" "__WT_CD__"
 }
 
-# Bug: init must contain exactly ONE invocation of command wt.
 test_init_single_invocation() {
   local out; out=$(TERM=xterm command "$WT_BIN" init)
   local count
@@ -485,21 +594,16 @@ test_init_valid_zsh_syntax() {
   assert_eq "init function parses in zsh" "ok" "ok"
 }
 
-# ── Shell wrapper add-only-runs-once ──────────────────────────────────────────
+# ── Shell wrapper correctness ─────────────────────────────────────────────────
 
 test_wrapper_add_runs_once() {
-  # Using the shell wrapper: add should create exactly one worktree dir,
-  # not report "already exists" because it ran twice.
   local repo_name; repo_name=$(basename "$_REPO")
   local wt_path="$_REPO/.worktree/${repo_name}.feature-once"
 
-  # Simulate the shell wrapper's single-invocation pattern.
   local out
   out=$(TERM=xterm command "$WT_BIN" add feature/once)
-  # Extract cd
   local cd_target
   cd_target=$(printf '%s\n' "$out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://')
-  # Filter output
   local visible
   visible=$(printf '%s\n' "$out" | grep -v '^__WT_CD__:' || true)
 
@@ -509,13 +613,10 @@ test_wrapper_add_runs_once() {
 }
 
 test_wrapper_add_idempotent_no_duplicate_warning() {
-  # Running add twice via the wrapper should give "already at" once, not twice.
-  local repo_name; repo_name=$(basename "$_REPO")
   TERM=xterm command "$WT_BIN" add feature/tw >/dev/null 2>/dev/null
 
   local out
   out=$(TERM=xterm command "$WT_BIN" add feature/tw 2>/dev/null | grep -v '^__WT_CD__:' || true)
-  # Should say "already at", not "already exists"
   assert_not_contains "no old 'already exists' message" "$out" "already exists"
   assert_contains     "says 'already at'"               "$out" "already at"
 }
@@ -554,14 +655,14 @@ test_outside_git_repo() {
   printf '    FAIL  should fail outside git repo\n'; return 1
 }
 
-test_unknown_command_fails()     { assert_exit_fail "unknown command"     totally-invalid-cmd; }
-test_add_no_args_fails()         { assert_exit_fail "add without args"    add; }
-test_co_no_args_fails()          { assert_exit_fail "co without args"     co; }
-test_mv_missing_args_fails()     { assert_exit_fail "mv with one arg"     mv only-one; }
+test_unknown_command_fails() { assert_exit_fail "unknown command"  totally-invalid-cmd; }
+test_add_no_args_fails()     { assert_exit_fail "add without args" add; }
+test_co_no_args_fails()      { assert_exit_fail "co without args"  co; }
+test_mv_missing_args_fails() { assert_exit_fail "mv with one arg"  mv only-one; }
 
 # ── Version / help ────────────────────────────────────────────────────────────
 
-test_help_exits_ok()    { assert_exit_ok "help exits 0" help; }
+test_help_exits_ok()    { assert_exit_ok "help exits 0"    help; }
 test_version_exits_ok() { assert_exit_ok "version exits 0" version; }
 
 test_version_has_number() {
@@ -570,14 +671,14 @@ test_version_has_number() {
     || { printf '    FAIL  no version number in output\n'; return 1; }
 }
 
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 # RUN
-# ═════════════════════════════════════════════════════════════════════════════
+# =============================================================================
 
 if [[ ! -x "$WT_BIN" ]]; then
   printf '%berror:%b %s not found or not executable\n\n' "$RED" "$NC" "$WT_BIN"
   printf '%bUsage:%b  %s [path/to/wt]\n' "$BOLD" "$NC" "$0"
-  printf '         WT_BIN=/usr/local/bin/wt %s\n\n' "$0"
+  printf '         WT_BIN=/usr/local/bin/wt %s\n' "$0"
   exit 1
 fi
 
@@ -588,7 +689,7 @@ run_test "slash in branch name"                       test_sanitize_slash
 run_test "special chars (@) in branch name"           test_sanitize_special_chars
 run_test "consecutive dashes collapsed"               test_sanitize_consecutive_dashes
 
-section "wt add"
+section "wt add — branch"
 run_test "add new branch"                             test_add_new_branch
 run_test "add existing branch (no -b flag)"           test_add_existing_branch
 run_test "add idempotent — no nesting"                test_add_idempotent_no_nest
@@ -599,6 +700,15 @@ run_test "add updates .git/info/exclude"              test_add_auto_exclude
 run_test "add from .worktree container dir"           test_add_from_worktree_container
 run_test "add from inside linked worktree"            test_add_from_inside_linked_worktree
 
+section "wt add — commit-ish / tag / SHA"
+run_test "add tag → detached HEAD"                    test_add_tag_detached
+run_test "add tag → output says detached"             test_add_tag_output_says_detached
+run_test "add full SHA → detached HEAD"               test_add_sha_detached
+run_test "add short SHA → detached HEAD"              test_add_short_sha_detached
+run_test "add tag → cd directive emitted"             test_add_tag_cd_emitted
+run_test "add tag with slash → dir sanitized"         test_add_tag_dir_name_sanitized
+run_test "add tag → ls shows detached"                test_add_ls_shows_detached
+
 section "wt rm"
 run_test "rm by branch name (with slash)"             test_rm_by_branch_name
 run_test "rm by short name"                           test_rm_by_short_name
@@ -606,6 +716,9 @@ run_test "rm resolves via disk scan"                  test_rm_resolves_by_scan
 run_test "rm from within worktree"                    test_rm_from_within
 run_test "rm nonexistent exits non-zero"              test_rm_nonexistent_fails
 run_test "rm from main without name fails"            test_rm_from_main_without_name_fails
+run_test "rm -D deletes branch"                       test_rm_D_deletes_branch
+run_test "rm without -D keeps branch"                 test_rm_without_D_keeps_branch
+run_test "rm -D on detached HEAD exits 0"             test_rm_D_detached_no_error
 
 section "wt ls"
 run_test "ls shows [main]"                            test_ls_shows_main
@@ -624,6 +737,9 @@ run_test "mv from within emits cd"                    test_mv_from_within_emits_
 run_test "mv resolves source via disk scan"           test_mv_resolves_by_scan
 run_test "mv preserves source prefix"                 test_mv_preserves_prefix
 run_test "mv nonexistent source fails"                test_mv_nonexistent_fails
+run_test "mv -D renames branch"                       test_mv_D_renames_branch
+run_test "mv without -D keeps old branch"             test_mv_without_D_keeps_old_branch
+run_test "mv -D on detached HEAD exits 0"             test_mv_D_detached_warns_not_errors
 
 section "wt prune"
 run_test "prune exits 0"                              test_prune_exits_ok
@@ -631,7 +747,9 @@ run_test "prune has expected output"                  test_prune_output
 
 section "wt nuke"
 run_test "nuke -f removes all worktrees"              test_nuke_force_removes_all
-run_test "nuke -f deletes branches"                   test_nuke_deletes_branches
+run_test "nuke -f keeps branches (no -D)"             test_nuke_keeps_branches_without_D
+run_test "nuke -f -D deletes branches"                test_nuke_D_deletes_branches
+run_test "nuke -f -D with detached HEAD exits 0"      test_nuke_D_detached_no_error
 run_test "nuke with nothing to remove"                test_nuke_no_worktrees_message
 run_test "nuke from worktree cds to main"             test_nuke_from_within_emits_cd
 
@@ -669,7 +787,7 @@ printf ' %b%d passed%b  ' "$GREEN" "$PASS" "$NC"
 [[ $FAIL -gt 0 ]] && printf '%b%d failed%b  ' "$RED" "$FAIL" "$NC"
 [[ $SKIP -gt 0 ]] && printf '%b%d skipped%b  ' "$YELLOW" "$SKIP" "$NC"
 printf 'of %d total\n' "$total"
-printf '%b────────────────────────────────────────%b\n\n' "$DIM" "$NC"
+printf '%b────────────────────────────────────────%b\n' "$DIM" "$NC"
 
 if [[ $FAIL -gt 0 ]]; then
   printf '%bFailed tests:%b\n' "$RED" "$NC"
