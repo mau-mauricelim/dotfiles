@@ -1,311 +1,421 @@
-.\" Manpage for wt — Git Worktree Manager
+.\" wt(1) — Git Worktree Manager
+.\" vim: set ft=groff:
 .TH WT 1 "2025" "wt 1.0.0" "User Commands"
-
+.\"
+.\" ── Colour palette ────────────────────────────────────────────────────────
+.\" Defined only when running under GNU groff (terminal/PDF output).
+.\" Every macro degrades gracefully to plain bold/italic on other formatters.
+.if \n(.g \{\
+.  defcolor teal   rgb #00AFAF
+.  defcolor amber  rgb #D7AF00
+.  defcolor plum   rgb #AF87AF
+.  defcolor sky    rgb #5F87AF
+.  defcolor lime   rgb #5FAF5F
+.  defcolor dim    rgb #878787
+.  defcolor brick  rgb #AF5F5F
+.\}
+.\"
+.\" Palette cross-reference
+.\"   Teal  (teal)  — command names, active branch in ls
+.\"   Amber (amber) — flags -f / -D, warnings
+.\"   Plum  (plum)  — commit-ish, tags, SHAs, detached HEAD
+.\"   Sky   (sky)   — paths, directories, non-active branches
+.\"   Lime  (lime)  — success marker, active worktree arrow
+.\"   Dim   (dim)   — muted / secondary text
+.\"   Brick (brick) — errors
+.\"
+.\" Inline color macros — used inside body text (not on .TP tag lines).
+.\"
+.\" .Cm — command name (teal bold)
+.de Cm
+.  ie \n(.g \m[teal]\fB\\$*\fP\m[]
+.  el \fB\\$*\fP
+..
+.\" .Fl — flag / option (amber bold)
+.de Fl
+.  ie \n(.g \m[amber]\fB\\$*\fP\m[]
+.  el \fB\\$*\fP
+..
+.\" .Ci — commit-ish / tag / SHA (plum italic)
+.de Ci
+.  ie \n(.g \m[plum]\fI\\$*\fP\m[]
+.  el \fI\\$*\fP
+..
+.\" .Pa — path or directory name (sky)
+.de Pa
+.  ie \n(.g \m[sky]\\$*\m[]
+.  el \fI\\$*\fP
+..
+.\" .Di — muted / secondary text (dim)
+.de Di
+.  ie \n(.g \m[dim]\\$*\m[]
+.  el \\$*
+..
+.\"
+.\" Tag-line helpers — used as the single-line tag in .TP entries.
+.\" These must be raw groff because .TP treats the first input line as the tag;
+.\" consecutive macro calls would split the tag from the first body line.
+.\"
+.\" Teal bold text (command name in tag)
+.ds Ct \m[teal]\fB
+.ds Ce \fP\m[]
+.\" Amber bold text (flag in tag)
+.ds At \m[amber]\fB
+.ds Ae \fP\m[]
+.\" Plum italic text (commit-ish / name in tag)
+.ds Pt \m[plum]\fI
+.ds Pe \fP\m[]
+.\" Dim text (optional in tag)
+.ds Dt \m[dim]
+.ds De \m[]
+.\"
+.\" ─────────────────────────────────────────────────────────────────────────
 .SH NAME
-wt \- minimal Git worktree manager with auto-cd support
-
+\m[teal]\fBwt\fP\m[] \(em minimal Git worktree manager with auto-cd support
+.\"
 .SH SYNOPSIS
 .B wt
-.I command
-.RI [ options ]
-
+.I <command>
+.RI [ \-f ]
+.RI [ \-D ]
+.RI [ arguments ]
+.\"
 .SH DESCRIPTION
 .B wt
 is a thin wrapper around
 .BR git-worktree (1)
 that enforces a consistent directory layout, sanitizes branch names,
-auto-registers an ignore rule, and \(em when the shell function is
+auto-registers an ignore rule, and \(em when the shell wrapper is
 installed \(em automatically changes the current directory after
 worktree operations.
-
-All linked worktrees are placed under:
-
+.PP
+All linked worktrees are created under:
 .RS
-.I <repo-root>/.worktree/<repo-name>.<sanitized-branch>
+.Pa <repo-root>/.worktree/<repo-name>.<sanitized-ref>
 .RE
-
-For example, branch
-.B feature/login
-in a repo called
-.B myapp
-produces:
-
-.RS
-.I .worktree/myapp.feature-login
-.RE
-
+.PP
 .B wt
-works from any directory inside the repository, including from within
-a linked worktree or from the
-.I .worktree/
+works from any directory inside the repository \(em the main root,
+inside a linked worktree, or inside the
+.Pa .worktree/
 container directory itself.
-
+.\"
 .SH SHELL SETUP
 .B wt
-cannot change the directory of the calling shell on its own.  Install
-the shell wrapper by adding the following line to
-.B ~/.bashrc
+cannot change the directory of its parent shell process on its own.
+Install the shell wrapper by adding the following to
+.Pa ~/.bashrc
 or
-.BR ~/.zshrc :
-
+.Pa ~/.zshrc :
+.PP
 .RS
 .EX
 eval "$(wt init)"
 .EE
 .RE
-
-This defines a shell function named
-.B wt
-that calls the binary once and performs any
+.PP
+This defines a shell function that invokes the binary
+.I once ,
+strips the internal cd directive from stdout, and calls
 .BR cd (1)
-operations that the binary requests.  The function is compatible with
-both
+in the current shell.  Compatible with both
 .BR bash (1)
 and
 .BR zsh (1).
-
+.\"
 .SH COMMANDS
-
+.\"
 .TP
-.B init
-Print the shell function definition to standard output.  Intended for:
+\*(Ctinit\*(Ce
+Print the shell function definition to standard output.
+Intended for:
+.RS
 .EX
-    eval "$(wt init)"
+eval "$(wt init)"
 .EE
-
+.RE
+.\"
 .TP
-.BI add " branch"
+\*(Ctadd\*(Ce \*(Pt<branch|commit-ish>\*(Pe
 Create a new linked worktree for
-.IR branch .
-If the branch does not exist locally it is created.  If the worktree
-already exists, the command is a no-op and the shell wrapper cds into
-the existing path.
-
+.Ci branch .
+If the branch does not exist locally it is created.
+If the worktree already exists, the command is a no-op and the shell
+wrapper cds into the existing path.
+.PP
+.RS
+Resolution order:
+.RS
+.IP "1." 4
+.B Local branch exists
+\(em checked out on that branch.
+.IP "2." 4
+.B Valid \c
+.Ci commit-ish
+(tag, full SHA, short SHA,
+.Ci HEAD~N ,
+remote ref, \(el)
+\(em created with
+.BR \-\-detach .
+.IP "3." 4
+.B Unknown name
+\(em a new local branch is created.
+.RE
+.RE
+.\"
 .TP
-.BR rm \ [\fB-f\fR]\ [\fIbranch\fR]
+\*(Ctrm\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae] \*(Dt[\*(De\*(Pt<name>\*(Pe\*(Dt]\*(De
 Remove a linked worktree.
-
-Without arguments, removes the worktree the shell is currently inside
-and returns to the main worktree root.
-
-With a
-.I branch
-argument, removes that specific worktree regardless of the current
-directory.  The argument is resolved by scanning the
-.I .worktree/
-directory on disk, so it is immune to remote-URL or directory renames.
-
-.B -f / --force
-is passed through to
+Without
+.Ci <name> ,
+removes the worktree the shell is currently inside and returns to the
+main worktree root.
+With
+.Ci <name> ,
+removes that specific worktree.
+Resolution scans
+.Pa .worktree/
+on disk, so it is immune to remote-URL or directory renames.
+.PP
+.RS
+.Fl \-f
+is forwarded to
 .BR git-worktree-remove (1)
 to allow removal of a worktree with uncommitted changes.
-
-When removing the worktree currently occupied by the shell,
-.B wt
-changes the process working directory to the main repository root
-before invoking git, ensuring compatibility with git versions that
-refuse to remove a worktree whose path contains the process CWD.
-
+.PP
+.Fl \-D
+also deletes the associated local branch after removal.
+Silently skipped for detached-HEAD worktrees.
+.RE
+.\"
 .TP
-.BI co " branch"
-.PD 0
-.TP
-.BI checkout " branch"
-.PD
-Change directory into the worktree for
-.IR branch .
+\*(Ctco\*(Ce \*(Pt<name>\*(Pe
+Change directory into an existing worktree.
 The worktree must already exist; use
-.B wt add
-to create it first.
-
+.Cm add
+first.
+.\"
 .TP
-.BR ls
-.PD 0
-.TP
-.BR list
-.PD
-Display all worktrees.  The currently active worktree is marked with
-a
-.B ▶
-arrow and highlighted.  Each entry shows the directory name, the
-abbreviated HEAD commit SHA, and the branch name.  The
+\*(Ctls\*(Ce
+Display all worktrees.
+The current worktree is marked with \(bu and highlighted.
+Each row shows the directory name, abbreviated HEAD SHA (7 chars),
+and branch name \(em or
+.Ci "HEAD (detached)"
+for detached-HEAD worktrees.
+A
 .B [main]
-badge appears at the end of each main-worktree line so the SHA and
-branch columns stay aligned across all rows.
-
-Names longer than 50 characters are truncated with an ellipsis.
-
+badge is appended at the end of the main worktree row, keeping
+SHA and branch columns aligned across all rows.
+.\"
 .TP
-.BI mv " from to"
-.PD 0
-.TP
-.BI move " from to"
-.PD
+\*(Ctmv\*(Ce [\*(At\-D\*(Ae] \*(Pt<from>\*(Pe \*(Pt<to>\*(Pe
 Move (rename) the worktree identified by
-.I from
+.Ci <from>
 to the path derived from
-.IR to .
-The destination uses the same name prefix as the source directory,
-keeping worktree names consistent even if
-.BR repo_name ()
-would return a different value today.
-
-If the shell is currently inside the source worktree it will be
-redirected to the new path automatically.
-
+.Ci <to> .
+The destination uses the same name prefix as the source.
+If the shell is inside the source worktree, it is redirected to
+the new path automatically.
+.PP
+.RS
+.Fl \-D
+renames the associated local branch from
+.Ci <from>
+to
+.Ci <to>
+using
+.BR "git branch \-m" .
+Warns and exits 0 for detached-HEAD worktrees.
+.RE
+.\"
 .TP
-.B prune
+\*(Ctprune\*(Ce
 Run
 .B git worktree prune
-to remove stale administrative files for worktrees that no longer
-exist on disk.
-
+to remove stale metadata for worktrees no longer on disk.
+.\"
 .TP
-.BR nuke \ [\fB-f\fR]
+\*(Ctnuke\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae]
 Remove
 .I all
-linked worktrees and delete each worktree's associated local branch.
+linked worktrees.
 Prompts for confirmation unless
-.B -f / --force
-is given.  The shell is returned to the main worktree root if it was
-inside any of the removed worktrees.
-
+.Fl \-f
+is supplied.
+If the shell is inside any removed worktree it is returned to the
+main root.
+.PP
+.RS
+Without
+.Fl \-D ,
+only the worktree directories are removed; branches are
+.B kept .
+.PP
+.Fl \-D
+additionally deletes the associated local branch for each worktree.
+Detached-HEAD worktrees are silently skipped.
+.RE
+.\"
+.SH FLAGS
+.TP
+\*(At\-f\*(Ae, \*(At\-\-force\*(Ae
+Allow removal of worktrees containing uncommitted changes
+.RI ( rm ", " nuke ).
+.TP
+\*(At\-D\*(Ae, \*(At\-\-delete-branch\*(Ae
+Additionally manage the associated branch:
+.RS
+.TP
+.Cm rm
+Delete the branch after removing the worktree.
+.TP
+.Cm mv
+Rename the branch to match the new worktree name.
+.TP
+.Cm nuke
+Delete every branch belonging to a removed worktree.
+.RE
+.\"
 .SH BRANCH SANITIZATION
-Branch names may contain characters that are not safe as directory
-components.
-.B wt
-applies the following transformations to derive a directory name:
-
+Both branch names and commit-ish references are sanitized before
+being used as directory suffixes:
 .RS
 .IP \(bu 2
 .B /
-is replaced by
-.B -
+replaced with
+.B \-
 .IP \(bu 2
-Any character that is not alphanumeric, a dot, a hyphen, or an
-underscore is replaced by
-.B -
+Any non-alphanumeric, non-dot, non-hyphen, non-underscore character
+replaced with
+.B \-
 .IP \(bu 2
-Leading and trailing hyphens are stripped.
+Leading and trailing hyphens stripped
 .IP \(bu 2
-Consecutive hyphens are collapsed to a single hyphen.
+Consecutive hyphens collapsed to one
 .RE
-
+.PP
+.TS
+l l l .
+\m[teal]feature/login\m[]	\(->\~\~\m[sky]myrepo.feature-login\m[]
+\m[teal]fix/bug@1.0\m[]	\(->\~\~\m[sky]myrepo.fix-bug-1.0\m[]
+\m[plum]v3.2.2\m[]	\(->\~\~\m[sky]myrepo.v3.2.2\m[]
+\m[plum]388d460\m[]	\(->\~\~\m[sky]myrepo.388d460\m[]
+\m[plum]release/v2.0\m[]	\(->\~\~\m[sky]myrepo.release-v2.0\m[]
+.TE
+.\"
 .SH WORKTREE RESOLUTION
-When resolving a user-supplied branch or worktree name for
-.BR rm ,
-.BR co ,
+For
+.Cm rm ,
+.Cm co ,
 and
-.BR mv ,
+.Cm mv ,
 .B wt
-scans the
-.I .worktree/
-directory on disk and matches by sanitized suffix.  This approach is
-immune to prefix mismatches that could occur if the repository was
-renamed, moved, or the origin remote URL changed after worktrees were
-first created.
-
-.SH IGNORE RULE
-The first time a worktree is added,
-.B wt
-appends
-.B /.worktree
-to
-.I .git/info/exclude
-so that the directory is invisible to
-.BR git-status (1)
-without modifying any tracked file.
-
-.SH COLORS
-Output is colorized when
-.B TERM
-is set to a non-dumb value.  Colors are disabled when:
-
-.RS
-.IP \(bu 2
+scans
+.Pa .worktree/
+on disk and matches by sanitized suffix.
+This makes resolution correct even after the repository directory
+is renamed, moved, or the origin remote URL changes.
+.\"
+.SH COLOUR PALETTE
+.TS
+lB l .
+\m[teal]Teal\m[]	command names, info arrows (\(->), active branch in \fBls\fP
+\m[amber]Amber\m[]	flags (\fB\-f\fP, \fB\-D\fP) and warnings (\[u26A0])
+\m[plum]Plum\m[]	commit-ish refs, tags, SHAs, detached HEAD state
+\m[sky]Sky\m[]	file paths, directory names, non-active branch names
+\m[lime]Lime\m[]	success (\[u2713]), active worktree marker (\[u25B6])
+\m[dim]Dim\m[]	secondary / muted text (SHAs in \fBls\fP, hints)
+\m[brick]Brick\m[]	errors
+.TE
+.PP
+Colours are suppressed when
 .B NO_COLOR
-is set to any non-empty value (https://no-color.org)
-.IP \(bu 2
+is set to any non-empty value
+.RI ( https://no-color.org )
+or when
 .B TERM
 is
 .B dumb
-or unset
-.RE
-
+or unset.
+.\"
 .SH ENVIRONMENT
 .TP
 .B NO_COLOR
-Disable ANSI color output when set to any non-empty value.
+Disable all ANSI colour output when set to any non-empty value.
 .TP
 .B TERM
-Used to detect whether color output is appropriate.
-
+Used to detect whether colour output is appropriate.
+Colours are disabled when this is
+.B dumb
+or unset.
+.\"
 .SH FILES
 .TP
-.I <repo-root>/.worktree/
+.Pa <repo-root>/.worktree/
 Directory that holds all linked worktrees managed by
 .BR wt .
 .TP
-.I <repo-root>/.git/info/exclude
-Receives the
+.Pa <repo-root>/.git/info/exclude
+Receives the entry
 .B /.worktree
-entry on first use.
-
+on first use (idempotent).
+.\"
 .SH EXIT STATUS
 .TP
 .B 0
 Success.
 .TP
 .B 1
-A usage error, a missing worktree, or an underlying
+Usage error, missing worktree, or underlying
 .BR git (1)
-failure occurred.  A diagnostic message is written to standard error.
-
+failure.
+A diagnostic message is written to standard error.
+.\"
 .SH EXAMPLES
-
 .SS One-time setup
 .EX
 echo 'eval "$(wt init)"' >> ~/.zshrc
 source ~/.zshrc
 .EE
-
-.SS Daily workflow
+.SS Branch worktrees
 .EX
-# Start work on a new feature (works from anywhere in the repo)
-wt add feature/payments
-# → creates .worktree/myrepo.feature-payments, cd's into it
-
-# List all worktrees
-wt ls
-
-# Jump to an existing worktree
-wt co feature/payments
-
-# Rename a worktree
-wt mv feature/payments feature/stripe-payments
-
-# Remove — works even when you're inside the worktree
-wt rm              # removes current worktree, cd's to repo root
-wt rm feature/old  # removes by branch name (with slash) or short name
-
-# Tear down everything
-wt nuke -f
+wt add feature/payments   # new branch -> cd into worktree
+wt add fix/typo           # another branch
+wt ls                     # list all worktrees
+wt co feature/payments    # cd into existing worktree
+wt rm                     # remove current, cd back to main
+wt rm -D feature/old      # remove + delete branch
 .EE
-
+.SS Detached-HEAD worktrees (tag / SHA)
+.EX
+wt add v3.2.2             # tag -> .worktree/myrepo.v3.2.2  (detached)
+wt add 388d460            # SHA -> .worktree/myrepo.388d460 (detached)
+wt rm v3.2.2              # remove (no branch to delete)
+.EE
+.SS Rename
+.EX
+wt mv feature/old feature/new      # rename dir only
+wt mv -D feature/old feature/new   # rename dir + rename branch
+.EE
+.SS Tear down
+.EX
+wt nuke           # remove all worktrees, keep branches
+wt nuke -D        # remove all worktrees, delete branches too
+wt nuke -f -D     # same, skip confirmation
+.EE
+.\"
 .SH TESTING
 A test suite ships alongside the binary:
-
 .EX
-bash wt_test.sh [path/to/wt]
+bash wt_test.sh              # uses ./wt in same directory
+bash wt_test.sh /path/to/wt
 WT_BIN=/usr/local/bin/wt bash wt_test.sh
 .EE
-
+.\"
 .SH SEE ALSO
 .BR git-worktree (1),
 .BR git (1)
-
-.SH BUGS
-Report bugs at https://github.com/your-org/wt/issues
-
+.\"
 .SH AUTHOR
-Written by you.
+Written by Maurice Lim.
