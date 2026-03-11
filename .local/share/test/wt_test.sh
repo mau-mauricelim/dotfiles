@@ -32,17 +32,29 @@ make_repo() {
 
 # ── Helpers ───────────────────────────────────────────────────────────────────
 
+# All test helpers export WT_NO_PROMPT=1 so no prompt ever blocks a test.
+# Tests that explicitly verify prompt behaviour use WT_PROMPT() instead.
+
 # Run the wt binary with TERM set; strip hidden cd directives from stdout.
-WT() { TERM=xterm command "$WT_BIN" "$@" 2>/dev/null | grep -v '^__WT_CD__:'; }
+WT() { WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" "$@" 2>/dev/null | grep -v '^__WT_CD__:'; }
 
 # Run the wt binary and extract only the cd directive path.
 WT_cd() {
-  TERM=xterm command "$WT_BIN" "$@" 2>/dev/null \
+  WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" "$@" 2>/dev/null \
     | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://' || true
 }
 
 # Run the wt binary and return its exit code (suppress output).
-WT_exit() { local rc=0; TERM=xterm command "$WT_BIN" "$@" &>/dev/null || rc=$?; echo "$rc"; }
+WT_exit() { local rc=0; WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" "$@" &>/dev/null || rc=$?; echo "$rc"; }
+
+# Run the wt binary WITH prompts enabled, feeding <stdin_data> as answers.
+# Usage:  WT_PROMPT "y\nn" rm feature/foo
+WT_PROMPT() {
+  local stdin_data="$1"; shift
+  printf '%s\n' "$stdin_data" \
+    | WT_NO_PROMPT=0 WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" "$@" 2>/dev/null \
+    | grep -v '^__WT_CD__:' || true
+}
 
 # Get the branch a worktree is on; "" for detached HEAD.
 wt_branch() { git -C "$1" branch --show-current 2>/dev/null || true; }
@@ -322,7 +334,7 @@ test_rm_from_within() {
   local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-inner"
 
   local full_out cd_target
-  full_out=$(cd "$wt_path" && TERM=xterm command "$WT_BIN" rm 2>&1) || true
+  full_out=$(cd "$wt_path" && WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" rm 2>&1) || true
   cd_target=$(printf '%s\n' "$full_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://') || true
 
   if [[ -d "$wt_path" ]]; then
@@ -368,6 +380,36 @@ test_rm_D_detached_no_error() {
   assert_dir_missing "detached worktree removed" "$wt_path"
 }
 
+# No-tty / WT_NO_PROMPT behaviour: branch prompt skipped → branch kept.
+test_rm_no_tty_branch_prompt_skipped() {
+  WT add feature/no-tty-branch >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-no-tty-branch"
+  # WT_NO_PROMPT=1 (set by WT helper): tty_prompt returns 1 → branch kept.
+  WT rm feature/no-tty-branch >/dev/null
+  assert_dir_missing "worktree removed" "$wt_path"
+  local b; b=$(git branch --list "feature/no-tty-branch")
+  [[ -n "$b" ]] || { printf '    FAIL  branch should be kept when no-prompt\n'; return 1; }
+}
+
+# Dirty-worktree: WT_NO_PROMPT=1 → tty_prompt returns 1 → die (worktree stays).
+test_rm_dirty_no_f_no_tty_fails() {
+  WT add feature/dirty-stay >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-dirty-stay"
+  echo "untracked" > "$wt_path/untracked.txt"
+  # Should fail non-zero (uncommitted changes, no -f, no tty to prompt).
+  assert_exit_fail "dirty rm without -f fails" rm feature/dirty-stay
+  assert_dir_exists "dirty worktree not removed" "$wt_path"
+}
+
+# Dirty-worktree with -f: should succeed without asking.
+test_rm_dirty_with_f_succeeds() {
+  WT add feature/dirty-force >/dev/null
+  local wt_path="$_REPO/.worktree/$(basename "$_REPO").feature-dirty-force"
+  echo "untracked" > "$wt_path/untracked.txt"
+  assert_exit_ok  "dirty rm with -f exits 0" rm -f feature/dirty-force
+  assert_dir_missing "dirty worktree removed with -f" "$wt_path"
+}
+
 # ── wt ls ─────────────────────────────────────────────────────────────────────
 
 test_ls_shows_main() {
@@ -387,7 +429,7 @@ test_ls_shows_linked_worktrees() {
 test_ls_sha_column_aligned() {
   WT add feature/a >/dev/null
   WT add feature/b >/dev/null
-  local out; out=$(TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
   local plain
   plain=$(printf '%s' "$out" | sed 's/\x1b\[[0-9;]*m//g')
   local sha_positions
@@ -411,7 +453,7 @@ test_ls_long_name_truncated() {
 
 test_ls_no_color_env() {
   local out
-  out=$(NO_COLOR=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
+  out=$(NO_COLOR=1 WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
   assert_contains "ls works with NO_COLOR" "$out" "[main]"
   ! printf '%s' "$out" | grep -qP '\033\[' \
     || { printf '    FAIL  ANSI codes present with NO_COLOR=1\n'; return 1; }
@@ -566,21 +608,21 @@ test_nuke_from_within_emits_cd() {
 # ── wt init ───────────────────────────────────────────────────────────────────
 
 test_init_outputs_function() {
-  local out; out=$(TERM=xterm command "$WT_BIN" init)
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" init)
   assert_contains "init outputs wt() function"   "$out" "wt()"
   assert_contains "init uses command wt"          "$out" "command wt"
   assert_contains "init handles cd directive"     "$out" "__WT_CD__"
 }
 
 test_init_single_invocation() {
-  local out; out=$(TERM=xterm command "$WT_BIN" init)
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" init)
   local count
   count=$(printf '%s\n' "$out" | grep -c 'command wt')
   assert_eq "init has exactly one 'command wt'" "$count" "1"
 }
 
 test_init_valid_bash_syntax() {
-  local out; out=$(TERM=xterm command "$WT_BIN" init)
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" init)
   bash -c "$out" 2>&1
   assert_eq "init function parses in bash" "ok" "ok"
 }
@@ -589,7 +631,7 @@ test_init_valid_zsh_syntax() {
   if ! command -v zsh &>/dev/null; then
     printf '(zsh not available, skipping) '; return 0
   fi
-  local out; out=$(TERM=xterm command "$WT_BIN" init)
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" init)
   zsh -c "$out" 2>&1
   assert_eq "init function parses in zsh" "ok" "ok"
 }
@@ -601,7 +643,7 @@ test_wrapper_add_runs_once() {
   local wt_path="$_REPO/.worktree/${repo_name}.feature-once"
 
   local out
-  out=$(TERM=xterm command "$WT_BIN" add feature/once)
+  out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" add feature/once)
   local cd_target
   cd_target=$(printf '%s\n' "$out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://')
   local visible
@@ -613,10 +655,10 @@ test_wrapper_add_runs_once() {
 }
 
 test_wrapper_add_idempotent_no_duplicate_warning() {
-  TERM=xterm command "$WT_BIN" add feature/tw >/dev/null 2>/dev/null
+  WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" add feature/tw >/dev/null 2>/dev/null
 
   local out
-  out=$(TERM=xterm command "$WT_BIN" add feature/tw 2>/dev/null | grep -v '^__WT_CD__:' || true)
+  out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" add feature/tw 2>/dev/null | grep -v '^__WT_CD__:' || true)
   assert_not_contains "no old 'already exists' message" "$out" "already exists"
   assert_contains     "says 'already at'"               "$out" "already at"
 }
@@ -625,14 +667,14 @@ test_wrapper_add_idempotent_no_duplicate_warning() {
 
 test_colors_present_with_term() {
   local out
-  out=$(TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
+  out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
   printf '%s' "$out" | grep -qP '\033\[' \
     || { printf '    FAIL  no ANSI codes with TERM=xterm\n'; return 1; }
 }
 
 test_colors_absent_with_no_color() {
   local out
-  out=$(NO_COLOR=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
+  out=$(NO_COLOR=1 WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null | grep -v '^__WT_CD__:')
   ! printf '%s' "$out" | grep -qP '\033\[' \
     || { printf '    FAIL  ANSI codes present despite NO_COLOR=1\n'; return 1; }
 }
@@ -649,7 +691,7 @@ test_colors_absent_with_dumb_term() {
 test_outside_git_repo() {
   local tmp; tmp=$(mktemp -d)
   local rc=0
-  (cd "$tmp" && TERM=xterm command "$WT_BIN" ls 2>/dev/null) || rc=$?
+  (cd "$tmp" && WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" ls 2>/dev/null) || rc=$?
   rm -rf "$tmp"
   [[ $rc -ne 0 ]] && return 0
   printf '    FAIL  should fail outside git repo\n'; return 1
@@ -666,7 +708,7 @@ test_help_exits_ok()    { assert_exit_ok "help exits 0"    help; }
 test_version_exits_ok() { assert_exit_ok "version exits 0" version; }
 
 test_version_has_number() {
-  local out; out=$(TERM=xterm command "$WT_BIN" version)
+  local out; out=$(WT_NO_PROMPT=1 TERM=xterm command "$WT_BIN" version)
   printf '%s' "$out" | grep -qE '[0-9]+\.[0-9]+' \
     || { printf '    FAIL  no version number in output\n'; return 1; }
 }
@@ -719,6 +761,9 @@ run_test "rm from main without name fails"            test_rm_from_main_without_
 run_test "rm -D deletes branch"                       test_rm_D_deletes_branch
 run_test "rm without -D keeps branch"                 test_rm_without_D_keeps_branch
 run_test "rm -D on detached HEAD exits 0"             test_rm_D_detached_no_error
+run_test "rm branch prompt skipped (no tty)"          test_rm_no_tty_branch_prompt_skipped
+run_test "rm dirty without -f fails (no tty)"         test_rm_dirty_no_f_no_tty_fails
+run_test "rm dirty with -f succeeds"                  test_rm_dirty_with_f_succeeds
 
 section "wt ls"
 run_test "ls shows [main]"                            test_ls_shows_main
