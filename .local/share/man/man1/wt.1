@@ -3,8 +3,6 @@
 .TH WT 1 "2025" "wt 1.0.0" "User Commands"
 .\"
 .\" ── Colour palette ────────────────────────────────────────────────────────
-.\" Defined only when running under GNU groff (terminal/PDF output).
-.\" Every macro degrades gracefully to plain bold/italic on other formatters.
 .if \n(.g \{\
 .  defcolor teal   rgb #00AFAF
 .  defcolor amber  rgb #D7AF00
@@ -15,57 +13,35 @@
 .  defcolor brick  rgb #AF5F5F
 .\}
 .\"
-.\" Palette cross-reference
-.\"   Teal  (teal)  — command names, active branch in ls
-.\"   Amber (amber) — flags -f / -D, warnings
-.\"   Plum  (plum)  — commit-ish, tags, SHAs, detached HEAD
-.\"   Sky   (sky)   — paths, directories, non-active branches
-.\"   Lime  (lime)  — success marker, active worktree arrow
-.\"   Dim   (dim)   — muted / secondary text
-.\"   Brick (brick) — errors
-.\"
-.\" Inline color macros — used inside body text (not on .TP tag lines).
-.\"
-.\" .Cm — command name (teal bold)
+.\" Inline colour macros
 .de Cm
 .  ie \n(.g \m[teal]\fB\\$*\fP\m[]
 .  el \fB\\$*\fP
 ..
-.\" .Fl — flag / option (amber bold)
 .de Fl
 .  ie \n(.g \m[amber]\fB\\$*\fP\m[]
 .  el \fB\\$*\fP
 ..
-.\" .Ci — commit-ish / tag / SHA (plum italic)
 .de Ci
 .  ie \n(.g \m[plum]\fI\\$*\fP\m[]
 .  el \fI\\$*\fP
 ..
-.\" .Pa — path or directory name (sky)
 .de Pa
 .  ie \n(.g \m[sky]\\$*\m[]
 .  el \fI\\$*\fP
 ..
-.\" .Di — muted / secondary text (dim)
 .de Di
 .  ie \n(.g \m[dim]\\$*\m[]
 .  el \\$*
 ..
 .\"
-.\" Tag-line helpers — used as the single-line tag in .TP entries.
-.\" These must be raw groff because .TP treats the first input line as the tag;
-.\" consecutive macro calls would split the tag from the first body line.
-.\"
-.\" Teal bold text (command name in tag)
+.\" Tag-line string escapes (used directly on .TP tag lines)
 .ds Ct \m[teal]\fB
 .ds Ce \fP\m[]
-.\" Amber bold text (flag in tag)
 .ds At \m[amber]\fB
 .ds Ae \fP\m[]
-.\" Plum italic text (commit-ish / name in tag)
 .ds Pt \m[plum]\fI
 .ds Pe \fP\m[]
-.\" Dim text (optional in tag)
 .ds Dt \m[dim]
 .ds De \m[]
 .\"
@@ -137,11 +113,7 @@ eval "$(wt init)"
 .\"
 .TP
 \*(Ctadd\*(Ce \*(Pt<branch|commit-ish>\*(Pe
-Create a new linked worktree for
-.Ci branch .
-If the branch does not exist locally it is created.
-If the worktree already exists, the command is a no-op and the shell
-wrapper cds into the existing path.
+Create a new linked worktree and cd into it.
 .PP
 .RS
 Resolution order:
@@ -161,35 +133,72 @@ remote ref, \(el)
 .B Unknown name
 \(em a new local branch is created.
 .RE
+.PP
+Running
+.Cm add
+on an already-existing worktree is idempotent: it cds into the
+existing path without error.
 .RE
 .\"
 .TP
-\*(Ctrm\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae] \*(Dt[\*(De\*(Pt<name>\*(Pe\*(Dt]\*(De
+\*(Ctrm\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae] \*(Dt[\*(De\*(Pt<n>\*(Pe\*(Dt]\*(De
 Remove a linked worktree.
 Without
-.Ci <name> ,
+.Ci <n> ,
 removes the worktree the shell is currently inside and returns to the
 main worktree root.
 With
-.Ci <name> ,
+.Ci <n> ,
 removes that specific worktree.
 Resolution scans
 .Pa .worktree/
 on disk, so it is immune to remote-URL or directory renames.
 .PP
 .RS
+.B Uncommitted changes.
+If the worktree has uncommitted changes and
 .Fl \-f
-is forwarded to
-.BR git-worktree-remove (1)
-to allow removal of a worktree with uncommitted changes.
+is not supplied,
+.B wt
+prints the changed files and prompts:
+.EX
+Remove anyway? [y/N]
+.EE
+Answering
+.B n
+or pressing Enter aborts without touching anything.
+Answering
+.B y
+proceeds with force removal.
+When no controlling terminal is available (non-interactive / CI),
+.B wt
+refuses and exits 1; pass
+.Fl \-f
+explicitly to skip the check.
+.PP
+.B Branch deletion.
+After the worktree is removed,
+if
+.Fl \-D
+is not supplied and the worktree was on a local branch,
+.B wt
+prompts:
+.EX
+Delete branch <branch>? [y/N]
+.EE
+Answering
+.B y
+deletes the branch.
+Any other answer \(em or no controlling terminal \(em leaves the
+branch untouched (safe default).
 .PP
 .Fl \-D
-also deletes the associated local branch after removal.
-Silently skipped for detached-HEAD worktrees.
+skips the prompt and always deletes the branch.
+Silently skipped for detached-HEAD worktrees (no branch to delete).
 .RE
 .\"
 .TP
-\*(Ctco\*(Ce \*(Pt<name>\*(Pe
+\*(Ctco\*(Ce \*(Pt<n>\*(Pe
 Change directory into an existing worktree.
 The worktree must already exist; use
 .Cm add
@@ -260,8 +269,12 @@ Detached-HEAD worktrees are silently skipped.
 .SH FLAGS
 .TP
 \*(At\-f\*(Ae, \*(At\-\-force\*(Ae
-Allow removal of worktrees containing uncommitted changes
-.RI ( rm ", " nuke ).
+For
+.Cm rm :
+skip the uncommitted-changes prompt and force removal.
+For
+.Cm nuke :
+skip the confirmation prompt.
 .TP
 \*(At\-D\*(Ae, \*(At\-\-delete-branch\*(Ae
 Additionally manage the associated branch:
@@ -269,6 +282,7 @@ Additionally manage the associated branch:
 .TP
 .Cm rm
 Delete the branch after removing the worktree.
+Skips the interactive branch-deletion prompt.
 .TP
 .Cm mv
 Rename the branch to match the new worktree name.
@@ -349,6 +363,20 @@ Used to detect whether colour output is appropriate.
 Colours are disabled when this is
 .B dumb
 or unset.
+.TP
+.B WT_NO_PROMPT
+When set to
+.B 1 ,
+all interactive prompts are suppressed without reading from the terminal.
+The safe default is taken for each prompt:
+the uncommitted-changes check aborts with exit 1 (same as no controlling
+terminal), and the branch-deletion prompt is skipped (branch kept).
+Intended for use in CI pipelines and automated scripts.
+Pass
+.Fl \-f
+and/or
+.Fl \-D
+explicitly to control behaviour in non-interactive contexts.
 .\"
 .SH FILES
 .TP
@@ -367,7 +395,7 @@ on first use (idempotent).
 Success.
 .TP
 .B 1
-Usage error, missing worktree, or underlying
+Usage error, missing worktree, aborted prompt, or underlying
 .BR git (1)
 failure.
 A diagnostic message is written to standard error.
@@ -384,14 +412,19 @@ wt add feature/payments   # new branch -> cd into worktree
 wt add fix/typo           # another branch
 wt ls                     # list all worktrees
 wt co feature/payments    # cd into existing worktree
-wt rm                     # remove current, cd back to main
-wt rm -D feature/old      # remove + delete branch
+wt rm                     # remove current, prompt for branch, cd to main
+wt rm -D feature/old      # remove + delete branch (no prompt)
 .EE
 .SS Detached-HEAD worktrees (tag / SHA)
 .EX
 wt add v3.2.2             # tag -> .worktree/myrepo.v3.2.2  (detached)
 wt add 388d460            # SHA -> .worktree/myrepo.388d460 (detached)
-wt rm v3.2.2              # remove (no branch to delete)
+wt rm v3.2.2              # remove (no branch, no prompt)
+.EE
+.SS Dirty worktree
+.EX
+wt rm feature/wip         # shows changed files, prompts to confirm
+wt rm -f feature/wip      # force-remove, no prompt
 .EE
 .SS Rename
 .EX
@@ -400,9 +433,15 @@ wt mv -D feature/old feature/new   # rename dir + rename branch
 .EE
 .SS Tear down
 .EX
-wt nuke           # remove all worktrees, keep branches
-wt nuke -D        # remove all worktrees, delete branches too
+wt nuke           # confirm, then remove all worktrees (branches kept)
+wt nuke -D        # confirm, then remove all + delete branches
 wt nuke -f -D     # same, skip confirmation
+.EE
+.SS Non-interactive / CI
+.EX
+# Use explicit flags to avoid prompts; or set WT_NO_PROMPT=1.
+wt rm -f -D feature/done          # force-remove + delete branch
+WT_NO_PROMPT=1 wt rm feature/done # same safe-default behaviour
 .EE
 .\"
 .SH TESTING
@@ -412,10 +451,13 @@ bash wt_test.sh              # uses ./wt in same directory
 bash wt_test.sh /path/to/wt
 WT_BIN=/usr/local/bin/wt bash wt_test.sh
 .EE
+The suite is fully automated: it sets
+.B WT_NO_PROMPT=1
+internally so no test ever blocks on a terminal prompt.
 .\"
 .SH SEE ALSO
 .BR git-worktree (1),
 .BR git (1)
 .\"
 .SH AUTHOR
-Written by Maurice Lim.
+Written by Claude Sonnet 4.6.
