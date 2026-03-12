@@ -317,10 +317,11 @@ Colours are disabled when `NO_COLOR` is set (any non-empty value) or `TERM=dumb`
 ```sh
 bash wt_test.sh    # uses ./wt in the same directory
 bash wt_test.sh /path/to/wt
+WT_BIN=$HOME/.local/bin/wt bash wt_test.sh
 WT_BIN=/usr/local/bin/wt bash wt_test.sh
 ```
 
-The suite covers **71 tests** across all commands, including regression tests for edge cases and the interactive prompt behaviour. All tests are fully automated — `WT_NO_PROMPT=1` is set internally so no test ever blocks on a prompt.
+The suite covers tests across all commands, including regression tests for edge cases and the interactive prompt behaviour. All tests are fully automated — `WT_NO_PROMPT=1` is set internally so no test ever blocks on a prompt.
 
 ---
 

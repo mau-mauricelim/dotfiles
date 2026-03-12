@@ -1,6 +1,8 @@
 #!/usr/bin/env bash
 # wt_test.sh — Comprehensive test suite for the wt Git Worktree Manager
-# Usage:  bash wt_test.sh [path/to/wt]
+# Usage:  bash wt_test.sh    # uses ./wt in the same directory
+#         bash wt_test.sh /path/to/wt
+#         WT_BIN=$HOME/.local/bin/wt bash wt_test.sh
 #         WT_BIN=/usr/local/bin/wt bash wt_test.sh
 set -euo pipefail
 

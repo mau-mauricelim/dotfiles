@@ -447,8 +447,9 @@ WT_NO_PROMPT=1 wt rm feature/done # same safe-default behaviour
 .SH TESTING
 A test suite ships alongside the binary:
 .EX
-bash wt_test.sh              # uses ./wt in same directory
+bash wt_test.sh    # uses ./wt in the same directory
 bash wt_test.sh /path/to/wt
+WT_BIN=$HOME/.local/bin/wt bash wt_test.sh
 WT_BIN=/usr/local/bin/wt bash wt_test.sh
 .EE
 The suite is fully automated: it sets
