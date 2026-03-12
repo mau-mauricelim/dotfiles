@@ -240,8 +240,8 @@ wt add fix/typo
 # → .worktree/my-project.fix-typo (cd'd in)
 
 # Detached-HEAD worktrees
-wt add v2.4.1        # inspect a tag
-wt add 388d460       # inspect a specific commit
+wt add v3.2.1        # inspect a tag
+wt add bc330132      # inspect a specific commit
 
 # Navigate
 wt ls

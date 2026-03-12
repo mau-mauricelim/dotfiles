@@ -157,11 +157,15 @@ cmd_init() {
 wt() {
   local _out _ret _cd
   # Single invocation — stdout captured; stderr goes straight to terminal.
-  _out=$(command wt "$@")
-  _ret=$?
+  # Use && ... || to preserve the exit code safely under `set -e` / errexit:
+  # if the binary exits non-zero, the assignment itself would abort a set -e
+  # shell without the ||, swallowing all output silently.
+  _out=$(command wt "$@") && _ret=$? || _ret=$?
 
   # Extract optional cd directive (last one wins).
-  _cd=$(printf '%s\n' "$_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://')
+  # The `|| true` prevents grep's exit-1-on-no-match from aborting a set -e
+  # shell when no __WT_CD__ line is present (e.g. wt ls, wt prune).
+  _cd=$(printf '%s\n' "$_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://' || true)
 
   # Print all output lines except the hidden directive.
   printf '%s\n' "$_out" | grep -v '^__WT_CD__:' || true

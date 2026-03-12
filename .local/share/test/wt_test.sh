@@ -665,6 +665,55 @@ test_wrapper_add_idempotent_no_duplicate_warning() {
   assert_contains     "says 'already at'"               "$out" "already at"
 }
 
+
+# ── Shell wrapper set -e regression ──────────────────────────────────────────
+#
+# Bug: with `set -e` / `errexit` active in the calling shell, the wrapper
+# function silently produced no output for:
+#   1. Commands with no __WT_CD__ directive (e.g. wt ls):
+#      grep exits 1 (no match) → pipefail → set -e kills the function.
+#   2. Commands where the binary exits non-zero:
+#      `_out=$(command wt "$@")` exits 1 → set -e kills the wrapper at the
+#      assignment line, swallowing all output silently.
+#
+# Fix: `_out=$(...) && _ret=$? || _ret=$?` and `|| true` inside the grep $().
+
+_wrapper_set_e() {
+  bash -c "
+set -euo pipefail
+WT_BIN='$WT_BIN'
+wt() {
+  local _out _ret _cd
+  _out=\$(WT_NO_PROMPT=1 TERM=xterm command \"\$WT_BIN\" \"\$@\") && _ret=\$? || _ret=\$?
+  _cd=\$(printf '%s\n' \"\$_out\" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://' || true)
+  printf '%s\n' \"\$_out\" | grep -v '^__WT_CD__:' || true
+  if [ -n \"\$_cd\" ] && [ -d \"\$_cd\" ]; then cd \"\$_cd\" || return 1; fi
+  return \$_ret
+}
+cd '$_REPO'
+$1
+" 2>&1
+}
+
+test_wrapper_set_e_ls() {
+  local out
+  out=$(_wrapper_set_e "wt ls")
+  assert_contains "Worktrees header present" "$out" "Worktrees"
+}
+
+test_wrapper_set_e_add() {
+  local out
+  out=$(_wrapper_set_e "wt add feature/sete-test") || true
+  assert_contains "success message present" "$out" "ready at"
+  WT "rm" "feature/sete-test" >/dev/null 2>/dev/null || true
+}
+
+test_wrapper_set_e_error() {
+  local out
+  out=$(_wrapper_set_e "wt _no_such_cmd_ 2>&1 || true")
+  assert_contains "error message surfaced" "$out" "unknown command"
+}
+
 # ── Colors ────────────────────────────────────────────────────────────────────
 
 test_colors_present_with_term() {
@@ -722,7 +771,8 @@ test_version_has_number() {
 if [[ ! -x "$WT_BIN" ]]; then
   printf '%berror:%b %s not found or not executable\n\n' "$RED" "$NC" "$WT_BIN"
   printf '%bUsage:%b  %s [path/to/wt]\n' "$BOLD" "$NC" "$0"
-  printf '         WT_BIN=/usr/local/bin/wt %s\n' "$0"
+  printf '        WT_BIN=$HOME/.local/bin/wt %s\n' "$0"
+  printf '        WT_BIN=/usr/local/bin/wt %s\n' "$0"
   exit 1
 fi
 
@@ -809,6 +859,9 @@ run_test "init function valid zsh syntax"             test_init_valid_zsh_syntax
 section "Shell wrapper correctness"
 run_test "add runs exactly once (no double-invoke)"   test_wrapper_add_runs_once
 run_test "idempotent add — no duplicate warning"      test_wrapper_add_idempotent_no_duplicate_warning
+run_test "wrapper works under set -e (ls — no cd directive)"        test_wrapper_set_e_ls
+run_test "wrapper works under set -e (add produces output)"         test_wrapper_set_e_add
+run_test "wrapper works under set -e (binary error shows output)"   test_wrapper_set_e_error
 
 section "Colors"
 run_test "colors present with TERM=xterm"             test_colors_present_with_term
