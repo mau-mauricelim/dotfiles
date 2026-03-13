@@ -1,0 +1,772 @@
+#!/usr/bin/env bash
+# wt — Minimal Git Worktree Manager
+set -euo pipefail
+
+WT_VERSION="1.0.0"
+WT_DIR=".worktree"
+
+# ── Colors ────────────────────────────────────────────────────────────────────
+# Do NOT use -t 1: stdout is always a pipe inside $() capture from the shell
+# wrapper. Honour TERM / NO_COLOR instead — both survive subshell capture.
+RED=''; GREEN=''; YELLOW=''; BLUE=''; CYAN=''; MAGENTA=''; BOLD=''; DIM=''; UL=''; NC=''
+
+_setup_colors() {
+  [[ "${NO_COLOR:-}" != ""      ]] && return   # https://no-color.org
+  [[ "${TERM:-}"     == "dumb"  ]] && return
+  [[ -z "${TERM:-}"             ]] && return
+  RED=$'\033[0;31m'; GREEN=$'\033[0;32m'; YELLOW=$'\033[0;33m'
+  BLUE=$'\033[0;34m'; CYAN=$'\033[0;36m';   MAGENTA=$'\033[0;35m'
+  BOLD=$'\033[1m';    DIM=$'\033[2m';    UL=$'\033[4m';    NC=$'\033[0m'
+}
+_setup_colors
+
+# ── Logging ───────────────────────────────────────────────────────────────────
+die()     { printf '%berror:%b %s\n' "$RED"    "$NC" "$*" >&2; exit 1; }
+info()    { printf '%b→%b %s\n'     "$CYAN"   "$NC" "$*"; }
+success() { printf '%b✓%b %s\n'     "$GREEN"  "$NC" "$*"; }
+warn()    { printf '%b⚠%b %s\n'     "$YELLOW" "$NC" "$*"; }
+
+# ── Git helpers ───────────────────────────────────────────────────────────────
+
+require_git() {
+  git rev-parse --git-dir &>/dev/null || die "not inside a git repository"
+}
+
+# First entry in 'git worktree list' is always the main (non-linked) worktree.
+get_main_worktree() {
+  git worktree list --porcelain \
+    | awk '/^worktree /{print substr($0,10); exit}'
+}
+
+# Absolute path of the linked worktree we are currently inside, or "" if main.
+get_current_worktree() {
+  local top main
+  top=$(git rev-parse --show-toplevel 2>/dev/null) || return 0
+  main=$(get_main_worktree)
+  [[ "$top" != "$main" ]] && printf '%s' "$top"
+  return 0   # [[ ]] exits 1 when equal; explicit return 0 prevents set -e firing
+}
+
+# Given a worktree path, return its branch short name (strips refs/heads/).
+# Returns "" for detached HEAD worktrees.
+get_worktree_branch() {
+  git worktree list --porcelain \
+    | awk -v p="$1" '
+        /^worktree / { cur = substr($0,10) }
+        /^branch /   && cur == p { print substr($0,8); exit }
+      ' \
+    | sed 's|refs/heads/||'
+}
+
+# ── Branch / path helpers ─────────────────────────────────────────────────────
+
+# Sanitize a branch name or commit-ish into a safe directory suffix.
+#   feature/my-thing  →  feature-my-thing
+#   fix/bug@1.0       →  fix-bug-1.0
+#   v3.2.2            →  v3.2.2          (dots kept)
+#   388d460           →  388d460
+sanitize_branch() {
+  printf '%s' "$1" \
+    | sed 's|/|-|g' \
+    | sed 's|[^a-zA-Z0-9._-]|-|g' \
+    | sed 's|^-\+||; s|-\+$||' \
+    | sed 's|-\{2,\}|-|g'
+}
+
+# Stable repo prefix from origin remote URL, falling back to main worktree
+# directory basename.  Used only when CREATING new worktree dirs (add).
+repo_name() {
+  local name
+  name=$(git remote get-url origin 2>/dev/null \
+    | sed 's|\.git$||; s|/$||; s|.*[/:]||') || true
+  if [[ -z "$name" ]]; then
+    name=$(basename "$(get_main_worktree)")
+  fi
+  printf '%s' "$name"
+}
+
+# Resolve a user-supplied name → absolute worktree path by scanning .worktree/.
+# Repo-name-agnostic: works regardless of what prefix was used at add-time.
+#
+# Accepts:  branch name   (feature/login  →  sanitized to feature-login)
+#           sanitized     (feature-login)
+#           tag / SHA     (v3.2.2 / 388d460)
+#           exact dir     (dotfiles.feature-login)
+resolve_wt_path() {
+  local name="$1"
+  local main wt_dir san d base
+
+  main=$(get_main_worktree)
+  wt_dir="$main/$WT_DIR"
+  [[ -d "$wt_dir" ]] || return 1
+
+  san=$(sanitize_branch "$name")
+
+  # Scan every directory; match on sanitized suffix (prefix-agnostic).
+  for d in "$wt_dir"/*/; do
+    [[ -d "$d" ]] || continue
+    base=$(basename "$d")
+    if [[ "$base" == *".$san" || "$base" == "$san" ]]; then
+      printf '%s' "${d%/}"
+      return 0
+    fi
+  done
+
+  # Literal fallback (user passed the exact directory name).
+  [[ -d "$wt_dir/$name" ]] && { printf '%s' "$wt_dir/$name"; return 0; }
+
+  return 1
+}
+
+# Ensure .worktree is listed in .git/info/exclude (idempotent).
+ensure_excluded() {
+  local main exclude_file
+  main=$(get_main_worktree)
+  exclude_file="$main/.git/info/exclude"
+  [[ -f "$exclude_file" ]] || return 0
+  if ! grep -qxF "/$WT_DIR" "$exclude_file" 2>/dev/null; then
+    printf '/%s\n' "$WT_DIR" >> "$exclude_file"
+    info "added /$WT_DIR to .git/info/exclude"
+  fi
+}
+
+# Delete a branch by name; warn if it cannot be deleted (e.g. not local).
+# Silently skips when branch is empty (detached HEAD worktrees).
+delete_branch() {
+  local branch="$1" main="$2"
+  [[ -z "$branch" ]] && return 0
+  if git -C "$main" branch -D "$branch" 2>/dev/null; then
+    success "deleted branch ${CYAN}${branch}${NC}"
+  else
+    warn "could not delete branch ${CYAN}${branch}${NC} (not a local branch or already gone)"
+  fi
+}
+
+# Emit a cd directive intercepted by the shell wrapper (invisible to user).
+emit_cd() { printf '__WT_CD__:%s\n' "$1"; }
+
+# ── Commands ──────────────────────────────────────────────────────────────────
+
+# wt init
+# Outputs a POSIX-compatible shell function for eval; works in bash and zsh.
+#
+# Single invocation: capture stdout only. stderr flows to the terminal so git
+# progress ("Preparing worktree…") is visible live. nuke prompt uses /dev/tty.
+cmd_init() {
+  cat <<'SHELL_FUNC'
+wt() {
+  local _out _ret _cd
+  # Single invocation — stdout captured; stderr goes straight to terminal.
+  # Use && ... || to preserve the exit code safely under `set -e` / errexit:
+  # if the binary exits non-zero, the assignment itself would abort a set -e
+  # shell without the ||, swallowing all output silently.
+  _out=$(command wt "$@") && _ret=$? || _ret=$?
+
+  # Extract optional cd directive (last one wins).
+  # The `|| true` prevents grep's exit-1-on-no-match from aborting a set -e
+  # shell when no __WT_CD__ line is present (e.g. wt ls, wt prune).
+  _cd=$(printf '%s\n' "$_out" | grep '^__WT_CD__:' | tail -1 | sed 's/^__WT_CD__://' || true)
+
+  # Print all output lines except the hidden directive.
+  printf '%s\n' "$_out" | grep -v '^__WT_CD__:' || true
+
+  # Perform directory change in the current shell process.
+  if [ -n "$_cd" ] && [ -d "$_cd" ]; then
+    cd "$_cd" || return 1
+  fi
+
+  return $_ret
+}
+SHELL_FUNC
+}
+
+# wt add <branch|commit-ish>
+#
+# Resolution order:
+#   1. Local branch exists              → check it out on the branch
+#   2. Valid commit-ish (tag, SHA, …)   → detached HEAD
+#   3. Nothing found                    → create a new local branch
+cmd_add() {
+  local ref="${1:-}"
+  [[ -z "$ref" ]] && die "usage: wt add <branch|commit-ish>"
+
+  require_git
+  local main prefix san wt_name wt_path
+  main=$(get_main_worktree)
+  prefix=$(repo_name)
+  san=$(sanitize_branch "$ref")
+  wt_name="${prefix}.${san}"
+  wt_path="$main/$WT_DIR/$wt_name"
+
+  # Idempotent: already exists → just cd there.
+  if [[ -d "$wt_path" ]]; then
+    info "already at ${BLUE}${wt_name}${NC}"
+    emit_cd "$wt_path"
+    return 0
+  fi
+
+  mkdir -p "$main/$WT_DIR"
+  ensure_excluded
+
+  if git -C "$main" show-ref --verify --quiet "refs/heads/$ref" 2>/dev/null; then
+    # ── Case 1: existing local branch ─────────────────────────────────────
+    info "creating worktree ${BLUE}${wt_name}${NC}  (branch: ${CYAN}${ref}${NC})"
+    git -C "$main" worktree add "$wt_path" "$ref"
+
+  elif git -C "$main" rev-parse --verify "${ref}^{commit}" &>/dev/null; then
+    # ── Case 2: commit-ish (tag, SHA, remote ref, …) ── detached HEAD ─────
+    local resolved
+    resolved=$(git -C "$main" rev-parse --short "${ref}^{commit}" 2>/dev/null)
+    info "creating worktree ${BLUE}${wt_name}${NC}  (detached at ${MAGENTA}${ref}${NC} = ${DIM}${resolved}${NC})"
+    git -C "$main" worktree add --detach "$wt_path" "$ref"
+
+  else
+    # ── Case 3: new branch ────────────────────────────────────────────────
+    info "branch ${CYAN}${ref}${NC} not found locally — creating it"
+    info "creating worktree ${BLUE}${wt_name}${NC}  (new branch: ${CYAN}${ref}${NC})"
+    git -C "$main" worktree add -b "$ref" "$wt_path"
+  fi
+
+  success "ready at ${BLUE}${wt_path}${NC}"
+  emit_cd "$wt_path"
+}
+
+# tty_prompt <var> <message>
+# Writes <message> to /dev/tty and reads one line from /dev/tty into <var>.
+# Returns 1 (skips prompt, var="") in two cases:
+#   • WT_NO_PROMPT=1 is set (used by the test suite and CI)
+#   • no controlling terminal is available
+tty_prompt() {
+  local _var="$1" _msg="$2"
+  # Non-interactive override — callers treat 1 as "skip/keep safe default".
+  if [[ "${WT_NO_PROMPT:-}" == "1" ]]; then
+    printf -v "$_var" '%s' ''
+    return 1
+  fi
+  # Probe: can we open /dev/tty for reading and writing?
+  if ! { true >/dev/tty; } 2>/dev/null; then
+    printf -v "$_var" '%s' ''
+    return 1
+  fi
+  printf '%s' "$_msg" >/dev/tty
+  local _ans=""
+  IFS= read -r _ans </dev/tty 2>/dev/null || true
+  printf -v "$_var" '%s' "$_ans"
+}
+
+# wt rm [-f] [-D] [branch|commit-ish]
+#
+#   -f   force removal; if omitted and worktree is dirty, prompts first
+#   -D   delete the associated branch; if omitted and a branch exists, prompts
+#        (silently skipped for detached HEAD worktrees)
+cmd_rm() {
+  local force=0 del_branch=0 target=""
+  for arg in "$@"; do
+    case "$arg" in
+      -f|--force)         force=1 ;;
+      -D|--delete-branch) del_branch=1 ;;
+      *)                  target="$arg" ;;
+    esac
+  done
+
+  require_git
+  local main wt_path
+  main=$(get_main_worktree)
+
+  if [[ -z "$target" ]]; then
+    wt_path=$(get_current_worktree)
+    [[ -z "$wt_path" ]] \
+      && die "not inside a managed worktree — specify a name: wt rm <branch>"
+  else
+    wt_path=$(resolve_wt_path "$target") \
+      || die "worktree not found: $target"
+  fi
+
+  local was_here=0
+  local cur
+  cur=$(get_current_worktree)
+  [[ "$cur" == "$wt_path" ]] && was_here=1
+
+  # Capture branch BEFORE removing the worktree.
+  local branch
+  branch=$(get_worktree_branch "$wt_path")
+  local branch_note
+  if [[ -n "$branch" ]]; then
+    branch_note="${BOLD}${branch}${NC}"
+  else
+    branch_note="${DIM}detached HEAD${NC}"
+  fi
+  info "removing ${BOLD}$(basename "$wt_path")${NC}  (${branch_note})"
+
+  local git_args=()
+
+  # ── Dirty-worktree check ────────────────────────────────────────────────────
+  # If -f was not supplied and the worktree has uncommitted changes, prompt.
+  # When no tty is available (non-interactive), refuse and require explicit -f.
+  if [[ $force -eq 0 ]]; then
+    local dirty
+    dirty=$(git -C "$wt_path" status --porcelain 2>/dev/null || true)
+    if [[ -n "$dirty" ]]; then
+      local dirty_ans=""
+      {
+        printf '%b⚠%b  %s has uncommitted changes:\n' \
+          "$YELLOW" "$NC" "$(basename "$wt_path")"
+        printf '%s\n' "$dirty" | sed 's/^/   /'
+      } >/dev/tty 2>/dev/null || true
+      if ! tty_prompt dirty_ans "Remove anyway? [y/N] "; then
+        die "uncommitted changes present — use -f to force removal"
+      fi
+      if [[ "$dirty_ans" != "y" && "$dirty_ans" != "Y" ]]; then
+        info "aborted"; return 0
+      fi
+      git_args+=(--force)
+    fi
+  else
+    git_args+=(--force)
+  fi
+
+  # Change process CWD to $main before calling git when we are inside the
+  # worktree being removed (some git versions refuse otherwise).
+  if [[ $was_here -eq 1 ]]; then
+    ( cd "$main" && git worktree remove "${git_args[@]}" "$wt_path" )
+  else
+    git -C "$main" worktree remove "${git_args[@]}" "$wt_path"
+  fi
+  success "worktree removed"
+
+  # ── Branch handling ─────────────────────────────────────────────────────────
+  if [[ $del_branch -eq 1 ]]; then
+    delete_branch "$branch" "$main"
+  elif [[ -n "$branch" ]]; then
+    # -D not supplied but a branch exists — ask if we have a tty.
+    # Silently skip when non-interactive (safe default: keep branch).
+    local branch_ans=""
+    if tty_prompt branch_ans \
+        "$(printf 'Delete branch %b%s%b? [y/N] ' "$BOLD" "$branch" "$NC")"; then
+      if [[ "$branch_ans" == "y" || "$branch_ans" == "Y" ]]; then
+        delete_branch "$branch" "$main"
+      fi
+    fi
+  fi
+
+  if [[ $was_here -eq 1 ]]; then emit_cd "$main"; fi
+}
+
+# wt prune
+cmd_prune() {
+  require_git
+  info "pruning stale worktree references"
+  git worktree prune --verbose
+  success "done"
+}
+
+# wt nuke [-f] [-D]
+#
+#   -f   skip confirmation prompt
+#   -D   also delete the associated local branch for each worktree
+#        (detached HEAD worktrees are skipped silently)
+#
+# Without -D, only worktree directories are removed; branches are kept
+# unless the user answers y to the interactive branch-deletion prompt.
+cmd_nuke() {
+  local force=0 del_branch=0
+  for arg in "$@"; do
+    case "$arg" in
+      -f|--force)         force=1 ;;
+      -D|--delete-branch) del_branch=1 ;;
+    esac
+  done
+
+  require_git
+  local main
+  main=$(get_main_worktree)
+
+  # Collect all non-main worktrees + their branches before touching anything.
+  local -a paths=() branches=()
+  local _path="" _branch=""
+
+  while IFS= read -r line; do
+    case "$line" in
+      "worktree "*)  _path="${line#worktree }" ;;
+      "branch "*)    _branch="${line#branch refs/heads/}" ;;
+      "")
+        if [[ -n "$_path" && "$_path" != "$main" ]]; then
+          paths+=("$_path")
+          branches+=("${_branch:-}")
+        fi
+        _path=""; _branch=""
+        ;;
+    esac
+  done < <(git worktree list --porcelain; printf '\n')
+
+  if [[ ${#paths[@]} -eq 0 ]]; then
+    info "no linked worktrees to remove"
+    return 0
+  fi
+
+  # Collect real (non-detached) branches for the deletion prompt.
+  local -a real_branches=()
+  local _b
+  for _b in "${branches[@]}"; do
+    [[ -n "$_b" ]] && real_branches+=("$_b")
+  done
+
+  # ── Display what will be removed ──────────────────────────────────────────
+  printf '\n%bWorktrees to be nuked:%b\n' "$BOLD" "$NC"
+  local p
+  for p in "${paths[@]}"; do
+    printf '  %b✗%b %-40s  %b%s%b\n' \
+      "$RED" "$NC" "$(basename "$p")" "$DIM" "$p" "$NC"
+  done
+  printf '\n'
+
+  # ── Confirm removal ───────────────────────────────────────────────────────
+  if [[ $force -eq 0 ]]; then
+    local nuke_ans=""
+    if ! tty_prompt nuke_ans "$(printf '%bnuke all worktrees?%b [y/N] ' "$YELLOW" "$NC")"; then
+      die "non-interactive: use -f to skip confirmation"
+    fi
+    if [[ "$nuke_ans" != "y" && "$nuke_ans" != "Y" ]]; then
+      info "aborted"
+      return 0
+    fi
+  fi
+
+  # ── Branch deletion decision ──────────────────────────────────────────────
+  # If -D was not passed and there are real branches, prompt once for all.
+  if [[ $del_branch -eq 0 && ${#real_branches[@]} -gt 0 ]]; then
+    local nb=${#real_branches[@]}
+    local branch_ans=""
+    printf '%bBranches that would be deleted (%d):%b\n' "$YELLOW" "$nb" "$NC" >/dev/tty 2>/dev/null || true
+    for _b in "${real_branches[@]}"; do
+      printf '  %b%s%b\n' "$CYAN" "$_b" "$NC" >/dev/tty 2>/dev/null || true
+    done
+    if tty_prompt branch_ans \
+        "$(printf 'Delete %d %s? [y/N] ' "$nb" "$([ "$nb" -eq 1 ] && printf 'branch' || printf 'branches')")"; then
+      if [[ "$branch_ans" == "y" || "$branch_ans" == "Y" ]]; then
+        del_branch=1
+      fi
+    fi
+    # No tty or WT_NO_PROMPT=1 → silently keep branches (safe default).
+  fi
+
+  # ── Remove everything ─────────────────────────────────────────────────────
+  local cur was_in_wt=0
+  cur=$(get_current_worktree)
+  [[ -n "$cur" ]] && was_in_wt=1
+
+  local i
+  for i in "${!paths[@]}"; do
+    local wtp="${paths[$i]}"
+    local b="${branches[$i]:-}"
+    info "removing ${BLUE}$(basename "$wtp")${NC}"
+    ( cd "$main" && git worktree remove --force "$wtp" ) 2>/dev/null || true
+    if [[ $del_branch -eq 1 ]]; then delete_branch "$b" "$main"; fi
+  done
+
+  git -C "$main" worktree prune 2>/dev/null || true
+  success "all worktrees nuked"
+
+  if [[ $was_in_wt -eq 1 ]]; then emit_cd "$main"; fi
+}
+
+# wt ls
+# Two-pass: collect → compute column width → render.
+# ANSI alignment rule: pad plain text FIRST, then apply color codes.
+# [main] badge goes at END of line so SHA + branch columns stay aligned.
+cmd_ls() {
+  require_git
+
+  local cur_top main_top
+  cur_top=$(git rev-parse --show-toplevel 2>/dev/null || printf '')
+  main_top=$(get_main_worktree)
+
+  # ── Pass 1: collect ────────────────────────────────────────────────────
+  local -a all_paths=() all_heads=() all_branches=() all_is_main=()
+  local _path="" _head="" _branch="" _detached=0
+
+  while IFS= read -r line; do
+    case "$line" in
+      "worktree "*)
+        _path="${line#worktree }"; _head=""; _branch=""; _detached=0 ;;
+      "HEAD "*)    _head="${line#HEAD }" ;;
+      "branch "*)  _branch="${line#branch refs/heads/}" ;;
+      "detached")  _detached=1 ;;
+      "bare")      _branch="(bare)" ;;
+      "")
+        if [[ -n "$_path" ]]; then
+          all_paths+=("$_path")
+          all_heads+=("${_head:0:7}")
+          if [[ $_detached -eq 1 ]]; then
+            all_branches+=("HEAD (detached)")
+          else
+            all_branches+=("${_branch:-}")
+          fi
+          [[ "$_path" == "$main_top" ]] && all_is_main+=(1) || all_is_main+=(0)
+        fi
+        _path=""; _head=""; _branch=""; _detached=0
+        ;;
+    esac
+  done < <(git worktree list --porcelain; printf '\n')
+
+  # ── Pass 1b: name column width (plain chars only, cap at 50) ──────────
+  local max_label=4
+  local p lbl len
+  for p in "${all_paths[@]}"; do
+    lbl=$(basename "$p")
+    len=${#lbl}
+    [[ $len -gt 50 ]] && len=50
+    [[ $len -gt $max_label ]] && max_label=$len
+  done
+  local col_width=$(( max_label + 1 ))
+
+  # ── Pass 2: render ────────────────────────────────────────────────────
+  printf '\n%bWorktrees%b\n\n' "$BOLD" "$NC"
+
+  local i head branch is_cur is_main label display marker color branch_color badge padded
+  for i in "${!all_paths[@]}"; do
+    p="${all_paths[$i]}"
+    head="${all_heads[$i]}"
+    branch="${all_branches[$i]}"
+    label=$(basename "$p")
+    is_main="${all_is_main[$i]}"
+    [[ "$p" == "$cur_top" ]] && is_cur=1 || is_cur=0
+
+    display="$label"
+    [[ ${#label} -gt 50 ]] && display="${label:0:47}..."
+
+    local is_detached=0
+    [[ "$branch" == "HEAD (detached)" ]] && is_detached=1
+
+    if [[ $is_cur -eq 1 ]]; then
+      marker="${GREEN}▶${NC}"; color="$BOLD"
+      [[ $is_detached -eq 1 ]] && branch_color="$MAGENTA" || branch_color="$CYAN"
+    else
+      marker="${DIM}◦${NC}";  color="$DIM"
+      [[ $is_detached -eq 1 ]] && branch_color="$MAGENTA" || branch_color="$BLUE"
+    fi
+
+    # [main] badge AFTER branch — sha column stays aligned across all rows.
+    [[ $is_main -eq 1 ]] && badge="  ${DIM}[main]${NC}" || badge=""
+
+    # Pad plain text first, color second.
+    padded=$(printf "%-${col_width}s" "$display")
+
+    printf '  %b%b %b%s%b  %b%s%b  %b%s%b%s\n' \
+      "$marker" "$NC" \
+      "$color"  "$padded" "$NC" \
+      "$DIM"    "$head"   "$NC" \
+      "$branch_color" "${branch:-(detached)}" "$NC" \
+      "$badge"
+  done
+
+  printf '\n'
+}
+
+# wt mv [-D] <from> <to>
+#
+#   -D   also rename the associated local branch from <from> to <to>
+#        (silently skipped for detached HEAD worktrees)
+cmd_mv() {
+  local del_branch=0
+  local -a positional=()
+  for arg in "$@"; do
+    case "$arg" in
+      -D|--delete-branch) del_branch=1 ;;
+      *) positional+=("$arg") ;;
+    esac
+  done
+
+  local from="${positional[0]:-}" to="${positional[1]:-}"
+  [[ -z "$from" || -z "$to" ]] && die "usage: wt mv [-D] <from> <to>"
+
+  require_git
+  local main to_san to_path from_path prefix
+  main=$(get_main_worktree)
+
+  from_path=$(resolve_wt_path "$from") \
+    || die "source worktree not found: $from"
+
+  # Capture branch BEFORE the move (git mv doesn't change the branch).
+  local old_branch
+  old_branch=$(get_worktree_branch "$from_path")
+
+  # Derive destination prefix from the SOURCE dir so names stay consistent.
+  local from_base
+  from_base=$(basename "$from_path")
+  if [[ "$from_base" == *.* ]]; then
+    prefix="${from_base%%.*}"
+  else
+    prefix=$(repo_name)
+  fi
+
+  to_san=$(sanitize_branch "$to")
+  to_path="$main/$WT_DIR/${prefix}.${to_san}"
+
+  local was_here=0
+  local cur
+  cur=$(get_current_worktree)
+  [[ "$cur" == "$from_path" ]] && was_here=1
+
+  info "moving ${BLUE}$(basename "$from_path")${NC} → ${BLUE}$(basename "$to_path")${NC}"
+  git -C "$main" worktree move "$from_path" "$to_path"
+  success "worktree moved"
+
+  # Derive new branch name from the <to> argument (keep slash-style if
+  # the user passed a slash, otherwise use sanitized form as-is).
+  local new_branch="$to"
+
+  _do_rename_branch() {
+    if [[ -n "$old_branch" ]]; then
+      info "renaming branch ${CYAN}${old_branch}${NC} → ${CYAN}${new_branch}${NC}"
+      if git -C "$main" branch -m "$old_branch" "$new_branch" 2>/dev/null; then
+        success "branch renamed"
+      else
+        warn "could not rename branch ${CYAN}${old_branch}${NC} → ${CYAN}${new_branch}${NC}"
+      fi
+    else
+      warn "worktree is in detached HEAD state — no branch to rename"
+    fi
+  }
+
+  if [[ $del_branch -eq 1 ]]; then
+    _do_rename_branch
+  elif [[ -n "$old_branch" ]]; then
+    # -D not supplied but worktree was on a branch — ask if we have a tty.
+    # Silently skip when non-interactive (safe default: keep branch name).
+    local mv_branch_ans=""
+    if tty_prompt mv_branch_ans         "$(printf 'Rename branch %b%s%b → %b%s%b? [y/N] '             "$CYAN" "$old_branch" "$NC" "$CYAN" "$new_branch" "$NC")"; then
+      if [[ "$mv_branch_ans" == "y" || "$mv_branch_ans" == "Y" ]]; then
+        _do_rename_branch
+      fi
+    fi
+  fi
+  unset -f _do_rename_branch
+
+  if [[ $was_here -eq 1 ]]; then emit_cd "$to_path"; fi
+}
+
+# wt co <branch|commit-ish>
+cmd_co() {
+  local target="${1:-}"
+  [[ -z "$target" ]] && die "usage: wt co <branch|commit-ish>"
+
+  require_git
+  local wt_path
+  wt_path=$(resolve_wt_path "$target") \
+    || die "worktree not found: $target  (use 'wt add $target' to create it)"
+
+  emit_cd "$wt_path"
+}
+
+# wt help
+#
+# Style mirrors rendered man(1) with colour support:
+#   Section headers  BOLD                          (same as man's .SH)
+#   Command names    BOLD + Teal                   (same as \*(Ct...\*(Ce tags)
+#   Flags -f -D      Amber                         (same as \*(At...\*(Ae tags)
+#   Metavariables    Underline                     (same as man's italic / \fI)
+#   Commit-ish refs  Plum                          (same as \*(Pt...\*(Pe tags)
+#   Paths            Sky                           (same as .Pa)
+#   Comments #…      Dim                           (muted secondary text)
+cmd_help() {
+  local T="${BOLD}${CYAN}" A="$YELLOW" P="$MAGENTA" S="$BLUE"
+  local U="$UL" D="$DIM" B="$BOLD" N="$NC"
+
+  # _row <synopsis-with-escapes> <description>
+  # Strips ANSI to measure visible width, pads to a fixed column.
+  _row() {
+    local syn="$1" desc="$2"
+    local plain; plain=$(printf '%s' "$syn" | sed 's/\x1b\[[0-9;]*m//g')
+    local pad=$(( 26 - ${#plain} ))
+    [[ $pad -lt 1 ]] && pad=1
+    printf '  %s%*s%s\n' "$syn" "$pad" '' "$desc"
+  }
+
+  printf '\n'
+  printf '%bwt%b \xe2\x80\x94 Git Worktree Manager %bv%s%b\n\n' "$T" "$N" "$D" "$WT_VERSION" "$N"
+
+  # ── USAGE ──────────────────────────────────────────────────────────────────
+  printf '%bUSAGE%b\n' "$B" "$N"
+  printf '  %bwt%b %b<command>%b [%b-f%b] [%b-D%b] [%barguments%b]\n\n' \
+    "$T" "$N"  "$U" "$N"  "$A" "$N"  "$A" "$N"  "$U" "$N"
+
+  # ── COMMANDS ───────────────────────────────────────────────────────────────
+  printf '%bCOMMANDS%b\n' "$B" "$N"
+  _row "${T}init${N}"                                                "Print shell function for:  eval \"\$(wt init)\""
+  _row "${T}add${N} ${U}<branch|commit-ish>${N}"                     "Create a new linked worktree"
+  _row "${T}rm${N}  [${A}-f${N}] [${A}-D${N}] [${U}name${N}]"       "Remove current or named worktree"
+  _row "${T}co${N}  ${U}<n>${N}"                                   "Switch into an existing worktree"
+  _row "${T}ls${N}"                                                   "List all worktrees"
+  _row "${T}mv${N}  [${A}-D${N}] ${U}<from>${N} ${U}<to>${N}"        "Rename a worktree"
+  _row "${T}prune${N}"                                                "Prune stale worktree references"
+  _row "${T}nuke${N} [${A}-f${N}] [${A}-D${N}]"                     "Remove ALL linked worktrees"
+  printf '\n'
+
+  # ── FLAGS ──────────────────────────────────────────────────────────────────
+  printf '%bFLAGS%b\n' "$B" "$N"
+  printf '  %b-f%b, %b--force%b\n' "$A" "$N" "$A" "$N"
+  printf '        Allow removal of dirty worktrees %b(rm, nuke)%b.\n' "$D" "$N"
+  printf '        Skipped when no uncommitted changes; %brm%b prompts if no flag.\n\n' "$T" "$N"
+  printf '  %b-D%b, %b--delete-branch%b\n' "$A" "$N" "$A" "$N"
+  printf '        %brm%b:   delete the associated branch after removal.\n' "$T" "$N"
+  printf '              Prompts if omitted and a branch exists.\n'
+  printf '        %bmv%b:   rename the branch to match the new worktree name.\n' "$T" "$N"
+  printf '        %bnuke%b: delete all branches for the removed worktrees.\n\n' "$T" "$N"
+
+  # ── ADD RESOLUTION ─────────────────────────────────────────────────────────
+  printf '%bADD RESOLUTION ORDER%b\n' "$B" "$N"
+  printf '  1. Local branch exists         \xe2\x86\x92 checked out on that branch\n'
+  printf '  2. Valid %bcommit-ish%b (tag/SHA)  \xe2\x86\x92 detached HEAD\n' "$P" "$N"
+  printf '  3. Unknown name                \xe2\x86\x92 new local branch created\n\n'
+
+  # ── WORKTREE LOCATION ──────────────────────────────────────────────────────
+  printf '%bWORKTREE LOCATION%b\n' "$B" "$N"
+  printf '  %b.worktree/<repo>.<sanitized-ref>%b\n\n' "$D" "$N"
+  printf '  %bfeature/login%b  \xe2\x86\x92  %bmyrepo.feature-login%b\n'                    "$T" "$N" "$S" "$N"
+  printf '  %bv3.2.2%b         \xe2\x86\x92  %bmyrepo.v3.2.2%b    %b(tag, detached)%b\n'   "$P" "$N" "$S" "$N" "$D" "$N"
+  printf '  %b388d460%b        \xe2\x86\x92  %bmyrepo.388d460%b   %b(SHA, detached)%b\n\n'  "$P" "$N" "$S" "$N" "$D" "$N"
+
+  # ── SETUP ──────────────────────────────────────────────────────────────────
+  printf '%bSETUP%b\n' "$B" "$N"
+  printf '  Add to %b~/.bashrc%b or %b~/.zshrc%b:\n' "$S" "$N" "$S" "$N"
+  printf '    eval "$(wt init)"\n\n'
+
+  # ── EXAMPLES ───────────────────────────────────────────────────────────────
+  printf '%bEXAMPLES%b\n' "$B" "$N"
+  printf '  %bwt add feature/login%b   %b# branch \xe2\x86\x92 checked out on branch%b\n' "$T" "$N" "$D" "$N"
+  printf '  %bwt add v3.2.2%b          %b# tag    \xe2\x86\x92 detached HEAD%b\n'          "$P" "$N" "$D" "$N"
+  printf '  %bwt add 388d460%b         %b# SHA    \xe2\x86\x92 detached HEAD%b\n'          "$P" "$N" "$D" "$N"
+  printf '  %bwt co  feature/login%b   %b# cd into existing worktree%b\n'       "$T" "$N" "$D" "$N"
+  printf '  %bwt ls%b                  %b# list all worktrees%b\n'              "$T" "$N" "$D" "$N"
+  printf '  %bwt rm%b                  %b# remove current; prompts for branch%b\n' "$T" "$N" "$D" "$N"
+  printf '  %bwt rm %b-D%b feature/x     %b# remove worktree + delete branch%b\n' "$T" "$A" "$N" "$D" "$N"
+  printf '  %bwt mv %b-D%b old new       %b# rename worktree + rename branch%b\n'  "$T" "$A" "$N" "$D" "$N"
+  printf '  %bwt nuke%b                %b# remove all worktrees, keep branches%b\n' "$T" "$N" "$D" "$N"
+  printf '  %bwt nuke %b-D%b             %b# remove all worktrees + delete branches%b\n' "$T" "$A" "$N" "$D" "$N"
+  printf '  %bwt nuke %b-f -D%b          %b# same, skip confirmation%b\n'          "$T" "$A" "$N" "$D" "$N"
+  printf '\n'
+}
+
+# ── Entry point ───────────────────────────────────────────────────────────────
+
+main() {
+  local cmd="${1:-help}"
+  shift || true
+
+  case "$cmd" in
+    init)                  cmd_init              ;;
+    add)                   cmd_add      "$@"     ;;
+    rm|remove)             cmd_rm       "$@"     ;;
+    co|checkout)           cmd_co       "$@"     ;;
+    ls|list)               cmd_ls                ;;
+    mv|move)               cmd_mv       "$@"     ;;
+    prune)                 cmd_prune             ;;
+    nuke)                  cmd_nuke     "$@"     ;;
+    help|-h|--help)        cmd_help              ;;
+    version|-V|--version)  printf 'wt %s\n' "$WT_VERSION" ;;
+    *) die "unknown command: '$cmd'  (run 'wt help')" ;;
+  esac
+}
+
+main "$@"

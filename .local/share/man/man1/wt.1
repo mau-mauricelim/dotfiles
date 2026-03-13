@@ -1,0 +1,501 @@
+.\" wt(1) — Git Worktree Manager
+.\" vim: set ft=groff:
+.TH WT 1 "2025" "wt 1.0.0" "User Commands"
+.\"
+.\" ── Colour palette ────────────────────────────────────────────────────────
+.if \n(.g \{\
+.  defcolor teal   rgb #00AFAF
+.  defcolor amber  rgb #D7AF00
+.  defcolor plum   rgb #AF87AF
+.  defcolor sky    rgb #5F87AF
+.  defcolor lime   rgb #5FAF5F
+.  defcolor dim    rgb #878787
+.  defcolor brick  rgb #AF5F5F
+.\}
+.\"
+.\" Inline colour macros
+.de Cm
+.  ie \n(.g \m[teal]\fB\\$*\fP\m[]
+.  el \fB\\$*\fP
+..
+.de Fl
+.  ie \n(.g \m[amber]\fB\\$*\fP\m[]
+.  el \fB\\$*\fP
+..
+.de Ci
+.  ie \n(.g \m[plum]\fI\\$*\fP\m[]
+.  el \fI\\$*\fP
+..
+.de Pa
+.  ie \n(.g \m[sky]\\$*\m[]
+.  el \fI\\$*\fP
+..
+.de Di
+.  ie \n(.g \m[dim]\\$*\m[]
+.  el \\$*
+..
+.\"
+.\" Tag-line string escapes (used directly on .TP tag lines)
+.ds Ct \m[teal]\fB
+.ds Ce \fP\m[]
+.ds At \m[amber]\fB
+.ds Ae \fP\m[]
+.ds Pt \m[plum]\fI
+.ds Pe \fP\m[]
+.ds Dt \m[dim]
+.ds De \m[]
+.\"
+.\" ─────────────────────────────────────────────────────────────────────────
+.SH NAME
+\m[teal]\fBwt\fP\m[] \(em minimal Git worktree manager with auto-cd support
+.\"
+.SH SYNOPSIS
+.B wt
+.I <command>
+.RI [ \-f ]
+.RI [ \-D ]
+.RI [ arguments ]
+.\"
+.SH DESCRIPTION
+.B wt
+is a thin wrapper around
+.BR git-worktree (1)
+that enforces a consistent directory layout, sanitizes branch names,
+auto-registers an ignore rule, and \(em when the shell wrapper is
+installed \(em automatically changes the current directory after
+worktree operations.
+.PP
+All linked worktrees are created under:
+.RS
+.Pa <repo-root>/.worktree/<repo-name>.<sanitized-ref>
+.RE
+.PP
+.B wt
+works from any directory inside the repository \(em the main root,
+inside a linked worktree, or inside the
+.Pa .worktree/
+container directory itself.
+.\"
+.SH SHELL SETUP
+.B wt
+cannot change the directory of its parent shell process on its own.
+Install the shell wrapper by adding the following to
+.Pa ~/.bashrc
+or
+.Pa ~/.zshrc :
+.PP
+.RS
+.EX
+eval "$(wt init)"
+.EE
+.RE
+.PP
+This defines a shell function that invokes the binary
+.I once ,
+strips the internal cd directive from stdout, and calls
+.BR cd (1)
+in the current shell.  Compatible with both
+.BR bash (1)
+and
+.BR zsh (1).
+.\"
+.SH COMMANDS
+.\"
+.TP
+\*(Ctinit\*(Ce
+Print the shell function definition to standard output.
+Intended for:
+.RS
+.EX
+eval "$(wt init)"
+.EE
+.RE
+.\"
+.TP
+\*(Ctadd\*(Ce \*(Pt<branch|commit-ish>\*(Pe
+Create a new linked worktree and cd into it.
+.PP
+.RS
+Resolution order:
+.RS
+.IP "1." 4
+.B Local branch exists
+\(em checked out on that branch.
+.IP "2." 4
+.B Valid \c
+.Ci commit-ish
+(tag, full SHA, short SHA,
+.Ci HEAD~N ,
+remote ref, \(el)
+\(em created with
+.BR \-\-detach .
+.IP "3." 4
+.B Unknown name
+\(em a new local branch is created.
+.RE
+.PP
+Running
+.Cm add
+on an already-existing worktree is idempotent: it cds into the
+existing path without error.
+.RE
+.\"
+.TP
+\*(Ctrm\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae] \*(Dt[\*(De\*(Pt<n>\*(Pe\*(Dt]\*(De
+Remove a linked worktree.
+Without
+.Ci <n> ,
+removes the worktree the shell is currently inside and returns to the
+main worktree root.
+With
+.Ci <n> ,
+removes that specific worktree.
+Resolution scans
+.Pa .worktree/
+on disk, so it is immune to remote-URL or directory renames.
+.PP
+.RS
+.B Uncommitted changes.
+If the worktree has uncommitted changes and
+.Fl \-f
+is not supplied,
+.B wt
+prints the changed files and prompts:
+.EX
+Remove anyway? [y/N]
+.EE
+Answering
+.B n
+or pressing Enter aborts without touching anything.
+Answering
+.B y
+proceeds with force removal.
+When no controlling terminal is available (non-interactive / CI),
+.B wt
+refuses and exits 1; pass
+.Fl \-f
+explicitly to skip the check.
+.PP
+.B Branch deletion.
+After the worktree is removed,
+if
+.Fl \-D
+is not supplied and the worktree was on a local branch,
+.B wt
+prompts:
+.EX
+Delete branch <branch>? [y/N]
+.EE
+Answering
+.B y
+deletes the branch.
+Any other answer \(em or no controlling terminal \(em leaves the
+branch untouched (safe default).
+.PP
+.Fl \-D
+skips the prompt and always deletes the branch.
+Silently skipped for detached-HEAD worktrees (no branch to delete).
+.RE
+.\"
+.TP
+\*(Ctco\*(Ce \*(Pt<n>\*(Pe
+Change directory into an existing worktree.
+The worktree must already exist; use
+.Cm add
+first.
+.\"
+.TP
+\*(Ctls\*(Ce
+Display all worktrees.
+The current worktree is marked with \(bu and highlighted.
+Each row shows the directory name, abbreviated HEAD SHA (7 chars),
+and branch name \(em or
+.Ci "HEAD (detached)"
+for detached-HEAD worktrees.
+A
+.B [main]
+badge is appended at the end of the main worktree row, keeping
+SHA and branch columns aligned across all rows.
+.\"
+.TP
+\*(Ctmv\*(Ce [\*(At\-D\*(Ae] \*(Pt<from>\*(Pe \*(Pt<to>\*(Pe
+Move (rename) the worktree identified by
+.Ci <from>
+to the path derived from
+.Ci <to> .
+The destination uses the same name prefix as the source.
+If the shell is inside the source worktree, it is redirected to
+the new path automatically.
+.PP
+.RS
+.Fl \-D
+renames the associated local branch from
+.Ci <from>
+to
+.Ci <to>
+using
+.BR "git branch \-m" .
+Warns and exits 0 for detached-HEAD worktrees.
+.PP
+.B Branch rename.
+After the move, if
+.Fl \-D
+is not supplied and the worktree was on a local branch,
+.B wt
+prompts:
+.EX
+Rename branch <from> \(-> <to>? [y/N]
+.EE
+Answering
+.B y
+renames the branch.
+Any other answer \(em or no controlling terminal \(em leaves the
+branch name unchanged (safe default).
+Detached-HEAD worktrees are always silently skipped.
+.RE
+.\"
+.TP
+\*(Ctprune\*(Ce
+Run
+.B git worktree prune
+to remove stale metadata for worktrees no longer on disk.
+.\"
+.TP
+\*(Ctnuke\*(Ce [\*(At\-f\*(Ae] [\*(At\-D\*(Ae]
+Remove
+.I all
+linked worktrees.
+Prompts for confirmation unless
+.Fl \-f
+is supplied.
+If the shell is inside any removed worktree it is returned to the
+main root.
+.PP
+.RS
+.B Removal confirmation.
+Without
+.Fl \-f ,
+.B wt
+shows the worktrees to be removed and prompts:
+.EX
+nuke all worktrees? [y/N]
+.EE
+.PP
+.B Branch deletion.
+After the removal confirmation, if
+.Fl \-D
+is not set and the worktrees include real branches,
+.B wt
+lists those branches and prompts once:
+.EX
+Delete N branches? [y/N]
+.EE
+Answering
+.B y
+deletes all listed branches.
+Any other answer \(em or no controlling terminal \(em leaves branches
+untouched (safe default).
+.PP
+.Fl \-D
+skips the branch prompt and always deletes.
+Detached-HEAD worktrees are silently skipped.
+.RE
+.\"
+.SH FLAGS
+.TP
+\*(At\-f\*(Ae, \*(At\-\-force\*(Ae
+For
+.Cm rm :
+skip the uncommitted-changes prompt and force removal.
+For
+.Cm nuke :
+skip the confirmation prompt.
+.TP
+\*(At\-D\*(Ae, \*(At\-\-delete-branch\*(Ae
+Additionally manage the associated branch:
+.RS
+.TP
+.Cm rm
+Delete the branch after removing the worktree.
+Skips the interactive branch-deletion prompt.
+.TP
+.Cm mv
+Rename the branch to match the new worktree name.
+Skips the interactive branch-rename prompt.
+.TP
+.Cm nuke
+Delete every branch belonging to a removed worktree.
+Skips the interactive branch-deletion prompt.
+.RE
+.\"
+.SH BRANCH SANITIZATION
+Both branch names and commit-ish references are sanitized before
+being used as directory suffixes:
+.RS
+.IP \(bu 2
+.B /
+replaced with
+.B \-
+.IP \(bu 2
+Any non-alphanumeric, non-dot, non-hyphen, non-underscore character
+replaced with
+.B \-
+.IP \(bu 2
+Leading and trailing hyphens stripped
+.IP \(bu 2
+Consecutive hyphens collapsed to one
+.RE
+.PP
+.TS
+l l l .
+\m[teal]feature/login\m[]	\(->\~\~\m[sky]myrepo.feature-login\m[]
+\m[teal]fix/bug@1.0\m[]	\(->\~\~\m[sky]myrepo.fix-bug-1.0\m[]
+\m[plum]v3.2.2\m[]	\(->\~\~\m[sky]myrepo.v3.2.2\m[]
+\m[plum]388d460\m[]	\(->\~\~\m[sky]myrepo.388d460\m[]
+\m[plum]release/v2.0\m[]	\(->\~\~\m[sky]myrepo.release-v2.0\m[]
+.TE
+.\"
+.SH WORKTREE RESOLUTION
+For
+.Cm rm ,
+.Cm co ,
+and
+.Cm mv ,
+.B wt
+scans
+.Pa .worktree/
+on disk and matches by sanitized suffix.
+This makes resolution correct even after the repository directory
+is renamed, moved, or the origin remote URL changes.
+.\"
+.SH COLOUR PALETTE
+.TS
+lB l .
+\m[teal]Teal\m[]	command names, info arrows (\(->), active branch in \fBls\fP
+\m[amber]Amber\m[]	flags (\fB\-f\fP, \fB\-D\fP) and warnings (\[u26A0])
+\m[plum]Plum\m[]	commit-ish refs, tags, SHAs, detached HEAD state
+\m[sky]Sky\m[]	file paths, directory names, non-active branch names
+\m[lime]Lime\m[]	success (\[u2713]), active worktree marker (\[u25B6])
+\m[dim]Dim\m[]	secondary / muted text (SHAs in \fBls\fP, hints)
+\m[brick]Brick\m[]	errors
+.TE
+.PP
+Colours are suppressed when
+.B NO_COLOR
+is set to any non-empty value
+.RI ( https://no-color.org )
+or when
+.B TERM
+is
+.B dumb
+or unset.
+.\"
+.SH ENVIRONMENT
+.TP
+.B NO_COLOR
+Disable all ANSI colour output when set to any non-empty value.
+.TP
+.B TERM
+Used to detect whether colour output is appropriate.
+Colours are disabled when this is
+.B dumb
+or unset.
+.TP
+.B WT_NO_PROMPT
+When set to
+.B 1 ,
+all interactive prompts are suppressed without reading from the terminal.
+The safe default is taken for each prompt:
+the uncommitted-changes check aborts with exit 1 (same as no controlling
+terminal), and the branch-deletion prompt is skipped (branch kept).
+Intended for use in CI pipelines and automated scripts.
+Pass
+.Fl \-f
+and/or
+.Fl \-D
+explicitly to control behaviour in non-interactive contexts.
+.\"
+.SH FILES
+.TP
+.Pa <repo-root>/.worktree/
+Directory that holds all linked worktrees managed by
+.BR wt .
+.TP
+.Pa <repo-root>/.git/info/exclude
+Receives the entry
+.B /.worktree
+on first use (idempotent).
+.\"
+.SH EXIT STATUS
+.TP
+.B 0
+Success.
+.TP
+.B 1
+Usage error, missing worktree, aborted prompt, or underlying
+.BR git (1)
+failure.
+A diagnostic message is written to standard error.
+.\"
+.SH EXAMPLES
+.SS One-time setup
+.EX
+echo 'eval "$(wt init)"' >> ~/.zshrc
+source ~/.zshrc
+.EE
+.SS Branch worktrees
+.EX
+wt add feature/payments    # new branch -> cd into worktree
+wt add fix/typo            # another branch
+wt ls                      # list all worktrees
+wt co feature/payments     # cd into existing worktree
+wt rm                      # remove current, prompt for branch, cd to main
+wt rm -D feature/old       # remove + delete branch (no prompt)
+.EE
+.SS Detached-HEAD worktrees (tag / SHA)
+.EX
+wt add v3.2.2    # tag -> .worktree/myrepo.v3.2.2  (detached)
+wt add 388d460   # SHA -> .worktree/myrepo.388d460 (detached)
+wt rm v3.2.2     # remove (no branch, no prompt)
+.EE
+.SS Dirty worktree
+.EX
+wt rm feature/wip       # shows changed files, prompts to confirm
+wt rm -f feature/wip    # force-remove, no prompt
+.EE
+.SS Rename
+.EX
+wt mv feature/old feature/new       # rename dir only, prompts for branch rename
+wt mv -D feature/old feature/new    # rename dir + rename branch (no prompt)
+.EE
+.SS Tear down
+.EX
+wt nuke          # confirm, then prompt for branch deletion
+wt nuke -D       # confirm, remove all + delete branches (no branch prompt)
+wt nuke -f -D    # skip all prompts, remove all + delete branches
+.EE
+.SS Non-interactive / CI
+.EX
+# Use explicit flags to avoid prompts; or set WT_NO_PROMPT=1.
+wt rm -f -D feature/done             # force-remove + delete branch
+WT_NO_PROMPT=1 wt rm feature/done    # same safe-default behaviour
+.EE
+.\"
+.SH TESTING
+A test suite ships alongside the binary:
+.EX
+bash wt_test.sh    # uses ./wt in the same directory
+bash wt_test.sh /path/to/wt
+WT_BIN=$HOME/.local/bin/wt bash wt_test.sh
+WT_BIN=/usr/local/bin/wt bash wt_test.sh
+.EE
+The suite is fully automated: it sets
+.B WT_NO_PROMPT=1
+internally so no test ever blocks on a terminal prompt.
+.\"
+.SH SEE ALSO
+.BR git-worktree (1),
+.BR git (1)
+.\"
+.SH AUTHOR
+Written by Claude Sonnet 4.6.
