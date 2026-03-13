@@ -366,7 +366,8 @@ cmd_prune() {
 #   -D   also delete the associated local branch for each worktree
 #        (detached HEAD worktrees are skipped silently)
 #
-# Without -D only the worktree directories are removed; branches are kept.
+# Without -D, only worktree directories are removed; branches are kept
+# unless the user answers y to the interactive branch-deletion prompt.
 cmd_nuke() {
   local force=0 del_branch=0
   for arg in "$@"; do
@@ -403,29 +404,53 @@ cmd_nuke() {
     return 0
   fi
 
+  # Collect real (non-detached) branches for the deletion prompt.
+  local -a real_branches=()
+  local _b
+  for _b in "${branches[@]}"; do
+    [[ -n "$_b" ]] && real_branches+=("$_b")
+  done
+
+  # ── Display what will be removed ──────────────────────────────────────────
   printf '\n%bWorktrees to be nuked:%b\n' "$BOLD" "$NC"
   local p
   for p in "${paths[@]}"; do
     printf '  %b✗%b %-40s  %b%s%b\n' \
       "$RED" "$NC" "$(basename "$p")" "$DIM" "$p" "$NC"
   done
-  [[ $del_branch -eq 1 ]] \
-    && printf '  %b(branches will also be deleted)%b\n' "$YELLOW" "$NC"
   printf '\n'
 
+  # ── Confirm removal ───────────────────────────────────────────────────────
   if [[ $force -eq 0 ]]; then
-    printf '%bnuke all worktrees%b%s%b [y/N] ' \
-      "$YELLOW" "$NC" \
-      "$( [[ $del_branch -eq 1 ]] && printf ' and their branches?' || printf '?' )" \
-      "$NC" >/dev/tty
-    local confirm
-    read -r confirm </dev/tty
-    if [[ "$confirm" != "y" && "$confirm" != "Y" ]]; then
+    local nuke_ans=""
+    if ! tty_prompt nuke_ans "$(printf '%bnuke all worktrees?%b [y/N] ' "$YELLOW" "$NC")"; then
+      die "non-interactive: use -f to skip confirmation"
+    fi
+    if [[ "$nuke_ans" != "y" && "$nuke_ans" != "Y" ]]; then
       info "aborted"
       return 0
     fi
   fi
 
+  # ── Branch deletion decision ──────────────────────────────────────────────
+  # If -D was not passed and there are real branches, prompt once for all.
+  if [[ $del_branch -eq 0 && ${#real_branches[@]} -gt 0 ]]; then
+    local nb=${#real_branches[@]}
+    local branch_ans=""
+    printf '%bBranches that would be deleted (%d):%b\n' "$YELLOW" "$nb" "$NC" >/dev/tty 2>/dev/null || true
+    for _b in "${real_branches[@]}"; do
+      printf '  %b%s%b\n' "$CYAN" "$_b" "$NC" >/dev/tty 2>/dev/null || true
+    done
+    if tty_prompt branch_ans \
+        "$(printf 'Delete %d %s? [y/N] ' "$nb" "$([ "$nb" -eq 1 ] && printf 'branch' || printf 'branches')")"; then
+      if [[ "$branch_ans" == "y" || "$branch_ans" == "Y" ]]; then
+        del_branch=1
+      fi
+    fi
+    # No tty or WT_NO_PROMPT=1 → silently keep branches (safe default).
+  fi
+
+  # ── Remove everything ─────────────────────────────────────────────────────
   local cur was_in_wt=0
   cur=$(get_current_worktree)
   [[ -n "$cur" ]] && was_in_wt=1
@@ -587,11 +612,12 @@ cmd_mv() {
   git -C "$main" worktree move "$from_path" "$to_path"
   success "worktree moved"
 
-  if [[ $del_branch -eq 1 ]]; then
+  # Derive new branch name from the <to> argument (keep slash-style if
+  # the user passed a slash, otherwise use sanitized form as-is).
+  local new_branch="$to"
+
+  _do_rename_branch() {
     if [[ -n "$old_branch" ]]; then
-      # Derive new branch name from the <to> argument (keep slash-style if
-      # the user passed a slash, otherwise use sanitized form as-is).
-      local new_branch="$to"
       info "renaming branch ${CYAN}${old_branch}${NC} → ${CYAN}${new_branch}${NC}"
       if git -C "$main" branch -m "$old_branch" "$new_branch" 2>/dev/null; then
         success "branch renamed"
@@ -601,7 +627,21 @@ cmd_mv() {
     else
       warn "worktree is in detached HEAD state — no branch to rename"
     fi
+  }
+
+  if [[ $del_branch -eq 1 ]]; then
+    _do_rename_branch
+  elif [[ -n "$old_branch" ]]; then
+    # -D not supplied but worktree was on a branch — ask if we have a tty.
+    # Silently skip when non-interactive (safe default: keep branch name).
+    local mv_branch_ans=""
+    if tty_prompt mv_branch_ans         "$(printf 'Rename branch %b%s%b → %b%s%b? [y/N] '             "$CYAN" "$old_branch" "$NC" "$CYAN" "$new_branch" "$NC")"; then
+      if [[ "$mv_branch_ans" == "y" || "$mv_branch_ans" == "Y" ]]; then
+        _do_rename_branch
+      fi
+    fi
   fi
+  unset -f _do_rename_branch
 
   if [[ $was_here -eq 1 ]]; then emit_cd "$to_path"; fi
 }

@@ -15,6 +15,15 @@ A minimal, opinionated CLI wrapper around `git worktree` with:
 
 ---
 
+## Files
+
+- [wt](../../bin/wt)
+- [wt.md](./wt.md)
+- [wt.1](../man/man1/wt.1)
+- [wt_test.sh](../test/wt_test.sh)
+
+---
+
 ## Installation
 
 ### User-only (recommended)
@@ -191,8 +200,8 @@ List all worktrees. The active one is highlighted with `▶`. SHA and branch col
 Move/rename a worktree. The destination uses the same prefix as the source.
 
 ```sh
-wt mv feature/old feature/new        # rename dir only, prompts for branch rename
-wt mv -D feature/old feature/new     # rename dir + rename branch (no prompt)
+wt mv feature/old feature/new       # rename dir only, prompts for branch rename
+wt mv -D feature/old feature/new    # rename dir + rename branch (no prompt)
 ```
 
 After the move, if the worktree was on a local branch and `-D` was not passed, `wt` asks:
@@ -226,10 +235,10 @@ wt prune
 Destroy **all** linked worktrees.
 
 ```sh
-wt nuke           # confirm prompt, then branch prompt, then remove all
-wt nuke -D        # confirm prompt, then remove all + delete branches (no branch prompt)
-wt nuke -f        # skip confirm, then branch prompt, then remove all
-wt nuke -f -D     # skip all prompts, remove all + delete branches
+wt nuke          # confirm prompt, then branch prompt, then remove all
+wt nuke -D       # confirm prompt, then remove all + delete branches (no branch prompt)
+wt nuke -f       # skip confirm, then branch prompt, then remove all
+wt nuke -f -D    # skip all prompts, remove all + delete branches
 ```
 
 Without `-D`, only the worktree directories are removed by default. After confirming removal, `wt` lists the branches and asks once:

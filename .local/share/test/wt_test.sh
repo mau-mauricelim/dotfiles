@@ -547,6 +547,31 @@ test_mv_D_detached_warns_not_errors() {
   assert_exit_ok "mv -D on detached HEAD exits 0" mv -D v7.0.0 v7-renamed
 }
 
+
+test_mv_no_tty_keeps_branch() {
+  # Without -D and no controlling terminal (WT_NO_PROMPT=1), the branch must be
+  # kept silently — same safe-default as `wt rm` branch prompt.
+  WT add feature/mv-no-tty-src >/dev/null
+  WT mv feature/mv-no-tty-src feature/mv-no-tty-dst >/dev/null
+  local old_b; old_b=$(git branch --list "feature/mv-no-tty-src")
+  [[ -n "$old_b" ]] || { printf '    FAIL  branch was renamed without -D under no-tty
+'; return 1; }
+}
+
+test_mv_no_tty_detached_exits_ok() {
+  # Detached HEAD: no branch to prompt about; must exit 0 silently.
+  git tag v9.0.0-mv
+  WT add v9.0.0-mv >/dev/null
+  assert_exit_ok "mv detached HEAD exits 0 (no branch)" mv v9.0.0-mv v9-mv-renamed
+}
+
+test_mv_no_tty_branch_prompt_output() {
+  # Without -D and no tty, mv still prints the success message (not silent).
+  WT add feature/mv-output-src >/dev/null
+  local out; out=$(WT mv feature/mv-output-src feature/mv-output-dst)
+  assert_contains "mv emits success message" "$out" "worktree moved"
+}
+
 # ── wt prune ─────────────────────────────────────────────────────────────────
 
 test_prune_exits_ok() {
@@ -605,6 +630,41 @@ test_nuke_from_within_emits_cd() {
   local cd_target
   cd_target=$(cd "$wt_path" && WT_cd nuke -f)
   assert_eq "nuke from worktree cds back to main" "$cd_target" "$_REPO"
+}
+
+
+test_nuke_no_tty_keeps_branches_no_D() {
+  # Without -D and no tty (WT_NO_PROMPT=1), branch prompt is skipped and
+  # all branches are kept — the safe default.
+  WT add feature/nuke-no-tty-a >/dev/null
+  WT add feature/nuke-no-tty-b >/dev/null
+  WT nuke -f >/dev/null
+  local ba; ba=$(git branch --list "feature/nuke-no-tty-a")
+  local bb; bb=$(git branch --list "feature/nuke-no-tty-b")
+  [[ -n "$ba" ]] || { printf '    FAIL  branch-a deleted without -D under no-tty
+'; return 1; }
+  [[ -n "$bb" ]] || { printf '    FAIL  branch-b deleted without -D under no-tty
+'; return 1; }
+}
+
+test_nuke_no_tty_confirm_requires_f() {
+  # With WT_NO_PROMPT=1 and no -f, the confirmation prompt is skipped and
+  # nuke aborts (safe: tty_prompt returns 1 → die).
+  WT add feature/nuke-no-confirm >/dev/null
+  assert_exit_fail "nuke without -f under no-tty exits non-zero" nuke
+  # Worktree should still be there.
+  local repo_name; repo_name=$(basename "$_REPO")
+  assert_dir_exists "worktree not removed when aborted"     "$_REPO/.worktree/${repo_name}.feature-nuke-no-confirm"
+  # Cleanup.
+  WT nuke -f >/dev/null
+}
+
+test_nuke_detached_only_no_branch_prompt() {
+  # When all worktrees are detached HEAD, real_branches is empty so no
+  # branch prompt is attempted; nuke should still exit 0.
+  git tag v9.1.0-nuke
+  WT add v9.1.0-nuke >/dev/null
+  assert_exit_ok "nuke with detached-only exits 0" nuke -f
 }
 
 # ── wt init ───────────────────────────────────────────────────────────────────
@@ -837,6 +897,9 @@ run_test "mv nonexistent source fails"                test_mv_nonexistent_fails
 run_test "mv -D renames branch"                       test_mv_D_renames_branch
 run_test "mv without -D keeps old branch"             test_mv_without_D_keeps_old_branch
 run_test "mv -D on detached HEAD exits 0"             test_mv_D_detached_warns_not_errors
+run_test "mv no-tty keeps branch (safe default)"      test_mv_no_tty_keeps_branch
+run_test "mv detached HEAD exits 0 (no branch)"       test_mv_no_tty_detached_exits_ok
+run_test "mv without -D still emits success message"  test_mv_no_tty_branch_prompt_output
 
 section "wt prune"
 run_test "prune exits 0"                              test_prune_exits_ok
@@ -849,6 +912,9 @@ run_test "nuke -f -D deletes branches"                test_nuke_D_deletes_branch
 run_test "nuke -f -D with detached HEAD exits 0"      test_nuke_D_detached_no_error
 run_test "nuke with nothing to remove"                test_nuke_no_worktrees_message
 run_test "nuke from worktree cds to main"             test_nuke_from_within_emits_cd
+run_test "nuke no-tty keeps branches without -D"      test_nuke_no_tty_keeps_branches_no_D
+run_test "nuke no-tty without -f aborts (safe)"       test_nuke_no_tty_confirm_requires_f
+run_test "nuke detached-only exits 0 (no branch prompt)" test_nuke_detached_only_no_branch_prompt
 
 section "wt init"
 run_test "init outputs shell function"                test_init_outputs_function

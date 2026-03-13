@@ -236,6 +236,22 @@ to
 using
 .BR "git branch \-m" .
 Warns and exits 0 for detached-HEAD worktrees.
+.PP
+.B Branch rename.
+After the move, if
+.Fl \-D
+is not supplied and the worktree was on a local branch,
+.B wt
+prompts:
+.EX
+Rename branch <from> \(-> <to>? [y/N]
+.EE
+Answering
+.B y
+renames the branch.
+Any other answer \(em or no controlling terminal \(em leaves the
+branch name unchanged (safe default).
+Detached-HEAD worktrees are always silently skipped.
 .RE
 .\"
 .TP
@@ -256,13 +272,32 @@ If the shell is inside any removed worktree it is returned to the
 main root.
 .PP
 .RS
+.B Removal confirmation.
 Without
-.Fl \-D ,
-only the worktree directories are removed; branches are
-.B kept .
+.Fl \-f ,
+.B wt
+shows the worktrees to be removed and prompts:
+.EX
+nuke all worktrees? [y/N]
+.EE
+.PP
+.B Branch deletion.
+After the removal confirmation, if
+.Fl \-D
+is not set and the worktrees include real branches,
+.B wt
+lists those branches and prompts once:
+.EX
+Delete N branches? [y/N]
+.EE
+Answering
+.B y
+deletes all listed branches.
+Any other answer \(em or no controlling terminal \(em leaves branches
+untouched (safe default).
 .PP
 .Fl \-D
-additionally deletes the associated local branch for each worktree.
+skips the branch prompt and always deletes.
 Detached-HEAD worktrees are silently skipped.
 .RE
 .\"
@@ -286,9 +321,11 @@ Skips the interactive branch-deletion prompt.
 .TP
 .Cm mv
 Rename the branch to match the new worktree name.
+Skips the interactive branch-rename prompt.
 .TP
 .Cm nuke
 Delete every branch belonging to a removed worktree.
+Skips the interactive branch-deletion prompt.
 .RE
 .\"
 .SH BRANCH SANITIZATION
@@ -408,40 +445,40 @@ source ~/.zshrc
 .EE
 .SS Branch worktrees
 .EX
-wt add feature/payments   # new branch -> cd into worktree
-wt add fix/typo           # another branch
-wt ls                     # list all worktrees
-wt co feature/payments    # cd into existing worktree
-wt rm                     # remove current, prompt for branch, cd to main
-wt rm -D feature/old      # remove + delete branch (no prompt)
+wt add feature/payments    # new branch -> cd into worktree
+wt add fix/typo            # another branch
+wt ls                      # list all worktrees
+wt co feature/payments     # cd into existing worktree
+wt rm                      # remove current, prompt for branch, cd to main
+wt rm -D feature/old       # remove + delete branch (no prompt)
 .EE
 .SS Detached-HEAD worktrees (tag / SHA)
 .EX
-wt add v3.2.2             # tag -> .worktree/myrepo.v3.2.2  (detached)
-wt add 388d460            # SHA -> .worktree/myrepo.388d460 (detached)
-wt rm v3.2.2              # remove (no branch, no prompt)
+wt add v3.2.2    # tag -> .worktree/myrepo.v3.2.2  (detached)
+wt add 388d460   # SHA -> .worktree/myrepo.388d460 (detached)
+wt rm v3.2.2     # remove (no branch, no prompt)
 .EE
 .SS Dirty worktree
 .EX
-wt rm feature/wip         # shows changed files, prompts to confirm
-wt rm -f feature/wip      # force-remove, no prompt
+wt rm feature/wip       # shows changed files, prompts to confirm
+wt rm -f feature/wip    # force-remove, no prompt
 .EE
 .SS Rename
 .EX
-wt mv feature/old feature/new      # rename dir only
-wt mv -D feature/old feature/new   # rename dir + rename branch
+wt mv feature/old feature/new       # rename dir only, prompts for branch rename
+wt mv -D feature/old feature/new    # rename dir + rename branch (no prompt)
 .EE
 .SS Tear down
 .EX
-wt nuke           # confirm, then remove all worktrees (branches kept)
-wt nuke -D        # confirm, then remove all + delete branches
-wt nuke -f -D     # same, skip confirmation
+wt nuke          # confirm, then prompt for branch deletion
+wt nuke -D       # confirm, remove all + delete branches (no branch prompt)
+wt nuke -f -D    # skip all prompts, remove all + delete branches
 .EE
 .SS Non-interactive / CI
 .EX
 # Use explicit flags to avoid prompts; or set WT_NO_PROMPT=1.
-wt rm -f -D feature/done          # force-remove + delete branch
-WT_NO_PROMPT=1 wt rm feature/done # same safe-default behaviour
+wt rm -f -D feature/done             # force-remove + delete branch
+WT_NO_PROMPT=1 wt rm feature/done    # same safe-default behaviour
 .EE
 .\"
 .SH TESTING
