@@ -191,11 +191,23 @@ List all worktrees. The active one is highlighted with `▶`. SHA and branch col
 Move/rename a worktree. The destination uses the same prefix as the source.
 
 ```sh
-wt mv feature/old feature/new       # rename dir only
-wt mv -D feature/old feature/new    # rename dir + rename branch
+wt mv feature/old feature/new        # rename dir only, prompts for branch rename
+wt mv -D feature/old feature/new     # rename dir + rename branch (no prompt)
 ```
 
-If you were inside the old path, you're cd'd to the new one. With `-D`, the associated local branch is renamed via `git branch -m`. Warns and exits 0 for detached-HEAD worktrees.
+After the move, if the worktree was on a local branch and `-D` was not passed, `wt` asks:
+
+```
+Rename branch feature/old → feature/new? [y/N]
+```
+
+- **y** — renames the branch via `git branch -m`
+- **n / Enter** — branch kept as-is (safe default)
+- **No terminal / `WT_NO_PROMPT=1`** — branch kept silently
+
+`-D` always skips the prompt. Silently skipped for detached-HEAD worktrees (no branch to rename).
+
+If you were inside the old path, you're cd'd to the new one.
 
 ---
 
@@ -214,13 +226,26 @@ wt prune
 Destroy **all** linked worktrees.
 
 ```sh
-wt nuke          # prompt, then remove all worktrees (branches kept)
-wt nuke -D       # prompt, then remove all + delete branches
-wt nuke -f       # no prompt, remove all (branches kept)
-wt nuke -f -D    # no prompt, remove all + delete branches
+wt nuke           # confirm prompt, then branch prompt, then remove all
+wt nuke -D        # confirm prompt, then remove all + delete branches (no branch prompt)
+wt nuke -f        # skip confirm, then branch prompt, then remove all
+wt nuke -f -D     # skip all prompts, remove all + delete branches
 ```
 
-Without `-D`, only the worktree directories are removed — **branches are kept**. `-D` opts in to branch deletion.
+Without `-D`, only the worktree directories are removed by default. After confirming removal, `wt` lists the branches and asks once:
+
+```
+Branches that would be deleted (2):
+  feature/payments
+  fix/typo
+Delete 2 branches? [y/N]
+```
+
+- **y** — deletes all listed branches
+- **n / Enter** — branches kept (safe default)
+- **No terminal / `WT_NO_PROMPT=1`** — branches kept silently; the confirm prompt also requires `-f` explicitly
+
+`-D` skips the branch prompt entirely. Detached-HEAD worktrees are always silently skipped.
 
 ---
 
