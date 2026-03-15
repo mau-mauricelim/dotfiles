@@ -1,6 +1,8 @@
 action | minver | code                                                    | repeat | ms | bytes | comment
 before |        | .lib.require`bits                                       |        |    |       | Initialize library
 true   |        | 101000b~.bits.bitsLeftShift[1;10100b]                   |        |    |       |
+true   |        | 1 0 1 0 0 0~.bits.bitsLeftShift[1;1 0 1 0 0]            |        |    |       |
+true   |        | 1010b~.bits.bitsRightShift[1;10100b]                    |        |    |       |
 true   |        | 1 0 1 0~.bits.bitsRightShift[1;1 0 1 0 0]               |        |    |       |
 true   |        | 512~.bits.decLeftShift[1;256]                           |        |    |       |
 true   |        | 128~.bits.decRightShift[1;256]                          |        |    |       |

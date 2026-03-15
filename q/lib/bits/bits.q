@@ -14,7 +14,7 @@
 / @example - .bits.bitsLeftShift[1;1 0 1 0 0]
 / .bits.bitsLeftShift:{neg[x]xprev y}; / Slower
 // WARN: The length is longer, use xprev to get the same length
-.bits.bitsLeftShift:{1=y,x#0b};
+.bits.bitsLeftShift:{.Q.ty[y]$y,x#0};
 
 / Decimal (Number base) right shift
 / @example - .bits.decRightShift[1;256]
