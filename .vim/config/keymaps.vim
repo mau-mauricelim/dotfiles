@@ -106,19 +106,23 @@ inoremap KJ <Esc>
 vnoremap KJ <Esc>
 
 " Remap Home/End to toggle between start/end of line
-" NOTE: vim v7.4.629 does not have charcol
 let s:charcol = exists('*charcol') ? 'charcol' : 'col'
-nnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
-vnoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
-inoremap <expr> <Home> {s:charcol}(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
-nnoremap <expr> 0 {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
-vnoremap <expr> 0 {s:charcol}(".") == indent(line(".")) + 1 ? "0" : "^"
-nnoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$")-1 ? "g_" : "$"
-vnoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$") ? "g_" : "$"
-inoremap <expr> <End> {s:charcol}(".") == {s:charcol}("$")-1 ? "<Esc>g_a" : "<Esc>$a"
+
+function! s:Charcol(expr)
+    return call(s:charcol, [a:expr])
+endfunction
+
+nnoremap <expr> <Home> <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> <Home> <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+inoremap <expr> <Home> <SID>Charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
+nnoremap <expr> 0 <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+vnoremap <expr> 0 <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
+nnoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$")-1 ? "g_" : "$"
+vnoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$") ? "g_" : "$"
+inoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"
 
 " If EOL, then join, else delete char
-nnoremap <expr> x {s:charcol}(".") == {s:charcol}("$") ? "J" : "x"
+nnoremap <expr> x <SID>Charcol(".") == <SID>Charcol("$") ? "J" : "x"
 
 " Save file
 nnoremap <C-s> :w<CR><Esc>
