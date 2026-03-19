@@ -50,3 +50,19 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     " Visual selection or word
     vnoremap <Leader>sw y:Rg <C-R>"<CR>
 endif
+
+if exists('g:plugs["vim-easy-align"]')
+    " NOTE: Instead of finishing the alignment with a delimiter key, you can type in a regular expression if you press <CTRL-/> or <CTRL-X>
+    " Start interactive EasyAlign in visual mode (e.g. vipga)
+    xmap ga <Plug>(EasyAlign)
+    " Start interactive EasyAlign for a motion/text object (e.g. gaip)
+    nmap ga <Plug>(EasyAlign)
+endif
+
+if exists('g:plugs["vim-exchange"]')
+    let g:exchange_no_mappings = 1
+    nmap gx <Plug>(Exchange)
+    vmap gx <Plug>(Exchange)
+    nmap gxc <Plug>(ExchangeClear)
+    nmap gxx <Plug>(ExchangeLine)
+endif

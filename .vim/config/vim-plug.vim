@@ -18,7 +18,9 @@ if filereadable(plug_path)
     Plug 'vim-airline/vim-airline'
     Plug 'junegunn/fzf'
     Plug 'junegunn/fzf.vim'
+    Plug 'junegunn/vim-easy-align'
     Plug 'tpope/vim-vinegar'
     Plug 'tpope/vim-commentary'
+    Plug 'tommcdo/vim-exchange'
     call plug#end()
 endif
