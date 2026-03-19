@@ -12,8 +12,13 @@ if exists('g:plugs["onedark.vim"]')
 endif
 
 if exists('g:plugs["vim-gitgutter"]')
+    let g:gitgutter_map_keys = 0
     nmap ]h <Plug>(GitGutterNextHunk)
     nmap [h <Plug>(GitGutterPrevHunk)
+    " You cannot unstage a staged hunk with this plugin
+    nmap <Leader>hs <Plug>(GitGutterStageHunk)
+    nmap <Leader>hr <Plug>(GitGutterUndoHunk)
+    nmap <Leader>hp <Plug>(GitGutterPreviewHunk)
 endif
 
 if exists('g:plugs["vim-airline"]')
