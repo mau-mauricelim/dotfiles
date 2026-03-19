@@ -275,9 +275,9 @@ vnoremap <expr> <Home> <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
 inoremap <expr> <Home> <SID>Charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"
 nnoremap <expr> 0 <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
 vnoremap <expr> 0 <SID>Charcol(".") == indent(line(".")) + 1 ? "0" : "^"
-nnoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$")-1 ? "g_" : "$"
+nnoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$") - 1 ? "g_" : "$"
 vnoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$") ? "g_" : "$"
-inoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"
+inoremap <expr> <End> <SID>Charcol(".") == <SID>Charcol("$") - 1 ? "<Esc>g_a" : "<Esc>$a"
 
 " If EOL, then join, else delete char
 nnoremap <expr> x <SID>Charcol(".") == <SID>Charcol("$") ? "J" : "x"

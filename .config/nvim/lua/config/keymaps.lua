@@ -107,9 +107,9 @@ vim.keymap.set({ 'i', 'v' }, 'KJ', '<Esc>')
 vim.keymap.set({ 'n', 'v' }, '<Home>', 'charcol(".") == indent(line(".")) + 1 ? "0" : "^"', { expr = true, silent = true })
 vim.keymap.set({ 'n', 'v' }, '0', 'charcol(".") == indent(line(".")) + 1 ? "0" : "^"', { expr = true, silent = true })
 vim.keymap.set('i', '<Home>', 'charcol(".") == indent(line(".")) + 1 ? "<Esc>0i" : "<Esc>^i"', { expr = true, silent = true })
-vim.keymap.set('n', '<End>', 'charcol(".") == charcol("$")-1 ? "g_" : "$"', { expr = true, silent = true })
+vim.keymap.set('n', '<End>', 'charcol(".") == charcol("$") - 1 ? "g_" : "$"', { expr = true, silent = true })
 vim.keymap.set('v', '<End>', 'charcol(".") == charcol("$") ? "g_" : "$"', { expr = true, silent = true })
-vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$")-1 ? "<Esc>g_a" : "<Esc>$a"', { expr = true, silent = true })
+vim.keymap.set('i', '<End>', 'charcol(".") == charcol("$") - 1 ? "<Esc>g_a" : "<Esc>$a"', { expr = true, silent = true })
 -- If EOL, then join, else del char
 vim.keymap.set('n', 'x', 'charcol(".") == charcol("$") ? "J" : "x"', { expr = true, silent = true })
 

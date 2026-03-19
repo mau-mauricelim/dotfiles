@@ -116,6 +116,10 @@ vnoremap kj <Esc>
 inoremap KJ <Esc>
 vnoremap KJ <Esc>
 
+" If EOL, then join, else delete char
+" NOTE: ideavim sees '.' as actual cursor position
+nnoremap <Expr> x (col('.') > col('$')) ? 'J' : 'x'
+
 " Select to end/start of line
 nnoremap L v$h
 vnoremap L $h
