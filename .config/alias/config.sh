@@ -43,6 +43,7 @@ if command -v copyparty &> /dev/null; then alias party="copyparty"; fi
 alias ....="cd ../../.."
 alias ...="cd ../.."
 alias cdl="cd -"
+alias chx="chmod +x"
 alias cl="clear"
 alias cpr="cp -r"
 alias d="du -shcL"
