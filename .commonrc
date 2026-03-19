@@ -151,10 +151,6 @@ if command -v fzf >/dev/null; then
     fi
 fi
 
-# vim-visual-multi tutor with lazy package manager
-[ -f "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc" ] && \
-    vvmtutor() { vi -Nu "$XDG_DATA_HOME/nvim/lazy/vim-visual-multi/tutorialrc"; }
-
 # nvm
 export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
 [ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm

@@ -54,7 +54,6 @@ return {
           -- Supply empty string to not create these mappings.
           option_toggle_prefix = vim.g.option_toggle_prefix,
           -- Window navigation with <C-hjkl>, resize with <C-arrow>
-          -- NOTE: vim-visual-multi uses `Ctrl-<Down/Up>`
           windows = true,
           -- Move cursor in Insert, Command, and Terminal mode with <M-hjkl>
           move_with_alt = true,
