@@ -1,3 +1,4 @@
+[general]
 import = [
   # "~/.config/alacritty/themes/nightfly.toml",
   # "~/.config/alacritty/themes/iterm.toml",
