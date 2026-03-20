@@ -422,6 +422,7 @@ return {
     { '<Leader>sf', function() Snacks.picker.files({ hidden = true }) end, desc = '[S]earch [F]iles' },
     { '<Leader>sF', function() Snacks.picker.smart() end, desc = '[S]mart Find [F]iles' },
     { '<Leader>sg', function() Snacks.picker.grep({ hidden = true }) end, desc = 'Grep' }, -- By default, rg is case insensitive
+    { '<Leader>sg', function() Snacks.picker.grep_word() end, desc = 'Grep visual selection', mode = { 'x' } },
     { '<Leader>sG', function() Snacks.picker.grep({ hidden = true, args = { '-s' } }) end, desc = 'Grep --case-sensitive' },
     { '<Leader>sh', function() Snacks.picker.help() end, desc = '[S]earch [H]elp' },
     { '<Leader>sH', function() Snacks.picker.highlights() end, desc = 'Highlights' },

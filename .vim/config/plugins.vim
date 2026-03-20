@@ -37,8 +37,9 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     nnoremap <Leader>sf :Files<CR>
     " [ ] Find existing buffers
     nnoremap <Leader><Leader> :Buffers<CR>
-    " Grep
+    " Grep (visual selection)
     nnoremap <Leader>sg :Rg<CR>
+    vnoremap <Leader>sg y:Rg <C-r>"<CR>
     " [S]earch Recent Files ("." for repeat)
     nnoremap <Leader>s. :History<CR>
     " [S]earch [C]ommand history
@@ -48,7 +49,8 @@ if exists('g:plugs["fzf"]') && exists('g:plugs["fzf.vim"]')
     " [S]earch [K]eymaps
     nnoremap <Leader>sk :Maps<CR>
     " Visual selection or word
-    vnoremap <Leader>sw y:Rg <C-R>"<CR>
+    nnoremap <Leader>sw yiw:Rg <C-r>"<CR>
+    vnoremap <Leader>sw y:Rg <C-r>"<CR>
 endif
 
 if exists('g:plugs["vim-easy-align"]')

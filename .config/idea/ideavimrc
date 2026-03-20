@@ -203,10 +203,11 @@ xnoremap <C-s> <Esc>:action SaveDocument<CR>
 " File searching
 nnoremap <Leader>sf :action GotoFile<CR>
 nnoremap <Leader><Leader> :action RecentFiles<CR>
-nnoremap <Leader>sg :action FindInPath<CR>
+map <Leader>sg :action FindInPath<CR>
 nnoremap <Leader>sr :action FindInPath<CR>
 nnoremap <Leader>s. :action RecentFiles<CR>
 nnoremap <Leader>sc :action Console.History<CR>
+nnoremap <Leader>sw viw:action FindInPath<CR>
 vnoremap <Leader>sw :action FindInPath<CR>
 
 " GitGutter equivalent
