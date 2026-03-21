@@ -117,16 +117,16 @@ common_user_install() {
     [ -d "$ZDOTDIR/zsh-autosuggestions" ] || git clone -q --depth=1 https://github.com/zsh-users/zsh-autosuggestions "$ZDOTDIR/zsh-autosuggestions"
     # Zsh Syntax Highlighting
     [ -d "$ZDOTDIR/fast-syntax-highlighting" ] || git clone -q --depth=1 https://github.com/zdharma-continuum/fast-syntax-highlighting.git "$ZDOTDIR/fast-syntax-highlighting"
-    # fzf
-    [ -d "$ZDOTDIR/fzf" ] || git clone -q --depth 1 https://github.com/junegunn/fzf.git "$ZDOTDIR/fzf"
-    # fzf-tab
+    # Zsh fzf-tab
     [ -d "$ZDOTDIR/fzf-tab" ] || git clone -q --depth 1 https://github.com/Aloxaf/fzf-tab "$ZDOTDIR/fzf-tab"
-    command -v fzf >/dev/null || "$ZDOTDIR/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
+    # Install fzf
+    mkdir -p "$XDG_CONFIG_HOME/fzf" && curl -sSfLo "$XDG_CONFIG_HOME/fzf/install" https://raw.githubusercontent.com/junegunn/fzf/refs/heads/master/install && \
+        chmod +x "$XDG_CONFIG_HOME/fzf/install" && "$XDG_CONFIG_HOME/fzf/install" --xdg --no-update-rc --completion --key-bindings >/dev/null 2>&1
+    # bash and zsh key bindings for Git objects, powered by fzf.
+    [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sSfLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # Symlink Vim syntax and indent files to Neovim
     ln -sf "$HOME/.vim/indent" "$XDG_CONFIG_HOME/nvim" && \
         ln -sf "$HOME/.vim/syntax" "$XDG_CONFIG_HOME/nvim"
-    # bash and zsh key bindings for Git objects, powered by fzf.
-    [ -f "$XDG_CONFIG_HOME/fzf/fzf-git.sh" ] || curl -sSfLo "$XDG_CONFIG_HOME/fzf/fzf-git.sh" https://raw.githubusercontent.com/junegunn/fzf-git.sh/main/fzf-git.sh
     # Install nvm, node.js, and npm
     if ! command -v npm >/dev/null; then
         PROFILE=/dev/null bash -c 'curl -so- https://raw.githubusercontent.com/nvm-sh/nvm/v0.39.7/install.sh | bash >/dev/null' && \
