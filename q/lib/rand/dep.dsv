@@ -1,2 +1,3 @@
-filepath  | object
-../../q.q | .log.error
+filepath       | object
+../../q.q      | .log.error
+../util/util.q | .util.randSeed

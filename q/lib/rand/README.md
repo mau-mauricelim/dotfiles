@@ -215,3 +215,11 @@ Generate a random `time` value
 q).rand.time[]
 23:43:30.338
 ```
+
+### `.rand.name`
+
+Generate a random name - "Adjective Name"
+```q
+q).rand.name[]
+"Busy Shannon"
+```

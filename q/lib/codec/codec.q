@@ -2,7 +2,7 @@
 /# Encode/Decode #
 /#################
 
-// INFO https://code.kx.com/phrases/cast/
+// INFO: https://code.kx.com/phrases/cast/
 
 // Decimal (Number base) to/from Digit
 .codec.decToDigit:10 vs;
