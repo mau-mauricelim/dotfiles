@@ -29,7 +29,7 @@ main() {
     if isWsl; then wsl_kdb_setup; fi
 
     [ -d "$LIN_Q_HOME" ] &&\
-        export LIN_Q_HOME || exit
+        export LIN_Q_HOME || return
 
     [ ! -d "$HOME/$Q_REPO" ] && echo "💡 Clone $Q_REPO (cool q toolbox) to home directory"
     [ -d "$HOME/$Q_REPO" ] && broken_symlink "$LIN_Q_HOME/q.q" &&\
@@ -115,7 +115,7 @@ wsl_kdb_setup() {
                 win_q_ver_avail=$(get_q_ver "$win_q_ver_path")
                 alias_setup "$win_q_ver_avail" "$WIN_OS"
             done
-            exit
+            return
         fi
     fi
 }
