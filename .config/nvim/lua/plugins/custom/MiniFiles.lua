@@ -44,6 +44,7 @@ MiniFiles.setup({
 })
 -- Similar to oil.nvim
 vim.keymap.set('n', '-', MiniFiles.open_parent_fresh, { desc = 'Fresh explorer in directory of current file' })
+vim.keymap.set('n', '<kMinus>', MiniFiles.open_parent_fresh, { desc = 'Fresh explorer in directory of current file' })
 vim.keymap.set('n', '_', MiniFiles.open, { desc = 'Open current working directory in a last used state' })
 
 -- Create mapping to show/hide dot-files
