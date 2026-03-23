@@ -421,8 +421,19 @@ return {
     { '<Leader>sd', function() Snacks.picker.diagnostics_buffer() end, desc = '[S]earch [D]iagnostics buffer' },
     { '<Leader>sf', function() Snacks.picker.files({ hidden = true }) end, desc = '[S]earch [F]iles' },
     { '<Leader>sF', function() Snacks.picker.smart() end, desc = '[S]mart Find [F]iles' },
-    { '<Leader>sg', function() Snacks.picker.grep({ hidden = true }) end, desc = 'Grep' }, -- By default, rg is case insensitive
-    { '<Leader>sg', function() Snacks.picker.grep_word() end, desc = 'Grep visual selection', mode = { 'x' } },
+    {
+      '<Leader>sg',
+      function()
+        Snacks.picker.grep({
+          hidden = true,
+          search = function(picker) return (picker:word():gsub('\n', '\\n')) end,
+          -- By default, rg is case insensitive
+          args = { '--multiline' },
+        })
+      end,
+      desc = 'Grep (visual selection)',
+      mode = { 'n', 'x' },
+    },
     { '<Leader>sG', function() Snacks.picker.grep({ hidden = true, args = { '-s' } }) end, desc = 'Grep --case-sensitive' },
     { '<Leader>sh', function() Snacks.picker.help() end, desc = '[S]earch [H]elp' },
     { '<Leader>sH', function() Snacks.picker.highlights() end, desc = 'Highlights' },
@@ -437,7 +448,7 @@ return {
     { '<Leader>sq', function() Snacks.picker.qflist() end, desc = '[S]earch [Q]uickfix' },
     { '<Leader>sr', function() Snacks.picker.resume() end, desc = '[S]earch [R]esume last command/query' },
     { '<Leader>su', function() Snacks.picker.undo() end, desc = 'Undo History' },
-    { '<Leader>sw', function() Snacks.picker.grep_word() end, desc = 'Visual selection or word', mode = { 'n', 'x' } },
+    { '<Leader>sw', function() Snacks.picker.grep_word({ args = { '--multiline' }, show_empty = true }) end, desc = 'Visual selection or word', mode = { 'n', 'x' } },
     { '<Leader>sz', function() Snacks.picker.lazy() end, desc = 'Search for lazy plugin spec' },
     -- { '<Leader>uC', function() Snacks.picker.colorschemes() end, desc = 'Colorschemes' },
     --[[ gl[o]b search ]]
