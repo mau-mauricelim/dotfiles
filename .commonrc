@@ -31,10 +31,10 @@ export PAGER=less
 export TERM=xterm-256color
 
 # Start tmux on every shell login (https://wiki.archlinux.org/title/Tmux#Start_tmux_on_every_shell_login)
-# if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
-#     # `exec` will replace the current shell
-#     tmux new-session -A -s "${USER}" >/dev/null 2>&1
-# fi
+if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
+    # `exec` will replace the current shell
+    tmux >/dev/null 2>&1
+fi
 
 export LIBVIRT_DEFAULT_URI='qemu:///system'
 
