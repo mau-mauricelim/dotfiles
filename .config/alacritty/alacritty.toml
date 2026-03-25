@@ -1,17 +1,22 @@
 [general]
 import = [
-  # "~/.config/alacritty/themes/nightfly.toml",
-  # "~/.config/alacritty/themes/iterm.toml",
+  #"~/.config/alacritty/themes/nightfly.toml",
+  #"~/.config/alacritty/themes/iterm.toml",
   "~/.config/alacritty/themes/midnight-haze.toml",
-  # "~/.config/alacritty/themes/moonlight_ii_vscode.toml",
+  #"~/.config/alacritty/themes/moonlight_ii_vscode.toml",
+  #"~/.config/omarchy/current/theme/alacritty.toml",
 ]
 
 [env]
 term = "xterm-256color"
 
+[terminal]
+osc52 = "CopyPaste"
+
 [window]
-padding = { x = 8, y = 8 }
-decorations_theme_variant = "Dark"
+padding.x = 8
+padding.y = 8
+decorations = "None"
 
 [scrolling]
 history = 10000
@@ -21,6 +26,8 @@ multiplier = 5
 size = 15
 #normal = { family = "MesloLGS NF", style = "Regular" }
 normal = { family = "JetBrainsMono Nerd Font", style = "Medium" }
+bold = { family = "JetBrainsMono Nerd Font", style = "Bold" }
+italic = { family = "JetBrainsMono Nerd Font", style = "Italic" }
 offset = { x = 0, y = 0 }
 
 [selection]
@@ -39,4 +46,7 @@ bindings = [
 bindings = [
   { key = "v", mods = "Control", action = "Paste" },
   { key = "n", mods = "Control | Shift", action = "SpawnNewInstance" },
+  { key = "Insert", mods = "Shift", action = "Paste" },
+  { key = "Insert", mods = "Control", action = "Copy" },
+  { key = "Return", mods = "Shift", chars = "\u001B\r" },
 ]
