@@ -7,9 +7,6 @@ if command -v nvim >/dev/null; then
     alias vg="nvim -X -c 'lua Snacks.picker.grep({ hidden = true })'"
     # <leader>sf
     alias vf="nvim -X -c 'lua Snacks.picker.files({ hidden = true })'"
-    export VISUAL=nvim
-    export EDITOR=nvim
-    export MANPAGER='nvim +Man!'
 fi
 
 if command -v eza &> /dev/null; then

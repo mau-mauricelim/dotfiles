@@ -58,7 +58,7 @@ function() {
         x      '^U'       backward-kill-line             # Ctrl + U
         x      '^U^U'     kill-whole-line                # Ctrl + UU
         # vi mode
-        x      '^Q'       edit-command-line              # Ctrl + Q - edit command line in vim buffer
+        x      '^Q'       edit-command-line              # Ctrl + Q - edit command line in $EDITOR buffer
         x      '^?'       backward-delete-char           # Fix backspace bug when switching between modes
     ); do
         bindkey -M emacs ${terminfo[$kcap]:-$seq} $widget

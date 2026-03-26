@@ -17,9 +17,17 @@ if isWsl; then
     [ "$(stat -c "%a" "$XDG_RUNTIME_DIR")" = "700" ] || chmod 700 "$XDG_RUNTIME_DIR"
 fi
 
-# NOTE: Ctrl-X + Ctrl-E : Edits the current line in the $EDITOR program
-export VISUAL=vim
-export EDITOR=vim
+# NOTE: Ctrl + Q - edit command line in $EDITOR buffer. See ./.config/zsh/bindkey.zsh
+if command -v vim >/dev/null; then
+    export VISUAL=vim
+    export EDITOR=vim
+elif command -v nvim >/dev/null; then
+    export VISUAL=nvim
+    export EDITOR=nvim
+    # sudoedit
+    export SUDO_EDITOR=nvim
+    export MANPAGER='nvim +Man!'
+fi
 
 # Set system locale
 export LANG=C.UTF-8
