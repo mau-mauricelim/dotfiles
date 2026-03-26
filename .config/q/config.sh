@@ -12,8 +12,8 @@ main() {
     #           3. ONE_TIME_SETUP= with default `find` | 1.039979396 seconds 🐢
     local ONE_TIME_SETUP=true
 
-    local DEFAULT_Q_VER=4.1
-    # local DEFAULT_Q_VER=x
+    # local DEFAULT_Q_VER=4.1
+    local DEFAULT_Q_VER=x
     WIN_Q_HOME=/mnt/c/q
     LIN_Q_HOME=$HOME/q
     local INIT_FILE=q.q
@@ -127,20 +127,20 @@ unset -f main broken_symlink first_setup get_q_ver_path get_q_ver install_q_ver 
 run_q() {
     export QHOME="$LIN_Q_HOME/$1"
     # export LD_LIBRARY_PATH=
+    local QPATH="$QHOME/$LIN_OS"
     # Add q PATH if it does not exist
-    [[ ! "$PATH" =~ $LIN_Q_HOME/*/$LIN_OS ]] && addToPath "$QHOME/$LIN_OS"
+    [[ ! "$PATH" =~ $LIN_Q_HOME/*/$LIN_OS ]] && addToPath "$QPATH"
     # Replace q PATH with correct version
-    # shellcheck disable=SC2001
-    PATH=$(echo "$PATH" | sed "s:$LIN_Q_HOME/.*/$LIN_OS:$QHOME/$LIN_OS:g")
+    PATH=$(echo "$PATH" | sed "s:$LIN_Q_HOME/.*/$LIN_OS:$QPATH:g")
     export PATH
-    # shellcheck disable=SC2124
-    QCMD="q ${@:2}"
+    local QBIN="$QPATH/q"
+    shift # so $@ only contains q arguments
     if command -v rlwrap >/dev/null; then
         RLWRAP="rlwrap -r";
         if [ -f "$LIN_Q_HOME/rlwrap_completion" ]; then RLWRAP+=" -f $LIN_Q_HOME/rlwrap_completion"; fi
-        QCMD="$RLWRAP $QCMD"
+        $RLWRAP "$QBIN" "$@"
     fi
-    eval "$QCMD"
+    "$QBIN" "$@"
 }
 
 # List all available q versions
