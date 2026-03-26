@@ -56,6 +56,13 @@ bindkey -M menuselect 'j' vi-down-line-or-history
 bindkey -M menuselect 'k' vi-up-line-or-history
 bindkey -M menuselect 'l' vi-forward-char
 
+# NOTE: Same as ../../.commonrc with {} replaced with \$realpath
+# Preview file content using bat
+preview_file="bat -n --color=always --line-range :500 \$realpath"
+# Preview dir content as a tree using eza
+preview_dir="eza --tree --group-directories-first --color=always \$realpath | head -200"
+preview_file_or_dir="if [ -d \$realpath ]; then $preview_dir; else $preview_file; fi"
+
 ## fzf-tab config
 # Disable sort when completing `git checkout`
 zstyle ':completion:*:git-checkout:*' sort false
@@ -66,8 +73,10 @@ zstyle ':completion:*:descriptions' format '[%d]'
 zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
 # Force zsh not to show completion menu, which allows fzf-tab to capture the unambiguous prefix
 zstyle ':completion:*' menu no
+# Preview file or directory
+zstyle ':fzf-tab:complete:*' fzf-preview "$preview_file_or_dir"
 # Preview directory's content with eza when completing cd
-zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --color=always $realpath'
+zstyle ':fzf-tab:complete:cd:*' fzf-preview "$preview_dir"
 # Custom fzf flags
 # NOTE: fzf-tab does not follow FZF_DEFAULT_OPTS by default
 zstyle ':fzf-tab:*' fzf-flags --color=fg:1,fg+:2 --bind=tab:accept

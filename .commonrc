@@ -1,4 +1,8 @@
 #!/usr/bin/env sh
+
+# If not running interactively, don't do anything
+[[ $- != *i* ]] && return
+
 # History configuration
 export HISTSIZE=10000
 export HISTFILESIZE=10000
@@ -135,6 +139,7 @@ if command -v fzf >/dev/null; then
         preview_file="bat -n --color=always --line-range :500 {}"
         # Preview dir content as a tree using eza
         preview_dir="eza --tree --group-directories-first --color=always {} | head -200"
+        preview_file_or_dir="if [ -d {} ]; then $preview_dir; else $preview_file; fi"
         export FZF_CTRL_T_OPTS="
             --header 'Ctrl-/: Toggle preview down/hidden/show'
             --walker-skip .git,node_modules,target
@@ -146,7 +151,6 @@ if command -v fzf >/dev/null; then
         # Advanced customization of fzf options via _fzf_comprun function
         # - The first argument to the function is the name of the command.
         # - You should make sure to pass the rest of the arguments to fzf.
-        preview_file_or_dir="if [ -d {} ]; then $preview_dir; else $preview_file; fi"
         _fzf_comprun() {
             local command=$1
             shift
