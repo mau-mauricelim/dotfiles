@@ -6,5 +6,5 @@ kurl,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/kurl/VERSION/PREFI
 objstor,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/objstor/VERSION/PREFIX-objstor.zip
 pq,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/pq/VERSION/pq.zip
 rest,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/rest-server/VERSION/rest.q_
-postgres,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/postgres/VERSION/PREFIX-postgres.zip
+sql,latest,https://portal.dl.kx.com/assets/raw/kdb-x/modules/sql/VERSION/PREFIX-sql.zip
 dashboards,latest,https://portal.dl.kx.com/assets/raw/kdb-x/dash/VERSION/KXDashboards.zip

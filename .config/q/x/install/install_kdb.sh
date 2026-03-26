@@ -788,7 +788,7 @@ install_module_generic() {
     local display_name="$2"      # "AI module", "REST server module", "KX Dashboards"
     local url_path="$3"          # "modules/ai", "modules/rest-server", "dash"
     local filename="$4"          # "$PREFIX-ai.zip", "rest.q_", "KXDashboards.zip"
-    local install_type="$5"      # "extract" or "copy"
+    local install_type="$5"      # "extract", "copy", or "custom"
     local target_path="$6"       # "$TEMP_DIR/install/mod/kx/ai"
 
     if [ "$OFFLINE_MODE" = true ]; then
@@ -804,13 +804,31 @@ install_module_generic() {
             else
                 return 0
             fi
-        else
+        elif [ "$install_type" = "copy" ]; then
             cp "$COMPONENT_PATH" "$target_path" || {
                 print_warning "Failed to copy $display_name. Continuing without $display_name"
                 return 0
             }
             print_success "Installed successfully!"
+        elif [ "$install_type" = "custom" ]; then
+            print_header "Handling $display_name (offline/custom)"
+            local temp_file="$TEMP_DIR/${component_id}_${filename}"
+            cp "$COMPONENT_PATH" "$temp_file" || {
+                print_warning "Failed to copy $display_name to temp location. Continuing without $display_name"
+                return 0
+            }
+            _install_module_generic_handle_custom "$component_id" "$temp_file" "$target_path"
+            ret=$?
+            rm -f "$temp_file"
+            if [ $ret -ne 0 ]; then
+                print_warning "Custom install handler failed for $component_id. Continuing without $display_name."
+                return 0
+            fi
+        else
+            print_warning "Unknown install type: $install_type. Skipping $display_name"
+            return 0
         fi
+
     else
         local fileurl="https://portal.dl.kx.com/assets/raw/kdb-x/${url_path}/~latest~/${filename}"
         print_header "Downloading $display_name"
@@ -830,13 +848,26 @@ install_module_generic() {
                 print_warning "Failed to download $display_name. Continuing without $display_name"
                 return 0
             fi
-        else
+        elif [ "$install_type" = "copy" ]; then
             if download_file "$fileurl" "$target_path"; then
                 print_success "Installed successfully!"
             else
                 print_warning "Failed to download $display_name. Continuing without $display_name"
                 return 0
             fi
+        elif [ "$install_type" = "custom" ]; then
+            local temp_file="$TEMP_DIR/${component_id}_${filename}"
+            if download_file "$fileurl" "$temp_file"; then
+                print_header "Installing $display_name (custom handler)"
+                _install_module_generic_handle_custom "$component_id" "$temp_file" "$target_path"
+                rm -f "$temp_file"
+            else
+                print_warning "Failed to download $display_name. Continuing without $display_name"
+                return 0
+            fi
+        else
+            print_warning "Unknown install type: $install_type. Skipping $display_name"
+            return 0
         fi
     fi
 }
@@ -861,8 +892,8 @@ install_pq_module() {
     install_module_generic "pq" "parquet module" "modules/pq" "pq.zip" "extract" "$TEMP_DIR/install/mod/kx/pq"
 }
 
-install_postgres_module() {
-    install_module_generic "postgres" "postgres module" "modules/postgres" "$PREFIX-postgres.zip" "extract" "$TEMP_DIR/install/bin"
+install_sql_module() {
+    install_module_generic "sql" "SQL module" "modules/sql" "$PREFIX-sql.zip" "custom" "$TEMP_DIR/install"
 }
 
 install_dashboards() {
@@ -1205,6 +1236,63 @@ setup_environment() {
     apply_configuration_changes
 }
 
+
+_install_module_generic_handle_custom() {
+    local component_id="$1"
+    local src_file="$2"
+    local target_root="$3"
+
+    if [ "$component_id" = "sql" ]; then
+        local temp_extract="$TEMP_DIR/${component_id}_extract"
+        mkdir -p "$temp_extract"
+        if ! unzip -q -o "$src_file" -d "$temp_extract"; then
+            print_warning "Failed to extract SQL module package. Skipping."
+            rm -rf "$temp_extract"
+            return 0
+        fi
+
+        local source_dir="$temp_extract"
+        local entries=("$temp_extract"/*)
+        if [ ${#entries[@]} -eq 1 ] && [ -d "${entries[0]}" ]; then
+            source_dir="${entries[0]}"
+        fi
+
+        # Move pg into bin/
+        if [ -f "$source_dir/pg" ]; then
+            mkdir -p "$target_root/bin"
+            if mv "$source_dir/pg" "$target_root/bin/" 2>/dev/null; then
+                chmod +x "$target_root/bin/pg" 2>/dev/null || true
+                print_info "Moved pg -> $target_root/bin/"
+            else
+                cp "$source_dir/pg" "$target_root/bin/" 2>/dev/null || print_warning "Could not move/copy pg"
+                chmod +x "$target_root/bin/pg" 2>/dev/null || true
+            fi
+        fi
+
+        # Move sql.k_ into mod/kx/
+        if [ -f "$source_dir/sql.k_" ]; then
+            mkdir -p "$target_root/mod/kx"
+            if mv "$source_dir/sql.k_" "$target_root/mod/kx/" 2>/dev/null; then
+                print_info "Moved sql.k_ -> $target_root/mod/kx/"
+            else
+                cp "$source_dir/sql.k_" "$target_root/mod/kx/" 2>/dev/null || print_warning "Could not move/copy sql.k_"
+            fi
+        fi
+
+        # Remove changelog and readme files
+        rm -f "$source_dir/changelog" \
+              "$source_dir/readme" 2>/dev/null
+
+        rm -rf "$temp_extract"
+        print_success "Custom SQL module handling complete."
+        return 0
+    else
+        print_error "Custom install requested for unsupported component: $component_id"
+        print_info  "Please add custom install support for $component_id"
+        return 1
+    fi
+}
+
 verify_installation() {
     print_header "Verifying installation"
 
@@ -1215,6 +1303,7 @@ verify_installation() {
     INSTALLED_PQ=false
     INSTALLED_REST=false
     INSTALLED_DASHBOARDS=false
+    INSTALLED_SQL=false
 
     if [ ! -f "$TEMP_DIR/install/bin/q" ] || [ ! -x "$TEMP_DIR/install/bin/q" ]; then
         print_error "Installation verification failed: q binary missing or not executable"
@@ -1261,6 +1350,15 @@ verify_installation() {
         print_info "REST server module installed"
         INSTALLED_REST=true
     fi
+
+    if [ -f "$TEMP_DIR/install/bin/pg" ] \
+      && [ -x "$TEMP_DIR/install/bin/pg" ] \
+      && [ -f "$TEMP_DIR/install/mod/kx/sql.k_" ]; then
+        print_info "SQL module installed"
+        INSTALLED_SQL=true
+    else
+        print_warning "SQL module not fully installed (pg or sql.k_ missing)"
+    fi    
 
     if [ -d "$TEMP_DIR/install/dashboards" ] && [ -n "$(ls -A "$TEMP_DIR/install/dashboards" 2>/dev/null)" ]; then
         print_info "KX Dashboards installed"
@@ -1319,6 +1417,9 @@ print_next_steps() {
     if [ "$INSTALLED_REST" = true ]; then
         print_info "  - $INSTALL_DIR/mod/kx/rest.q_    REST server module"
     fi
+    if [ "$INSTALLED_SQL" = true ]; then
+        print_info "  - $INSTALL_DIR/mod/kx/sql.k_     SQL module"
+    fi    
     if [ "$INSTALLED_DASHBOARDS" = true ]; then
         print_info "  - $INSTALL_DIR/dashboards/       KX Dashboards"
     fi
@@ -1429,7 +1530,7 @@ main() {
     install_objstor_module
     install_pq_module
     install_rest_module
-    install_postgres_module
+    install_sql_module
     install_dashboards
     verify_installation
     finalize_installation

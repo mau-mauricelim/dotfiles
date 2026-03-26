@@ -955,6 +955,17 @@ function Install-ModuleGeneric {
                 return
             }
         }
+        elseif ($InstallType -eq "custom") {
+            $tempFile = Join-Path $TEMP_DIR ("{0}_{1}" -f $ComponentId, (Split-Path $Filename -Leaf))
+            Copy-Item -Path $COMPONENT_PATH -Destination $tempFile -Force
+            $ret = Install-ModuleGeneric-Handle-Custom -ComponentId $ComponentId -SrcFile $tempFile -TargetRoot $TargetPath
+            Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+            if ($ret -ne 0) {
+                print_warning "Custom install handler failed for $ComponentId. Continuing without $DisplayName."
+            } else {
+                print_success "Installed successfully!"
+            }
+        }
         else {
             try {
                 Copy-Item -Path $COMPONENT_PATH -Destination $TargetPath -Force
@@ -990,6 +1001,23 @@ function Install-ModuleGeneric {
                 return
             }
         }
+        elseif ($InstallType -eq "custom") {
+            $tempFile = Join-Path $TEMP_DIR ("{0}_{1}" -f $ComponentId, (Split-Path $Filename -Leaf))
+            try {
+                Invoke-WebRequest -Uri $fileurl -OutFile $tempFile -UseBasicParsing
+                $ret = Install-ModuleGeneric-Handle-Custom -ComponentId $ComponentId -SrcFile $tempFile -TargetRoot $TargetPath
+                Remove-Item -Path $tempFile -Force -ErrorAction SilentlyContinue
+                if ($ret -ne 0) {
+                    print_warning "Custom install handler failed for $ComponentId. Continuing without $DisplayName."
+                } else {
+                    print_success "Installed successfully!"
+                }
+            }
+            catch {
+                print_warning "Failed to download $DisplayName. Continuing without $DisplayName"
+                return
+            }
+        }
         else {
             try {
                 Invoke-WebRequest -Uri $fileurl -OutFile $TargetPath -UseBasicParsing
@@ -1002,10 +1030,74 @@ function Install-ModuleGeneric {
     }
 }
 
+
+function Install-ModuleGeneric-Handle-Custom {
+    param(
+        [string]$ComponentId,
+        [string]$SrcFile,
+        [string]$TargetRoot
+    )
+
+
+    if ($ComponentId -ieq 'sql') {
+        $tempExtract = Join-Path $TEMP_DIR ("{0}_extract" -f $ComponentId)
+        New-Item -ItemType Directory -Path $tempExtract -Force | Out-Null
+
+        print_info "Extracting SQL module files"
+        try {
+            Expand-Archive -Path $SrcFile -DestinationPath $tempExtract -Force
+        }
+        catch {
+            print_error "Failed to extract sql module ZIP file. Please check if the file is valid"
+            return 1
+        }
+
+        $PG_BINARY = Get-ChildItem -Path $tempExtract -Name "pg.exe" -Recurse -File | Select-Object -First 1
+
+        if (-not $PG_BINARY) {
+            print_error "Could not find pg.exe binary in the extracted files"
+            return 1
+        }
+
+        $sourcePath = Join-Path $tempExtract $PG_BINARY
+        $installPath = Join-Path $TEMP_DIR "install"
+        $destPath = Join-Path $installPath "bin\pg.exe"
+        Copy-Item -Path $sourcePath -Destination $destPath -Force
+
+        
+        $SQL_BINARY = Get-ChildItem -Path $tempExtract -Name "sql.k_" -Recurse -File | Select-Object -First 1
+
+        if (-not $SQL_BINARY) {
+            print_error "Could not find sql.k_ binary in the extracted files"
+            return 1
+        }
+        $sourcePath = Join-Path $tempExtract $SQL_BINARY
+        $destPath = Join-Path $TEMP_DIR "install\mod\kx\sql.k_"
+        Copy-Item -Path $sourcePath -Destination $destPath -Force                
+        
+        Remove-Item -Path $tempExtract -Recurse -Force -ErrorAction SilentlyContinue
+        print_success "SQL module installation complete."
+        return 0
+    }
+    else {
+        print_error "Custom install requested for unsupported component: $ComponentId"
+        print_info "Please add custom install support for $ComponentId"
+        return 1
+    }
+}
+
+
+
 function install_ai_module {
     $targetPath = Join-Path $TEMP_DIR "install\mod\kx\ai"
     New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
     Install-ModuleGeneric -ComponentId "ai" -DisplayName "AI module" -UrlPath "modules/ai" -Filename "$PREFIX-ai.zip" -InstallType "extract" -TargetPath $targetPath
+}
+
+function install_sql_module {
+    $targetPath = Join-Path $TEMP_DIR "install\mod\kx"
+    New-Item -ItemType Directory -Path $targetPath -Force | Out-Null
+    Install-ModuleGeneric -ComponentId "sql" -DisplayName "SQL module" -UrlPath "modules/sql" -Filename "$PREFIX-sql.zip" -InstallType "custom" -TargetPath $targetPath
 }
 
 function install_kurl_module {
@@ -1075,11 +1167,6 @@ function install_pq_module {
 function install_rest_module {
     $targetPath = Join-Path $TEMP_DIR "install\mod\kx\rest.q_"
     Install-ModuleGeneric -ComponentId "rest" -DisplayName "REST server module" -UrlPath "modules/rest-server" -Filename "rest.q_" -InstallType "copy" -TargetPath $targetPath
-}
-
-function install_postgres_module {
-    $binPath = Join-Path $TEMP_DIR "install\bin"
-    Install-ModuleGeneric -ComponentId "postgres" -DisplayName "postgres module" -UrlPath "modules/postgres" -Filename "$PREFIX-postgres.zip" -InstallType "extract" -TargetPath $binPath
 }
 
 function install_dashboards {
@@ -1347,7 +1434,7 @@ function main {
     install_objstor_module
     install_pq_module
     install_rest_module
-    install_postgres_module
+    install_sql_module
     install_dashboards
     verify_installation | Out-Null
     finalize_installation
