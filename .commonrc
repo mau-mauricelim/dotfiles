@@ -148,15 +148,15 @@ if command -v fzf >/dev/null; then
         # - You should make sure to pass the rest of the arguments to fzf.
         preview_file_or_dir="if [ -d {} ]; then $preview_dir; else $preview_file; fi"
         _fzf_comprun() {
-          local command=$1
-          shift
+            local command=$1
+            shift
 
-          case "$command" in
-            cd)           fzf --preview "$preview_dir"         "$@" ;;
-            export|unset) fzf --preview "eval 'echo $'{}"      "$@" ;;
-            ssh)          fzf --preview 'dig {}'               "$@" ;;
-            *)            fzf --preview "$preview_file_or_dir" "$@" ;;
-          esac
+            case "$command" in
+                cd)           fzf --preview "$preview_dir"                "$@" ;;
+                export|unset) fzf --preview "eval 'echo $'{}"             "$@" ;;
+                ssh)          fzf --preview 'dig {}'                      "$@" ;;
+                *)            fzf --preview "$preview_file_or_dir"        "$@" ;;
+            esac
         }
     fi
 fi
