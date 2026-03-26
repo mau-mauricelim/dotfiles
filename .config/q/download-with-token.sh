@@ -113,6 +113,7 @@ echo ""
 echo "=========================================="
 echo "Downloading kdb-x"
 echo "=========================================="
+# TODO: echo <license-key> | base64 -d > x/kc.lic
 
 # Get latest kdb-x version
 KDBX_BASE="https://portal.dl.kx.com/assets/raw/kdb-x/kdb-x"
