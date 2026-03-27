@@ -1,7 +1,8 @@
 #!/usr/bin/env sh
 
-# If not running interactively, don't do anything
-[[ $- != *i* ]] && return
+#######################################
+# Environment setup (non-interactive) #
+#######################################
 
 # History configuration
 export HISTSIZE=10000
@@ -22,15 +23,15 @@ if isWsl; then
 fi
 
 # NOTE: Ctrl + Q - edit command line in $EDITOR buffer. See ./.config/zsh/bindkey.zsh
-if command -v vim >/dev/null; then
-    export VISUAL=vim
-    export EDITOR=vim
-elif command -v nvim >/dev/null; then
+if command -v nvim >/dev/null; then
     export VISUAL=nvim
     export EDITOR=nvim
     # sudoedit
     export SUDO_EDITOR=nvim
     export MANPAGER='nvim +Man!'
+elif command -v vim >/dev/null; then
+    export VISUAL=vim
+    export EDITOR=vim
 fi
 
 # Set system locale
@@ -42,23 +43,15 @@ export PAGER=less
 # Enable 256 colors with xterm
 export TERM=xterm-256color
 
-# Start tmux on every shell login (https://wiki.archlinux.org/title/Tmux#Start_tmux_on_every_shell_login)
-if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
-    # `exec` will replace the current shell
-    tmux >/dev/null 2>&1
-fi
-
 export LIBVIRT_DEFAULT_URI='qemu:///system'
 
-# Disable the freeze/unfreeze behavior for Ctrl-S/Q
-stty -ixon
-
+# Helper functions
 addToPath() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$PATH:$1"; }
 addToPathFront() { [[ -d "$1" ]] && [[ "$PATH" != *"$1"* ]] && export PATH="$1:$PATH"; }
-# Function to source file if it exists
+# Source file if it exists
 sourceFile() { [ -r "$1" ] && [ -f "$1" ] && source "$1"; }
 
-# NOTE: Avoid adding /mnt/c/Windows/System32 to PATH as it is very large!
+# WARN: Avoid adding /mnt/c/Windows/System32 to PATH as it is very large!
 # https://github.com/Saghen/blink.cmp/issues/795
 # Use a symlink to `$HOME/dotfiles/.local/bin` if necessary:
 # HACK: WSL2 Ubuntu fix for [markdown-preview.nvim]: Can not open browser by using cmd.exe command
@@ -79,6 +72,28 @@ addToPath "$HOME/.opencode/bin"
 
 # Set PATH so it includes user's git-scripts if it exists
 addToPath "$XDG_CONFIG_HOME/git/git-scripts"
+
+# nvm
+export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
+[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
+
+# SSL certificate authority (CA) certificates
+[ -f "/etc/ssl/cert.pem" ] && export SSL_CA_CERT_FILE="/etc/ssl/cert.pem"
+
+#####################
+# Interactive guard #
+#####################
+
+[[ $- != *i* ]] && return
+
+# Disable the freeze/unfreeze behavior for Ctrl-S/Q
+stty -ixon
+
+# Start tmux on every shell login (https://wiki.archlinux.org/title/Tmux#Start_tmux_on_every_shell_login)
+if [ -x "$(command -v tmux)" ] && [ -n "${DISPLAY}" ] && [ -z "${TMUX}" ]; then
+    # `exec` will replace the current shell
+    tmux >/dev/null 2>&1
+fi
 
 # Source the dotfiles config.sh
 for file in $(find -L "$XDG_CONFIG_HOME"/{alias,q} -maxdepth 1 -type f -name 'config.sh'); do
@@ -165,10 +180,6 @@ if command -v fzf >/dev/null; then
     fi
 fi
 
-# nvm
-export NVM_DIR="$([ -z "${XDG_CONFIG_HOME-}" ] && printf %s "${HOME}/.nvm" || printf %s "${XDG_CONFIG_HOME}/nvm")"
-[ -s "$NVM_DIR/nvm.sh" ] && \. "$NVM_DIR/nvm.sh" # This loads nvm
-
 # yazi
 if command -v yazi >/dev/null; then
     function y() {
@@ -191,11 +202,8 @@ for SSH_KEY in $HOME/.ssh/id_{ed25519,rsa}; do
     if [ -f "$SSH_KEY" ]; then
         PERM=$(stat -c "%a" "$SSH_KEY")
         if (( 10#$PERM > 600 )); then
-            echo "🔑 Permissions $PERM for '$SSH_KEY' are too open. Updating permissions to 600."
+            echo "🔑 Permissions $PERM for '$SSH_KEY' are too open. Updating permissions to 600." >&2
             chmod 600 "$SSH_KEY"
         fi
     fi
 done
-
-# SSL certificate authority (CA) certificates
-[ -f "/etc/ssl/cert.pem" ] && export SSL_CA_CERT_FILE="/etc/ssl/cert.pem"
