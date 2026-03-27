@@ -3,6 +3,7 @@
 
 # Use emacs keybindings even if our EDITOR is set to vi
 bindkey -e
+bindkey "^I" fzf-completion
 
 # Use vi mode
 sourceFile $ZDOTDIR/bindkey-vi.zsh
