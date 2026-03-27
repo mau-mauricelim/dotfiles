@@ -12,12 +12,6 @@ for cmd in jq unzip curl; do
     fi
 done
 
-# Load token
-if [[ ! -f ~/.kx.token ]]; then
-    echo "Error: Token file ~/.kx.token not found" >&2
-    exit 1
-fi
-
 # Create temporary directory
 TEMP_DIR=$(mktemp -d)
 echo "Using temporary directory: $TEMP_DIR"
