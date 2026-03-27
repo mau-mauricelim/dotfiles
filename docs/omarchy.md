@@ -30,7 +30,7 @@ Boot loader was not setup or installed correctly
 
 - Disable the "Warn me before closing windows with multiple tabs" setting under Settings > System
 
-### Issue: Caps Lock us remapped for hotkeys
+### Issue: Caps Lock is remapped for hotkeys
 
 - https://learn.omacom.io/2/the-omarchy-manual/88/troubleshooting#why-isn-39-t-caps-lock-working
 - Removed xcompose key in `~/.config/hypr/input.conf` with `kb_options =`
