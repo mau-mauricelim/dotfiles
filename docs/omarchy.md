@@ -30,15 +30,14 @@ Boot loader was not setup or installed correctly
 
 - Disable the "Warn me before closing windows with multiple tabs" setting under Settings > System
 
-### Issue: Caps Lock is remapped for hotkeys
+### Issue: [Caps Lock is remapped for hotkeys](https://learn.omacom.io/2/the-omarchy-manual/88/troubleshooting#why-isn-39-t-caps-lock-working)
 
-- https://learn.omacom.io/2/the-omarchy-manual/88/troubleshooting#why-isn-39-t-caps-lock-working
 - Removed xcompose key in `~/.config/hypr/input.conf` with `kb_options =`
 
 ## Installation of Windows 11 (Pro) on KVM
 
-- (YouTube guide)[https://youtu.be/q8ZsO-h14Po?si=sxNKtEsatMqWqOPt]
-- (Written guide)[https://sysguides.com/install-windows-11-on-kvm]
+- [YouTube guide](https://youtu.be/q8ZsO-h14Po?si=sxNKtEsatMqWqOPt)
+- [Written guide](https://sysguides.com/install-windows-11-on-kvm)
 
 ### Issue: Unable to skip the Windows install page for "Let's connect you to a network"
 
@@ -46,16 +45,16 @@ Boot loader was not setup or installed correctly
 
 ### Issue: Unable to personalize Windows without activation
 
-- (Activation Methods)[https://massgrave.dev/#activation-methods]
+- [Activation Methods](https://massgrave.dev/#activation-methods)
 - Open PowerShell and run `irm https://get.activated.win | iex`
 
 ### Issue: Remove Windows bloat
 
-- (Chris Titus Tech's Windows Utility)[https://github.com/ChrisTitusTech/winutil]
+- [Chris Titus Tech's Windows Utility](https://github.com/ChrisTitusTech/winutil)
 
 ### Issue: Logitech G304 mouse side buttons not working inside VM
 
-- Install (Input Remapper)[https://github.com/sezanzeb/input-remapper/tree/main] and configure side buttons to send `Alt + Left/Right` keys
+- Install [Input Remapper](https://github.com/sezanzeb/input-remapper/tree/main) and configure side buttons to send `Alt + Left/Right` keys
 
 ### Issue: Multiple monitors not working for VM
 
