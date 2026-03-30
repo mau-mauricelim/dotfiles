@@ -861,7 +861,7 @@ c.content.headers.do_not_track = True
 ## increased compatibility.  Note that the value read from JavaScript is
 ## always the global value.
 ## Type: FormatString
-# c.content.headers.user_agent = 'Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {upstream_browser_key}/{upstream_browser_version_short} Safari/{webkit_version}'
+c.content.headers.user_agent = 'Mozilla/5.0 ({os_info}) AppleWebKit/{webkit_version} (KHTML, like Gecko) {upstream_browser_key}/{upstream_browser_version_short} Safari/{webkit_version}'
 
 ## Enable hyperlink auditing (`<a ping>`).
 ## Type: Bool
@@ -2530,3 +2530,6 @@ config.bind('l', 'scroll right')
 # config.bind('Y', 'prompt-accept --save yes', mode='yesno')
 # config.bind('n', 'prompt-accept no', mode='yesno')
 # config.bind('y', 'prompt-accept yes', mode='yesno')
+
+## Themes
+config.source('themes/nord.py')
