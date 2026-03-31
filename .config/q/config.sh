@@ -125,6 +125,8 @@ main
 unset -f main broken_symlink first_setup get_q_ver_path get_q_ver install_q_ver alias_setup wsl_kdb_setup
 
 run_q() {
+    # Suppress banner for kdb-x
+    [[ "$1" == "x" ]] && set -- "$@" "-Q"
     export QHOME="$LIN_Q_HOME/$1"
     # export LD_LIBRARY_PATH=
     local QPATH="$QHOME/$LIN_OS"
