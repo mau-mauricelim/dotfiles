@@ -4,9 +4,11 @@ if command -v nvim >/dev/null; then
     # Shortens startup time in a terminal, but the window title and clipboard will not be used.
     alias vi="nvim -X"
     # <leader>sg
-    alias vg="nvim -X -c 'lua Snacks.picker.grep({ hidden = true })'"
+    vg() { nvim -X -c 'lua Snacks.picker.grep({ cwd = [['"${1:-.}"']], hidden = true })'; }
     # <leader>sf
-    alias vf="nvim -X -c 'lua Snacks.picker.files({ hidden = true })'"
+    vf() { nvim -X -c 'lua Snacks.picker.files({ cwd = [['"${1:-.}"']], hidden = true })'; }
+    # File manager
+    vm() { nvim -X -c 'lua require("mini.files").open([['"${1:-.}"']])'; }
 fi
 
 if command -v eza &> /dev/null; then
