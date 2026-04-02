@@ -2214,6 +2214,7 @@ c.zoom.levels = ['25%', '33%', '50%', '67%', '75%', '90%', '100%', '110%', '125%
 # c.zoom.text_only = False
 
 ## TODO: Check keybinds
+## TODO: Caret mode does not show where is the cursor
 # Clear all default keybindings for all modes
 # c.bindings.default = {}
 
@@ -2225,11 +2226,11 @@ config.bind('+', 'zoom-in')
 config.bind('-', 'zoom-out')
 config.bind('=', 'zoom')
 
-config.bind('<Ctrl-F>', 'cmd-set-text /')
 config.bind('/', 'cmd-set-text /')
 config.bind('?', 'cmd-set-text /')
 config.bind('n', 'search-next')
 config.bind('N', 'search-prev')
+config.bind('<Ctrl-F>', 'cmd-set-text /')
 
 config.bind('f', 'hint')
 config.bind('F', 'hint all tab') # Follow hint in new tab...
@@ -2248,8 +2249,12 @@ config.bind('j', 'scroll down')
 config.bind('k', 'scroll up')
 config.bind('l', 'scroll right')
 
+config.bind('d', 'scroll-page 0 0.5')
+config.bind('u', 'scroll-page 0 -0.5')
 config.bind('<Ctrl-D>', 'scroll-page 0 0.5')
 config.bind('<Ctrl-U>', 'scroll-page 0 -0.5')
+
+config.bind('gg', 'scroll-to-perc 0')
 config.bind('G', 'scroll-to-perc')
 
 config.bind('[b', 'tab-prev')
@@ -2273,14 +2278,15 @@ config.bind('<Ctrl-W>', 'tab-close')
 config.bind('<Ctrl-Shift-T>', 'undo')
 
 config.bind('D', 'tab-close')
-config.bind('u', 'undo')
-config.bind('U', 'undo --window')
+config.bind('U', 'undo')
+# config.bind('nop', 'undo --window')
 
-config.bind('r', 'reload')
-config.bind('R', 'reload --force')
+config.bind('R', 'reload')
+config.bind('<Ctrl-r>', 'reload')
+config.bind('<Ctrl-Shift-r>', 'reload --force')
+config.bind('<F5>', 'reload')
 
 config.bind('<Ctrl-p>', 'print')
-config.bind('<F5>', 'reload')
 config.bind('<F11>', 'fullscreen')
 config.bind('<F12>', 'devtools')
 
@@ -2288,7 +2294,6 @@ config.bind('ZQ', 'quit')
 config.bind('ZZ', 'quit --save')
 
 config.bind('<Ctrl-Alt-p>', 'nop')
-config.bind('d', 'nop')
 config.bind('gJ', 'nop')
 config.bind('gK', 'nop')
 
@@ -2364,7 +2369,6 @@ config.bind('gK', 'nop')
 # config.bind('gb', 'cmd-set-text -s :bookmark-load')
 # config.bind('gd', 'download')
 # config.bind('gf', 'view-source')
-# config.bind('gg', 'scroll-to-perc 0')
 # config.bind('gi', 'hint inputs --first')
 # config.bind('gm', 'tab-move')
 # config.bind('go', 'cmd-set-text :open {url:pretty}')
