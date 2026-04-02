@@ -47,6 +47,8 @@ vim.keymap.set({ 'n', 'v' }, '<S-ScrollWheelUp>', '10zh')
 vim.keymap.set({ 'n', 'v' }, '<S-ScrollWheelDown>', '10zl')
 
 -- Center screen on current line
+vim.keymap.set('n', '{', '{zz')
+vim.keymap.set('n', '}', '}zz')
 vim.keymap.set({ 'n', 'v' }, 'k', 'kzz')
 vim.keymap.set({ 'n', 'v' }, 'j', 'jzz')
 vim.keymap.set({ 'n', 'v' }, 'G', 'Gzz')
