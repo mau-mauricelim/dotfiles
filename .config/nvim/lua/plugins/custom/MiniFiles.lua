@@ -110,3 +110,24 @@ vim.api.nvim_create_autocmd('FileType', {
     vim.keymap.set('n', '<C-p>', toggle_preview, { buffer = true })
   end,
 })
+
+-- Quit nvim on MiniFilesExplorerClose if only left [No Name] buffer
+vim.api.nvim_create_autocmd("User", {
+  pattern = "MiniFilesExplorerClose",
+  callback = function()
+    -- Wait for the explorer window to fully close and focus to return
+    vim.schedule(function()
+      local list_bufs = vim.tbl_filter(function(buf)
+        return vim.bo[buf].buflisted
+      end, vim.api.nvim_list_bufs())
+      if #list_bufs == 1 then
+        local buf = vim.api.nvim_get_current_buf()
+        local buf_name = vim.api.nvim_buf_get_name(buf)
+        local buftype = vim.bo[buf].buftype
+        if buf_name == "" and buftype == "" then
+          vim.cmd("quit")
+        end
+      end
+    end)
+  end,
+})
