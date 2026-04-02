@@ -1,0 +1,26 @@
+#!/usr/bin/env bash
+
+ADJECTIVES=( "admiring" "adorable" "adoring" "affectionate" "agitated" "amazing" "angry" "awesome" "beautiful" "beautiful" "big" "blissful" "bold" "boring" "brave" "bright" "busy" "charming" "clean" "clever" "clever" "compassionate" "competent" "condescending" "confident" "cool" "cool" "cranky" "crazy" "cunning" "cute" "dazzling" "determined" "determined" "distracted" "dreamy" "eager" "ecstatic" "efficient" "elastic" "elated" "elegant" "eloquent" "energetic" "epic" "exciting" "fantastic" "fast" "fervent" "festive" "fine" "flamboyant" "focused" "fresh" "friendly" "frosty" "funny" "gallant" "gifted" "good" "goofy" "gorgeous" "gracious" "great" "great" "handsome" "happy" "hardcore" "heuristic" "hopeful" "hot" "hungry" "infallible" "inspiring" "intelligent" "interesting" "jolly" "jovial" "keen" "kind" "kind" "laughing" "lovely" "loving" "lucid" "magical" "modest" "musing" "mystic" "mystifying" "naughty" "neat" "nervous" "nice" "nice" "nifty" "nostalgic" "objective" "optimistic" "patient" "peaceful" "pedantic" "pensive" "powerful" "practical" "pretty" "priceless" "quirky" "quizzical" "recursing" "relaxed" "reverent" "rich" "romantic" "sad" "secret" "serene" "sharp" "silly" "sleepy" "smart" "solid" "special" "stoic" "strange" "strategic" "strong" "stupefied" "suspicious" "sweet" "tender" "thirsty" "tidy" "trusting" "unruffled" "upbeat" "vibrant" "vigilant" "vigorous" "wise" "wizardly" "wonderful" "xenodochial" "youthful" "zealous" "zen")
+NAMES=( "agnesi" "albattani" "allen" "almeida" "antonelli" "apple" "archimedes" "ardinghelli" "aryabhata" "austin" "avocado" "babbage" "banach" "banana" "banzai" "bardeen" "bartik" "bassi" "beaver" "bell" "benz" "bhabha" "bhaskara" "black" "blackberry" "blackburn" "blackwell" "blueberry" "bohr" "booth" "borg" "bose" "bouman" "boyd" "brahmagupta" "brattain" "broccoli" "brown" "buck" "burnell" "cannon" "carrot" "carson" "cartwright" "carver" "cerf" "chandrasekhar" "chaplygin" "chatelet" "chatterjee" "chaum" "chebyshev" "cherry" "clarke" "coconut" "cohen" "colden" "cori" "cray" "curie" "curran" "darwin" "davinci" "dewdney" "dhawan" "diffie" "dijkstra" "dirac" "driscoll" "dubinsky" "easley" "edison" "einstein" "elbakyan" "elgamal" "elion" "ellis" "engelbart" "euclid" "euler" "faraday" "feistel" "fermat" "fermi" "feynman" "franklin" "gagarin" "galileo" "galois" "ganguly" "gates" "gauss" "germain" "goldberg" "goldstine" "goldwasser" "golick" "goodall" "gould" "grape" "greider" "grothendieck" "haibt" "hamilton" "haslett" "hawking" "heisenberg" "hellman" "hermann" "herschel" "hertz" "heyrovsky" "hodgkin" "hofstadter" "hoover" "hopper" "hugle" "hypatia" "ishizaka" "jackson" "jang" "jemison" "jennings" "jepsen" "johnson" "joliot" "jones" "kalam" "kapitsa" "kare" "keldysh" "keller" "kepler" "khayyam" "khorana" "kilby" "kirch" "knuth" "kowalevski" "lalande" "lamarr" "lamport" "leakey" "leavitt" "lederberg" "lehmann" "lemon" "lettuce" "lewin" "lichterman" "liskov" "lovelace" "lumiere" "mahavira" "mango" "margulis" "matsumoto" "maxwell" "mayer" "mccarthy" "mcclintock" "mclaren" "mclean" "mcnulty" "meitner" "melon" "mendel" "mendeleev" "meninsky" "merkle" "mestorf" "mirzakhani" "montalcini" "moore" "morse" "moser" "murdock" "mushroom" "napier" "nash" "neumann" "newton" "nightingale" "nobel" "noether" "northcutt" "noyce" "onion" "orange" "panini" "papaya" "pare" "pascal" "pasteur" "payne" "peach" "pear" "perlman" "pike" "pineapple" "poincare" "poitras" "potato" "proskuriakova" "ptolemy" "pumpkin" "raman" "ramanujan" "raspberry" "rhodes" "ride" "ritchie" "robinson" "roentgen" "rosalind" "rubin" "saha" "sammet" "sanderson" "satoshi" "shamir" "shannon" "shaw" "shirley" "shockley" "shtern" "sinoussi" "snyder" "solomon" "spence" "stonebraker" "strawberry" "sutherland" "swanson" "swartz" "swirles" "taussig" "tesla" "tharp" "thompson" "tomato" "torvalds" "tu" "turing" "varahamihira" "vaughan" "villani" "visvesvaraya" "volhard" "wescoff" "wilbur" "wiles" "williams" "williamson" "wilson" "wing" "wozniak" "wright" "wu" "yalow" "yonath" "zhukovsky")
+
+get_rand_name() { echo "${ADJECTIVES[$(( RANDOM % ${#ADJECTIVES[@]} ))]}-${NAMES[$(( RANDOM % ${#NAMES[@]} ))]}"; }
+
+# : as delimiter
+last_detached=$(tmux list-sessions -f "#{==:#{session_attached},0}" -F "#{session_last_attached} #{session_name}" 2>/dev/null | sort -nr | head -n1 | cut -d' ' -f2)
+
+if [[ -n "$last_detached" ]]; then
+    if [[ -n "$TMUX" ]]; then
+        echo 'sessions should be nested with care, unset $TMUX to force'
+    else
+        tmux attach-session -t "$last_detached"
+    fi
+    exit 0
+fi
+
+for i in {1..5}; do
+    rand_name=$(get_rand_name)
+    if ! tmux has-session -t="$rand_name" 2>/dev/null; then
+        tmux new-session -s "$rand_name"
+        break
+    fi
+done
