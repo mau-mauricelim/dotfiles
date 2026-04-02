@@ -8,7 +8,7 @@ virsh --connect qemu:///system start "$VM_NAME"
 virt-viewer --connect qemu:///system --wait --attach "$VM_NAME" &
 PID=$!
 
-for i in {1..10}; do
+for i in {1..30}; do
     mapfile -t ADDRS < <(hyprctl clients -j | jq -r --arg n "$VM_NAME" --arg p "$PID" \
         '[.[] | select(.title | test($n + " \\(\\d+\\)")) | select(.pid == ($p | tonumber))] | sort_by(.title) | .[].address')
     if [[ ${#ADDRS[@]} -ge $NUM_MON ]]; then
