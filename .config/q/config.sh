@@ -138,11 +138,12 @@ run_q() {
     local QBIN="$QPATH/q"
     shift # so $@ only contains q arguments
     if command -v rlwrap >/dev/null; then
-        RLWRAP="rlwrap -r";
-        if [ -f "$LIN_Q_HOME/rlwrap_completion" ]; then RLWRAP+=" -f $LIN_Q_HOME/rlwrap_completion"; fi
-        $RLWRAP "$QBIN" "$@"
+        local RLWRAP=(rlwrap -r);
+        if [ -f "$LIN_Q_HOME/rlwrap_completion" ]; then RLWRAP+=(-f "$LIN_Q_HOME/rlwrap_completion"); fi
+        "${RLWRAP[@]}" "$QBIN" "$@"
+    else
+        "$QBIN" "$@"
     fi
-    "$QBIN" "$@"
 }
 
 # List all available q versions
