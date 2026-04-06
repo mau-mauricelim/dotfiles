@@ -50,3 +50,7 @@ $ git restore . # OR git reset --hard
 - yazi 🦆 (file 📁)
 - zoxide 🦘
 - zsh 🐚
+
+### 🐚 Useful shell packages
+- mpv
+- yt-dlp
