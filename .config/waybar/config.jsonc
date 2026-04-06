@@ -66,8 +66,9 @@
     "format": "{:L%a, %d %b %Y, %H:%M}",
     "tooltip": false,
     "on-click": "omarchy-menu",
-    "on-click-right": "xdg-terminal-exec",
-    "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
+    "on-click-right": "omarchy-launch-or-focus-tui \"sh -c 'cal -y; read'\"",
+    // "on-click-right": "xdg-terminal-exec",
+    // "tooltip-format": "Omarchy Menu\n\nSuper + Alt + Space"
     // "on-click-right": "omarchy-launch-floating-terminal-with-presentation omarchy-tz-select"
   },
   "network": {
