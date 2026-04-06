@@ -4,7 +4,7 @@ VM_NAME="${1:-win11}"
 BASE_WS="${2:-5}"
 NUM_MON=$(hyprctl monitors -j | jq '. | length')
 
-virsh --connect qemu:///system start "$VM_NAME"
+virsh --connect qemu:///system start "$VM_NAME" && sleep 5
 virt-viewer --connect qemu:///system --wait --attach "$VM_NAME" &
 PID=$!
 
