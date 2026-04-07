@@ -11,5 +11,6 @@
     n:";"sv string .colors.sgr style,fg,bg;
     csi:"\033[";
     csi,n,"m"}.;
+.colors.wrap:{[style;fg;bg;msg] .colors.ansi[style,fg,bg],msg,.colors.reset[]};
 .colors.reset:{@[get;`.colors.i.reset;{:.colors.i.reset:.colors.ansi`reset``}]};
 .colors.enabled:{@[get;`.colors.i.enabled;{:.util.isWin[]|"xterm-256color"~getenv`TERM}]};

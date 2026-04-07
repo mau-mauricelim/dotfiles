@@ -27,7 +27,7 @@
             $[isLast;"└"   ;"├"   ],"──"     ]," ";
         / Print current entry (with colors)
         -1 params[`prefix],branch,
-            $[params`showColors;{.colors.ansi[`bold,(`yellow`cyan x),`default],y,.colors.reset[]}typeD;]string entry;
+            $[params`showColors;.colors.wrap[`bold;`yellow`cyan typeD;`default;];]string entry;
         / The next level would be in the following format:
         / "├── " becomes "│   "
         / "└── " becomes "    "

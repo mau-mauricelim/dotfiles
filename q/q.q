@@ -76,10 +76,8 @@ spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
     / Return msg if below current logging level
     if[(>). ll:.log.lvls?.log.lvl,lvl:upper lvl;:msg];
     colors:@[get;".colors.enabled[]";0b];
-    if[colors;1 .colors.ansi`bold,.log.colors[last ll],`default];
-    1 string[.z.p]," ";
-    1"[",string[lvl],"]: ";
-    -1$[colors;,[;.colors.reset[]];].log.plainText msg;
+    out:string[.z.p]," [",string[lvl],"]: ",.log.plainText msg;
+    -1$[colors;.colors.wrap[`bold;.log.colors last ll;`default;];]out;
     if[`FATAL~lvl;exit 1];
     if[`SYSTEM~lvl;:system msg];
     msg};
