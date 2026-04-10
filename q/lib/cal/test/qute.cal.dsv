@@ -1,0 +1,12 @@
+action | minver | code                                                                                                                   | repeat | ms | bytes | comment
+before |        | .lib.require`cal                                                                                                       |        |    |       | Initialize library
+run    |        | .cal.cal`year$.z.d                                                                                                     |        |    |       | Print the current year calendar
+run    |        | .cal.cal`d                                                                                                             |        |    |       | Print the current month calendar
+run    |        | .cal.cal`6                                                                                                             |        |    |       | Print N month(s) calendar spanning the current month
+run    |        | .cal.cal 2000.01 3000.01m                                                                                              |        |    |       | Print the date(s) month(s) calendar
+run    |        | .cal.todaysIndicator:"><"                                                                                              |        |    |       | Set custom calendar values
+run    |        | .cal.dayName:`Sun`Moon`Mars`Mercury`Jupiter`Venus`Saturn                                                               |        |    |       |
+run    |        | .cal.mthName:`Ianuarius`Februarius`Martius`Aprilis`Maius`Iunius`Quintilis`Sextilis`September`October`November`December |        |    |       |
+run    |        | .cal.mthCols:2                                                                                                         |        |    |       |
+run    |        | .cal.mthColsPad:5                                                                                                      |        |    |       |
+run    |        | .cal.cal`y                                                                                                             |        |    |       | Print the current year calendar

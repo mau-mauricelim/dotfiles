@@ -41,7 +41,7 @@
     }each distinct .Q.t except" ";
 
 / Generate a random name - "Adjective Name"
-// @return - string
+/ @return - string
 .rand.name:{
     // INFO: https://github.com/moby/moby/blob/master/internal/namesgenerator/names-generator.go
     // INFO: https://github.com/localsend/localsend/blob/main/app/lib/gen/strings_en.g.dart
