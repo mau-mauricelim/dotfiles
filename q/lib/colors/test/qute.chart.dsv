@@ -1,0 +1,6 @@
+action | minver | code                      | repeat | ms | bytes | comment
+before |        | .lib.require`colors       |        |    |       | Initialize library
+run    |        | .colors.chart8[]          |        |    |       |
+run    |        | .colors.h.chart24[30;"."] |        |    |       |
+run    |        | .colors.chart24[2;60;" "] |        |    |       |
+run    |        | .colors.chart24[1;80;"x"] |        |    |       |

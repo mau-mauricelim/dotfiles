@@ -1,0 +1,5 @@
+action | minver | code                                                                   | repeat | ms | bytes | comment
+before |        | .lib.require`colors                                                    |        |    |       | Initialize library
+true   |        | "#fbcf4f"~.colors.hexToColorName`Solarized                             |        |    |       |
+true   |        | "Cherry Chip"~.colors.colorNameToHex"#ffbbb4"                          |        |    |       |
+true   |        | "#f0ck - 31898 colors and you can't find any!"~.colors.hexToColorName` |        |    |       |

@@ -1,0 +1,16 @@
+action | minver | code                                                                                                                                        | repeat | ms | bytes | comment
+before |        | .lib.require`colors                                                                                                                         |        |    |       | Initialize library
+true   |        | (3#192;0 255 0;135 135 215;175 135 215;3#138)~.colors.256ToRgb@'7 10 104 140 245                                                            |        |    |       |
+fail   |        | .colors.256ToRgb 256                                                                                                                        |        |    |       |
+true   |        | 001b~.colors.i.isRgb@'(1 2;`hello;280 216 0N)                                                                                               |        |    |       | Null and overflow are considered valid
+true   |        | 24 216 0~.colors.i.rgbMod 280 216 0N                                                                                                        |        |    |       | Fill nulls and mod overflow
+true   |        | "#18d800"~.colors.rgbToHex 24 216 0                                                                                                         |        |    |       |
+fail   |        | .colors.rgbToHex`hello                                                                                                                      |        |    |       |
+true   |        | 24 216 0~.colors.hexToRgb`$"#18d800"                                                                                                        |        |    |       |
+fail   |        | .colors.hexToRgb`$"#18g800"                                                                                                                 |        |    |       |
+run    |        | -1 .colors.ansi[`bold`italic;`blue;`default],"Bold and italic blue text on default background";                                             |        |    |       |
+run    |        | -1 .colors.ansi[`underline;190;`default],"Underline style is stacked if no reset mode. Text is changed to color 190 (Yellow2)";             |        |    |       |
+run    |        | -1 .colors.ansi[`reset;75;48 48 48],"Reset all modes before applying text color 75 (SteelBlue1) on background color RGB 48 48 48 (Grey19)"; |        |    |       |
+run    |        | -1 .colors.ansi[`reset;();()],"Reset all modes (styles and colors)";                                                                        |        |    |       |
+run    |        | -1 .colors.wrap[`bold`italic;`blue;`default;"Bold and italic blue text on default background. Auto reset modes."];                          |        |    |       |
+true   |        | 101b~.util.exists@'`.colors.i.reset`.colors.i.enabled`.colors.i.capable                                                                     |        |    |       |

@@ -1,2 +1,12 @@
-filepath       | object
-../util/util.q | .util.isWin
+filepath         | object
+../../q.q        | .log.error
+../../q.q        | .q.Hsym
+../../q.q        | .util.dirname
+../../q.q        | .util.ensureStr
+../../q.q        | .util.getScriptPath
+../codec/codec.q | .codec.decToBinX
+../codec/codec.q | .codec.decToHex
+../codec/codec.q | .codec.hexToDec
+../dotx/dotx.q   | .Q.hex
+../util/util.q   | .util.exists
+../util/util.q   | .util.isWin
