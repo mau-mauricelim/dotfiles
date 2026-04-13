@@ -39,6 +39,7 @@
     .codec.hexToDec each 2 cut 6$hex};
 
 .colors.i.find:{x?x inter y};
+// TODO: Add hex option using .colors.hexToRgb
 .colors.i.findColor:{[xg;base]
     // NOTE: ";38" and ";48" corresponds to the 16 color sequence and is interpreted by the terminal to set the fg and
     // bg color respectively. Wheras ";2" and ";5" sets the color format of RGB and 256 colors respectively.

@@ -25,6 +25,7 @@
 // NOTE: Syntax `x function y` can be used if the function is defined in the root namespace
 
 .q.xor:<>;
+.q.rev:reverse;
 .q.rename:xcol;
 .q.reorder:xcols;
 
