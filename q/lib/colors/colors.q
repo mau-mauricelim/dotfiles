@@ -30,17 +30,21 @@
     if[not .colors.i.isRgb rgb;'.log.error"Not RGB values"];
     "#",raze flip .codec.decToHex .colors.i.rgbMod rgb};
 
+.colors.i.hex:"#[0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F][0-9a-fA-F]";
+/ Symbol or string
+.colors.i.isHex:{$[type[x]in -11 10h;x like .colors.i.hex;0b]};
+
 / Convert hex code to RGB values
 / @param hex - sym/string
 / @return - long list of 3 rgb colors
 .colors.hexToRgb:{[hex]
-    $["#"~first hex:.util.ensureStr hex;hex _:0;];
-    if[not all floor[hex]in .Q.hex;'.log.error"Not hex code"];
+    if[not .colors.i.isHex hex;'.log.error"Not hex code"];
+    hex:ssr[.util.ensureStr hex;"#";""];
     .codec.hexToDec each 2 cut 6$hex};
 
 .colors.i.find:{x?x inter y};
-// TODO: Add hex option using .colors.hexToRgb
 .colors.i.findColor:{[xg;base]
+    if[.colors.i.isHex xg;xg:.colors.hexToRgb xg];
     // NOTE: ";38" and ";48" corresponds to the 16 color sequence and is interpreted by the terminal to set the fg and
     // bg color respectively. Wheras ";2" and ";5" sets the color format of RGB and 256 colors respectively.
     seq:{[xg;base;fmt] (base+8),fmt,.colors.i.rgbMod xg}[xg;base];
@@ -54,12 +58,12 @@
 
 / Get string of ANSI escape sequences for specified styles and colors
 / @param styles - sym (list) - styles can be stacked
-/ @param fg - sym/long (list of 3 rgb colors)
-/ @param bg - sym/long (list of 3 rgb colors)
+/ @param fg/bg - sym/string (color/styles/hex code)
+/                long (list of 3 rgb colors)
 / @example - .colors.ansi[`bold`italic;`blue;`default]
-/            .colors.ansi[`underline;190;`default] / styles are stacked
-/            .colors.ansi[`reset;75;48 48 48]
-/            .colors.ansi[`reset;();()]            / reset all modes (styles and colors)
+/            .colors.ansi[`underline;190;`default]     / styles are stacked
+/            .colors.ansi[`reset;"#77a1f9";48 48 48]
+/            .colors.ansi[`reset;();()]                / reset all modes (styles and colors)
 .colors.ansi:{[styles;fg;bg]
     // NOTE: reset is to reset the previous modes on top of applying the current one
     modes:.colors.i.find[`reset`bold`dim`italic`underline`blink.slow`blink.fast`inverse`hidden`strikethrough;styles];
