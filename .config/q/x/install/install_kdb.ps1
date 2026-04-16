@@ -16,6 +16,7 @@
 
 .EXAMPLE
     .\install_kdb.ps1 -offline -b64lic "dGVzdA=="
+    .\install_kdb.ps1 -offline -k4b64lic "GDtkqBSJ"
 
 .EXAMPLE
     .\install_kdb.ps1 -y -b64lic "dGVzdA=="
@@ -30,6 +31,9 @@ param(
 
     [Parameter(Position=-1)]
     [string]$b64lic,
+
+    [Parameter(Position=-1)]
+    [string]$k4b64lic,
 
     [Parameter(Position=-1)]
     [Alias("y")]
@@ -62,12 +66,21 @@ function check_args {
         print_info "You have chosen an offline installation."
     }
     if ($b64lic) {
-        print_info "You have passed a base64 encoded license."
+        print_info "You have passed a base64 encoded license (kc.lic)."
+    }
+    if ($k4b64lic) {
+        print_info "You have passed a base64 encoded license (k4.lic)."
     }
 
-    if ($ACCEPT_DEFAULTS -and -not $b64lic) {
+    if ($ACCEPT_DEFAULTS -and -not $b64lic -and -not $k4b64lic) {
         print_error "License is required when using -y (non-interactive mode)"
-        print_info "Usage: .\install_kdb.ps1 -y -b64lic BASE64_LIC"
+        print_info "Usage: .\install_kdb.ps1 -y [-b64lic|-k4b64lic] BASE64_LIC"
+        exit 1
+    }
+
+    if ($b64lic -and $k4b64lic) {
+        print_error "Only one of [--b64lic, --k4b64lic] is allowed"
+        print_info "Usage: .\install_kdb.ps1 -y [-b64lic|-k4b64lic] BASE64_LIC"
         exit 1
     }
 }
@@ -499,7 +512,7 @@ function get_offline_component {
     }
     elseif ($componentName -eq "rest") {
         print_header "REST server module - Offline installation"
-        $expectedFilename = "rest.q_"
+        $expectedFilename = "rest-server.zip"
     }
     elseif ($componentName -eq "dashboards") {
         print_header "Dashboards - Offline installation"
@@ -613,7 +626,7 @@ function extract_component {
         [string]$componentName
     )
 
-    $tempExtract = Join-Path $TEMP_DIR "$componentName_extract"
+    $tempExtract = Join-Path $TEMP_DIR "${componentName}_extract"
     try {
         Expand-Archive -Path $zipFile -DestinationPath $tempExtract -Force
     }
@@ -764,14 +777,30 @@ function setup_license {
             }
         }
 
+        $script:LICENSE_FILE = ""
         if ($b64lic) {
             print_green "Using -b64lic option:"
             print_info $b64lic
             $LICENSE_CONTENT = $b64lic
             $script:b64lic = ""
+            $script:LICENSE_FILE = "kc.lic"
+        }
+        elseif ($k4b64lic) {
+            print_green "Using -k4b64lic option:"
+            print_info $k4b64lic
+            $LICENSE_CONTENT = $k4b64lic
+            $script:k4b64lic = ""
+            $script:LICENSE_FILE = "k4.lic"
         }
         else {
-            print_blue "Paste your base64 encoded license and press Enter:"
+            print_header "License type"
+            $choice = show_menu @("kc.lic", "k4.lic")
+
+            switch ($choice) {
+                0 { $script:LICENSE_FILE = "kc.lic" }
+                1 { $script:LICENSE_FILE = "k4.lic" }
+            }
+            print_blue "Paste your base64 encoded license ($LICENSE_FILE) and press Enter:"
             $LICENSE_CONTENT = Read-Host
         }
 
@@ -784,7 +813,7 @@ function setup_license {
                 }
 
                 $licenseBytes = [System.Convert]::FromBase64String($LICENSE_CONTENT)
-                $licenseFile = Join-Path $TEMP_DIR "install\kc.lic"
+                $licenseFile = Join-Path $TEMP_DIR "install\$LICENSE_FILE"
                 [System.IO.File]::WriteAllBytes($licenseFile, $licenseBytes)
 
                 if (test_license) {
@@ -934,9 +963,10 @@ function Install-ModuleGeneric {
         [string]$ComponentId,      # "ai", "kurl", "rest", "dashboards"
         [string]$DisplayName,      # "AI module", "REST server module", "KX Dashboards"
         [string]$UrlPath,          # "modules/ai", "modules/rest-server", "dash"
-        [string]$Filename,         # "$PREFIX-ai.zip", "rest.q_", "KXDashboards.zip"
+        [string]$Filename,         # "$PREFIX-ai.zip", "rest-server.zip", "KXDashboards.zip"
         [string]$InstallType,      # "extract" or "copy"
-        [string]$TargetPath        # "$TEMP_DIR\install\mod\kx\ai"
+        [string]$TargetPath,       # "$TEMP_DIR\install\mod\kx\ai"
+        [string]$OverridePath = "" # optional: skip download and use this local file directly (online mode only)
     )
 
     if ($offline) {
@@ -985,7 +1015,12 @@ function Install-ModuleGeneric {
         if ($InstallType -eq "extract") {
             try {
                 $tempFile = Join-Path $TEMP_DIR "${ComponentId}_${Filename}"
-                Invoke-WebRequest -Uri $fileurl -OutFile $tempFile -UseBasicParsing
+                if ($OverridePath) {
+                    print_warning "Not using the download url: $fileurl - Using local test file: $OverridePath"
+                    $tempFile = $OverridePath
+                } else {
+                    Invoke-WebRequest -Uri $fileurl -OutFile $tempFile -UseBasicParsing
+                }
 
                 print_header "Installing $DisplayName"
                 print_info "Extracting files"
@@ -1118,55 +1153,13 @@ function install_pq_module {
     Install-ModuleGeneric -ComponentId "pq" -DisplayName "parquet module" -UrlPath "modules/pq" -Filename "pq.zip" -InstallType "extract" -TargetPath $targetPath
 }
 
-function install_pq_module {
-    $pqModulePath = Join-Path $TEMP_DIR "install\mod\kx\pq"
-    New-Item -ItemType Directory -Path $pqModulePath -Force | Out-Null
-
-    if ($offline) {
-        get_offline_component "pq"
-        if (-not $COMPONENT_PATH) {
-            print_warning "Continuing without parquet module"
-            return
-        }
-
-        print_info "Extracting parquet module"
-        if (extract_component $COMPONENT_PATH $pqModulePath "pq") {
-            print_success "Installed successfully!"
-        }
-        else {
-            return
-        }
-    }
-    else {
-        $PQ_FILENAME = "pq.zip"
-        $PQ_FILEURL = "https://dev.downloads.kx.com/assets/raw/kdb-x/modules/pq/~latest~/pq.zip"
-
-        print_header "Downloading parquet module"
-        print_info "Fetching the latest stable version"
-        print_info "From: $PQ_FILEURL"
-
-        try {
-            $pqZipPath = Join-Path $TEMP_DIR "pq_$PQ_FILENAME"
-            Invoke-WebRequest -Uri $PQ_FILEURL -OutFile $pqZipPath -UseBasicParsing
-
-            print_header "Installing parquet module"
-            print_info "Extracting files"
-            if (extract_component $pqZipPath $pqModulePath "pq") {
-                print_success "Installed successfully!"
-            }
-            else {
-                return
-            }
-        }
-        catch {
-            print_warning "Failed to download parquet module. Continuing without parquet module"
-        }
-    }
-}
-
 function install_rest_module {
-    $targetPath = Join-Path $TEMP_DIR "install\mod\kx\rest.q_"
-    Install-ModuleGeneric -ComponentId "rest" -DisplayName "REST server module" -UrlPath "modules/rest-server" -Filename "rest.q_" -InstallType "copy" -TargetPath $targetPath
+    # Test hook: In online mode, if local test file exists, pass it directly to Install-ModuleGeneric
+    # which will use it in place of downloading from the portal.
+    $localZip = Join-Path $env:TEMP "test_rest_server_zip\rest-server.zip"
+    $overridePath = if (-not $offline -and (Test-Path $localZip)) { $localZip } else { "" }
+    $targetPath = Join-Path $TEMP_DIR "install\mod\kx"
+    Install-ModuleGeneric -ComponentId "rest" -DisplayName "REST server module" -UrlPath "modules/rest-server" -Filename "rest-server.zip" -InstallType "extract" -TargetPath $targetPath -OverridePath $overridePath
 }
 
 function install_dashboards {
@@ -1249,8 +1242,9 @@ function verify_installation {
         return $false
     }
 
-    $licenseFile = Join-Path $TEMP_DIR "install\kc.lic"
-    if (Test-Path $licenseFile) {
+    $licenseFileKC = Join-Path $TEMP_DIR "install\kc.lic"
+    $licenseFileK4 = Join-Path $TEMP_DIR "install\k4.lic"
+    if ((Test-Path $licenseFileKC) -or (Test-Path $licenseFileK4)) {
         print_info "License file found"
         if (-not (test_license)) {
             print_warning "License file exists but may not be working properly"
@@ -1261,7 +1255,7 @@ function verify_installation {
         }
     }
     else {
-        print_warning "No license file found - you will need to add kc.lic before using KDB-X"
+        print_warning "No license file found - you will need to add kc.lic/k4.lic before using KDB-X"
     }
 
     $aiLibsPath = Join-Path $TEMP_DIR "install\mod\kx\ai"
@@ -1286,11 +1280,6 @@ function verify_installation {
     if ((Test-Path $pqModulePath) -and (Get-ChildItem $pqModulePath -ErrorAction SilentlyContinue).Count -gt 0) {
         print_info "parquet module installed"
         $script:INSTALLED_PQ = $true
-    }
-
-    $pqModulePath = Join-Path $TEMP_DIR "install\mod\kx\pq"
-    if ((Test-Path $pqModulePath) -and (Get-ChildItem $pqModulePath -ErrorAction SilentlyContinue).Count -gt 0) {
-        print_info "parquet module installed"
     }
 
     $restModuleFile = Join-Path $TEMP_DIR "install\mod\kx\rest.q_"
@@ -1356,7 +1345,7 @@ function print_next_steps {
         print_info "  - $INSTALL_DIR\dashboards\       KX Dashboards"
     }
     if ($INSTALLED_LICENSE) {
-        print_info "  - $INSTALL_DIR\kc.lic            license file"
+        print_info "  - $INSTALL_DIR\$LICENSE_FILE     license file"
     }
 
     print_header "Next steps"
@@ -1398,13 +1387,13 @@ function print_next_steps {
         print_info ""
     }
 
-    if (Test-Path (Join-Path $INSTALL_DIR "kc.lic")) {
+    if (Test-Path (Join-Path $INSTALL_DIR $LICENSE_FILE)) {
         print_info "To run your first q program (`"Hello, World!`"):"
         print_blue "    q"
         print_blue '    q)"Hello, World!"'
     }
     else {
-        print_warning "Before using KDB-X, add your license file as: $INSTALL_DIR\kc.lic"
+        print_warning "Before using KDB-X, add your license file as: $INSTALL_DIR\[kc|k4].lic"
     }
 
     print_header "Resources"

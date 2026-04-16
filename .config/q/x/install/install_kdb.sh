@@ -21,6 +21,7 @@ ARCHIVE_FILE=""
 CONFIG_FILE_MODIFIED=""
 
 B64_LIC=""
+K4B64_LIC=""
 OFFLINE_MODE=false
 ACCEPT_DEFAULTS=false
 QTEL_ENABLED=""
@@ -31,12 +32,19 @@ check_args() {
             B64_LIC="$arg"
             continue
         fi
+        if [ "$K4B64_LIC" = "NEXT" ]; then
+            K4B64_LIC="$arg"
+            continue
+        fi
         case $arg in
         --offline)
             OFFLINE_MODE=true
             ;;
         --b64lic)
             B64_LIC="NEXT"
+            ;;
+        --k4b64lic)
+            K4B64_LIC="NEXT"
             ;;
         -y|--non-interactive)
             ACCEPT_DEFAULTS=true
@@ -55,9 +63,21 @@ check_args() {
         exit 1
     fi
 
-    if [ "$ACCEPT_DEFAULTS" = true ] && [ -z "$B64_LIC" ]; then
+    if [ "$K4B64_LIC" = "NEXT" ]; then
+        print_error "Missing value for --k4b64lic argument"
+        print_info "Usage: $0 --k4b64lic K4BASE64_LIC"
+        exit 1
+    fi
+
+    if [ "$ACCEPT_DEFAULTS" = true ] && [ -z "$B64_LIC" ] && [ -z "$K4B64_LIC" ]; then
         print_error "License is required when using -y/--non-interactive mode"
-        print_info "Usage: $0 -y --b64lic BASE64_LIC"
+        print_info "Usage: $0 -y [--b64lic BASE64_LIC|--k4b64lic BASE64_LIC]"
+        exit 1
+    fi
+
+    if [ -n "$B64_LIC" ] && [ -n "$K4B64_LIC" ]; then
+        print_error "Only one of [--b64lic, --k4b64lic] is allowed"
+        print_info "Usage: $0 -y [--b64lic BASE64_LIC|--k4b64lic BASE64_LIC]"
         exit 1
     fi
 }
@@ -450,7 +470,7 @@ get_offline_component() {
         expected_filename="pq.zip"
     elif [ "$componentName" = "rest" ]; then
         print_header "REST server module - Offline installation"
-        expected_filename="rest.q_"
+        expected_filename="rest-server.zip"
     elif [ "$componentName" = "dashboards" ]; then
         print_header "Dashboards - Offline installation"
         expected_filename="KXDashboards.zip"
@@ -649,17 +669,31 @@ setup_license() {
             esac
         fi
 
+        LICENSE_FILE=""
         if [ -n "$B64_LIC" ]; then
                 print_green "Using --b64lic option:"
                 print_info  "$B64_LIC"
             LICENSE_CONTENT="$B64_LIC"
             B64_LIC=""
+            LICENSE_FILE="kc.lic"
+        elif [ -n "$K4B64_LIC" ]; then
+                print_green "Using --k4b64lic option:"
+                print_info  "$K4B64_LIC"
+            LICENSE_CONTENT="$K4B64_LIC"
+            K4B64_LIC=""
+            LICENSE_FILE="k4.lic"
         else
+            print_header "License type"
+            show_menu "kc.lic" "k4.lic"
+            case $? in
+                0) LICENSE_FILE="kc.lic" ;;
+                1) LICENSE_FILE="k4.lic" ;;
+            esac
             print_blue "Paste your base64 encoded license and press Enter:"
             read -r LICENSE_CONTENT
         fi
         if [ -n "$LICENSE_CONTENT" ]; then
-            echo "$LICENSE_CONTENT" | base64 -d > "$TEMP_DIR/install/kc.lic" 2>/dev/null || {
+            echo "$LICENSE_CONTENT" | base64 -d > "$TEMP_DIR/install/$LICENSE_FILE" 2>/dev/null || {
                     print_error "Failed to decode license"
                 continue
             }
@@ -669,7 +703,7 @@ setup_license() {
                 break
             else
                     print_error "License validation failed"
-                rm -f "$TEMP_DIR/install/kc.lic" 2>/dev/null || true
+                rm -f "$TEMP_DIR/install/$LICENSE_FILE" 2>/dev/null || true
                 continue
             fi
         else
@@ -787,9 +821,10 @@ install_module_generic() {
     local component_id="$1"      # "ai", "kurl", "rest", "dashboards"
     local display_name="$2"      # "AI module", "REST server module", "KX Dashboards"
     local url_path="$3"          # "modules/ai", "modules/rest-server", "dash"
-    local filename="$4"          # "$PREFIX-ai.zip", "rest.q_", "KXDashboards.zip"
+    local filename="$4"          # "$PREFIX-ai.zip", "rest-server.zip", "KXDashboards.zip"
     local install_type="$5"      # "extract", "copy", or "custom"
     local target_path="$6"       # "$TEMP_DIR/install/mod/kx/ai"
+    local override_path="${7:-}" # optional: skip download and use this local file directly (online mode only)
 
     if [ "$OFFLINE_MODE" = true ]; then
         get_offline_component "$component_id"
@@ -831,13 +866,17 @@ install_module_generic() {
 
     else
         local fileurl="https://portal.dl.kx.com/assets/raw/kdb-x/${url_path}/~latest~/${filename}"
-        print_header "Downloading $display_name"
+        print_header "Downloading $display_name"    
         print_info "Fetching the latest stable version"
         print_info "From: $fileurl"
+        if [ -n "$override_path" ]; then
+            print_warning "Not using the download url: $fileurl - Using local test file: $override_path"
+        fi            
 
         if [ "$install_type" = "extract" ]; then
             local temp_file="$TEMP_DIR/${component_id}_${filename}"
-            if download_file "$fileurl" "$temp_file"; then
+            if [ -n "$override_path" ] || download_file "$fileurl" "$temp_file"; then
+                [ -n "$override_path" ] && temp_file="$override_path"
                 print_header "Installing $display_name"
                 if extract_component "$temp_file" "$target_path" "$component_id"; then
                     print_success "Installed successfully!"
@@ -885,7 +924,14 @@ install_objstor_module() {
 }
 
 install_rest_module() {
-    install_module_generic "rest" "REST server module" "modules/rest-server" "rest.q_" "copy" "$TEMP_DIR/install/mod/kx/rest.q_"
+    # Test hook: In online mode, if local test file exists, pass it directly to install_module_generic
+    # which will use it in place of downloading from the portal.
+    local local_zip="/tmp/test_rest_server_zip/rest-server.zip"
+    local override_path=""
+    if [ "$OFFLINE_MODE" = false ] && [ -f "$local_zip" ]; then
+        override_path="$local_zip"
+    fi
+    install_module_generic "rest" "REST server module" "modules/rest-server" "rest-server.zip" "extract" "$TEMP_DIR/install/mod/kx" "$override_path"
 }
 
 install_pq_module() {
@@ -1310,7 +1356,7 @@ verify_installation() {
         return 1
     fi
 
-    if [ -f "$TEMP_DIR/install/kc.lic" ]; then
+    if [ -f "$TEMP_DIR/install/kc.lic" ] || [ -f "$TEMP_DIR/install/k4.lic" ]; then
         print_info "License file found"
         if ! test_license; then
             print_warning "License file exists but may not be working properly"
@@ -1319,7 +1365,7 @@ verify_installation() {
             INSTALLED_LICENSE=true
         fi
     else
-        print_warning "No license file found - you will need to add kc.lic before using KDB-X"
+        print_warning "No license file found - you will need to add kc.lic/k4.lic before using KDB-X"
     fi
 
     if [ -d "$TEMP_DIR/install/mod/kx/ai" ] && [ -n "$(ls -A "$TEMP_DIR/install/mod/kx/ai" 2>/dev/null)" ]; then
@@ -1424,7 +1470,7 @@ print_next_steps() {
         print_info "  - $INSTALL_DIR/dashboards/       KX Dashboards"
     fi
     if [ "$INSTALLED_LICENSE" = true ]; then
-        print_info "  - $INSTALL_DIR/kc.lic            license file"
+        print_info "  - $INSTALL_DIR/$LICENSE_FILE     license file"
     fi
 
     print_header "Next steps"
@@ -1489,7 +1535,7 @@ print_next_steps() {
         print_info ""
     fi
 
-    if [ -f "$INSTALL_DIR/kc.lic" ]; then
+    if [ -f "$INSTALL_DIR/kc.lic" ] || [ -f "$INSTALL_DIR/k4.lic" ]; then
         print_info "To run your first q program (\"Hello, World!\"):"
         if [ "$ENV_OPTION" = "1" ]; then
             print_blue "    q"
@@ -1498,7 +1544,7 @@ print_next_steps() {
         fi
         print_blue "    q)\"Hello, World!\""
     else
-        print_warning "Before using KDB-X, add your license file as: $INSTALL_DIR/kc.lic"
+        print_warning "Before using KDB-X, add your license file as: $INSTALL_DIR/[kc|k4].lic"
     fi
 
     print_header "Resources"
