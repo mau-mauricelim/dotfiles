@@ -1,0 +1,69 @@
+name: Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      WORKFLOW_NAME:
+        type: choice
+        description: workflow name
+        options:
+        - wsl-distro-custom.yml
+        - build-release.yml
+      WORKFLOW_STATUS:
+        default: 'success'
+        type: string
+      TAG_NAME:
+        default: 'vX.X.X'
+        type: string
+  workflow_call:
+    inputs:
+      WORKFLOW_NAME:
+        default: 'build-release.yml'
+        type: string
+      WORKFLOW_STATUS:
+        default: 'in_progress'
+        type: string
+      TAG_NAME:
+        default: 'vX.X.X'
+        type: string
+
+jobs:
+  release:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+      - name: Download all workflow run Artifacts
+        uses: dawidd6/action-download-artifact@v3
+        with:
+          workflow: ${{ inputs.WORKFLOW_NAME }}
+          workflow_search: true
+          workflow_conclusion: ${{ inputs.WORKFLOW_STATUS }}
+          skip_unpack: true
+          path: target/release
+      - run: ls -lR
+      - name: Delete a release
+        run: |
+          if forgejo-cli release delete ${{ gitea.repository.owner }}/${{ gitea.repository.name }} ${{ inputs.TAG_NAME }} 2>&1; then
+            echo "Deleted existing release"
+          else
+            echo "No existing release to delete"
+          fi
+        env:
+          GITEA_TOKEN: ${{ secrets.GITEA_TOKEN }}
+          GITEA_SERVER: ${{ gitea.server_url }}
+      - name: Create pre-Release
+        run: |
+          FILES=""
+          for f in target/release/wsl-*-custom.tar.xz; do
+            [ -f "$f" ] && FILES="$FILES -F attachment=@$f"
+          done
+          for f in target/release/vim-bundle.zip; do
+            [ -f "$f" ] && FILES="$FILES -F attachment=@$f"
+          done
+          
+          curl -X POST \
+            -H "Authorization: token ${{ secrets.GITEA_TOKEN }}" \
+            -H "Content-Type: application/json" \
+            -d "{\"tag_name\": \"${{ inputs.TAG_NAME }}\", \"name\": \"${{ inputs.TAG_NAME }}\", \"draft\": false, \"prerelease\": true}" \
+            "${{ gitea.server_url }}/api/v1/repos/${{ gitea.repository.owner }}/${{ gitea.repository.name }}/releases"

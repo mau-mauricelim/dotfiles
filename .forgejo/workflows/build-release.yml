@@ -1,0 +1,19 @@
+name: Build WSL Distro custom and Release
+
+on:
+  workflow_dispatch:
+    inputs:
+      TAG_NAME:
+        default: 'vX.X.X'
+        type: string
+
+jobs:
+  build:
+    uses: ./.forgejo/workflows/wsl-distro-custom.yml
+    secrets: inherit
+  release:
+    needs: build
+    uses: ./.forgejo/workflows/release.yml
+    secrets: inherit
+    with:
+      TAG_NAME: ${{ inputs.TAG_NAME }}
