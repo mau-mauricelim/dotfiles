@@ -2,7 +2,7 @@
 /# Color Chart #
 /###############
 
-.colors.i.print8:{[fg;x] raze each{.colors.wrap[`reset,$[y;();`inverse];x;();(-4$string x),1#""]}[;fg]each'x};
+.colors.i.print8:{[fg;x] raze each{.colors.wrap[`reset,``inverse y;x;();(-4$string x),1#""]}[;fg]each'x};
 .colors.i.chart8:{[fg]
     print:.colors.i.print8 fg;
     italic:.colors.wrap[`reset`italic;();()];
