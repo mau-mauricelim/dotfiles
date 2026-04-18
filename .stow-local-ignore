@@ -14,6 +14,7 @@ _darcs
 
 \.git
 \.github
+\.forgejo
 \.gitignore
 \.gitmodules
 \.idea
@@ -24,6 +25,10 @@ _darcs
 ^/README.*
 ^/LICENSE.*
 ^/COPYING
+
+# Broken symlinks on linux
+^/.local/bin/cmd.exe$
+^/.local/bin/powershell.exe$
 
 docs
 /q
