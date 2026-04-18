@@ -3,6 +3,8 @@
 /###############
 
 .colors.i.print8:{[fg;x] raze each{.colors.wrap[`reset,``inverse y;x;();(-4$string x),1#""]}[;fg]each'x};
+/ Alternative using opposite colors
+/ .colors.i.print8:{[fg;x] raze each{.colors.wrap[`reset,`inverse` y;x;.colors.opposite256 x;(-4$string x),1#""]}[;fg]each'x};
 .colors.i.chart8:{[fg]
     print:.colors.i.print8 fg;
     italic:.colors.wrap[`reset`italic;();()];

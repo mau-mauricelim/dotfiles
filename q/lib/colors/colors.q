@@ -4,8 +4,8 @@
 
 .lib.require`codec;
 
-/ Convert 8-bit 256 colors to RGB values
-/ @param x - long - 256 colors
+/ Convert 8-bit 256 color to RGB values
+/ @param x - long - 256 color
 / @return - long list of 3 rgb colors
 .colors.256ToRgb:{
     if[x within 0 15;
@@ -17,7 +17,7 @@
         x:(({y;x};div;mod)@'x)@'6;
         :0 95 135 175 215 255 x];
     if[x<256;:3#8+10*x-232];
-    '.log.error"256 colors (0-255)";
+    '.log.error"256 color (0-255)";
     };
 
 .colors.i.isRgb:{(7h~type x)&3~count x};
@@ -41,6 +41,47 @@
     if[not .colors.i.isHex hex;'.log.error"Not hex code"];
     hex:ssr[.util.ensureStr hex;"#";""];
     .codec.hexToDec each 2 cut 6$hex};
+
+/ Linearize sRGB channels
+/ @param rgb - long list of 3 rgb colors
+.colors.linear:{[rgb] rgb%:255;?[0.04045<rgb;((rgb+0.055)%1.055)xexp 2.4;rgb%12.92]};
+
+/ Convert RGB to Oklab
+// INFO: https://bottosson.github.io/posts/oklab/#converting-from-linear-srgb-to-oklab
+/ @param rgb - long list of 3 rgb colors
+/ @return - float - (negative) ratio
+.colors.rgbToOklab:{[rgb]
+    lms:sum(0.4122214708 0.2119034982 0.0883024619;0.5363325363 0.6806995451 0.2817188376;0.0514459929 0.1073969566 0.6299787005)*.colors.linear rgb;
+    lms:lms xexp reciprocal 3;
+    lab:sum(0.2104542553 1.9779984951 0.0259040371;0.7936177850 -2.4285922050 0.7827717662;-0.0040720468 0.4505937099 -0.8086757660)*lms;
+    @[lab;1 2;{x*1e-4<abs x}]};
+
+// INFO: https://bottosson.github.io/posts/colorpicker/#intermission---a-new-lightness-estimate-for-oklab
+/ @param x - number - Oklab lightness
+.colors.correctLightness:{
+    k3:(1+k1:0.206)%1+k2:0.03;
+    0.5*t+sqrt(t*t:(k3*x)-k1)+4*k2*k3*x};
+
+/ Check if color is dark
+/ @param x - sym/string (hex code)
+/            long (list of 3 rgb colors)
+/ @param mode - sym - `256`rgb`hex according to x
+/ @return - boolean - 1b if color is dark
+/ @example - .colors.i.isDark["#8b4513";`hex]
+.colors.i.isDark:{[x;mode]
+    f:(.colors.256ToRgb;{x};.colors.hexToRgb;{'.log.error"mode"})`256`rgb`hex?mode;
+    0.5>.colors.correctLightness first .colors.rgbToOklab f x};
+
+// Compute opposite color
+/ @param x - long - 256 color
+/ @return - long - 15 (white)/0 (black)
+.colors.opposite256:15*.colors.i.isDark[;`256]@;
+/ @param x - long list of 3 rgb colors
+/ @return - long list of 3 rgb colors - 255 255 255 (white)/0 0 0 (black)
+.colors.oppositeRgb:3#255*.colors.i.isDark[;`rgb]@;
+/ @param x - sym/string - hex code
+/ @return - string - "#ffffff" (white)/"#000000" (black)
+.colors.oppositeHex:"#",6#"0f".colors.i.isDark[;`hex]@;
 
 .colors.i.find:{x?x inter y};
 .colors.i.findColor:{[xg;base]
