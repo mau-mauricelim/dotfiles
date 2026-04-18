@@ -1,0 +1,93 @@
+label,detail,documentation,kind
+import,import source code file,import[functionPath],2
+.path.ToHsym,convert to path symbol,.path.ToHsym[path],2
+.path.ToString,conver to string,.path.ToString[path],2
+.path.IsDir,check if directory,.path.IsDir[path],2
+.path.MkDir,make a directory,.path.IsDir[path],2
+.path.IsFile,check if file,.path.IsFile[path],2
+.path.Exists,check if exists,.path.Exists[path],2
+.path.Remove,remove a filepath,.path.Remove[path],2
+.path.Walk,list all files,.path.Walk[path],2
+.path.Glob,list all files with pattern,.path.Glob[path;pattern],2
+.path.Home,get home directory,.path.Home[],2
+.path.Cwd,get current directory,.path.Cwd[],2
+.path.GetRealPath,get real path,.path.GetRealPath[path],2
+.path.JoinPath,join paths,.path.JoinPath[path;subPaths],2
+.path.GetRelativePath,get relative path,.path.GetRelativePath[pathFunc],2
+.log.Debug,log a debug message,.log.Debug[msg],2
+.log.Info,log a info message,.log.Info[msg],2
+.log.Warning,log a warning message,.log.Warning[msg],2
+.log.Error,log a error message,.log.Error[msg],2
+.log.SetStdLogFile,set std output log file,.log.SetStdLogFile[filepath],2
+.log.SetErrLogFile,set err output log file,.log.SetErrLogFile[filepath],2
+.log.SetConsoleSize,set console size,.log.SetConsoleSize[consoleSize],2
+.log.SetDatetimeShortcut,set datatime format,.log.SetDatetimeShortcut[shortcut],2
+.log.SetLogFormatType,set log format type,.log.SetLogFormatType[formatType],2
+.log.SetJsonHeader,set log header,.log.SetJsonHeader[header],2
+.log.SetLogLevel,set log level,.log.SetLogLevel[level],2
+.cli.SetName,set command line name,.cli.SetName[cliName],2
+.cli.Parse,parse arguments,.cli.Parse[],2
+.cli.Selection,add a selection type parameter,.cli.Selection[name;selections;description],2
+.cli.String,add a string type parameter,.cli.String[name;defaultValue;description],2
+.cli.Boolean,set a boolean type parameter,.cli.Boolean[name;defaultValue;description],2
+.cli.Float,set a float type parameter,.cli.Float[name;defaultValue;description],2
+.cli.Long,set a long type parameter,.cli.Long[name;defaultValue;description],2
+.cli.Int,set a int type parameter,.cli.Int[name;defaultValue;description],2
+.cli.Date,set a date type parameter,.cli.Date[name;defaultValue;description],2
+.cli.Datetime,set a datetime type parameter,.cli.Datetime[name;defaultValue;description],2
+.cli.Minute,set a minute type parameter,.cli.Minute[name;defaultValue;description],2
+.cli.Second,set a second type parameter,.cli.Second[name;defaultValue;description],2
+.cli.Time,set a time type parameter,.cli.Time[name;defaultValue;description],2
+.cli.Timestamp,set a timestamp type parameter,.cli.Timestamp[name;defaultValue;description],2
+.cli.Symbol,set a symbol type parameter,.cli.Symbol[name;defaultValue;description],2
+.cli.Booleans,set a booleans type parameter,.cli.Booleans[name;defaultValue;description],2
+.cli.Floats,set a floats type parameter,.cli.Floats[name;defaultValue;description],2
+.cli.Longs,set a longs type parameter,.cli.Longs[name;defaultValue;description],2
+.cli.Ints,set a ints type parameter,.cli.Ints[name;defaultValue;description],2
+.cli.Dates,set a dates type parameter,.cli.Dates[name;defaultValue;description],2
+.cli.Datetimes,set a datetimes type parameter,.cli.Datetimes[name;defaultValue;description],2
+.cli.Minutes,set a minutes type parameter,.cli.Minutes[name;defaultValue;description],2
+.cli.Seconds,set a seconds type parameter,.cli.Seconds[name;defaultValue;description],2
+.cli.Times,set a times type parameter,.cli.Times[name;defaultValue;description],2
+.cli.Timestamps,set a timestamps type parameter,.cli.Timestamps[name;defaultValue;description],2
+.cli.Symbols,set a symbols type parameter,.cli.Symbols[name;defaultValue;description],2
+.kest.BeforeAll,define before all setup function,.kest.BeforeAll[function],2
+.kest.AfterAll,define after all teardown function,.kest.AfterAll[function],2
+.kest.BeforeEach,define before each setup function,.kest.BeforeEach[function],2
+.kest.AfterEach,define after each teardown function,.kest.AfterEach[function],2
+.kest.Test,define a test case,.kest.Test[description;function],2
+.kest.ToThrowAs,test rasing message like pattern,.kest.ToThrowAs[functionCall;errorPattern],2
+.kest.MatchPattern,test string like pattern,.kest.MatchPattern[pattern;actual],2
+.kest.ToThrow,test rasing error,.kest.ToThrow[functionCall;errorMsg],2
+.kest.Match,test if matches,.kest.Match[expect;actual],2
+.kest.MatchTable,test if tables match,.kest.MatchTable[expectTable;actualTable],2
+.kest.MatchDict,test if dictionaries match,.kest.MatchDict[expectDict;actualDict],2
+.timer.SetInterval,set timer interval,.timer.SetInterval[ms],2
+.timer.Milliseconds,1 millisecond as timespan,.timer.Milliseconds,6
+.timer.Second,1 second as timespan,.timer.Second,6
+.timer.Minute,1 minute as timespan,.timer.Minute,6
+.timer.Hour,1 hour as timespan,.timer.Hour,6
+.timer.Day,1 day as timespan,.timer.Day,6
+.timer.AddJob,add a job,.timer.AddJob[functionCall;startTime;endTime;interval;description],2
+.timer.AddJobAtTime,add a job at time,.timer.AddJobAtTime[functionCall;startTime;description],2
+.timer.AddJobAfter,add a job after interval,.timer.AddJob[functionCall;interval;description],2
+.timer.GetJobs,get all jobs,.timer.GetJobs[],2
+.timer.GetJobsByDescription,get jobs by pattern,.timer.GetJobsByDescription[pattern],2
+.timer.ActivateJobs,activate jobs by id,.timer.ActivateJobs[jobId],2
+.timer.DeactivateJobs,deactivate jobs by id,.timer.DeactivateJobs[jobId],2
+.timer.ActivateJobsByDescription,activate jobs by pattern,.timer.ActivateJobsByDescription[pattern],2
+.timer.DeactivateJobsByDescription,deactivate jobs by pattern,.timer.DeactivateJobsByDescription[pattern],2
+.timer.Start,start timer,.timer.Start[],2
+.timer.Stop,stop timer,.timer.Stop[],2
+.timer.Clear,clear deactivate jobs,.timer.Clear[],2
+.ktrl.Spawn,spawn a ktrl process,.ktrl.Spawn[profile;process;isDetached;isGlobal],2
+.ktrl.Wait,spawn and wait til a ktrl process finishing,.ktrl.Wait[profile;process;isGlobal],2
+.ktrl.MakeNohupLogDir,make a directory for nohup logs,.ktrl.MakeNohupLogDir[path],2
+.ktrl.Kill,kill a process by label,.ktrl.Kill[label],2
+.ktrl.ForceKill,force to kill a process by label,.ktrl.ForceKill[label],2
+.ktrl.KillAttached,kill all attached processes,.ktrl.KillAttached[],2
+.ktrl.Interrupt,interrupt a process by label,.ktrl.Interrupt[label],2
+.ktrl.IsRunning,check if a process is running by label,.ktrl.IsRunning[label],2
+.ktrl.GetPid,get pid by label,.ktrl.GetPid[label],2
+.ktrl.GetPort,get port by label,.ktrl.GetPort[label],2
+.ktrl.ListInstances,list all instances,.ktrl.ListInstances[],2
