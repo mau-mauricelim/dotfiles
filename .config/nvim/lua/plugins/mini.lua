@@ -78,6 +78,9 @@ return {
       vim.keymap.set('n', 'u', 'uzz<Cmd>lua MiniBracketed.register_undo_state()<CR>')
       vim.keymap.set('n', '<C-r>', '<C-r>zz<Cmd>lua MiniBracketed.register_undo_state()<CR>')
 
+      -- Comment lines
+      require('mini.comment').setup()
+
       -- Automatic highlighting of word under cursor
       require('mini.cursorword').setup()
 
