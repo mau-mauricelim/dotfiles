@@ -10,9 +10,13 @@ true   |        | 98h~type tab:asc .util.showTab -100?100                       
 true   |        | tab~asc .util.shuffle tab                                                  |        |    |       |
 true   |        | s~.util.addQuotes .util.removeQuotes s:"\" hello world \""                 |        |    |       |
 true   |        | "1023 B"~first .util.humanBytes 1023                                       |        |    |       |
+true   |        | enlist["1048576 YB"]~.util.humanBytes 1024 xexp 10                         |        |    |       | Max unit is YB (Yobibytes)
 true   |        | "0.9990234 KB"~first .util.humanBytesUnit[1023;`kb]                        |        |    |       |
 before |        | bytes:(1024;2.5*1024 xexp 3;3.75*1024 xexp 4)                              |        |    |       | Setup test variables
-true   |        | ("1 KB";"2.5 GB";"3.75 TB")~.util.humanBytes[bytes]                        |        |    |       |
+true   |        | ("1 KB";"2.5 GB";"3.75 TB")~.util.humanBytes bytes                         |        |    |       |
+true   |        | all bytes=.util.bytesHuman .util.humanBytes bytes                          |        |    |       |
+true   |        | enlist[0W]~`long$.util.bytesHuman"1048576 YB"                              |        |    |       |
+true   |        | enlist["1267650600228229401496703205376"]~.util.bigBytesHuman"1048576 YB"  |        |    |       |
 true   |        | ("0.0009765625 MB";"2560 MB";"3932160 MB")~.util.humanBytesUnit[bytes;`MB] |        |    |       |
 after  |        | system"d ."                                                                |        |    |       | Change to default namespace
 after  |        | delete from`.test                                                          |        |    |       | Cleanup .test namespace

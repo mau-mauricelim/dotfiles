@@ -24,7 +24,7 @@ es:.util.ensureStr:{"",raze string x};
 .util.i.strPath:.util.removeColon .util.ensureStr@;
 .util.isStr:10h~abs type@;
 / @param filePath - sym/string
-/ @return directory path of the same input type
+/ @return - sym/string - directory path of the same input type
 .util.i.normPath:{[normalize;filePath]
     filePathStr:.util.i.strPath filePath;
     filePathStr:normalize filePathStr;
@@ -40,7 +40,7 @@ spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
 
 / @param dir - boolean - 1b to return directory, else file
 / @param filePath - sym/string
-/ @return directory/file path of the same input type
+/ @return - sym/string - directory/file path of the same input type
 .util.i.pathname:{[dir;filePath]
     filePathStr:.util.i.strPath filePath;
     found:(pathSep:"/\\")in filePathStr;
