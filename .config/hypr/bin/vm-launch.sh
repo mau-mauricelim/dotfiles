@@ -13,7 +13,7 @@ if ! ([[ "$DAY" -le 5 ]] && [[ "$HOUR" -ge 8 && "$HOUR" -lt 18 ]]);  then
 fi
 
 virsh --connect qemu:///system start "$VM_NAME" && sleep 10
-virt-viewer --connect qemu:///system --wait --attach "$VM_NAME" &
+virt-viewer --connect qemu:///system --wait --attach "$VM_NAME" --hotkeys=zoom-in=,zoom-out=,zoom-reset=,release-cursor=shift+f12 &
 PID=$!
 
 NUM_MON=$(hyprctl monitors -j | jq '. | length')
