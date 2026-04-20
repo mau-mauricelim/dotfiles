@@ -1,5 +1,6 @@
 # The variable names are case-insensitive
 [alias]
+    alias = !git config --list | grep ^alias\\.
     root = rev-parse --show-toplevel
     # Prefixed with a bang (!): evaluate in a shell
     which = !git branch | grep -i
@@ -16,6 +17,7 @@
     unstage = restore --staged
     st = status --short --branch
     sta = status
+    stead = status -vv
     br = branch
     rename = branch -m
     co = checkout
@@ -67,12 +69,11 @@
     lg3 = log --all --graph --abbrev-commit --decorate --format=format:'%C(bold blue)%h%C(reset) - %C(bold cyan)%aD%C(reset) %C(bold green)(%ar)%C(reset) %C(bold cyan)(committed: %cD)%C(reset) %C(auto)%d%C(reset)%n''          %C(white)%s%C(reset)%n''          %C(dim white)- %an <%ae> %C(reset) %C(dim white)(committer: %cn <%ce>)%C(reset)'
     # Git diff toggle side-by-side
     dt = "!sh -c '[ $(git config delta.side-by-side) = true ] && git config delta.side-by-side false || git config delta.side-by-side true; git diff'"
-    ds = diff --staged
-    dss = diff --staged --stat
-    da = diff HEAD
-    das = diff HEAD --stat
-    dn = diff --no-index
-    dni = diff --no-index --ignore-space-at-eol
+    diffs = diff --staged
+    dead = diff HEAD
+    deads = diff HEAD --stat
+    dino = diff --no-index
+    dine = diff --no-index --ignore-space-at-eol
     # Create GitLab merge request
     mrc = !git push origin HEAD -o merge_request.create -o merge_request.title=$(git rev-parse --abbrev-ref HEAD) -o merge_request.draft -o merge_request.remove_source_branch -o merge_request.squash
     cfg = config --list --show-origin
