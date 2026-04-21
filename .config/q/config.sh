@@ -23,7 +23,7 @@ main() {
     LIN_OS=l$BIT
     local GREP=grep
     command -v rg >/dev/null && local GREP=rg
-    local Q_REPO=qoolbox
+    local Q_REPO=qraze
 
     # Check if WSL
     if isWsl; then wsl_kdb_setup; fi

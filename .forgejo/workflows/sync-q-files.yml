@@ -18,14 +18,14 @@ jobs:
           echo "${{ secrets.DOTFILES_DEPLOY_KEY }}" > ~/.ssh/id_ed25519
           chmod 600 ~/.ssh/id_ed25519
           ssh-keyscan codeberg.org >> ~/.ssh/known_hosts
-      - name: Clone private qoolbox repository
+      - name: Clone private qraze repository
         run: |
-          git clone git@codeberg.org:mau-mauricelim/qoolbox.git
+          git clone git@codeberg.org:mau-mauricelim/qraze.git
       - name: Copy q files
         run: |
           rm -rf ./q
           mkdir ./q
-          cp -r qoolbox/{lib,test,q.q,runTests.q} ./q
+          cp -r qraze/{lib,test,q.q,runTests.q} ./q
       - name: Commit and push if changes
         run: |
           git config user.name "forgejo-actions[bot]"
