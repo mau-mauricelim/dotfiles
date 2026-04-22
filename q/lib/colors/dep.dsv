@@ -7,6 +7,6 @@ filepath         | object
 ../codec/codec.q | .codec.decToBinX
 ../codec/codec.q | .codec.decToHex
 ../codec/codec.q | .codec.hexToDec
-../dotx/dotx.q   | .Q.hex
+../dotx/dotx.q   | .Q.br
 ../util/util.q   | .util.exists
 ../util/util.q   | .util.isWin

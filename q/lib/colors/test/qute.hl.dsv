@@ -1,0 +1,4 @@
+action | minver | code                                                                                 | repeat | ms | bytes | comment
+before |        | .lib.require`colors                                                                  |        |    |       | Initialize library
+before |        | .hl.hexOn[]                                                                          |        |    |       |
+true   |        | ("hello";()," ";(),"#330404";()," ";"dd3366")~.hl.mergeHex -4!"hello #330404 dd3366" |        |    |       |
