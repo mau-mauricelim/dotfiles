@@ -39,6 +39,7 @@ if command -v dos2unix &> /dev/null; then alias d2u="dos2unix"; fi
 # TODO: Add copyparty default config and run party with default config
 if command -v copyparty &> /dev/null; then alias party="copyparty"; fi
 
+alias -- -="cd -"
 alias ....="cd ../../.."
 alias ...="cd ../.."
 alias cdl="cd -"
@@ -50,7 +51,7 @@ alias e="exit"
 alias egrep="egrep --color=auto"
 alias fdh='fd -H'
 alias fgrep="fgrep --color=auto"
-alias grep="grep --color=auto"
+alias grep="grep -s --color=auto"
 alias k9="kill -9"
 alias la="ls -A"
 alias ldr="ls -d {.,}*/"
