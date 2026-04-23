@@ -1,4 +1,4 @@
-# 🖥️ OS Utilities
+# 🖥️ os (Operating System utilities)
 
 ## OS Information
 

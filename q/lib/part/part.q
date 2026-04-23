@@ -3,7 +3,7 @@
 /#########################
 
 // INFO: https://code.kx.com/q4m3/14_Introduction_to_Kdb+/#143-partitioned-tables
-/ Script to create mock int, date, month and year partitioned databases
+/ Generate mock int, date, month and year partitioned databases
 
 .part.numTrade:1000; / Total number of trades
 .part.numPart:10;    / Total number of partitions

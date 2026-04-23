@@ -1,6 +1,6 @@
-/####################
-/# q unix-like util #
-/####################
+/#########################
+/# q Unix-like utilities #
+/#########################
 
 // INFO: https://code.kx.com/q/ref/sublist/#head-or-tail
 .qnix.i.head:{[isHead;x]

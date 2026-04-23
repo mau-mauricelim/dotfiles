@@ -1,4 +1,4 @@
-# Unwrapping rlwrap
+# 🎁 rlwrap (Unwrapping rlwrap)
 
 **Source**: https://github.com/emc211/wp/blob/master/rlwrap/README.md
 

@@ -1,4 +1,6 @@
-# SSH Key Fingerprint Random Art
+# 🐀 rat (Random art)
+
+SSH Key Fingerprint Random Art
 
 ```sh
 $ cat ~/.ssh/id_ed25519_tmp.pub

@@ -4,7 +4,7 @@
 
 ### `.cal.print`
 
-Print calendars. The current date (if it exist) will also be indicated by `.cal.todaysIndicator` in the calendar.
+Print calendar. The current date (if it exist) will also be indicated by `.cal.todaysIndicator` in the calendar.
 
 #### Print the current year calendar
 

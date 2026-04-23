@@ -1,6 +1,6 @@
-# part.q
+# 🗄️ part (Partitioned databases)
 
-Script to create mock int, date, month and year partitioned databases
+Generate mock int, date, month and year partitioned databases
 
 The following globals can be modified:
 ```q
@@ -10,7 +10,7 @@ The following globals can be modified:
 .part.dest:`:part;   / Destination path
 ```
 
-Use `.part.genData[]` to create the partitioned databases
+Use `.part.genData[]` to generate the partitioned databases
 
 With the defaults, the `part` (partitioned) directory is about `1.4M`.
 

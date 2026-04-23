@@ -1,6 +1,6 @@
-/################
-/# TP Log utils #
-/################
+/####################
+/# TP Log utilities #
+/####################
 
 .tplog.replay:-11!;
 .tplog.goodTil:{.tplog.replay -2,x};

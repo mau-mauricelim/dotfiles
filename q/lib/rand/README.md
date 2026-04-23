@@ -1,4 +1,4 @@
-# 🎲 rand _(Random Data Generator)_
+# 🎲 rand (Random data generator)
 
 ## Usage examples
 

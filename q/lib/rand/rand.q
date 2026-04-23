@@ -1,5 +1,5 @@
 /#########################
-/# Random Data Generator #
+/# Random data generator #
 /#########################
 
 / Set random seed (optional)

@@ -1,4 +1,4 @@
-# 💿 On-disk RDB
+# 💿 odrdb (On-disk RDB)
 
 On-disk RDB with memory-mapped files
 

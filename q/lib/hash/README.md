@@ -1,13 +1,13 @@
-# Secure Hash Algorithm
+# #️ hash (Secure Hash Algorithms)
 
-# Handling Integer Overflow in kdb/q
+## Handling Integer Overflow in kdb/q
 
-## Overview
+### Overview
 
 When working with unsigned integers in kdb/q, you may need to convert signed integers to their unsigned equivalents by performing modulo operations.
 However, kdb/q has limitations when dealing with 64-bit integer arithmetic that can cause overflow issues.
 
-## 32-bit Unsigned Integers
+#### 32-bit Unsigned Integers
 
 For 32-bit unsigned integers, you can use straightforward modulo arithmetic:
 ```q
@@ -25,7 +25,7 @@ Python equivalent:
 2651327815
 ```
 
-## 64-bit Unsigned Integers: The Problem
+#### 64-bit Unsigned Integers: The Problem
 
 For 64-bit unsigned integers, the modulo approach fails due to integer overflow:
 ```q
@@ -45,11 +45,11 @@ Python handles this correctly:
 '0x860c460dcfe07600'
 ```
 
-## Solution: Binary Representation Method
+### Solution: Binary Representation Method
 
 Instead of using modulo arithmetic, you can extract the unsigned representation directly from the binary encoding using kdb/q's `-8!` operator (binary serialization).
 
-### For 64-bit Unsigned Integers
+#### For 64-bit Unsigned Integers
 
 ```q
 q)-8!-8787571747770567168
@@ -63,7 +63,7 @@ q)reverse -8#-8!-8787571747770567168
 - `-8#` takes the last 8 bytes (64 bits)
 - `reverse` converts from little-endian to big-endian representation
 
-### For 32-bit Unsigned Integers
+#### For 32-bit Unsigned Integers
 
 The same technique works for 32-bit integers:
 ```q
@@ -85,7 +85,7 @@ Python verification:
 '0x9e080d47'
 ```
 
-## Summary
+### Summary
 
 | Bit Width   | Method            | Code                          |
 | -           | -                 | -                             |
@@ -94,7 +94,7 @@ Python verification:
 | 64-bit      | Modulo (fails)    | ❌ Overflow                   |
 | 64-bit      | Binary extraction | `reverse -8#-8!value`         |
 
-## Key Takeaways
+### Key Takeaways
 
 - kdb/q's `2^64` overflows, making direct modulo operations impossible for 64-bit unsigned conversions
 - Binary serialization with `-8!` provides a reliable workaround

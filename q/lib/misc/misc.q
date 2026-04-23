@@ -1,6 +1,6 @@
-/########
-/# Misc #
-/########
+/#################
+/# Miscellaneous #
+/#################
 
 / CillianReilly
 reflect:.shape.reflect:{x,1_reverse x};

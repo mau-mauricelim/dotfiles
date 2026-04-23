@@ -1,6 +1,9 @@
 # 🌈 Colors
 
-Utilites to add colors to the terminal
+Colors utilties:
+- Conversion between 8-bit 256 color, RGB values, Oklab and hex code
+- Compute opposite colors
+- Render terminal styles and colors
 
 ### Showcase
 
