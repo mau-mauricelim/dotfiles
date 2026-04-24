@@ -82,5 +82,31 @@ q)-1 .rat.rat"KNwxnrTaMhOvYD1GmN8raw==";
 +-----------------+
 ```
 
+## Visualizer
+
+A visualizer can be created by using `scan` rather than `over`:
+```q
+path:{
+    byte:.Q.atobp x;
+    binary:(reverse 2 cut vs[0b]@)@'byte;
+    dir:(00b;01b;11b;10b)!.aoc.diagonal 1;
+    size:9 17;
+    grid:.[size#0;start:size div 2;1+];
+    move:raze dir binary;
+    / Scan the path
+    walk:{(p;.[x 1;p:z&0 0|y+x 0;1+])}[;;size-1]\[(start;grid);move];
+    art:{[start;walk] .util.draw[" .o+=*BOX@%&#/^"walk 1;(start;walk 0);"SE"]}[start]'[walk];
+    / Add the borders
+    {[size;art] {y,x,y}["|",'art,'"|";enlist"+",(size[1]#"-"),"+"]}[size]'[art]};
+walk:{.term.clear[]; -1 x; sleep 00:00:00.05}@'path@;
+```
+
+Run the visualizer:
+```q
+walk"yqx3EES2ZTrsDOIpsv7GlgcwDOmBGERuHGLAc+oijrg";
+```
+
+![](./data/rat-visualizer.gif)
+
 Source code:
 - https://github.com/openssh/openssh-portable/blob/master/sshkey.c
