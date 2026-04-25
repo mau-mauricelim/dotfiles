@@ -75,6 +75,22 @@ Boot loader was not setup or installed correctly
 > - It does not persist after reconnecting to a disconnected session
 > - Re-enable the feature every time you connect or reconnect to the session
 
+## Unresolved issues
+
+### Color picker not returning correct results
+
+Example:
+
+| Actual  | Alacritty | Brave   |
+| -       | -         | -       |
+| #F44336 | #EF4336   | #EE4439 |
+| #8FCE00 | #8CCA02   | #8ECD00 |
+| #2986CC | #2A84C8   | #2D83C7 |
+
+### Screenrecord region does not work
+
+- https://github.com/basecamp/omarchy/issues/4834
+
 ## System information
 
 <details>
