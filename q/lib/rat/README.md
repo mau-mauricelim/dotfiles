@@ -106,7 +106,7 @@ Run the visualizer:
 walk"yqx3EES2ZTrsDOIpsv7GlgcwDOmBGERuHGLAc+oijrg";
 ```
 
-![](./data/rat-visualizer.gif)
+https://github.com/user-attachments/assets/2bad38cf-f93f-4c5c-b037-7c89563e3e3a
 
 Source code:
 - https://github.com/openssh/openssh-portable/blob/master/sshkey.c
