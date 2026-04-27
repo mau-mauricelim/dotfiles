@@ -8,32 +8,13 @@ return {
       style = 'cool',
       -- Highlights from tokyonight.nvim
       highlights = {
-        FlashBackdrop = {
-          fg = '#545c7e',
-        },
-        Search = {
-          bg = '#3d59a1',
-          fg = '#c0caf5',
-        },
-        IncSearch = {
-          bg = '#ff9e64',
-          fg = '#1d202f',
-        },
-        FlashLabel = {
-          bg = '#ff007c',
-          bold = true,
-          fg = '#c0caf5',
-        },
-        MsgArea = {
-          fg = '#a9b1d6',
-        },
-        Special = {
-          fg = '#2ac3de',
-        },
-        Cursor = {
-          bg = '#c0caf5',
-          fg = '#24283b',
-        },
+        FlashBackdrop = { fg = '#545c7e' },
+        Search        = { fg = '#c0caf5', bg = '#3d59a1' },
+        IncSearch     = { fg = '#1d202f', bg = '#ff9e64' },
+        FlashLabel    = { fg = '#c0caf5', bg = '#ff007c', bold = true },
+        MsgArea       = { fg = '#a9b1d6' },
+        Special       = { fg = '#2ac3de' },
+        Cursor        = { fg = '#24283b', bg = '#c0caf5' },
       },
     })
     -- Load the colorscheme here
