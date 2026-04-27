@@ -21,5 +21,7 @@ return {
     vim.cmd.colorscheme('onedark')
     -- You can configure highlights by doing something like
     vim.cmd.hi('Comment gui=none')
+    -- Define global colors
+    _G.colors = require('onedark.palette')[vim.g.onedark_config.style]
   end,
 }

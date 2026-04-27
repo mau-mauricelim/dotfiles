@@ -8,18 +8,17 @@ return {
     require('scrollbar.handlers.search').setup({
       override_lens = function() end,
     })
-    local colors = require('colors')
     require('scrollbar').setup({
-      handle = { color = colors.bg0 },
-        -- stylua: ignore
-        marks = {
-            Error  = { color = colors.red },
-            Warn   = { color = colors.orange },
-            Search = { color = colors.yellow },
-            Info   = { color = colors.blue },
-            Hint   = { color = colors.cyan },
-            Misc   = { color = colors.purple },
-        },
+      handle = { color = _G.colors.bg0 },
+      -- stylua: ignore
+      marks = {
+          Error  = { color = _G.colors.red },
+          Warn   = { color = _G.colors.orange },
+          Search = { color = _G.colors.yellow },
+          Info   = { color = _G.colors.blue },
+          Hint   = { color = _G.colors.cyan },
+          Misc   = { color = _G.colors.purple },
+      },
       handlers = { search = true }, -- Requires hlslens
     })
   end,

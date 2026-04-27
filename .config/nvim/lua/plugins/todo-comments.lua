@@ -16,7 +16,6 @@ return { -- highlight and search for todo comments
   dependencies = { 'nvim-lua/plenary.nvim' },
   -- stylua: ignore
   config = function()
-    local colors = require('colors')
     require('todo-comments').setup({
       -- keywords recognized as todo comments
       keywords = {
@@ -36,14 +35,14 @@ return { -- highlight and search for todo comments
       -- list of named colors where we try to extract the guifg from the
       -- list of highlight groups or use the hex color if hl not found as a fallback
       colors = {
-        error   = { colors.red },
-        warning = { colors.orange },
-        hack    = { colors.yellow },
-        perf    = { colors.green },
-        todo    = { colors.blue },
-        hint    = { colors.cyan },
-        test    = { colors.purple },
-        default = { colors.light_grey },
+        error   = { _G.colors.red },
+        warning = { _G.colors.orange },
+        hack    = { _G.colors.yellow },
+        perf    = { _G.colors.green },
+        todo    = { _G.colors.blue },
+        hint    = { _G.colors.cyan },
+        test    = { _G.colors.purple },
+        default = { _G.colors.light_grey },
       },
     })
     vim.keymap.set('n', '[t', function() require('todo-comments').jump_prev() end, { desc = 'Go to previous [T]odo comment' })
