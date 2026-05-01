@@ -28,7 +28,7 @@
     raze .hl.hl each tokens};
 
 .hl.pi:{
-    if[(::)~r:get x;:(::)];
+    if[any(::;())~\:r:get x;:r];
     lines:"\n"vs -1_.Q.s r;
     -1 .hl.hlLine each lines;
     };
