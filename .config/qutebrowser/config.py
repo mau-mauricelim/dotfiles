@@ -1975,6 +1975,7 @@ c.tabs.last_close = 'blank'
 ## tab contents, or smaller than tabs.min_width.
 ## Type: Int
 # c.tabs.max_width = -1
+c.tabs.max_width = 200
 
 ## Minimum width (in pixels) of tabs (-1 for the default minimum size
 ## behavior). This setting only applies when tabs are horizontal. This
