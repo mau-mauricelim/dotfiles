@@ -12,7 +12,7 @@ if ! ([[ "$DAY" -le 5 ]] && [[ "$HOUR" -ge 8 && "$HOUR" -lt 18 ]]);  then
     [[ "$EXECUTE" != "now" ]] && exit 0
 fi
 
-virsh --connect qemu:///system start "$VM_NAME" && sleep 10
+virsh --connect qemu:///system start "$VM_NAME" && sleep 20
 virt-viewer --connect qemu:///system --wait --attach "$VM_NAME" --hotkeys=zoom-in=,zoom-out=,zoom-reset=,release-cursor=shift+f12 &
 PID=$!
 
