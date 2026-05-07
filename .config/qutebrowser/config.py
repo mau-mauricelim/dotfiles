@@ -2227,6 +2227,7 @@ c.url.start_pages = ['about:blank']
 # c.zoom.text_only = False
 
 ## Bindings for normal mode
+config.bind('<Alt-r>', 'config-source ;; message-info "Config reloaded!"')
 # config.bind("'", 'mode-enter jump_mark')
 # config.bind('+', 'zoom-in')
 # config.bind('-', 'zoom-out')
@@ -2305,11 +2306,11 @@ config.bind('D', 'tab-close')
 config.bind('H', 'tab-prev')
 config.bind('[b', 'tab-prev')
 # config.bind('J', 'tab-next')
-config.bind('J', 'back')
-config.bind('<Alt-Left>', 'back')
+config.bind('J', 'back --quiet')
+config.bind('<Alt-Left>', 'back --quiet')
 # config.bind('K', 'tab-prev')
-config.bind('K', 'forward')
-config.bind('<Alt-Right>', 'forward')
+config.bind('K', 'forward --quiet')
+config.bind('<Alt-Right>', 'forward --quiet')
 # config.bind('L', 'forward')
 config.bind('L', 'tab-next')
 config.bind(']b', 'tab-next')
