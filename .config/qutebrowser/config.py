@@ -17,6 +17,19 @@ config.load_autoconfig()
 ## Type: Bool
 c.auto_save.session = True
 
+## Javascript messages to *not* show in the UI, despite a corresponding
+## `content.javascript.log_message.levels` setting. Both keys and values
+## are glob patterns, with the key matching the location of the error,
+## and the value matching the error message. By default, the
+## https://web.dev/csp/[Content security policy] violations triggered by
+## qutebrowser's stylesheet handling are excluded, as those errors are to
+## be expected and can't be easily handled by the underlying code.
+## Type: Dict
+c.content.javascript.log_message.excludes = {
+    'userscript:_qute_stylesheet': ['*Refused to apply inline style because it violates the following Content Security Policy directive: *'],
+    'userscript:_qute_js': ['*TrustedHTML*']
+}
+
 ## Editor (and arguments) to use for the `edit-*` commands. The following
 ## placeholders are defined:  * `{file}`: Filename of the file to be
 ## edited. * `{line}`: Line in which the caret is found in the text. *
