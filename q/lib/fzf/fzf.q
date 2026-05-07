@@ -6,7 +6,7 @@
 / @param ns - sym (list)
 / @return - sym list
 .fzf.recurseNs:{[ns]
-    obj:raze .util.recurseDir each(),ns;
+    obj:distinct raze .util.recurseDir each(),ns;
     obj@:where{@[.util.exists;x;0b]}each obj;
     obj@:where -11h=type each obj;
     obj where{@[{get x;1b};x;0b]}each obj};
@@ -33,4 +33,4 @@ fzfm:.fzf.fzfObjectMem:{[pat] delete val from update human:hb peach size from up
 / Get the object name of the value
 / @example - q)).fzf.getObjectName .z.s
 /            q)whoami whoami
-whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where val~'x};
+whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where string[val]~\:string x};

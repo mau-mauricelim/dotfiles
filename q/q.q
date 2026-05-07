@@ -44,12 +44,13 @@ spw:.util.strPathWin:.util.i.strPath .util.normPathWin@;
 .util.i.pathname:{[dir;filePath]
     filePathStr:.util.i.strPath filePath;
     found:(pathSep:"/\\")in filePathStr;
-    pathSep:$[all found;[filePathStr:.util.normPath filePathStr;"/"];
-        any found;first pathSep where found;"/"];
+    pathSep:$[01b~found;
+        [filePathStr:.util.normPathWin filePathStr;"\\"];
+        [filePathStr:.util.normPath filePathStr;"/"]];
+    filePathStr:neg[pathSep~last filePathStr]_filePathStr;
     pathVec:pathSep vs filePathStr;
     pathName:$[dir;pathSep sv -1_;last]pathVec;
     $[.util.isStr filePath;;.q.Hsym]pathName};
-
 .util.dirname:.util.i.pathname 1b;
 .util.filename:.util.i.pathname 0b;
 
@@ -100,9 +101,6 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
 /# Libraries #
 /#############
 
-/.log.lvl:`DEBUG;
-.log.pause[];
-
 .lib.initPath:{
     / Return if lib path has already been initialized
     if[@[get;`.lib.i.initPath;{:not .lib.i.initPath:1b}];:(::)];
@@ -110,8 +108,20 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
     if[""~.lib.path:getenv`QLIB;
         scriptPath:.util.getScriptPath{};
         .lib.path:.util.dirname[scriptPath],"/lib"];
+    .lib.hooks:.util.dirname[.lib.path],"/hooks";
     .log.debug".lib.path is: ",.lib.path;
     .log.debug"Finished initializing library path";
+    };
+
+.lib.hooksRun:{[stage]
+    if[not()~name:key path:.q.Hsym .lib.hooks,"/",stage;
+        if[not count name;:(::)];
+        / Scan for files with .q extension, exclude files with .test.q extension and exclude files with spaces
+        file:{f:key x;f where(f like"*.q")&(not f like"*.test.q")&not f like"* *"}each path;
+        ];
+    .log.debug"Running ",stage," hooks";
+    {@[.util.sysLoad;f;{'.log.error"Failed to load file: ",x,". Error is: ",y}f:.util.strPath x]}each .Q.dd[path]'[distinct`init.q,file];
+    .log.debug"Finished running ",stage," hooks";
     };
 
 / (Re-)Scan for libraries
@@ -119,7 +129,7 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
     .lib.initPath[];
     .log.debug"Scanning for libraries: .lib.info";
     .lib.info:flip`name`path`file`loaded!"ss**"$\:();
-    if[not()~name:key symPath:hsym`$.lib.path;
+    if[not()~name:key symPath:.q.Hsym .lib.path;
         path:.Q.dd[symPath]'[name];
         / Scan for files with .q extension, exclude files with .test.q extension and exclude files with spaces
         file:{f:key x;f where(f like"*.q")&(not f like"*.test.q")&not f like"* *"}each path;
@@ -163,21 +173,24 @@ ebt:.util.errTrapBacktrace:{[f;args] .Q.trpd[f;args,();{[err;msg] .log.error err
 req:.lib.require:.lib.i.require 0b;
 reqf:.lib.requireForce:.lib.i.require 1b;
 
+/ .log.lvl:`DEBUG;
+.log.pause[];
+
 .lib.init:{
     / Return if lib has already been initialized
     if[@[get;`.lib.i.init;{:not .lib.i.init:1b}];:(::)];
     .lib.scan[];
+    .lib.hooksRun"_pre";
     .log.debug"Loading required libraries";
     .lib.require`dotx`util;
     .log.debug"Finished loading required libraries";
     .log.debug"Loading optional libraries";
-    .lib.require`colors`term`parse`docs`tree`fzf`browse`qnix;
-    .lib.require`os`tplog;
-    .lib.require`aoc`bits`codec`cache`maths`cal`uri`misc;
+    .lib.require .lib.optional;
     .log.debug"Finished loading optional libraries";
+    .lib.hooksRun"post";
     .log.resume[];
     .log.info"QINIT SUCCEED. Startup time: ",string(.lib.et:.z.p)-.lib.st;
     };
 
 / Error trap QINIT
-@[.lib.init;[];{.log.error"QINIT FAILED"}];
+.Q.trp[.lib.init;[];{.log.error"QINIT FAILED. Error is: ",x; .log.backtrace .Q.sbt y}];
