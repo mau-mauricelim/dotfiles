@@ -19,7 +19,7 @@
 ## This is here so configs done via the GUI are still loaded.
 ## Remove it to not load settings done via the GUI.
 # config.load_autoconfig(True)
-config.load_autoconfig(False)
+config.load_autoconfig()
 
 ## Aliases for commands. The keys of the given dictionary are the
 ## aliases, while the values are the commands they map to.
@@ -2306,8 +2306,10 @@ config.bind('H', 'tab-prev')
 config.bind('[b', 'tab-prev')
 # config.bind('J', 'tab-next')
 config.bind('J', 'back')
+config.bind('<Alt-Left>', 'back')
 # config.bind('K', 'tab-prev')
 config.bind('K', 'forward')
+config.bind('<Alt-Right>', 'forward')
 # config.bind('L', 'forward')
 config.bind('L', 'tab-next')
 config.bind(']b', 'tab-next')
