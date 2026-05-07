@@ -2523,6 +2523,7 @@ config.bind('<F12>', 'devtools')
 ## Bindings for insert mode
 # config.bind('<Ctrl-E>', 'edit-text', mode='insert')
 # config.bind('<Escape>', 'mode-leave', mode='insert')
+config.bind('<Escape>', 'fake-key <Escape> ;; mode-leave', mode='insert')
 # config.bind('<Shift-Escape>', 'fake-key <Escape>', mode='insert')
 # config.bind('<Shift-Ins>', 'insert-text -- {primary}', mode='insert')
 
