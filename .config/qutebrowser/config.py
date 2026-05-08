@@ -28,6 +28,7 @@ c.url.default_page = 'about:blank'
 
 c.url.searchengines = {
     'DEFAULT': 'https://www.google.com/search?q={}',
+    'duck': 'https://duckduckgo.com/?q={}',
     'yt': 'https://www.youtube.com/results?search_query={}',
     'kx': 'https://google.com/search?q=site:https://code.kx.com+{}',
     'q': 'https://code.kx.com/q?q={}'
