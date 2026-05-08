@@ -44,6 +44,10 @@ c.editor.command = ['alacritty', '-e', 'nvim', '{file}', '-c', 'normal {line}G{c
 ## Type: Bool
 c.input.insert_mode.auto_load = True
 
+## Width (in pixels) of the progress indicator (0 to disable).
+## Type: Int
+c.tabs.indicator.width = 1
+
 ## How to behave when the last tab is closed. If the
 ## `tabs.tabs_are_windows` setting is set, this is ignored and the
 ## behavior is always identical to the `close` value.
@@ -63,6 +67,10 @@ c.tabs.last_close = 'blank'
 ## tab contents, or smaller than tabs.min_width.
 ## Type: Int
 c.tabs.max_width = 200
+
+## Padding (in pixels) around text for tabs.
+## Type: Padding
+c.tabs.padding = {'top': 2, 'bottom': 2, 'left': 5, 'right': 5}
 
 ## Page to open if :open -t/-b/-w is used without URL. Use `about:blank`
 ## for a blank page.
