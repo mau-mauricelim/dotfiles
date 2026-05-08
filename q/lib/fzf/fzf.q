@@ -30,7 +30,10 @@ fzf:.fzf.fzfObject:{[pat]
 fzfv:.fzf.fzfObjectVal:{[pat]([]obj;val:get each obj:.fzf.fzfObject pat)};
 / @return - table of objects and its approximate memory usage
 fzfm:.fzf.fzfObjectMem:{[pat] delete val from update human:hb peach size from update size:{-22!x}peach val from .fzf.fzfObjectVal pat};
+
 / Get the object name of the value
 / @example - q)).fzf.getObjectName .z.s
 /            q)whoami whoami
-whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where string[val]~\:string x};
+// NOTE: .Q.s1 is used here as string throws error on certain types of val
+/        Simple match also does not work with k: signum~get"k){(x>0)-x<0}"
+whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where .Q.s1[x]~/:.Q.s1 each val};
