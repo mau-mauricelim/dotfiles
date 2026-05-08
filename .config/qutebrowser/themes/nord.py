@@ -1,19 +1,19 @@
-# INFO: https://github.com/Linuus/nord-qutebrowser/blob/master/nord-qutebrowser.py
+## INFO: https://github.com/Linuus/nord-qutebrowser/blob/master/nord-qutebrowser.py
 
 nord = {
     # Polar Night
-    'nord0': '#2e3440',
-    'nord1': '#3b4252',
-    'nord2': '#434c5e',
-    'nord3': '#4c566a',
+    'nord0' : '#2e3440',
+    'nord1' : '#3b4252',
+    'nord2' : '#434c5e',
+    'nord3' : '#4c566a',
     # Snow Storm
-    'nord4': '#d8dee9',
-    'nord5': '#e5e9f0',
-    'nord6': '#eceff4',
+    'nord4' : '#d8dee9',
+    'nord5' : '#e5e9f0',
+    'nord6' : '#eceff4',
     # Frost
-    'nord7': '#8fbcbb',
-    'nord8': '#88c0d0',
-    'nord9': '#81a1c1',
+    'nord7' : '#8fbcbb',
+    'nord8' : '#88c0d0',
+    'nord9' : '#81a1c1',
     'nord10': '#5e81ac',
     # Aurora
     'nord11': '#bf616a',
@@ -169,8 +169,8 @@ c.colors.messages.warning.fg = nord['nord5']
 ## Type: QssColor
 c.colors.prompts.bg = nord['nord2']
 
-# ## Border used around UI elements in prompts.
-# ## Type: String
+## Border used around UI elements in prompts.
+## Type: String
 c.colors.prompts.border = '1px solid ' + nord['nord0']
 
 ## Foreground color for prompts.
@@ -277,15 +277,15 @@ c.colors.statusbar.url.warn.fg = nord['nord12']
 
 ## Background color of the tab bar.
 ## Type: QtColor
-c.colors.tabs.bar.bg = nord['nord3']
+c.colors.tabs.bar.bg = nord['nord1']
 
 ## Background color of unselected even tabs.
 ## Type: QtColor
-c.colors.tabs.even.bg = nord['nord3']
+c.colors.tabs.even.bg = nord['nord1']
 
 ## Foreground color of unselected even tabs.
 ## Type: QtColor
-c.colors.tabs.even.fg = nord['nord5']
+c.colors.tabs.even.fg = nord['nord4']
 
 ## Color for the tab indicator on errors.
 ## Type: QtColor
@@ -293,11 +293,11 @@ c.colors.tabs.indicator.error = nord['nord11']
 
 ## Color gradient start for the tab indicator.
 ## Type: QtColor
-# c.colors.tabs.indicator.start = nord['violet']
+c.colors.tabs.indicator.start = nord['nord9']
 
 ## Color gradient end for the tab indicator.
 ## Type: QtColor
-# c.colors.tabs.indicator.stop = nord['orange']
+c.colors.tabs.indicator.stop = nord['nord14']
 
 ## Color gradient interpolation system for the tab indicator.
 ## Type: ColorSystem
@@ -310,29 +310,56 @@ c.colors.tabs.indicator.system = 'none'
 
 ## Background color of unselected odd tabs.
 ## Type: QtColor
-c.colors.tabs.odd.bg = nord['nord3']
+c.colors.tabs.odd.bg = nord['nord1']
 
 ## Foreground color of unselected odd tabs.
 ## Type: QtColor
-c.colors.tabs.odd.fg = nord['nord5']
+c.colors.tabs.odd.fg = nord['nord4']
 
-# ## Background color of selected even tabs.
-# ## Type: QtColor
-c.colors.tabs.selected.even.bg = nord['nord0']
-
-# ## Foreground color of selected even tabs.
-# ## Type: QtColor
-c.colors.tabs.selected.even.fg = nord['nord5']
-
-# ## Background color of selected odd tabs.
-# ## Type: QtColor
-c.colors.tabs.selected.odd.bg = nord['nord0']
-
-# ## Foreground color of selected odd tabs.
-# ## Type: QtColor
-c.colors.tabs.selected.odd.fg = nord['nord5']
-
-## Background color for webpages if unset (or empty to use the theme's
-## color)
+## Background color of pinned unselected even tabs.
 ## Type: QtColor
-# c.colors.webpage.bg = 'white'
+c.colors.tabs.pinned.even.bg = nord['nord10']
+
+## Foreground color of pinned unselected even tabs.
+## Type: QtColor
+c.colors.tabs.pinned.even.fg = nord['nord6']
+
+## Background color of pinned unselected odd tabs.
+## Type: QtColor
+c.colors.tabs.pinned.odd.bg = nord['nord10']
+
+## Foreground color of pinned unselected odd tabs.
+## Type: QtColor
+c.colors.tabs.pinned.odd.fg = nord['nord6']
+
+## Background color of pinned selected even tabs.
+## Type: QtColor
+c.colors.tabs.pinned.selected.even.bg = nord['nord7']
+
+## Foreground color of pinned selected even tabs.
+## Type: QtColor
+c.colors.tabs.pinned.selected.even.fg = nord['nord0']
+
+## Background color of pinned selected odd tabs.
+## Type: QtColor
+c.colors.tabs.pinned.selected.odd.bg = nord['nord7']
+
+## Foreground color of pinned selected odd tabs.
+## Type: QtColor
+c.colors.tabs.pinned.selected.odd.fg = nord['nord0']
+
+## Background color of selected even tabs.
+## Type: QtColor
+c.colors.tabs.selected.even.bg = nord['nord3']
+
+## Foreground color of selected even tabs.
+## Type: QtColor
+c.colors.tabs.selected.even.fg = nord['nord13']
+
+## Background color of selected odd tabs.
+## Type: QtColor
+c.colors.tabs.selected.odd.bg = nord['nord3']
+
+## Foreground color of selected odd tabs.
+## Type: QtColor
+c.colors.tabs.selected.odd.fg = nord['nord13']
