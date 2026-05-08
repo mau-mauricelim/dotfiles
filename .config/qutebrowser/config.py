@@ -16,6 +16,8 @@ c.editor.command = ['alacritty', '-e', 'nvim', '{file}', '-c', 'normal {line}G{c
 
 c.input.insert_mode.auto_load = True
 
+c.tabs.close_mouse_button = 'right'
+
 c.tabs.indicator.width = 1
 
 c.tabs.last_close = 'blank'
