@@ -74,3 +74,7 @@
 // Hexadecimal string to/from Base64 string
 .codec.hexToB64:{.Q.btoa .codec.hexToText x};
 .codec.b64ToHex:{raze .codec.byteToHex .Q.atobp x};
+
+// Hexadecimal string to/from Base32 string
+.codec.hexToB32:{.Q.b32 .codec.binToDec flip(5 cut raze reverse 4 cut .codec.hexToBin reverse x)[;til 5]};
+.codec.b32ToHex:{first .codec.binToHex flip(4 cut 1=rtrim?[raze .codec.decToBinX[5]each .Q.b32?floor first"="vs x;1;0N])[;til 4]};

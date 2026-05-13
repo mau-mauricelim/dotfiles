@@ -1,3 +1,4 @@
 filepath       | object
 ../dotx/dotx.q | .Q.atobp
+../dotx/dotx.q | .Q.b32
 ../dotx/dotx.q | .Q.hex

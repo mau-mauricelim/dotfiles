@@ -40,4 +40,5 @@ true   |        | {(x~.codec.textToDec y)&y~.codec.decToText x}[104 101 108 108 
 true   |        | {(x~.codec.textToByte y)&y~.codec.byteToText x}[0x68656c6c6f;"hello"]                                    |        |    |       |
 true   |        | {(x~raze .codec.textToHex y)&y~.codec.hexToText x}["68656c6c6f";"hello"]                                 |        |    |       |
 true   |        | {(x~.codec.b64ToHex y)&y~.codec.hexToB64 x}["68656c6c6f";"aGVsbG8="]                                     |        |    |       |
+true   |        | {(x~.codec.b32ToHex y)&y~.codec.hexToB32 x}["1f96f7f83d";"d6lpp6b5"]                                     |        |    |       |
 after  |        | delete from`.test                                                                                        |        |    |       | Cleanup .test namespace

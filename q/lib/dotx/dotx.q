@@ -2,6 +2,7 @@
 /# .Q #
 /######
 
+.Q.b32:.Q.a,"234567";
 .Q.hex:.Q.n,6#.Q.a;
 / Special characters on the keyboard
 .Q.sc:"~`!@#$%^&*_-+=|\\:;\"'<,>.?/",.Q.br:"(){[}]";
