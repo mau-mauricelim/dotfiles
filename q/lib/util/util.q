@@ -92,3 +92,9 @@ pad:.util.pad:{
 / Rotate grid (anti-)clockwise 90 degrees
 acw90:.util.acw90:{reverse flip x};
 cw90:.util.cw90:{reverse each flip x};
+
+/ Convert kdb to Unix timestamp in seconds
+/ kdb+ Epoch: Starts on 2000.01.01 and measures time in nanoseconds
+/ Unix Epoch: Starts on 1970.01.01 and traditionally measures time in seconds
+/ @param x - timestamp
+.util.unixTimeStamp:{floor((-).`long$x,1970.01.01D)%1e9};

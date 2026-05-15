@@ -18,5 +18,6 @@ true   |        | all bytes=.util.bytesHuman .util.humanBytes bytes             
 true   |        | enlist[0W]~`long$.util.bytesHuman"1048576 YB"                              |        |    |       |
 true   |        | enlist["1267650600228229401496703205376"]~.util.bigBytesHuman"1048576 YB"  |        |    |       |
 true   |        | ("0.0009765625 MB";"2560 MB";"3932160 MB")~.util.humanBytesUnit[bytes;`MB] |        |    |       |
+true   |        | 1778610371~.util.unixTimeStamp 2026.05.12D18:26:11.000000000               |        |    |       |
 after  |        | system"d ."                                                                |        |    |       | Change to default namespace
 after  |        | delete from`.test                                                          |        |    |       | Cleanup .test namespace
