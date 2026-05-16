@@ -75,6 +75,18 @@
 .codec.hexToB64:{.Q.btoa .codec.hexToText x};
 .codec.b64ToHex:{raze .codec.byteToHex .Q.atobp x};
 
-// Hexadecimal string to/from Base32 string
-.codec.hexToB32:{.Q.b32 .codec.binToDec flip(5 cut raze reverse 4 cut .codec.hexToBin reverse x)[;til 5]};
-.codec.b32ToHex:{first .codec.binToHex flip(4 cut 1=rtrim?[raze .codec.decToBinX[5]each .Q.b32?floor first"="vs x;1;0N])[;til 4]};
+/ Encodes text to base 32
+/ @example - .codec.textToB32"Hello, World!"
+.codec.textToB32:{
+    / Pad to length of multiple 5
+    x,:(p:.q.roundup[5;count x]-count x:`byte$x)#0x0;
+    .Q.b32 neg[(p*8)div 5]_raze flip 32 vs 256 sv'0N 5#x};
+// INFO: See .Q.atobp
+/ Decodes (and pad to length of multiple 8) base 32 data
+/ @example - `char$.codec.b32ToByte"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"
+.codec.b32ToByte:{
+    / Pad to length of multiple 8
+    x:"="^.q.roundup[8;count x]$x:(x?"=")#x;
+    `byte$((5*sum"="<>x)div 8)#raze flip 256 vs 32 sv'0N 8#.Q.b32?floor x};
+/ @example - .codec.b32ToHex"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"
+.codec.b32ToText:{`char$.codec.b32ToByte x};

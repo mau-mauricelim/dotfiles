@@ -12,6 +12,7 @@
 / .Q.w in human-readable bytes
 .Q.wh:{`$.util.humanBytes .Q.w[]};
 / Decodes (and pad to length of multiple 4) base 64 data
+/ atob - ASCII to Binary
 / @example - `char$.Q.atobp"SGVsbG8sIFdvcmxkIQ"
 .Q.atobp:{
     / Pad to length of multiple 4
