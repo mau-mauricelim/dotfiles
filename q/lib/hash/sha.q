@@ -2,6 +2,8 @@
 /# Secure Hash Algorithm #
 /#########################
 
+.lib.require`codec;
+
 // INFO: https://nvlpubs.nist.gov/nistpubs/FIPS/NIST.FIPS.180-4.pdf
 // INFO: https://www.rfc-editor.org/rfc/rfc6234
 

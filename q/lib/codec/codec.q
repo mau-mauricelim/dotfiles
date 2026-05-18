@@ -88,5 +88,5 @@
     / Pad to length of multiple 8
     x:"="^.q.roundup[8;count x]$x:(x?"=")#x;
     `byte$((5*sum"="<>x)div 8)#raze flip 256 vs 32 sv'0N 8#.Q.b32?floor x};
-/ @example - .codec.b32ToHex"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"
+/ @example - .codec.b32ToText"GEZDGNBVGY3TQOJQGEZDGNBVGY3TQOJQ"
 .codec.b32ToText:{`char$.codec.b32ToByte x};
