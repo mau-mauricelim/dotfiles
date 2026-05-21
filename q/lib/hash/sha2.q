@@ -3,6 +3,10 @@
 /#########
 
 // NOTE: No performance benefit converting to an accumulator
+/ @param ns - namespace
+/ @param algo - namespace key
+/ @param text - string/byte
+/ @return - byte
 .sha2.hash:{[ns;algo;text]
     (messageSize;blockSize;wordSize;K;sigma0;sigma1;Sigma0;Sigma1;bit):ns`messageSize`blockSize`wordSize`K`sigma0`sigma1`Sigma0`Sigma1`bit;
     (H;bit):ns[algo]`H`bit;
@@ -31,5 +35,5 @@
         H:addMod2w each flip((a;b;c;d;e;f;g;h);H);
         j+:1];
     / Concatenation of the hash values
-    (bit div 4)#raze flip .codec.decToHex .codec.binToDec each H
+    .codec.hexToByte(bit div 4)#raze flip .codec.decToHex .codec.binToDec each H
     };
