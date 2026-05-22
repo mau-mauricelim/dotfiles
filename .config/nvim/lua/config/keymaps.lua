@@ -23,7 +23,13 @@ vim.keymap.set('n', ']d', function() vim.diagnostic.jump({ count = 1, float = tr
 --
 -- NOTE: This won't work in all terminal emulators/tmux/etc. Try your own mapping
 -- or just use <C-\><C-n> to exit terminal mode
-vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' })
+local exit_terminal_mode = '<C-\\><C-n>'
+vim.keymap.set('t', '<Esc><Esc>', exit_terminal_mode, { desc = 'Exit terminal mode' })
+vim.keymap.set('t', 'kj', exit_terminal_mode, { desc = 'Exit terminal mode' })
+vim.keymap.set('t', '<C-h>', exit_terminal_mode .. '<C-w><C-h>', { desc = 'Move focus to the left window' })
+vim.keymap.set('t', '<C-l>', exit_terminal_mode .. '<C-w><C-l>', { desc = 'Move focus to the right window' })
+vim.keymap.set('t', '<C-j>', exit_terminal_mode .. '<C-w><C-j>', { desc = 'Move focus to the lower window' })
+vim.keymap.set('t', '<C-k>', exit_terminal_mode .. '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<Left>', '<cmd>echo "Use h to move!!"<CR>')
@@ -144,6 +150,8 @@ vim.keymap.set({ 'n', 'v' }, vim.g.option_toggle_prefix .. 'B', '<C-v>', { desc 
 -- Split and move
 vim.keymap.set('n', '<Leader>|', '<cmd>vsp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Vertical [-] Split and move' })
 vim.keymap.set('n', '<Leader>-', '<cmd>sp<CR><C-w><C-p><cmd>bp<CR><C-w><C-p>', { desc = 'Horizontal [|] Split and move' })
+vim.keymap.set('n', '<Leader>t|', '<cmd>vsp|te<CR>', { desc = 'Vertical [-] Split terminal' })
+vim.keymap.set('n', '<Leader>t-', '<cmd>sp|te<CR>', { desc = 'Horizontal [|] Split terminal' })
 
 -- Execute vim and lua (print) commands
 vim.keymap.set('n', '<Leader>lu', ':lua ', { desc = 'Run [Lu]a command' })
