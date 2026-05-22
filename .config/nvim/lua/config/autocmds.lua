@@ -71,8 +71,28 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
--- Automatically enter insert mode when switching to a terminal buffer
 vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
+  group = vim.api.nvim_create_augroup('TerminalBehavior', { clear = true }),
   pattern = 'term://*',
-  command = 'startinsert',
+  callback = function()
+    -- If in kitty scrollback
+    if vim.fn.getenv('KITTY_SCROLLBACK') == '1' then
+      local opts = { buffer = true, silent = true }
+      -- Disable keymaps into insert/terminal mode or modify buffer
+      local disable = {
+        '<', '>', '=', '~', '<C-a>', '<C-x>',
+        'a', 'A', 'c', 'C', 'i', 'I', 'o', 'O',
+        'd', 'D', 'J', 'p', 'P', 'r', 'R', 's', 'x', 'X',
+      }
+      for _, key in ipairs(disable) do
+        vim.keymap.set('n', key, '<Nop>', opts)
+      end
+      vim.keymap.set('n', 'kj', 'ZZ', opts)
+      vim.keymap.set('n', 'q', 'ZZ', opts)
+      vim.keymap.set('n', '<Esc>', 'ZZ', opts)
+    else
+      -- Automatically enter insert mode when switching to a terminal buffer
+      vim.cmd('startinsert')
+    end
+  end,
 })
