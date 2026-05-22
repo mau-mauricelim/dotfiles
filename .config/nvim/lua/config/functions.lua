@@ -185,6 +185,44 @@ function M.altFileOrOldFile()
   end
 end
 
+-- Send lines to terminal buffer
+function _G.sendLinesToTermBuf(mode, output)
+  local id = nil
+  for _, buf in ipairs(vim.api.nvim_list_bufs()) do
+    if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == 'terminal' then
+      id = vim.b[buf].terminal_job_id
+      break
+    end
+  end
+  if not id then return end
+
+  local text
+  if mode == 'visual' then
+    text = vim.fn.getreg('v')
+  else
+    text = vim.fn.getline('.')
+  end
+
+  local lines = {}
+  local comment_pattern = vim.bo.commentstring:gsub('%%s.*', ''):gsub('%p', '%%%1')
+  for line in text:gmatch("[^\n]+") do
+    -- Skip comment line if output is one-line
+    if not (output == 'one-line' and line:match('^%s*' .. comment_pattern)) then
+      -- Strip spaces + comment_pattern + until end of line
+      line = line:gsub("%s*" .. comment_pattern .. ".*$", "")
+      table.insert(lines, line)
+    end
+  end
+
+  if output == 'one-line' then
+    text = table.concat(lines)
+  else
+    text = table.concat(lines, '\n')
+  end
+
+  vim.api.nvim_chan_send(id, text .. '\n')
+end
+
 -- Send lines to adjacent tmux pane
 function _G.sendLinesToTmuxPane(mode, output)
   local text

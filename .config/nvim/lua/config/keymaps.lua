@@ -31,6 +31,9 @@ vim.keymap.set('t', '<C-l>', exit_terminal_mode .. '<C-w><C-l>', { desc = 'Move 
 vim.keymap.set('t', '<C-j>', exit_terminal_mode .. '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('t', '<C-k>', exit_terminal_mode .. '<C-w><C-k>', { desc = 'Move focus to the upper window' })
 
+-- Send visual selection to terminal in the next window
+vim.keymap.set('v', '<leader>ts', 'y<C-w>w' .. exit_terminal_mode .. 'pa<CR>' .. exit_terminal_mode .. '<C-w>p', { desc = "Send selection to terminal" })
+
 -- TIP: Disable arrow keys in normal mode
 -- vim.keymap.set('n', '<Left>', '<cmd>echo "Use h to move!!"<CR>')
 -- vim.keymap.set('n', '<Right>', '<cmd>echo "Use l to move!!"<CR>')
@@ -223,8 +226,25 @@ vim.keymap.set('x', '#', function() return M._visual_search(0) end, { desc = 'Se
 vim.keymap.set('n', 'g*', 'g*N', { desc = 'Search current' })
 vim.keymap.set('n', 'g#', 'g#n', { desc = 'Search current' })
 
--- Using tmux
-if os.getenv('TMUX') ~= nil then
+-- Not using tmux
+if os.getenv('TMUX') == nil then
+  -- Send lines to terminal buffer
+  vim.keymap.set('n', '<Leader>tl', function()
+    vim.o.operatorfunc = "v:lua.sendLinesToTermBuf"
+    vim.cmd.normal "g@l"
+  end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
+  vim.keymap.set('v', '<Leader>tl', function()
+    -- Save selection to register before calling function
+    vim.cmd('normal! "vy')
+    _G.sendLinesToTermBuf('visual')
+  end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
+  -- Send lines to adjacent tmux pane as one-line
+  vim.keymap.set('v', '<Leader>to', function()
+    -- Save selection to register before calling function
+    vim.cmd('normal! "vy')
+    _G.sendLinesToTermBuf('visual', 'one-line')
+  end, { desc = 'Send lines to terminal buffer as one-line', noremap = true, silent = true })
+else
   -- Send lines to adjacent tmux pane
   vim.keymap.set('n', '<Leader>tl', function()
     vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
