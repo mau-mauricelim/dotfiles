@@ -12,10 +12,10 @@ if command -v nvim >/dev/null; then
 fi
 
 if command -v eza &> /dev/null; then
-    alias ls="eza --group-directories-first --color=auto -a"
+    alias ls="eza --group-directories-first --color=auto -a --hyperlink"
     alias tree="eza --tree --group-directories-first --color=auto --git-ignore"
 else
-    alias ls="ls --group-directories-first -a"
+    alias ls="ls --group-directories-first -a --hyperlink=auto"
 fi
 
 if command -v bat &> /dev/null; then
