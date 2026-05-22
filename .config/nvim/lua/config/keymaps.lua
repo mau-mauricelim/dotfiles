@@ -223,24 +223,25 @@ vim.keymap.set('x', '#', function() return M._visual_search(0) end, { desc = 'Se
 vim.keymap.set('n', 'g*', 'g*N', { desc = 'Search current' })
 vim.keymap.set('n', 'g#', 'g#n', { desc = 'Search current' })
 
--- Send lines to adjacent tmux pane
-vim.keymap.set('n', '<Leader>tl', function()
-  vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
-  vim.cmd.normal "g@l"
-end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
-
-vim.keymap.set('v', '<Leader>tl', function()
-  -- Save selection to register before calling function
-  vim.cmd('normal! "vy')
-  _G.sendLinesToTmuxPane('visual')
-end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
-
--- Send lines to adjacent tmux pane as one-line
-vim.keymap.set('v', '<Leader>to', function()
-  -- Save selection to register before calling function
-  vim.cmd('normal! "vy')
-  _G.sendLinesToTmuxPane('visual', 'one-line')
-end, { desc = 'Send lines to adjacent tmux pane as one-line', noremap = true, silent = true })
+-- Using tmux
+if os.getenv('TMUX') ~= nil then
+  -- Send lines to adjacent tmux pane
+  vim.keymap.set('n', '<Leader>tl', function()
+    vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
+    vim.cmd.normal "g@l"
+  end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
+  vim.keymap.set('v', '<Leader>tl', function()
+    -- Save selection to register before calling function
+    vim.cmd('normal! "vy')
+    _G.sendLinesToTmuxPane('visual')
+  end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
+  -- Send lines to adjacent tmux pane as one-line
+  vim.keymap.set('v', '<Leader>to', function()
+    -- Save selection to register before calling function
+    vim.cmd('normal! "vy')
+    _G.sendLinesToTmuxPane('visual', 'one-line')
+  end, { desc = 'Send lines to adjacent tmux pane as one-line', noremap = true, silent = true })
+end
 
 -- Open git blame commit URL
 vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Git Commit URL' })
