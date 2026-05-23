@@ -9,7 +9,8 @@
 
 / 3.2 Operations on Words
 / Handles integer overflow
-.sha.addMod2w:{[bit;binary] .codec.decToBinX[bit].codec.byteToDec reverse neg[8-bit div 8]_-8#-8!.codec.binToDec sum binary};
+/ .sha.addMod2w:{[bit;binary] .codec.decToBinX[bit].codec.byteToDec reverse neg[8-bit div 8]_-8#-8!.codec.binToDec sum binary};
+.sha.addMod2w:{[bit;binary] .codec.decToBinX[bit].codec.byteToDec(neg bit div 8)#.codec.decToByte8 .codec.binToDec sum binary};
 
 / 4.1 Functions
 .sha.Ch:{.q.xor[x&y;z&not x]};

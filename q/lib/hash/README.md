@@ -63,6 +63,13 @@ q)reverse -8#-8!-8787571747770567168
 - `-8#` takes the last 8 bytes (64 bits)
 - `reverse` converts from little-endian to big-endian representation
 
+**Update:**
+
+```q
+q)0x0 vs -8787571747770567168
+0x860c460dcfe07600
+```
+
 #### For 32-bit Unsigned Integers
 
 The same technique works for 32-bit integers:
@@ -78,6 +85,13 @@ q)reverse -4_-8#-8!11241262407
 - `-8#` takes the last 8 bytes
 - `-4_` drops the last 4 bytes (leaving the first 4 of the 8-byte representation)
 - `reverse` converts from little-endian to big-endian representation
+
+**Update:**
+
+```q
+q)-4#0x0 vs 11241262407
+0x9e080d47
+```
 
 Python verification:
 ```python
