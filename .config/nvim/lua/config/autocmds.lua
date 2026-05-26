@@ -103,23 +103,34 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
         end
         -- Go to last non-empty line
         vim.api.nvim_win_set_cursor(0, { last_line, 0 })
-      end, 10)
+      end, 100)
       local function clamp(keys)
+        local lower_keys = keys:lower()
+        local mouse = lower_keys:find("mouse") ~= nil and lower_keys:find("scroll") ~= nil
+        -- Get current column before movement
+        local col = vim.api.nvim_win_get_cursor(0)[2]
         local t = vim.api.nvim_replace_termcodes(keys, true, false, true)
         return function()
           vim.api.nvim_feedkeys(t, 'nx', false)
-          local cur = vim.api.nvim_win_get_cursor(0)[1]
-          if cur > last_line then
-            vim.api.nvim_win_set_cursor(0, { last_line, 0 })
+          local row = vim.api.nvim_win_get_cursor(0)[1]
+          if row > last_line then
+            vim.api.nvim_win_set_cursor(0, { last_line, col })
           end
-          vim.cmd.normal({ 'zz', bang = true })
+          -- Center screen on current line
+          if not mouse then
+            vim.cmd.normal({ 'zz', bang = true })
+          end
         end
       end
-      vim.keymap.set('n', 'G',          clamp('G'),          opts)
-      vim.keymap.set('n', 'j',          clamp('j'),          opts)
-      vim.keymap.set('n', '<Down>',     clamp('<Down>'),     opts)
-      vim.keymap.set('n', '<C-d>',      clamp('<C-d>'),      opts)
-      vim.keymap.set('n', '<PageDown>', clamp('<PageDown>'), opts)
+      -- Clamp keys to last non-empty line
+      local clamps = {
+        'G', 'j', '<Down>', '<C-d>', '<PageDown>',
+        'w', 'W', 'e', 'E',
+        '<LeftMouse>', '<2-LeftMouse>', '<RightMouse>', '<ScrollWheelDown>',
+      }
+      for _, key in ipairs(clamps) do
+        vim.keymap.set({ 'n', 'x' }, key, clamp(key), opts)
+      end
       -- Quit
       vim.keymap.set('n', 'q', 'ZZ', opts)
       vim.keymap.set('n', '<Esc>', 'ZZ', opts)
