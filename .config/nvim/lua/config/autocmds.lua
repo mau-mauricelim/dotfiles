@@ -80,10 +80,7 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
     -- Kitty scrollback behaviour
     if vim.fn.getenv('KITTY_SCROLLBACK') == '1' then
       -- Read-only
-      vim.bo[bufnr].bufhidden = 'wipe'
       vim.bo[bufnr].modifiable = false
-      vim.bo[bufnr].buflisted = false
-      vim.bo[bufnr].swapfile = false
       -- Disable insert/terminal mode
       vim.api.nvim_create_autocmd('TermEnter', {
         group = terminal_group,
@@ -94,22 +91,26 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
       local opts = { buffer = true, silent = true }
       vim.keymap.set('n', 'q', 'ZZ', opts)
       vim.keymap.set('n', '<Esc>', 'ZZ', opts)
-      -- Get last non-empty line
+      -- Get last non-empty line and character
       local last_row = 1
-      local last_row_string = tostring(last_row)
+      local last_col = 0
       vim.defer_fn(function()
         last_row = vim.fn.prevnonblank(vim.fn.line('$'))
-        -- Go to last non-empty line
-        vim.api.nvim_win_set_cursor(0, { last_row, 0 })
-        last_row_string = tostring(last_row)
+        local last_line = vim.api.nvim_buf_get_lines(bufnr, last_row - 1, last_row, false)[1] or ""
+        last_col = last_line:match("^.*()%S")
+        last_col = last_col and (last_col - 1) or 0
+        -- Go to last
+        vim.api.nvim_win_set_cursor(0, { last_row, last_col })
       end, 100)
-      -- Clamp to last non-empty line
+      -- Clamp to last
       vim.api.nvim_create_autocmd({ 'CursorMoved', 'WinScrolled' }, {
         group = terminal_group,
         buffer = bufnr,
         callback = function()
-          if vim.fn.line('.') > last_row then
-            vim.cmd(last_row_string)
+          local row = vim.fn.line('.')
+          local col = vim.fn.col('.') - 1
+          if row > last_row or (row == last_row and col > last_col) then
+            vim.api.nvim_win_set_cursor(0, { last_row, last_col })
           end
         end,
       })
