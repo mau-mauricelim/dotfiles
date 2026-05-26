@@ -87,7 +87,40 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
       for _, key in ipairs(disable) do
         vim.keymap.set('n', key, '<Nop>', opts)
       end
-      vim.keymap.set('n', 'kj', 'ZZ', opts)
+      -- Disable kj escape for faster movement
+      vim.keymap.set('n', 'k', 'kzz', opts)
+      -- Last non-empty line
+      local last_line = 1
+      vim.defer_fn(function()
+        local buf = vim.api.nvim_get_current_buf()
+        local count = vim.api.nvim_buf_line_count(buf)
+        for i = count, 1, -1 do
+          local line = vim.api.nvim_buf_get_lines(buf, i - 1, i, false)[1]
+          if line and line:match('%S') then
+            last_line = i
+            break
+          end
+        end
+        -- Go to last non-empty line
+        vim.api.nvim_win_set_cursor(0, { last_line, 0 })
+      end, 10)
+      local function clamp(keys)
+        local t = vim.api.nvim_replace_termcodes(keys, true, false, true)
+        return function()
+          vim.api.nvim_feedkeys(t, 'nx', false)
+          local cur = vim.api.nvim_win_get_cursor(0)[1]
+          if cur > last_line then
+            vim.api.nvim_win_set_cursor(0, { last_line, 0 })
+          end
+          vim.cmd.normal({ 'zz', bang = true })
+        end
+      end
+      vim.keymap.set('n', 'G',          clamp('G'),          opts)
+      vim.keymap.set('n', 'j',          clamp('j'),          opts)
+      vim.keymap.set('n', '<Down>',     clamp('<Down>'),     opts)
+      vim.keymap.set('n', '<C-d>',      clamp('<C-d>'),      opts)
+      vim.keymap.set('n', '<PageDown>', clamp('<PageDown>'), opts)
+      -- Quit
       vim.keymap.set('n', 'q', 'ZZ', opts)
       vim.keymap.set('n', '<Esc>', 'ZZ', opts)
     else
