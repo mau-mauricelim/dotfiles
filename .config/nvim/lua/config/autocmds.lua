@@ -78,6 +78,7 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
     -- If in kitty scrollback
     if vim.fn.getenv('KITTY_SCROLLBACK') == '1' then
       local opts = { buffer = true, silent = true }
+
       -- Disable keymaps into insert/terminal mode or modify buffer
       local disable = {
         '<', '>', '=', '~', '<C-a>', '<C-x>',
@@ -87,53 +88,27 @@ vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
       for _, key in ipairs(disable) do
         vim.keymap.set('n', key, '<Nop>', opts)
       end
+
       -- Disable kj escape for faster movement
       vim.keymap.set('n', 'k', 'kzz', opts)
-      -- Last non-empty line
-      local last_line = 1
-      vim.defer_fn(function()
-        local buf = vim.api.nvim_get_current_buf()
-        local count = vim.api.nvim_buf_line_count(buf)
-        for i = count, 1, -1 do
-          local line = vim.api.nvim_buf_get_lines(buf, i - 1, i, false)[1]
-          if line and line:match('%S') then
-            last_line = i
-            break
-          end
-        end
-        -- Go to last non-empty line
-        vim.api.nvim_win_set_cursor(0, { last_line, 0 })
-      end, 100)
-      local function clamp(keys)
-        local lower_keys = keys:lower()
-        local mouse = lower_keys:find("mouse") ~= nil and lower_keys:find("scroll") ~= nil
-        -- Get current column before movement
-        local col = vim.api.nvim_win_get_cursor(0)[2]
-        local t = vim.api.nvim_replace_termcodes(keys, true, false, true)
-        return function()
-          vim.api.nvim_feedkeys(t, 'nx', false)
-          local row = vim.api.nvim_win_get_cursor(0)[1]
-          if row > last_line then
-            vim.api.nvim_win_set_cursor(0, { last_line, col })
-          end
-          -- Center screen on current line
-          if not mouse then
-            vim.cmd.normal({ 'zz', bang = true })
-          end
-        end
-      end
-      -- Clamp keys to last non-empty line
-      local clamps = {
-        'G', 'j', '<Down>', '<C-d>', '<PageDown>',
-        'w', 'W', 'e', 'E',
-        '<LeftMouse>', '<2-LeftMouse>', '<RightMouse>', '<ScrollWheelDown>',
-      }
-      for _, key in ipairs(clamps) do
-        vim.keymap.set({ 'n', 'x' }, key, clamp(key), opts)
-      end
       -- Quit
       vim.keymap.set('n', 'q', 'ZZ', opts)
       vim.keymap.set('n', '<Esc>', 'ZZ', opts)
+
+      local last_line = 1
+      vim.defer_fn(function()
+        last_line = vim.fn.prevnonblank(vim.fn.line('$'))
+        -- Go to last non-empty line
+        vim.api.nvim_win_set_cursor(0, { last_line, 0 })
+      end, 100)
+      -- Clamp to last non-empty line
+      vim.api.nvim_create_autocmd({ 'CursorMoved', 'WinScrolled' }, {
+        callback = function()
+          if vim.fn.line('.') > last_line then
+            vim.cmd(tostring(last_line))
+          end
+        end,
+      })
     else
       -- Automatically enter insert mode when switching to a terminal buffer
       vim.cmd('startinsert')
