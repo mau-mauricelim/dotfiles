@@ -71,41 +71,45 @@ vim.api.nvim_create_autocmd('FileType', {
   end,
 })
 
+local terminal_group = vim.api.nvim_create_augroup('TerminalBehavior', { clear = true })
 vim.api.nvim_create_autocmd({ 'TermOpen', 'BufEnter' }, {
-  group = vim.api.nvim_create_augroup('TerminalBehavior', { clear = true }),
+  group = terminal_group,
   pattern = 'term://*',
-  callback = function()
-    -- If in kitty scrollback
+  callback = function(args)
+    local bufnr = args.buf
+    -- Kitty scrollback behaviour
     if vim.fn.getenv('KITTY_SCROLLBACK') == '1' then
-      local opts = { buffer = true, silent = true }
-
-      -- Disable keymaps into insert/terminal mode or modify buffer
-      local disable = {
-        '<', '>', '=', '~', '<C-a>', '<C-x>',
-        'a', 'A', 'c', 'C', 'i', 'I', 'o', 'O',
-        'd', 'D', 'J', 'p', 'P', 'r', 'R', 's', 'x', 'X',
-      }
-      for _, key in ipairs(disable) do
-        vim.keymap.set('n', key, '<Nop>', opts)
-      end
-
-      -- Disable kj escape for faster movement
-      vim.keymap.set('n', 'k', 'kzz', opts)
+      -- Read-only
+      vim.bo[bufnr].bufhidden = 'wipe'
+      vim.bo[bufnr].modifiable = false
+      vim.bo[bufnr].buflisted = false
+      vim.bo[bufnr].swapfile = false
+      -- Disable insert/terminal mode
+      vim.api.nvim_create_autocmd('TermEnter', {
+        group = terminal_group,
+        buffer = bufnr,
+        callback = function() vim.cmd('stopinsert') end,
+      })
       -- Quit
+      local opts = { buffer = true, silent = true }
       vim.keymap.set('n', 'q', 'ZZ', opts)
       vim.keymap.set('n', '<Esc>', 'ZZ', opts)
-
-      local last_line = 1
+      -- Get last non-empty line
+      local last_row = 1
+      local last_row_string = tostring(last_row)
       vim.defer_fn(function()
-        last_line = vim.fn.prevnonblank(vim.fn.line('$'))
+        last_row = vim.fn.prevnonblank(vim.fn.line('$'))
         -- Go to last non-empty line
-        vim.api.nvim_win_set_cursor(0, { last_line, 0 })
+        vim.api.nvim_win_set_cursor(0, { last_row, 0 })
+        last_row_string = tostring(last_row)
       end, 100)
       -- Clamp to last non-empty line
       vim.api.nvim_create_autocmd({ 'CursorMoved', 'WinScrolled' }, {
+        group = terminal_group,
+        buffer = bufnr,
         callback = function()
-          if vim.fn.line('.') > last_line then
-            vim.cmd(tostring(last_line))
+          if vim.fn.line('.') > last_row then
+            vim.cmd(last_row_string)
           end
         end,
       })
