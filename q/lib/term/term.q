@@ -4,6 +4,7 @@
 
 // INFO: https://github.com/CillianReilly/qtools/blob/master/q.q
 clear:.term.clear:{1"\033[H\033[J";};
+clearLine:.term.clearLine:{1"\r\033[K";};
 c:.term.setSize:{system"c ",$[.util.isStr x;;" "sv string 2#]x};
 full:.term.full:{.term.setSize 20000};
 .term.getSize:{$[.util.isWin[];(ssr[;"  ";" "]/)trim floor[raze system["mode con"]3 4]except":",.Q.a;first system"stty size"]};

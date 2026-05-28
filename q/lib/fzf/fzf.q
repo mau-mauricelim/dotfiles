@@ -34,6 +34,6 @@ fzfm:.fzf.fzfObjectMem:{[pat] delete val from update human:hb peach size from up
 / Get the object name of the value
 / @example - q)).fzf.getObjectName .z.s
 /            q)whoami whoami
-// NOTE: .Q.s1 is used here as string throws error on certain types of val
+// NOTE: -8! is used here as string throws error on certain types of val
 /        Simple match also does not work with k: signum~get"k){(x>0)-x<0}"
-whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where .Q.s1[x]~/:.Q.s1 each val};
+whoami:.fzf.getObjectName:{t:.fzf.fzfObjectVal`;exec obj from t where(-8!x)~/:-8!'val};
