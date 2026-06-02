@@ -226,42 +226,25 @@ vim.keymap.set('x', '#', function() return M._visual_search(0) end, { desc = 'Se
 vim.keymap.set('n', 'g*', 'g*N', { desc = 'Search current' })
 vim.keymap.set('n', 'g#', 'g#n', { desc = 'Search current' })
 
--- Not using tmux
-if os.getenv('TMUX') == nil then
-  -- Send lines to terminal buffer
-  vim.keymap.set('n', '<Leader>tl', function()
-    vim.o.operatorfunc = "v:lua.sendLinesToKittyWindow"
-    vim.cmd.normal "g@l"
-  end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
-  vim.keymap.set('v', '<Leader>tl', function()
-    -- Save selection to register before calling function
-    vim.cmd('normal! "vy')
-    _G.sendLinesToKittyWindow('visual')
-  end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
-  -- Send lines to adjacent tmux pane as one-line
-  vim.keymap.set('v', '<Leader>to', function()
-    -- Save selection to register before calling function
-    vim.cmd('normal! "vy')
-    _G.sendLinesToKittyWindow('visual', 'one-line')
-  end, { desc = 'Send lines to terminal buffer as one-line', noremap = true, silent = true })
-else
-  -- Send lines to adjacent tmux pane
-  vim.keymap.set('n', '<Leader>tl', function()
-    vim.o.operatorfunc = "v:lua.sendLinesToTmuxPane"
-    vim.cmd.normal "g@l"
-  end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
-  vim.keymap.set('v', '<Leader>tl', function()
-    -- Save selection to register before calling function
-    vim.cmd('normal! "vy')
-    _G.sendLinesToTmuxPane('visual')
-  end, { desc = 'Send lines to adjacent tmux pane', noremap = true, silent = true })
-  -- Send lines to adjacent tmux pane as one-line
-  vim.keymap.set('v', '<Leader>to', function()
-    -- Save selection to register before calling function
-    vim.cmd('normal! "vy')
-    _G.sendLinesToTmuxPane('visual', 'one-line')
-  end, { desc = 'Send lines to adjacent tmux pane as one-line', noremap = true, silent = true })
-end
+-- Not using tmux - send lines to adjacent kitty window (or terminal buffer) or tmux pane
+local sender = os.getenv('TMUX') == nil and "sendLinesToKittyWindow" or "sendLinesToTmuxPane"
+local send = _G[sender]
+local send_desc = 'Send lines to adjacent pane'
+-- Send lines to adjacent pane
+vim.keymap.set('n', '<Leader>tl', function()
+  vim.o.operatorfunc = "v:lua." .. sender
+  vim.cmd.normal "g@l"
+end, { desc = send_desc, noremap = true, silent = true })
+vim.keymap.set('v', '<Leader>tl', function()
+  -- Save selection to register before calling function
+  vim.cmd('normal! "vy')
+  send('visual')
+end, { desc = send_desc, noremap = true, silent = true })
+-- Send as one-line
+vim.keymap.set('v', '<Leader>to', function()
+  vim.cmd('normal! "vy')
+  send('visual', 'one-line')
+end, { desc = send_desc .. ' as one-line', noremap = true, silent = true })
 
 -- Open git blame commit URL
 vim.keymap.set('n', vim.g.option_toggle_prefix .. 'c', M.gitBlameOpenCommitURL, { desc = 'Open Git Commit URL' })
