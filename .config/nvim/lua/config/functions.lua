@@ -185,6 +185,31 @@ function M.altFileOrOldFile()
   end
 end
 
+local function extractLines(mode, output)
+  local text
+  if mode == 'visual' then
+    text = vim.fn.getreg('v')
+  else
+    text = vim.fn.getline('.')
+  end
+
+  local lines = {}
+  local comment_pattern = vim.bo.commentstring:gsub('%%s.*', ''):gsub('%p', '%%%1')
+  for line in text:gmatch("[^\n]+") do
+    if output == 'one-line' then
+      -- Strip spaces + comment_pattern + until end of line
+      line = line:gsub("%s*" .. comment_pattern .. ".*$", "")
+    end
+    table.insert(lines, line)
+  end
+
+  if output == 'one-line' then
+    return table.concat(lines)
+  else
+    return table.concat(lines, '\n')
+  end
+end
+
 -- Send lines to terminal buffer
 function _G.sendLinesToTermBuf(mode, output)
   local id = nil
@@ -196,31 +221,11 @@ function _G.sendLinesToTermBuf(mode, output)
   end
   if not id then return end
 
-  local text
-  if mode == 'visual' then
-    text = vim.fn.getreg('v')
-  else
-    text = vim.fn.getline('.')
-  end
+  vim.api.nvim_chan_send(id, extractLines(mode, output) .. '\n')
+end
 
-  local lines = {}
-  local comment_pattern = vim.bo.commentstring:gsub('%%s.*', ''):gsub('%p', '%%%1')
-  for line in text:gmatch("[^\n]+") do
-    -- Skip comment line if output is one-line
-    if not (output == 'one-line' and line:match('^%s*' .. comment_pattern)) then
-      -- Strip spaces + comment_pattern + until end of line
-      line = line:gsub("%s*" .. comment_pattern .. ".*$", "")
-      table.insert(lines, line)
-    end
-  end
-
-  if output == 'one-line' then
-    text = table.concat(lines)
-  else
-    text = table.concat(lines, '\n')
-  end
-
-  vim.api.nvim_chan_send(id, text .. '\n')
+function _G.sendLinesToKittyWindow(mode, output)
+  vim.fn.system(string.format("kitty @ send-text --exclude-active --match %s '%s\n'", "recent:1", extractLines(mode, output)))
 end
 
 -- Send lines to adjacent tmux pane
