@@ -230,41 +230,12 @@ end
 
 -- Send lines to adjacent tmux pane
 function _G.sendLinesToTmuxPane(mode, output)
-  local text
-  if mode == 'visual' then
-    text = vim.fn.getreg('v')
-  else
-    text = vim.fn.getline('.')
-  end
-
-  local lines = {}
-  local comment_pattern = vim.bo.commentstring:gsub('%%s.*', ''):gsub('%p', '%%%1')
-  for line in text:gmatch("[^\n]+") do
-    -- Skip comment line if output is one-line
-    if output == 'one-line' then
-      if line:match('^%s*' .. comment_pattern) then
-        goto continue
-      end
-    end
-    -- HACK: Add white space before '-*' and after ';'
-    line = line:gsub('^%s*%-', ' -')
-    line = line:gsub(';$', '; ')
-    table.insert(lines, line)
-    ::continue::
-  end
-
-  if output == 'one-line' then
-    text = table.concat(lines)
-  else
-    text = table.concat(lines, '\n')
-  end
-
   -- Send Escape first to exit any mode, then clear line with Ctrl-C
   vim.fn.system('tmux send-keys -t .+ Escape C-c')
-
-  -- Escape special characters and send to tmux
-  local escaped_text = text:gsub('(["$`\\])', '\\%1')
-  vim.fn.system('tmux send-keys -t .+ "' .. escaped_text .. '" Enter')
+  -- The  -l flag disables key name lookup and processes the keys as literal UTF-8 characters
+  vim.fn.system({'tmux', 'send-keys', '-t', '.+', '-l', extractLines(mode, output)})
+  -- Finally send Enter
+  vim.fn.system('tmux send-keys -t .+ Enter')
 end
 
 return M
