@@ -185,6 +185,7 @@ function M.altFileOrOldFile()
   end
 end
 
+-- Extract lines to send
 local function extractLines(mode, output)
   local text
   if mode == 'visual' then
@@ -210,8 +211,9 @@ local function extractLines(mode, output)
   end
 end
 
+-- NOTE: This is currently not used, but can be used for another keymap if required
 -- Send lines to terminal buffer
-function _G.sendLinesToTermBuf(mode, output)
+function M.sendLinesToTermBuf(mode, output)
   local id = nil
   for _, buf in ipairs(vim.api.nvim_list_bufs()) do
     if vim.api.nvim_buf_is_loaded(buf) and vim.bo[buf].buftype == 'terminal' then
@@ -224,12 +226,13 @@ function _G.sendLinesToTermBuf(mode, output)
   vim.api.nvim_chan_send(id, extractLines(mode, output) .. '\n')
 end
 
-function _G.sendLinesToKittyWindow(mode, output)
-  vim.fn.system(string.format("kitty @ send-text --exclude-active --match %s '%s\n'", "recent:1", extractLines(mode, output)))
+-- Send lines to kitty window
+function M.sendLinesToKittyWindow(mode, output)
+  vim.fn.system({'kitten', '@', 'send-text', '--exclude-active', '--match', 'recent:1', '--stdin'}, extractLines(mode, output) .. '\n')
 end
 
 -- Send lines to adjacent tmux pane
-function _G.sendLinesToTmuxPane(mode, output)
+function M.sendLinesToTmuxPane(mode, output)
   -- Send Escape first to exit any mode, then clear line with Ctrl-C
   vim.fn.system('tmux send-keys -t .+ Escape C-c')
   -- The  -l flag disables key name lookup and processes the keys as literal UTF-8 characters
@@ -237,5 +240,9 @@ function _G.sendLinesToTmuxPane(mode, output)
   -- Finally send Enter
   vim.fn.system('tmux send-keys -t .+ Enter')
 end
+
+_G.sendLinesToTermBuf     = M.sendLinesToTermBuf
+_G.sendLinesToKittyWindow = M.sendLinesToKittyWindow
+_G.sendLinesToTmuxPane    = M.sendLinesToTmuxPane
 
 return M
