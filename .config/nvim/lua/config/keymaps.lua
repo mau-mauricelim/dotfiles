@@ -230,19 +230,19 @@ vim.keymap.set('n', 'g#', 'g#n', { desc = 'Search current' })
 if os.getenv('TMUX') == nil then
   -- Send lines to terminal buffer
   vim.keymap.set('n', '<Leader>tl', function()
-    vim.o.operatorfunc = "v:lua.sendLinesToTermBuf"
+    vim.o.operatorfunc = "v:lua.sendLinesToKittyWindow"
     vim.cmd.normal "g@l"
   end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
   vim.keymap.set('v', '<Leader>tl', function()
     -- Save selection to register before calling function
     vim.cmd('normal! "vy')
-    _G.sendLinesToTermBuf('visual')
+    _G.sendLinesToKittyWindow('visual')
   end, { desc = 'Send lines to terminal buffer', noremap = true, silent = true })
   -- Send lines to adjacent tmux pane as one-line
   vim.keymap.set('v', '<Leader>to', function()
     -- Save selection to register before calling function
     vim.cmd('normal! "vy')
-    _G.sendLinesToTermBuf('visual', 'one-line')
+    _G.sendLinesToKittyWindow('visual', 'one-line')
   end, { desc = 'Send lines to terminal buffer as one-line', noremap = true, silent = true })
 else
   -- Send lines to adjacent tmux pane
