@@ -46,5 +46,5 @@ ls:.qnix.ls:{[args]
 touch:.qnix.touch:{hclose hopen x:.q.Hsym .util.strPath x;x}';
 
 / @param x - timespan
-/ @example - .sleep.sleep 00:00:05
+/ @example - .qnix.sleep 00:00:05
 sleep:.qnix.sleep:{st:.z.p;while .z.p<st+x};
