@@ -51,5 +51,5 @@
 
 / @param x - string/byte
 / @return - byte
-.Q.sha256:.sha2.hash[`.sha2x32;`sha256];
 .Q.sha224:.sha2.hash[`.sha2x32;`sha224];
+.Q.sha256:.sha2.hash[`.sha2x32;`sha256];

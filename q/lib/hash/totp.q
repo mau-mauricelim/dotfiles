@@ -24,7 +24,7 @@
     slice:hash offset+til 4;
     / Strip the Most Significant Bit
     dec:.codec.binToDec raze(01111111b;11111111b;11111111b;11111111b)&.codec.byteToBin slice;
-    "0"^neg[len]$string mod[dec;1000000]
+    "0"^neg[len]$string mod[dec;"j"$10 xexp len]
     };
 
 .totp.sha1:{.totp.i.totp[30;6;.hmac.sha1;.z.p;x]};

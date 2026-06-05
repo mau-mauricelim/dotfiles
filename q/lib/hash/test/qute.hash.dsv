@@ -1,14 +1,30 @@
-action | minver | code                                                                                        | repeat | ms | bytes | comment
-before |        | .lib.require`hash                                                                           |        |    |       | Initialize library
-before |        | .test.text:"Lorem Ipsum is simply dummy text of the printing and typesetting industry"      |        |    |       | Setup test variables
-true   |        | 0xaf94ea31b6a84fd9361d6e314a3e92fd~md5`char$.Q.sha512 .test.text                            |        |    |       |
-true   |        | 0xc67c698bbed2bcf002b9a03ed96300bd~md5`char$.Q.sha384 .test.text                            |        |    |       |
-true   |        | 0x4327af160278b28ef9f0398e5a1468ff4f6d1b1a4485034ca4dc3535~.Q.sha224 .test.text             |        |    |       |
-true   |        | 0xab88d947d98a321bb894834fc88b687e031857d29dd5b943ef4d125b~.Q.sha512x224 .test.text         |        |    |       |
-true   |        | 0x098fc40c1bd1142a0adc3613e087e5d31c0e890d83f3501558e3ff3c4bea50d4~.Q.sha256 .test.text     |        |    |       |
-true   |        | 0x321495a0b97bf68cb073435a5effed3abf275f649320a640df379c5c9d59b6a8~.Q.sha512x256 .test.text |        |    |       |
-true   |        | 0xfbdb1d1b18aa6c08324b7d64b71fb76370690e1d~.hmac.sha1[();()]                                |        |    |       |
-true   |        | 0x63cce3559126764fd2581f05878c6791065c0d06~.hmac.sha1[();0x68656c6c6f]                      |        |    |       |
-true   |        | 0x92ae2ca620308cfd16b9dd5621bdb28e7cfafaa1~.hmac.sha1[0x01;0x68656c6c6f]                    |        |    |       |
-true   |        | 0x3bed69f1c6abb4c8a2dcb7207b0e9458196f59ae~.hmac.sha1[0x0;0x0]                              |        |    |       |
-after  |        | delete from`.test                                                                           |        |    |       | Cleanup .test namespace
+action | minver | code                                                                                               | repeat | ms | bytes | comment
+before |        | .lib.require`hash                                                                                  |        |    |       | Initialize library
+before |        | .test.text:"Lorem Ipsum is simply dummy text of the printing and typesetting industry"             |        |    |       | Setup test variables
+true   |        | 0xaf94ea31b6a84fd9361d6e314a3e92fd~md5`char$.Q.sha512 .test.text                                   |        |    |       |
+true   |        | 0xc67c698bbed2bcf002b9a03ed96300bd~md5`char$.Q.sha384 .test.text                                   |        |    |       |
+true   |        | 0x4327af160278b28ef9f0398e5a1468ff4f6d1b1a4485034ca4dc3535~.Q.sha224 .test.text                    |        |    |       |
+true   |        | 0xab88d947d98a321bb894834fc88b687e031857d29dd5b943ef4d125b~.Q.sha512x224 .test.text                |        |    |       |
+true   |        | 0x098fc40c1bd1142a0adc3613e087e5d31c0e890d83f3501558e3ff3c4bea50d4~.Q.sha256 .test.text            |        |    |       |
+true   |        | 0x321495a0b97bf68cb073435a5effed3abf275f649320a640df379c5c9d59b6a8~.Q.sha512x256 .test.text        |        |    |       |
+true   |        | 0xfbdb1d1b18aa6c08324b7d64b71fb76370690e1d~.hmac.sha1[();()]                                       |        |    |       |
+true   |        | 0x63cce3559126764fd2581f05878c6791065c0d06~.hmac.sha1[();0x68656c6c6f]                             |        |    |       |
+true   |        | 0x92ae2ca620308cfd16b9dd5621bdb28e7cfafaa1~.hmac.sha1[0x01;0x68656c6c6f]                           |        |    |       |
+true   |        | 0x3bed69f1c6abb4c8a2dcb7207b0e9458196f59ae~.hmac.sha1[0x0;0x0]                                     |        |    |       |
+before |        | (.test.secret20;.test.secret32;.test.secret64):.codec.textToB32@'20 32 64#\:"12345678901234567890" |        |    |       | Different byte lengths
+true   |        | "94287082"~.totp.i.totp[30;8;.hmac.sha1;1970.01.01D00:00:59;.test.secret20]                        |        |    |       |
+true   |        | "46119246"~.totp.i.totp[30;8;.hmac.sha256;1970.01.01D00:00:59;.test.secret32]                      |        |    |       |
+true   |        | "90693936"~.totp.i.totp[30;8;.hmac.sha512;1970.01.01D00:00:59;.test.secret64]                      |        |    |       |
+true   |        | "07081804"~.totp.i.totp[30;8;.hmac.sha1;2005.03.18D01:58:29;.test.secret20]                        |        |    |       |
+true   |        | "68084774"~.totp.i.totp[30;8;.hmac.sha256;2005.03.18D01:58:29;.test.secret32]                      |        |    |       |
+true   |        | "25091201"~.totp.i.totp[30;8;.hmac.sha512;2005.03.18D01:58:29;.test.secret64]                      |        |    |       |
+true   |        | "14050471"~.totp.i.totp[30;8;.hmac.sha1;2005.03.18D01:58:31;.test.secret20]                        |        |    |       |
+true   |        | "67062674"~.totp.i.totp[30;8;.hmac.sha256;2005.03.18D01:58:31;.test.secret32]                      |        |    |       |
+true   |        | "99943326"~.totp.i.totp[30;8;.hmac.sha512;2005.03.18D01:58:31;.test.secret64]                      |        |    |       |
+true   |        | "89005924"~.totp.i.totp[30;8;.hmac.sha1;2009.02.13D23:31:30;.test.secret20]                        |        |    |       |
+true   |        | "91819424"~.totp.i.totp[30;8;.hmac.sha256;2009.02.13D23:31:30;.test.secret32]                      |        |    |       |
+true   |        | "93441116"~.totp.i.totp[30;8;.hmac.sha512;2009.02.13D23:31:30;.test.secret64]                      |        |    |       |
+true   |        | "69279037"~.totp.i.totp[30;8;.hmac.sha1;2033.05.18D03:33:20;.test.secret20]                        |        |    |       |
+true   |        | "90698825"~.totp.i.totp[30;8;.hmac.sha256;2033.05.18D03:33:20;.test.secret32]                      |        |    |       |
+true   |        | "38618901"~.totp.i.totp[30;8;.hmac.sha512;2033.05.18D03:33:20;.test.secret64]                      |        |    |       |
+after  |        | delete from`.test                                                                                  |        |    |       | Cleanup .test namespace
