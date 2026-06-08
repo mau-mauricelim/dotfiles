@@ -121,6 +121,17 @@ vnoremap KJ <Esc>
 " WARN: <Expr> does not work
 nnoremap <expr> x (col(".") > col("$")) ? "J" : "x"
 
+" Paste at EOL
+nnoremap <expr> p (col(".") > col("$")) ? "hp" : "p"
+
+" Remap Home/End to toggle between start/end of line
+nnoremap <expr> <Home> (col(".") == 1) ? "^" : "0"
+vnoremap <expr> <Home> (col(".") == 1) ? "^" : "0"
+nnoremap <expr> 0 (col(".") == 1) ? "^" : "0"
+vnoremap <expr> 0 (col(".") == 1) ? "^" : "0"
+nnoremap <expr> <End> (col(".") > col("$")) ? "g_" : "$"
+vnoremap <expr> <End> (col(".") > col("$")) ? "g_" : "$"
+
 " Select to end/start of line
 nnoremap L v$h
 vnoremap L $h
