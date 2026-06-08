@@ -2,8 +2,6 @@
 /# Time-based One-Time Password #
 /################################
 
-// TODO: Add tests
-
 / @param step - number - time step in seconds
 / @param len - number - OTP length
 / @param algo - function - hash function
@@ -28,3 +26,19 @@
     };
 
 .totp.sha1:{.totp.i.totp[30;6;.hmac.sha1;.z.p;x]};
+
+// TODO
+/ .totp.sha1Run"JBSWY3DPEHPK3PXP"
+.totp.sha1Run:{
+    totp:.totp.i.totp[step:30;6;.hmac.sha1;;x];
+    sep:10#"";
+    -1"Press Ctrl+C to stop";
+    while[1b;
+        seconds:.util.unixTimeStamp t:.z.p;
+        elapsed:seconds mod step;
+        .term.clearLine[];
+        (otp;nextOtp):totp each t+`second$0,step;
+        1"OTP: ",otp," ",.pacman.progress[elapsed;step;50],sep,"[NEXT: ",nextOtp,"]";
+        .qnix.sleep 00:00:01;
+        ];
+    };
