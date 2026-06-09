@@ -27,18 +27,22 @@
 
 .totp.sha1:{.totp.i.totp[30;6;.hmac.sha1;.z.p;x]};
 
-// TODO
-/ .totp.sha1Run"JBSWY3DPEHPK3PXP"
-.totp.sha1Run:{
-    totp:.totp.i.totp[step:30;6;.hmac.sha1;;x];
-    sep:10#"";
+/ Run TOTP Authenticator (HMAC-SHA1 30 seconds 6 digits)
+/ @param x - string - base32 encoded text
+/ @example - .totp.run.sha1"JBSWY3DPEHPK3PXP"
+.totp.run.sha1:{
+    .lib.require`term`misc`qnix;
     -1"Press Ctrl+C to stop";
-    while[1b;
-        seconds:.util.unixTimeStamp t:.z.p;
-        elapsed:seconds mod step;
-        .term.clearLine[];
-        (otp;nextOtp):totp each t+`second$0,step;
-        1"OTP: ",otp," ",.pacman.progress[elapsed;step;50],sep,"[NEXT: ",nextOtp,"]";
-        .qnix.sleep 00:00:01;
-        ];
+    @[{
+        totp:.totp.i.totp[step:30;6;.hmac.sha1;;x];
+        sep:10#"";
+        while[1b;
+            seconds:.util.unixTimeStamp t:.z.p;
+            elapsed:seconds mod step;
+            .term.clearLine[];
+            (otp;nextOtp):totp each t+`second$0,step;
+            1"OTP: ",otp," ",.pacman.i.progress[0b;elapsed;step;step],sep,"[NEXT: ",nextOtp,"]";
+            .qnix.sleep 00:00:01;
+            ];
+        };x;{$[x~"stop";-1"";'x]}];
     };

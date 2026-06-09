@@ -61,11 +61,11 @@ true   |        | "45679189"~.totp.i.totp[30;8;.hmac.sha384;2033.05.18D03:33:20;
 true   |        | "38618901"~.totp.i.totp[30;8;.hmac.sha512;2033.05.18D03:33:20;.test.secret 64]               |        |    |       |
 true   |        | "24095659"~.totp.i.totp[30;8;.hmac.sha512x224;2033.05.18D03:33:20;.test.secret 28]           |        |    |       |
 true   |        | "14506846"~.totp.i.totp[30;8;.hmac.sha512x256;2033.05.18D03:33:20;.test.secret 32]           |        |    |       |
-todo   |        | "65353130"~.totp.i.totp[30;8;.hmac.sha1;2603.10.11D11:33:20;.test.secret 20]                 |        |    |       |
-todo   |        | "81596645"~.totp.i.totp[30;8;.hmac.sha224;2603.10.11D11:33:20;.test.secret 28]               |        |    |       |
-todo   |        | "77737706"~.totp.i.totp[30;8;.hmac.sha256;2603.10.11D11:33:20;.test.secret 32]               |        |    |       |
-todo   |        | "33578931"~.totp.i.totp[30;8;.hmac.sha384;2603.10.11D11:33:20;.test.secret 48]               |        |    |       |
-todo   |        | "47863826"~.totp.i.totp[30;8;.hmac.sha512;2603.10.11D11:33:20;.test.secret 64]               |        |    |       |
-todo   |        | "83924651"~.totp.i.totp[30;8;.hmac.sha512x224;2603.10.11D11:33:20;.test.secret 28]           |        |    |       |
-todo   |        | "83211259"~.totp.i.totp[30;8;.hmac.sha512x256;2603.10.11D11:33:20;.test.secret 32]           |        |    |       |
+true   |        | "65353130"~.totp.i.totp[30;8;.hmac.sha1;2603.10.11T11:33:20;.test.secret 20]                 |        |    |       | Using timestamp would cause an overflow error
+true   |        | "81596645"~.totp.i.totp[30;8;.hmac.sha224;2603.10.11T11:33:20;.test.secret 28]               |        |    |       |
+true   |        | "77737706"~.totp.i.totp[30;8;.hmac.sha256;2603.10.11T11:33:20;.test.secret 32]               |        |    |       |
+true   |        | "33578931"~.totp.i.totp[30;8;.hmac.sha384;2603.10.11T11:33:20;.test.secret 48]               |        |    |       |
+true   |        | "47863826"~.totp.i.totp[30;8;.hmac.sha512;2603.10.11T11:33:20;.test.secret 64]               |        |    |       |
+true   |        | "83924651"~.totp.i.totp[30;8;.hmac.sha512x224;2603.10.11T11:33:20;.test.secret 28]           |        |    |       |
+true   |        | "83211259"~.totp.i.totp[30;8;.hmac.sha512x256;2603.10.11T11:33:20;.test.secret 32]           |        |    |       |
 after  |        | delete from`.test                                                                            |        |    |       | Cleanup .test namespace

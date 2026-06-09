@@ -96,19 +96,7 @@ cw90:.util.cw90:{reverse each flip x};
 / Convert kdb to Unix timestamp in seconds
 / kdb+ Epoch: Starts on 2000.01.01 and measures time in nanoseconds
 / Unix Epoch: Starts on 1970.01.01 and traditionally measures time in seconds
-/ @param x - timestamp
-.util.unixTimeStamp:{floor((-).`long$x,1970.01.01D)%1e9};
-
-// TODO:
-/
-q)2603.10.11D11:33:20
-'2603.10.11D11:33:20
-
-In kdb+, the timestamp data type (e.g., 2005.03.18D01:58:29) tracks time as a signed 64-bit integer of nanoseconds
-relative to the kdb epoch (2000.01.01). Because a 64-bit integer maxes out at 9,223,372,036,854,775,807, the absolute
-maximum date a native kdb timestamp can handle is 2292.04.11. Trying to express the year 2603 directly as a literal
-throws a syntax/valuation error because it overflows this data type.To circumvent this and process your final test
-vector, bypass the kdb timestamp parser entirely and pass the raw Unix timestamp directly to your logic.
-
-"2603.10.11 11:33:20" should return 20000000000
-\
+/ @param x - timestamp/datetime
+.util.unixTimeStamp:{
+    floor$[-12h~typ:type x;((-).`long$x,1970.01.01D)%1e9;
+        -15h~typ;86400*x-1970.01.01T;'.log.error"Unsupported input type"]};

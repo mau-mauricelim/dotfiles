@@ -1,4 +1,5 @@
-action | minver | code                                                      | repeat | ms | bytes | comment
-before |        | .lib.require`misc                                         |        |    |       | Initialize library
-true   |        | "[---c o  o  o  o  o  ]  16%"~.pacman.progress[10;60;20]  |        |    |       |
-true   |        | "[c o  o  o  o  o  o  ]   0%"~.pacman.progress[-10;60;20] |        |    |       |
+action | minver | code                                                                     | repeat | ms | bytes | comment
+before |        | .lib.require`misc                                                        |        |    |       | Initialize library
+true   |        | "[---c o  o  o  o  o  ]  16%"~.pacman.progress[10;60;20]                 |        |    |       |
+true   |        | "[c o  o  o  o  o  o  ]   0%"~.pacman.progress[-10;60;20]                |        |    |       |
+true   |        | "[----------Co  o  o  o  o  o  o] 10/30"~.pacman.i.progress[0b;10;30;30] |        |    |       |

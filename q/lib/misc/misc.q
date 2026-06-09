@@ -21,15 +21,21 @@ fcys:.fcy.specialCharFrecency:desc .Q.sc#.fcy.charFrecency@;
 / @param x - string
 ghSecLink:.gh.sectionLink:{ssr[;" ";"-"]ssr[;"  ";" "]/[floor trim x]except .Q.sc except"-"};
 
+// TODO: Fix 0 and 100%
 / Function to print a pacman progress bar
+/ @param pct - boolean - print status as percentage
 / @param current - number - current progress
 / @param total - number - total progress
 / @param bar - number - length of bar
 / @return - string
-/ @example - .pacman.progress[10;60;50]
-.pacman.progress:{[current;total;length]
+/ @example - .pacman.i.progress[0b;10;30;30]
+.pacman.i.progress:{[pct;current;total;length]
     ratio:0|1&current%total;
     pos:(length-1)&floor ratio*length:1|abs length;
     bar:@[length#"";2+3*til length div 3;:;"o"];
     bar:@[bar;pos;:;"cC""o"=bar pos+1];
-    "[",@[bar;til pos;:;"-"],"]",(-4$string floor ratio*100),"%"};
+    status:$[pct;(-4$string floor ratio*100),"%";" ","/"sv string current,total];
+    "[",@[bar;til pos;:;"-"],"]",status};
+
+/ @example - .pacman.progress[10;60;50]
+.pacman.progress:.pacman.i.progress 1b;

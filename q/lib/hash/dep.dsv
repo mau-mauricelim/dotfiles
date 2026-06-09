@@ -1,7 +1,15 @@
 filepath         | object
+../bits/bits.q   | .bits.bitsxor
+../codec/codec.q | .codec.b32ToByte
 ../codec/codec.q | .codec.binToDec
+../codec/codec.q | .codec.binToHex
 ../codec/codec.q | .codec.byteToBin
 ../codec/codec.q | .codec.byteToDec
 ../codec/codec.q | .codec.decToBinX
+../codec/codec.q | .codec.decToByte8
 ../codec/codec.q | .codec.decToHex
+../codec/codec.q | .codec.hexToByte
 ../dotx/dotx.q   | .q.xor
+../qnix/qnix.q   | .qnix.sleep
+../term/term.q   | .term.clearLine
+../util/util.q   | .util.unixTimeStamp
