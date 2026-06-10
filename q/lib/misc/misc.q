@@ -21,7 +21,6 @@ fcys:.fcy.specialCharFrecency:desc .Q.sc#.fcy.charFrecency@;
 / @param x - string
 ghSecLink:.gh.sectionLink:{ssr[;" ";"-"]ssr[;"  ";" "]/[floor trim x]except .Q.sc except"-"};
 
-// TODO: Fix 0 and 100%
 / Function to print a pacman progress bar
 / @param pct - boolean - print status as percentage
 / @param current - number - current progress
@@ -30,12 +29,15 @@ ghSecLink:.gh.sectionLink:{ssr[;" ";"-"]ssr[;"  ";" "]/[floor trim x]except .Q.s
 / @return - string
 / @example - .pacman.i.progress[0b;10;30;30]
 .pacman.i.progress:{[pct;current;total;length]
-    ratio:0|1&current%total;
-    pos:(length-1)&floor ratio*length:1|abs length;
-    bar:@[length#"";2+3*til length div 3;:;"o"];
+    (current;total;length):floor 0|current,total,length;
+    ratio:0^current%total|:current;
+    pos:floor ratio*length|:1;
+    bar:" ",@[length#"";2+3*til length div 3;:;"o"];
     bar:@[bar;pos;:;"cC""o"=bar pos+1];
-    status:$[pct;(-4$string floor ratio*100),"%";" ","/"sv string current,total];
-    "[",@[bar;til pos;:;"-"],"]",status};
+    bar:@[bar;til pos;:;"-"];
+    bar:@[bar;0;:;"["],"]";
+    status:$[pct;(-4$string floor ratio*100),"%";" ","/"sv(neg count string total)$'string current,total];
+    bar,status};
 
 / @example - .pacman.progress[10;60;50]
 .pacman.progress:.pacman.i.progress 1b;

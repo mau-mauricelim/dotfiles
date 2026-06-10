@@ -30,18 +30,22 @@
 / Run TOTP Authenticator (HMAC-SHA1 30 seconds 6 digits)
 / @param x - string - base32 encoded text
 / @example - .totp.run.sha1"JBSWY3DPEHPK3PXP"
+// TODO: Make a generic .totp.run function?
 .totp.run.sha1:{
-    .lib.require`term`misc`qnix;
-    -1"Press Ctrl+C to stop";
+    .lib.require`term`misc`qnix`colors;
+    -1 .colors.wrap[`dim;`red;`default;"Press Ctrl+C to stop"];
     @[{
         totp:.totp.i.totp[step:30;6;.hmac.sha1;;x];
-        sep:10#"";
         while[1b;
             seconds:.util.unixTimeStamp t:.z.p;
-            elapsed:seconds mod step;
-            .term.clearLine[];
+            elapsed:1+seconds mod step;
             (otp;nextOtp):totp each t+`second$0,step;
-            1"OTP: ",otp," ",.pacman.i.progress[0b;elapsed;step;step],sep,"[NEXT: ",nextOtp,"]";
+            out :.colors.wrap[`;`blue;`default;]
+                ssr[.pacman.i.progress[0b;elapsed;step;step];"[cC]";
+                    {.colors.ansi[`;`yellow;`default],x,.colors.ansi[`;`blue;`default]}]," ";
+            out,:.colors.wrap[`inverse`bold;`green;`default;"[OTP: ",otp,"]"]," ";
+            .term.clearLine[];
+            1 out,.colors.wrap[`dim;`white;`default;"[NEXT: ",nextOtp,"]"];
             .qnix.sleep 00:00:01;
             ];
         };x;{$[x~"stop";-1"";'x]}];
