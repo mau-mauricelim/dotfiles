@@ -26,46 +26,55 @@ true   |        | 0x4c1a03424b55e07fe7f27be1d58bb9324a9a5a04~.hmac.sha1[20#0x0c;
 true   |        | 0xaa4ae5e15272d00e95705637ce8a3b55ed402112~.hmac.sha1[80#0xaa;.test.data2]                   |        |    |       |
 true   |        | 0xe8e99d0f45237d786d6bbaa7965c7808bbff1a91~.hmac.sha1[80#0xaa;.test.data3]                   |        |    |       |
 before |        | .test.secret:{.codec.textToB32@'b!(b:20 28 32 48 64)#\:"12345678901234567890"}[]             |        |    |       | Secret key length in bytes
-true   |        | "94287082"~.totp.i.totp[30;8;.hmac.sha1;1970.01.01D00:00:59;.test.secret 20]                 |        |    |       |
-true   |        | "32201820"~.totp.i.totp[30;8;.hmac.sha224;1970.01.01D00:00:59;.test.secret 28]               |        |    |       |
-true   |        | "46119246"~.totp.i.totp[30;8;.hmac.sha256;1970.01.01D00:00:59;.test.secret 32]               |        |    |       |
-true   |        | "12260385"~.totp.i.totp[30;8;.hmac.sha384;1970.01.01D00:00:59;.test.secret 48]               |        |    |       |
-true   |        | "90693936"~.totp.i.totp[30;8;.hmac.sha512;1970.01.01D00:00:59;.test.secret 64]               |        |    |       |
-true   |        | "94469289"~.totp.i.totp[30;8;.hmac.sha512x224;1970.01.01D00:00:59;.test.secret 28]           |        |    |       |
-true   |        | "00441233"~.totp.i.totp[30;8;.hmac.sha512x256;1970.01.01D00:00:59;.test.secret 32]           |        |    |       |
-true   |        | "07081804"~.totp.i.totp[30;8;.hmac.sha1;2005.03.18D01:58:29;.test.secret 20]                 |        |    |       |
-true   |        | "82019503"~.totp.i.totp[30;8;.hmac.sha224;2005.03.18D01:58:29;.test.secret 28]               |        |    |       |
-true   |        | "68084774"~.totp.i.totp[30;8;.hmac.sha256;2005.03.18D01:58:29;.test.secret 32]               |        |    |       |
-true   |        | "93607533"~.totp.i.totp[30;8;.hmac.sha384;2005.03.18D01:58:29;.test.secret 48]               |        |    |       |
-true   |        | "25091201"~.totp.i.totp[30;8;.hmac.sha512;2005.03.18D01:58:29;.test.secret 64]               |        |    |       |
-true   |        | "73230696"~.totp.i.totp[30;8;.hmac.sha512x224;2005.03.18D01:58:29;.test.secret 28]           |        |    |       |
-true   |        | "97406494"~.totp.i.totp[30;8;.hmac.sha512x256;2005.03.18D01:58:29;.test.secret 32]           |        |    |       |
-true   |        | "14050471"~.totp.i.totp[30;8;.hmac.sha1;2005.03.18D01:58:31;.test.secret 20]                 |        |    |       |
-true   |        | "98501000"~.totp.i.totp[30;8;.hmac.sha224;2005.03.18D01:58:31;.test.secret 28]               |        |    |       |
-true   |        | "67062674"~.totp.i.totp[30;8;.hmac.sha256;2005.03.18D01:58:31;.test.secret 32]               |        |    |       |
-true   |        | "30635264"~.totp.i.totp[30;8;.hmac.sha384;2005.03.18D01:58:31;.test.secret 48]               |        |    |       |
-true   |        | "99943326"~.totp.i.totp[30;8;.hmac.sha512;2005.03.18D01:58:31;.test.secret 64]               |        |    |       |
-true   |        | "45148669"~.totp.i.totp[30;8;.hmac.sha512x224;2005.03.18D01:58:31;.test.secret 28]           |        |    |       |
-true   |        | "46180615"~.totp.i.totp[30;8;.hmac.sha512x256;2005.03.18D01:58:31;.test.secret 32]           |        |    |       |
-true   |        | "89005924"~.totp.i.totp[30;8;.hmac.sha1;2009.02.13D23:31:30;.test.secret 20]                 |        |    |       |
-true   |        | "25631841"~.totp.i.totp[30;8;.hmac.sha224;2009.02.13D23:31:30;.test.secret 28]               |        |    |       |
-true   |        | "91819424"~.totp.i.totp[30;8;.hmac.sha256;2009.02.13D23:31:30;.test.secret 32]               |        |    |       |
-true   |        | "29066410"~.totp.i.totp[30;8;.hmac.sha384;2009.02.13D23:31:30;.test.secret 48]               |        |    |       |
-true   |        | "93441116"~.totp.i.totp[30;8;.hmac.sha512;2009.02.13D23:31:30;.test.secret 64]               |        |    |       |
-true   |        | "15216427"~.totp.i.totp[30;8;.hmac.sha512x224;2009.02.13D23:31:30;.test.secret 28]           |        |    |       |
-true   |        | "69345394"~.totp.i.totp[30;8;.hmac.sha512x256;2009.02.13D23:31:30;.test.secret 32]           |        |    |       |
-true   |        | "69279037"~.totp.i.totp[30;8;.hmac.sha1;2033.05.18D03:33:20;.test.secret 20]                 |        |    |       |
-true   |        | "97691324"~.totp.i.totp[30;8;.hmac.sha224;2033.05.18D03:33:20;.test.secret 28]               |        |    |       |
-true   |        | "90698825"~.totp.i.totp[30;8;.hmac.sha256;2033.05.18D03:33:20;.test.secret 32]               |        |    |       |
-true   |        | "45679189"~.totp.i.totp[30;8;.hmac.sha384;2033.05.18D03:33:20;.test.secret 48]               |        |    |       |
-true   |        | "38618901"~.totp.i.totp[30;8;.hmac.sha512;2033.05.18D03:33:20;.test.secret 64]               |        |    |       |
-true   |        | "24095659"~.totp.i.totp[30;8;.hmac.sha512x224;2033.05.18D03:33:20;.test.secret 28]           |        |    |       |
-true   |        | "14506846"~.totp.i.totp[30;8;.hmac.sha512x256;2033.05.18D03:33:20;.test.secret 32]           |        |    |       |
-true   |        | "65353130"~.totp.i.totp[30;8;.hmac.sha1;2603.10.11T11:33:20;.test.secret 20]                 |        |    |       | Using timestamp would cause an overflow error
-true   |        | "81596645"~.totp.i.totp[30;8;.hmac.sha224;2603.10.11T11:33:20;.test.secret 28]               |        |    |       |
-true   |        | "77737706"~.totp.i.totp[30;8;.hmac.sha256;2603.10.11T11:33:20;.test.secret 32]               |        |    |       |
-true   |        | "33578931"~.totp.i.totp[30;8;.hmac.sha384;2603.10.11T11:33:20;.test.secret 48]               |        |    |       |
-true   |        | "47863826"~.totp.i.totp[30;8;.hmac.sha512;2603.10.11T11:33:20;.test.secret 64]               |        |    |       |
-true   |        | "83924651"~.totp.i.totp[30;8;.hmac.sha512x224;2603.10.11T11:33:20;.test.secret 28]           |        |    |       |
-true   |        | "83211259"~.totp.i.totp[30;8;.hmac.sha512x256;2603.10.11T11:33:20;.test.secret 32]           |        |    |       |
+true   |        | "94287082"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;1970.01.01D00:00:59]                 |        |    |       |
+true   |        | "32201820"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;1970.01.01D00:00:59]               |        |    |       |
+true   |        | "46119246"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;1970.01.01D00:00:59]               |        |    |       |
+true   |        | "12260385"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;1970.01.01D00:00:59]               |        |    |       |
+true   |        | "90693936"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;1970.01.01D00:00:59]               |        |    |       |
+true   |        | "94469289"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;1970.01.01D00:00:59]           |        |    |       |
+true   |        | "00441233"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;1970.01.01D00:00:59]           |        |    |       |
+true   |        | "07081804"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;2005.03.18D01:58:29]                 |        |    |       |
+true   |        | "82019503"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;2005.03.18D01:58:29]               |        |    |       |
+true   |        | "68084774"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;2005.03.18D01:58:29]               |        |    |       |
+true   |        | "93607533"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;2005.03.18D01:58:29]               |        |    |       |
+true   |        | "25091201"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;2005.03.18D01:58:29]               |        |    |       |
+true   |        | "73230696"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;2005.03.18D01:58:29]           |        |    |       |
+true   |        | "97406494"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;2005.03.18D01:58:29]           |        |    |       |
+true   |        | "14050471"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;2005.03.18D01:58:31]                 |        |    |       |
+true   |        | "98501000"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;2005.03.18D01:58:31]               |        |    |       |
+true   |        | "67062674"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;2005.03.18D01:58:31]               |        |    |       |
+true   |        | "30635264"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;2005.03.18D01:58:31]               |        |    |       |
+true   |        | "99943326"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;2005.03.18D01:58:31]               |        |    |       |
+true   |        | "45148669"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;2005.03.18D01:58:31]           |        |    |       |
+true   |        | "46180615"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;2005.03.18D01:58:31]           |        |    |       |
+true   |        | "89005924"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;2009.02.13D23:31:30]                 |        |    |       |
+true   |        | "25631841"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;2009.02.13D23:31:30]               |        |    |       |
+true   |        | "91819424"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;2009.02.13D23:31:30]               |        |    |       |
+true   |        | "29066410"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;2009.02.13D23:31:30]               |        |    |       |
+true   |        | "93441116"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;2009.02.13D23:31:30]               |        |    |       |
+true   |        | "15216427"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;2009.02.13D23:31:30]           |        |    |       |
+true   |        | "69345394"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;2009.02.13D23:31:30]           |        |    |       |
+true   |        | "69279037"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;2033.05.18D03:33:20]                 |        |    |       |
+true   |        | "97691324"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;2033.05.18D03:33:20]               |        |    |       |
+true   |        | "90698825"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;2033.05.18D03:33:20]               |        |    |       |
+true   |        | "45679189"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;2033.05.18D03:33:20]               |        |    |       |
+true   |        | "38618901"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;2033.05.18D03:33:20]               |        |    |       |
+true   |        | "24095659"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;2033.05.18D03:33:20]           |        |    |       |
+true   |        | "14506846"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;2033.05.18D03:33:20]           |        |    |       |
+true   |        | "65353130"~.totp.i.totp[.hmac.sha1;30;8;.test.secret 20;2603.10.11T11:33:20]                 |        |    |       | Using timestamp would cause an overflow error
+true   |        | "81596645"~.totp.i.totp[.hmac.sha224;30;8;.test.secret 28;2603.10.11T11:33:20]               |        |    |       |
+true   |        | "77737706"~.totp.i.totp[.hmac.sha256;30;8;.test.secret 32;2603.10.11T11:33:20]               |        |    |       |
+true   |        | "33578931"~.totp.i.totp[.hmac.sha384;30;8;.test.secret 48;2603.10.11T11:33:20]               |        |    |       |
+true   |        | "47863826"~.totp.i.totp[.hmac.sha512;30;8;.test.secret 64;2603.10.11T11:33:20]               |        |    |       |
+true   |        | "83924651"~.totp.i.totp[.hmac.sha512x224;30;8;.test.secret 28;2603.10.11T11:33:20]           |        |    |       |
+true   |        | "83211259"~.totp.i.totp[.hmac.sha512x256;30;8;.test.secret 32;2603.10.11T11:33:20]           |        |    |       |
+before |        | .util.randSeed[];system"S"                                                                   |        |    |       | Set random seed
+run    |        | .totp.md5[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                              |        |    |       |
+run    |        | .totp.sha1[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                             |        |    |       |
+run    |        | .totp.sha224[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                           |        |    |       |
+run    |        | .totp.sha256[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                           |        |    |       |
+run    |        | .totp.sha384[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                           |        |    |       |
+run    |        | .totp.sha512[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                           |        |    |       |
+run    |        | .totp.sha512x224[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                       |        |    |       |
+run    |        | .totp.sha512x256[rand 30 60;rand 6 8;(rand 64)?.Q.b32]                                       |        |    |       |
 after  |        | delete from`.test                                                                            |        |    |       | Cleanup .test namespace
